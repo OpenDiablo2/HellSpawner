@@ -9,10 +9,12 @@ import (
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
-
-	"github.com/OpenDiablo2/HellSpawner/hswindows/hstextfilewindow"
+	"encoding/json"
 
 	"github.com/OpenDiablo2/HellSpawner/hsbuilder"
+	"github.com/OpenDiablo2/HellSpawner/hswindows/hstextfilewindow"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/gotk3/gotk3/gtk"
 )
@@ -154,12 +156,39 @@ func (m *MainWindow) handleFileActivated(name string) {
 
 	switch fileExt {
 	case ".txt":
-		fallthrough
-	case ".tbl":
 		m.openTextFileWindow(mpqPath, filePath)
+	case ".tbl":
+		m.openTBLFileWindow(mpqPath, filePath)
 	}
 
 	log.Printf("Opening file for %s", fileExt)
+}
+
+func (m *MainWindow) openTBLFileWindow(mpqPath, filePath string) {
+	mpq := m.getMpqFromPath(mpqPath)
+
+	if mpq == nil {
+		return
+	}
+
+	data, err := mpq.ReadFile(filePath)
+
+	if err != nil {
+		log.Printf("Error reading file.")
+		return
+	}
+
+	if len(data) == 0 {
+		return
+	}
+
+	d2common.LoadTextDictionary(data)
+	strings := d2common.GetTranslationMap()
+
+	json, _ := json.MarshalIndent(strings, "", " ")
+	window := hstextfilewindow.Create(filePath, string(json))
+	window.ShowAll()
+	window.ActivateFocus()
 }
 
 func (m *MainWindow) openTextFileWindow(mpqPath, filePath string) {
