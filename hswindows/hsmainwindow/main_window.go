@@ -12,8 +12,8 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindows/hstextfilewindow"
 
-	"github.com/OpenDiablo2/D2Shared/d2data/d2mpq"
 	"github.com/OpenDiablo2/HellSpawner/hsbuilder"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/gotk3/gotk3/gtk"
 )
 
