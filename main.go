@@ -4,8 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/OpenDiablo2/D2Shared/d2data/d2mpq"
-
 	"github.com/OpenDiablo2/HellSpawner/hswindows/hsmainwindow"
 
 	"github.com/gotk3/gotk3/glib"
@@ -15,8 +13,6 @@ import (
 const appID = "com.opendiablo2.hellspawner"
 
 func main() {
-	d2mpq.InitializeCryptoBuffer()
-
 	application, err := gtk.ApplicationNew(appID, glib.APPLICATION_FLAGS_NONE)
 
 	if err != nil {

@@ -89,8 +89,8 @@ const template = `
 	<interface>
 		<requires lib="gtk+" version="3.20"/>
 		<object class="GtkWindow" id="textFileWindow">
-			<property name="default-width">400</property>
-			<property name="default-height">400</property>
+			<property name="default-width">600</property>
+			<property name="default-height">500</property>
 			<child>
 				<object class="GtkScrolledWindow" id ="swContent">
 				</object>
