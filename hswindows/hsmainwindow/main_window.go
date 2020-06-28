@@ -2,8 +2,11 @@ package hsmainwindow
 
 import "C"
 import (
+	"log"
 	"path/filepath"
 	"strings"
+
+	"github.com/OpenDiablo2/HellSpawner/hswindows/hstextfilewindow"
 
 	"github.com/OpenDiablo2/D2Shared/d2data/d2mpq"
 	"github.com/OpenDiablo2/HellSpawner/hsbuilder"
@@ -32,6 +35,14 @@ func Create(application *gtk.Application) (*MainWindow, error) {
 	result.treeView = hsbuilder.ExtractWidget(builder, "mainTreeView").(*gtk.TreeView)
 
 	result.wireUpMenuHandlers(builder)
+
+	_, _ = result.treeView.Connect("row-activated", func(treeView *gtk.TreeView,
+		treePath *gtk.TreePath, column *gtk.TreeViewColumn) {
+		iter, _ := result.treeStore.GetIter(treePath)
+		val, _ := result.treeStore.GetValue(iter, 1)
+		fileName, _ := val.GetString()
+		result.handleFileActivated(fileName)
+	})
 
 	_, _ = result.Connect("destroy", func() { result.onWindowDestroyed() })
 
@@ -95,7 +106,7 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 				filePath := filepath.Clean(mpqFileName + "\\" + strings.ToLower(mpqFiles[idx]))
 				parentNode := m.getFolderNode(filePath)
 				fileParts := strings.Split(mpqFiles[idx], "\\")
-				m.addRow(parentNode, fileParts[len(fileParts)-1], mpqFiles[idx])
+				m.addRow(parentNode, fileParts[len(fileParts)-1], fileNames[fileNameIdx]+":"+mpqFiles[idx])
 			}
 		}
 	}
@@ -120,6 +131,64 @@ func (m *MainWindow) getFolderNode(path string) *gtk.TreeIter {
 	}
 
 	return m.mpqPaths[fullPath]
+}
+
+func (m *MainWindow) handleFileActivated(name string) {
+	parts := strings.Split(name, ":")
+
+	if len(parts) != 2 {
+		return
+	}
+
+	mpqPath := parts[0]
+	filePath := parts[1]
+	fileExt := strings.ToLower(filepath.Ext(filePath))
+
+	if fileExt == "" {
+		return
+	}
+
+	switch fileExt {
+	case ".txt":
+		m.openTextFileWindow(mpqPath, filePath)
+	}
+
+	log.Printf("Opening file for %s", fileExt)
+}
+
+func (m *MainWindow) openTextFileWindow(mpqPath, filePath string) {
+	mpq := m.getMpqFromPath(mpqPath)
+
+	if mpq == nil {
+		return
+	}
+
+	textData, err := mpq.ReadTextFile(filePath)
+
+	if err != nil {
+		log.Printf("Error reading file.")
+		return
+	}
+
+	window := hstextfilewindow.Create(filePath, textData)
+	window.ShowAll()
+	window.ActivateFocus()
+}
+
+func (m *MainWindow) getMpqFromPath(mpqPath string) *d2mpq.MPQ {
+	var mpq *d2mpq.MPQ
+
+	for idx := range m.mpqs {
+		if !strings.EqualFold(m.mpqs[idx].FileName, mpqPath) {
+			continue
+		}
+
+		mpq = m.mpqs[idx]
+
+		break
+	}
+
+	return mpq
 }
 
 const template = `
