@@ -1,0 +1,17 @@
+github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjsvq1Bi7DpoUjqI76VVvW045vpeFeM=
+github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
+github.com/OpenDiablo2/D2Shared v0.0.0-20191222011122-c8cfab029ae6 h1:9TXDUOedNtivxLPiuWMMPxH+aTbKZQv2QBb9lpiZb/8=
+github.com/OpenDiablo2/D2Shared v0.0.0-20191222011122-c8cfab029ae6/go.mod h1:mY8Ll5/iLRAQsaHvIdqSZiHX3aFCys/Q4Sot+xYpero=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20200627225841-b00fa58fc4a1 h1:iaKOTeff/LwDQZn9wY7lKhQ/ciUZ9/YqW7iDywjLVgI=
+github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/go-restruct/restruct v0.0.0-20191018101351-5fb876c952c9/go.mod h1:KqrpKpn4M8OLznErihXTGLlsXFGeLxHUrLRRI/1YjGk=
+github.com/gotk3/gotk3 v0.4.0 h1:TIuhyQitGeRTxOQIV3AJlYtEWWJpC74JHwAIsxlH8MU=
+github.com/gotk3/gotk3 v0.4.0/go.mod h1:Eew3QBwAOBTrfFFDmsDE5wZWbcagBL1NUslj1GhRveo=
+github.com/gotk3/gotk3 v0.4.1-0.20200621125936-10ee8f07c02e h1:Su6TvROsZw8OOppLhIZZgv3ZORX+SnkS/MPsdAZlz/k=
+github.com/gotk3/gotk3 v0.4.1-0.20200621125936-10ee8f07c02e/go.mod h1:/hqFpkNa9T3JgNAE2fLvCdov7c5bw//FHNZrZ3Uv9/Q=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
+github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
