@@ -2,9 +2,13 @@ package hsmainwindow
 
 import "C"
 import (
+	"bytes"
+	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
+	"unicode/utf16"
+	"unicode/utf8"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindows/hstextfilewindow"
 
@@ -150,6 +154,8 @@ func (m *MainWindow) handleFileActivated(name string) {
 
 	switch fileExt {
 	case ".txt":
+		fallthrough
+	case ".tbl":
 		m.openTextFileWindow(mpqPath, filePath)
 	}
 
@@ -163,16 +169,54 @@ func (m *MainWindow) openTextFileWindow(mpqPath, filePath string) {
 		return
 	}
 
-	textData, err := mpq.ReadTextFile(filePath)
+	data, err := mpq.ReadFile(filePath)
 
 	if err != nil {
 		log.Printf("Error reading file.")
 		return
 	}
 
+	if len(data) == 0 {
+		return
+	}
+
+	textData := ""
+
+	if data[0] == 255 && data[1] == 254 {
+		// UTF16 apparently
+		textData, _ = decodeUTF16(data)
+	} else {
+		textData = string(data)
+	}
+
+	if textData == "" {
+		return
+	}
+
 	window := hstextfilewindow.Create(filePath, textData)
 	window.ShowAll()
 	window.ActivateFocus()
+}
+
+func decodeUTF16(b []byte) (string, error) {
+
+	if len(b)%2 != 0 {
+		return "", fmt.Errorf("Must have even length byte slice")
+	}
+
+	u16s := make([]uint16, 1)
+	ret := &bytes.Buffer{}
+	b8buf := make([]byte, 4)
+	lb := len(b)
+
+	for i := 0; i < lb; i += 2 {
+		u16s[0] = uint16(b[i]) + (uint16(b[i+1]) << 8)
+		r := utf16.Decode(u16s)
+		n := utf8.EncodeRune(b8buf, r[0])
+		ret.Write(b8buf[:n])
+	}
+
+	return ret.String(), nil
 }
 
 func (m *MainWindow) getMpqFromPath(mpqPath string) *d2mpq.MPQ {
