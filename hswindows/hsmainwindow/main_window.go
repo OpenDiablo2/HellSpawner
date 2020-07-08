@@ -2,10 +2,12 @@ package hsmainwindow
 
 import "C"
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"log"
 	"path/filepath"
+	"sort"
 	"strings"
 	"unicode/utf16"
 	"unicode/utf8"
@@ -106,7 +108,7 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 			m.mpqs = append(m.mpqs, mpq)
 			mpqFileName := filepath.Base(fileNames[fileNameIdx])
 			//mpqItem := m.addRow(nil, filepath.Base(fileNames[fileNameIdx]), fileNames[fileNameIdx])
-			mpqFiles, _ := mpq.GetFileList()
+			mpqFiles := m.readMPQFiles(mpq)
 
 			for idx := range mpqFiles {
 				filePath := filepath.Clean(mpqFileName + "\\" + strings.ToLower(mpqFiles[idx]))
@@ -116,6 +118,35 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 			}
 		}
 	}
+}
+
+func (m *MainWindow) readMPQFiles(mpq *d2mpq.MPQ) []string {
+	// Read listfile
+	listfile, _ := mpq.GetFileList()
+
+	// Search through using known contents
+	s := bufio.NewScanner(strings.NewReader(rawListfile))
+	for s.Scan() {
+		if mpq.FileExists(s.Text()) {
+			listfile = append(listfile, s.Text())
+		}
+	}
+
+	fileMap := make(map[string]bool)
+	var result []string
+
+	for _, file := range listfile {
+		filename := strings.ToLower(file)
+
+		_, ok := fileMap[filename]
+		if !ok {
+			fileMap[filename] = true
+			result = append(result, filename)
+		}
+	}
+	sort.Strings(result)
+
+	return result
 }
 
 func (m *MainWindow) getFolderNode(path string) *gtk.TreeIter {
