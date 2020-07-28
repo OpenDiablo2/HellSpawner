@@ -2,6 +2,7 @@ package hstextfilewindow
 
 import (
 	"strings"
+    "unicode/utf8"
 
 	"github.com/gotk3/gotk3/glib"
 
@@ -16,7 +17,7 @@ type TextFileWindow struct {
 }
 
 // Create creates a new instance of TextFileWindow
-func Create(fileName, textData string) *TextFileWindow {
+func Create(fileName, textData string) (*TextFileWindow, error) {
 	builder := hsbuilder.CreateBuilderFromTemplate(template)
 	result := &TextFileWindow{
 		Window:       hsbuilder.ExtractWindow(builder, "textFileWindow"),
@@ -34,16 +35,30 @@ func Create(fileName, textData string) *TextFileWindow {
 	}
 
 	result.Window.SetTitle(fileName)
-
-	return result
+	return result, nil
 }
 
-func (t *TextFileWindow) createTextContent(textData string) {
-	textControl, _ := gtk.TextViewNew()
-	buffer, _ := textControl.GetBuffer()
+func (t *TextFileWindow) createTextContent(textData string) (error) {
+	textControl, textControlErr := gtk.TextViewNew()
 
-	buffer.SetText(textData)
+    if textControlErr != nil {
+        return textControlErr
+    }
+
+	buffer, bufferErr := textControl.GetBuffer()
+
+    if bufferErr != nil {
+        return bufferErr
+    }
+
+    if utf8.ValidString(textData) == false {
+        buffer.SetText(strings.ToValidUTF8(textData, ""))
+    } else {
+        buffer.SetText(textData)
+    }
+
 	t.scrollWindow.Add(textControl)
+    return nil
 }
 
 func (t *TextFileWindow) createTableContent(lines, columns []string) {
