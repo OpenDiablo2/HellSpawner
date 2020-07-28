@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+    "errors"
 	"unicode/utf16"
 	"unicode/utf8"
 	"encoding/json"
@@ -192,6 +193,7 @@ func (m *MainWindow) handleFileActivated(name string) {
 
 	mpqPath := parts[0]
 	filePath := parts[1]
+    filePath = strings.Replace(filePath, " ", "", -1)
 	fileExt := strings.ToLower(filepath.Ext(filePath))
 
 	if fileExt == "" {
@@ -208,71 +210,88 @@ func (m *MainWindow) handleFileActivated(name string) {
 	log.Printf("Opening file for %s", fileExt)
 }
 
-func (m *MainWindow) openTBLFileWindow(mpqPath, filePath string) {
+func (m *MainWindow) openTBLFileWindow(mpqPath, filePath string) (error) {
 	mpq := m.getMpqFromPath(mpqPath)
 
 	if mpq == nil {
-		return
+		return errors.New("main_window :: openTBLFileWindow :: unexpected mpq == nil")
 	}
 
-	data, err := mpq.ReadFile(filePath)
+	data, dataErr := mpq.ReadFile(filePath)
 
-	if err != nil {
-		log.Printf("Error reading file.")
-		return
+	if dataErr != nil {
+		log.Printf("Error reading file. dataErr :: ", dataErr)
+        return dataErr
 	}
 
 	if len(data) == 0 {
-		return
+		return errors.New("main_window :: openTBLFileWindow :: unexpected len(data) == 0")
 	}
 
 	d2common.LoadTextDictionary(data)
 	strings := d2common.GetTranslationMap()
 
 	json, _ := json.MarshalIndent(strings, "", " ")
-	window := hstextfilewindow.Create(filePath, string(json))
+	window, windowErr := hstextfilewindow.Create(filePath, string(json))
+
+    if windowErr != nil {
+        return windowErr
+    }
+
 	window.ShowAll()
 	window.ActivateFocus()
+    return nil
 }
 
-func (m *MainWindow) openTextFileWindow(mpqPath, filePath string) {
+func (m *MainWindow) openTextFileWindow(mpqPath, filePath string) (error) {
 	mpq := m.getMpqFromPath(mpqPath)
 
 	if mpq == nil {
-		return
+        log.Printf("Error reading mpq.")
+		return errors.New("main_window :: openTextFileWindow :: unexpected mpq == nil")
 	}
 
-	data, err := mpq.ReadFile(filePath)
+	data, dataErr := mpq.ReadFile(filePath)
 
-	if err != nil {
-		log.Printf("Error reading file.")
-		return
+	if dataErr != nil {
+		log.Printf("Error reading file. :: dataErr :: ", dataErr)
+		return dataErr
 	}
 
 	if len(data) == 0 {
-		return
+        return errors.New("main_window :: openTextFileWindow :: unexpected len(data) == 0")
 	}
 
 	textData := ""
 
 	if data[0] == 255 && data[1] == 254 {
 		// UTF16 apparently
-		textData, _ = decodeUTF16(data)
+        var textDataErr error
+		textData, textDataErr = decodeUTF16(data)
+
+        if textDataErr != nil {
+            return textDataErr
+        }
 	} else {
 		textData = string(data)
 	}
 
 	if textData == "" {
-		return
+		return errors.New("main_window :: openTextFileWindow :: unexpected textData == \"\"")
 	}
 
-	window := hstextfilewindow.Create(filePath, textData)
+	window, windowErr := hstextfilewindow.Create(filePath, textData)
+
+    if windowErr != nil {
+        return windowErr
+    }
+
 	window.ShowAll()
 	window.ActivateFocus()
+    return nil
 }
 
 func decodeUTF16(b []byte) (string, error) {
-
 	if len(b)%2 != 0 {
 		return "", fmt.Errorf("Must have even length byte slice")
 	}
