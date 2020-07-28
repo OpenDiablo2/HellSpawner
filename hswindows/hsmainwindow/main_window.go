@@ -136,9 +136,22 @@ func (m *MainWindow) readMPQFiles(mpq *d2mpq.MPQ) []string {
 	var result []string
 
 	for _, file := range listfile {
-		filename := strings.ToLower(file)
+        var filenameBuffer strings.Builder
+        filenameSplitArr := strings.Split(strings.ToLower(file), "\\")
 
+        for i := 0; i < len(filenameSplitArr); i++ {
+            if i < (len(filenameSplitArr)-1) {
+                filenameBuffer.WriteString(" ")
+                filenameBuffer.WriteString(filenameSplitArr[i])
+                filenameBuffer.WriteString("\\")
+            } else {
+                filenameBuffer.WriteString(filenameSplitArr[i])
+            }
+        }
+
+        filename := filenameBuffer.String()
 		_, ok := fileMap[filename]
+
 		if !ok {
 			fileMap[filename] = true
 			result = append(result, filename)
