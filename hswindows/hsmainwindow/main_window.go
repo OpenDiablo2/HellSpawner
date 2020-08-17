@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
     "strconv"
@@ -378,7 +379,13 @@ func GetCallCommandArguments(command string) (string, []string) {
 
 func (m *MainWindow) spawnDC6FileViewer(mpqPath, filePath, actualFilePath string) (error) {
     var commandBuffer strings.Builder
-    commandBuffer.WriteString(`dc6viewer -mpq `)
+		
+		if runtime.GOOS == "windows" {
+			commandBuffer.WriteString(`dc6viewer.exe -mpq `)
+		} else {
+			commandBuffer.WriteString(`dc6viewer -mpq `)
+		}
+		
     commandBuffer.WriteString(mpqPath)
     commandBuffer.WriteString(` -asset `)
     commandBuffer.WriteString(actualFilePath)
