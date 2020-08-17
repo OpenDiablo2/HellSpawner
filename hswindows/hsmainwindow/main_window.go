@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"sort"
 	"strings"
-    "strconv"
-    "os/exec"
-    "errors"
+   "strconv"
+   "os/exec"
+   "errors"
 	"unicode/utf16"
 	"unicode/utf8"
 	"encoding/json"
@@ -486,11 +486,11 @@ func decodeUTF16(b []byte) (string, error) {
 		return "", fmt.Errorf("Must have even length byte slice")
 	}
 
-	u16s := make([]uint16, 1)
+	u16s := make([]uint1
+6, 1)
 	ret := &bytes.Buffer{}
 	b8buf := make([]byte, 4)
 	lb := len(b)
-
 	for i := 0; i < lb; i += 2 {
 		u16s[0] = uint16(b[i]) + (uint16(b[i+1]) << 8)
 		r := utf16.Decode(u16s)
