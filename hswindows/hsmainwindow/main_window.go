@@ -486,8 +486,7 @@ func decodeUTF16(b []byte) (string, error) {
 		return "", fmt.Errorf("Must have even length byte slice")
 	}
 
-	u16s := make([]uint1
-6, 1)
+	u16s := make([]uint16, 1)
 	ret := &bytes.Buffer{}
 	b8buf := make([]byte, 4)
 	lb := len(b)
