@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -377,24 +378,32 @@ func GetCallCommandArguments(command string) (string, []string) {
     return commandParts[0], commandArgs
 }
 
-func (m *MainWindow) spawnDC6FileViewer(mpqPath, filePath, actualFilePath string) (error) {
-    var commandBuffer strings.Builder
-		
-		if runtime.GOOS == "windows" {
-			commandBuffer.WriteString(`dc6viewer.exe -mpq `)
-		} else {
-			commandBuffer.WriteString(`dc6viewer -mpq `)
-		}
-		
-    commandBuffer.WriteString(mpqPath)
-    commandBuffer.WriteString(` -asset `)
-    commandBuffer.WriteString(actualFilePath)
-    callName, callArgs := GetCallCommandArguments(commandBuffer.String())
+func (m *MainWindow) spawnDC6FileViewer(mpqPath, filePath, actualFilePath string) error {
+    var exePath string
+
+	fmtCommand := "%s -mpq %s -asset %s"
+
+	baseDir, dirErr := filepath.Abs(filepath.Dir(os.Args[0]))
+	if dirErr != nil {
+		return dirErr
+	}
+
+	if runtime.GOOS == "windows" {
+		exePath = filepath.Join(baseDir, "dc6viewer.exe")
+	} else {
+		exePath = filepath.Join(baseDir, "dc6viewer")
+	}
+
+	command := fmt.Sprintf(fmtCommand, exePath, mpqPath, actualFilePath)
+
+	fmt.Println(command)
+
+    callName, callArgs := GetCallCommandArguments(command)
     cmd := exec.Command(callName, callArgs...)
     err := cmd.Start()
 
     if err != nil {
-        if strings.Contains(err.Error(), "exit status 1") == false {
+        if !strings.Contains(err.Error(), "exit status 1") {
             fmt.Println(err)
         }
     }
