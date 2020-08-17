@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
-    "errors"
+   "strconv"
+   "os/exec"
+   "errors"
 	"unicode/utf16"
 	"unicode/utf8"
 	"encoding/json"
@@ -22,6 +25,17 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
+//this was taken from old commit of OpenDiablo2
+const (crcByteCount = 2)
+type textDictionaryHashEntry struct {
+	IsActive    bool
+	Index       uint16
+	HashValue   uint32
+	IndexString uint32
+	NameString  uint32
+	NameLength  uint16
+}
+
 // MainWindow represents the main window of HellSpawner
 type MainWindow struct {
 	*gtk.ApplicationWindow
@@ -29,6 +43,85 @@ type MainWindow struct {
 	treeStore *gtk.TreeStore
 	mpqs      []*d2mpq.MPQ
 	mpqPaths  map[string]*gtk.TreeIter
+    mpqResourceFilepaths map[string][]string
+}
+
+//this was taken from OpenDiablo2 and modified for our purposes
+// LoadTextDictionary loads the text dictionary from the given data
+func LoadTextDictionary(dictionaryData []byte) (map[string]string) {
+    var lookupTable map[string]string
+
+	if lookupTable == nil {
+		lookupTable = make(map[string]string)
+	}
+
+	br := d2common.CreateStreamReader(dictionaryData)
+
+	// skip past the CRC
+	br.ReadBytes(crcByteCount)
+
+	numberOfElements := br.GetUInt16()
+	hashTableSize := br.GetUInt32()
+
+	// Version (always 0)
+	if _, err := br.ReadByte(); err != nil {
+		log.Fatal("Error reading Version record")
+	}
+
+	br.GetUInt32() // StringOffset
+	br.GetUInt32() // When the number of times you have missed a match with a hash key equals this value, you give up because it is not there.
+	br.GetUInt32() // FileSize
+
+	elementIndex := make([]uint16, numberOfElements)
+	for i := 0; i < int(numberOfElements); i++ {
+		elementIndex[i] = br.GetUInt16()
+	}
+
+	hashEntries := make([]textDictionaryHashEntry, hashTableSize)
+	for i := 0; i < int(hashTableSize); i++ {
+		hashEntries[i] = textDictionaryHashEntry{
+			br.GetByte() == 1,
+			br.GetUInt16(),
+			br.GetUInt32(),
+			br.GetUInt32(),
+			br.GetUInt32(),
+			br.GetUInt16(),
+		}
+	}
+
+	for idx, hashEntry := range hashEntries {
+		if !hashEntry.IsActive {
+			continue
+		}
+
+		br.SetPosition(uint64(hashEntry.NameString))
+		nameVal := br.ReadBytes(int(hashEntry.NameLength - 1))
+		value := string(nameVal)
+
+		br.SetPosition(uint64(hashEntry.IndexString))
+
+		key := ""
+
+		for {
+			b := br.GetByte()
+			if b == 0 {
+				break
+			}
+
+			key += string(b)
+		}
+
+		if key == "x" || key == "X" {
+			key = "#" + strconv.Itoa(idx)
+		}
+
+		_, exists := lookupTable[key]
+		if !exists {
+			lookupTable[key] = value
+		}
+	}
+
+    return lookupTable
 }
 
 // Create creates a new instance of MainWindow
@@ -36,8 +129,9 @@ func Create(application *gtk.Application) (*MainWindow, error) {
 	builder := hsbuilder.CreateBuilderFromTemplate(template)
 	result := &MainWindow{
 		ApplicationWindow: hsbuilder.ExtractApplicationWindow(builder, "mainApplicationWindow", application),
-		mpqs:              make([]*d2mpq.MPQ, 0),
-		mpqPaths:          make(map[string]*gtk.TreeIter),
+		mpqs:                 make([]*d2mpq.MPQ, 0),
+		mpqPaths:             make(map[string]*gtk.TreeIter),
+        mpqResourceFilepaths: make(map[string][]string, 0),
 	}
 
 	result.treeStore = hsbuilder.ExtractWidget(builder, "mpqTreeStore").(*gtk.TreeStore)
@@ -98,7 +192,13 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 	chooser.SetSelectMultiple(true)
 
 	if chooser.Run() == int(gtk.RESPONSE_ACCEPT) {
-		fileNames, _ := chooser.GetFilenames()
+		fileNames, fileNamesErr := chooser.GetFilenames()
+
+        if fileNamesErr != nil {
+            fmt.Println("onFileAddExistingMPQ :: fileNamesErr :: ", fileNamesErr)
+            log.Fatal(fileNamesErr)
+        }
+
 		for fileNameIdx := range fileNames {
 			mpq, err := d2mpq.Load(fileNames[fileNameIdx])
 
@@ -106,12 +206,11 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 				continue
 			}
 
-			m.mpqs = append(m.mpqs, mpq)
+			m.mpqs = append(m.mpqs, mpq.(*d2mpq.MPQ))
 			mpqFileName := filepath.Base(fileNames[fileNameIdx])
-			//mpqItem := m.addRow(nil, filepath.Base(fileNames[fileNameIdx]), fileNames[fileNameIdx])
-			mpqFiles := m.readMPQFiles(mpq)
+			mpqFiles := m.readMPQFiles(mpq.(*d2mpq.MPQ))
 
-			for idx := range mpqFiles {
+			for idx := range mpqFiles {                
 				filePath := filepath.Clean(mpqFileName + "\\" + strings.ToLower(mpqFiles[idx]))
 				parentNode := m.getFolderNode(filePath)
 				fileParts := strings.Split(mpqFiles[idx], "\\")
@@ -121,12 +220,37 @@ func (m *MainWindow) onFileAddExistingMPQ() {
 	}
 }
 
+func (m *MainWindow) buildResourcePath(inputMPQFile string, inputFilepath string) (string, error) {
+    _, existsInMap := m.mpqResourceFilepaths[inputMPQFile]
+
+	if !existsInMap {
+        fmt.Println("main_window :: buildResourcePath :: unexpected :: inputMPQFile :: ", inputMPQFile)
+        return "", errors.New("main_window :: buildResourcePath :: unexpected :: inputMPQFile :: "+inputMPQFile)
+    }
+
+    indexOfMatch := -1
+
+    for i := 0; i < len(m.mpqResourceFilepaths[inputMPQFile]); i++ {
+        if strings.EqualFold(m.mpqResourceFilepaths[inputMPQFile][i], strings.Replace(inputFilepath, "\\", "/", -1)) == true {
+            indexOfMatch = i
+            break
+        }
+    }
+
+    if indexOfMatch == -1 {
+        fmt.Println("main_window :: buildResourcePath :: unexpected :: inputFilepath :: ", inputFilepath)
+        return "", errors.New("main_window :: buildResourcePath :: unexpected :: inputFilepath :: "+inputFilepath)
+    }
+
+    return m.mpqResourceFilepaths[inputMPQFile][indexOfMatch], nil
+}
+
 func (m *MainWindow) readMPQFiles(mpq *d2mpq.MPQ) []string {
 	// Read listfile
 	listfile, _ := mpq.GetFileList()
-
 	// Search through using known contents
 	s := bufio.NewScanner(strings.NewReader(rawListfile))
+
 	for s.Scan() {
 		if mpq.FileExists(s.Text()) {
 			listfile = append(listfile, s.Text())
@@ -138,6 +262,7 @@ func (m *MainWindow) readMPQFiles(mpq *d2mpq.MPQ) []string {
 
 	for _, file := range listfile {
         var filenameBuffer strings.Builder
+        m.addMPQResourcePath(mpq.Path(), strings.Replace(file, "\\", "/", -1))
         filenameSplitArr := strings.Split(strings.ToLower(file), "\\")
 
         for i := 0; i < len(filenameSplitArr); i++ {
@@ -158,9 +283,31 @@ func (m *MainWindow) readMPQFiles(mpq *d2mpq.MPQ) []string {
 			result = append(result, filename)
 		}
 	}
-	sort.Strings(result)
 
+	sort.Strings(result)
 	return result
+}
+
+func (m *MainWindow) addMPQResourcePath(mpqFile string, path string) {
+    _, existsInMap2 := m.mpqResourceFilepaths[mpqFile]
+
+	if !existsInMap2 {
+        var newArr []string
+		m.mpqResourceFilepaths[mpqFile] = newArr
+	}
+
+    alreadyContains := false
+
+    for i := 0; i < len(m.mpqResourceFilepaths[mpqFile]); i++ {
+        if m.mpqResourceFilepaths[mpqFile][i] == path {
+            alreadyContains = true
+            break
+        }
+    }
+
+    if alreadyContains == false {
+        m.mpqResourceFilepaths[mpqFile] = append(m.mpqResourceFilepaths[mpqFile], path)
+    }
 }
 
 func (m *MainWindow) getFolderNode(path string) *gtk.TreeIter {
@@ -205,9 +352,54 @@ func (m *MainWindow) handleFileActivated(name string) {
 		m.openTextFileWindow(mpqPath, filePath)
 	case ".tbl":
 		m.openTBLFileWindow(mpqPath, filePath)
+    case ".dc6":
+        actualFilepath, actualFilepathErr := m.buildResourcePath(mpqPath, filePath)
+
+        if actualFilepathErr != nil {
+            fmt.Println("main_window :: handleFileActivated :: actualFilepathErr :: ", actualFilepathErr)
+            log.Fatal(actualFilepathErr)
+        }
+        
+        m.spawnDC6FileViewer(mpqPath, filePath, actualFilepath)
 	}
 
 	log.Printf("Opening file for %s", fileExt)
+}
+
+func GetCallCommandArguments(command string) (string, []string) {
+    commandParts := strings.Split(command, " ")
+    var commandArgs []string
+
+    for i := 1; i < len(commandParts); i++ {
+        commandArgs = append(commandArgs, commandParts[i])
+    }
+    
+    return commandParts[0], commandArgs
+}
+
+func (m *MainWindow) spawnDC6FileViewer(mpqPath, filePath, actualFilePath string) (error) {
+    var commandBuffer strings.Builder
+		
+		if runtime.GOOS == "windows" {
+			commandBuffer.WriteString(`dc6viewer.exe -mpq `)
+		} else {
+			commandBuffer.WriteString(`dc6viewer -mpq `)
+		}
+		
+    commandBuffer.WriteString(mpqPath)
+    commandBuffer.WriteString(` -asset `)
+    commandBuffer.WriteString(actualFilePath)
+    callName, callArgs := GetCallCommandArguments(commandBuffer.String())
+    cmd := exec.Command(callName, callArgs...)
+    err := cmd.Start()
+
+    if err != nil {
+        if strings.Contains(err.Error(), "exit status 1") == false {
+            fmt.Println(err)
+        }
+    }
+    
+    return nil
 }
 
 func (m *MainWindow) openTBLFileWindow(mpqPath, filePath string) (error) {
@@ -228,9 +420,7 @@ func (m *MainWindow) openTBLFileWindow(mpqPath, filePath string) (error) {
 		return errors.New("main_window :: openTBLFileWindow :: unexpected len(data) == 0")
 	}
 
-	d2common.LoadTextDictionary(data)
-	strings := d2common.GetTranslationMap()
-
+    strings := LoadTextDictionary(data)
 	json, _ := json.MarshalIndent(strings, "", " ")
 	window, windowErr := hstextfilewindow.Create(filePath, string(json))
 
@@ -296,11 +486,11 @@ func decodeUTF16(b []byte) (string, error) {
 		return "", fmt.Errorf("Must have even length byte slice")
 	}
 
-	u16s := make([]uint16, 1)
+	u16s := make([]uint1
+6, 1)
 	ret := &bytes.Buffer{}
 	b8buf := make([]byte, 4)
 	lb := len(b)
-
 	for i := 0; i < lb; i += 2 {
 		u16s[0] = uint16(b[i]) + (uint16(b[i+1]) << 8)
 		r := utf16.Decode(u16s)
@@ -315,7 +505,7 @@ func (m *MainWindow) getMpqFromPath(mpqPath string) *d2mpq.MPQ {
 	var mpq *d2mpq.MPQ
 
 	for idx := range m.mpqs {
-		if !strings.EqualFold(m.mpqs[idx].FileName, mpqPath) {
+		if !strings.EqualFold(m.mpqs[idx].Path(), mpqPath) {
 			continue
 		}
 

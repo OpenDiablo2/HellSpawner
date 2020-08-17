@@ -13,7 +13,8 @@ The OpenDiablo2 toolset
 2. `brew install pkg-config`
 3. `brew install glib`
 4. `brew install gtk+3`
-5. `go run main.go`
+5. `go build viewers/dc6viewer.go`
+6. `go run main.go`
 
 ## Prerequisites (Linux)
 
@@ -29,4 +30,5 @@ manager for the appropriate package name
 ## Get Started (Linux)
 
 1. `go mod vendor`
-2. `go run main.go`
+2. `go build viewers/dc6viewer.go`
+3. `go run main.go`
