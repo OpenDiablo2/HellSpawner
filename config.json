@@ -1,0 +1,8 @@
+{
+  "colors": {
+    "windowBackground":      [  5,   5,   5, 255],
+    "windowFrame":           [ 60,  15,  15, 255],
+    "windowButtonHighlight": [ 80,  15,  15, 255],
+    "windowFrameText":       [255, 255, 255, 255]
+  }
+}
