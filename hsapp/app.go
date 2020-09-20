@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 	"image/color"
 	"io/ioutil"
+	"runtime"
+	"strconv"
+
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
@@ -86,13 +90,20 @@ func Create() (*App, error) {
 	// Store off the device scale factor so we can regenerate if we need to
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
-	result.testbox = hsui.CreateHBox()
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Top", func() { result.testbox.SetAlignment(hscommon.HAlignTop) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.HAlignMiddle) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Bottom", func() { result.testbox.SetAlignment(hscommon.HAlignBottom) }))
+	result.testbox = hsui.CreateVBox()
+	hbox := hsui.CreateHBox()
+	hbox.SetExpandChild(true)
+	hbox.AddChild(hsui.CreateButton(result, "Left", func() {}))
+	hbox.AddChild(hsui.CreateButton(result, "Center", func() {}))
+	hbox.AddChild(hsui.CreateButton(result, "Right", func() {}))
+
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Top", func() { result.testbox.SetAlignment(hscommon.VAlignTop) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.VAlignMiddle) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Bottom", func() { result.testbox.SetAlignment(hscommon.VAlignBottom) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Toggle Expand Child", func() { result.testbox.SetExpandChild(!result.testbox.GetExpandChild()) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing +", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() + 1) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing -", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() - 1) }))
+	result.testbox.AddChild(hbox)
 
 	return result, nil
 }
@@ -123,29 +134,26 @@ func (a *App) Draw(screen *ebiten.Image) {
 	// Fill the window with the frame color
 	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
-	a.testbox.Render(screen, 0, 0, 300, 720)
+	a.testbox.Render(screen, 0, 0, 300, a.screenHeight)
 
 	// Debug print stuff
-	// m := &runtime.MemStats{}
-	// runtime.ReadMemStats(m)
-	// ebitenutil.DebugPrintAt(screen,
-	// 	"Alloc:   "+strconv.FormatInt(int64(m.Alloc)/bytesToMegabyte, 10)+"\n"+
-	// 		"Pause:   "+strconv.FormatInt(int64(m.PauseTotalNs/bytesToMegabyte), 10)+"\n"+
-	//		"HeapSys: "+strconv.FormatInt(int64(m.HeapSys/bytesToMegabyte), 10)+"\n"+
-	// 		"NumGC:   "+strconv.FormatInt(int64(m.NumGC), 10),
-	// 	a.scaleToDevice(50), a.scaleToDevice(100))
+	m := &runtime.MemStats{}
+	runtime.ReadMemStats(m)
+	ebitenutil.DebugPrintAt(screen,
+		"Alloc:   "+strconv.FormatInt(int64(m.Alloc)/bytesToMegabyte, 10)+"\n"+
+			"Pause:   "+strconv.FormatInt(int64(m.PauseTotalNs/bytesToMegabyte), 10)+"\n"+
+			"HeapSys: "+strconv.FormatInt(int64(m.HeapSys/bytesToMegabyte), 10)+"\n"+
+			"NumGC:   "+strconv.FormatInt(int64(m.NumGC), 10),
+		hsutil.ScaleToDevice(50), hsutil.ScaleToDevice(100))
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	// Get the device scale factor so we can apply it
-	deviceScale := ebiten.DeviceScaleFactor()
-
 	// Store off the screen size for easy access
-	a.screenWidth = int(float64(outsideWidth) * deviceScale)
-	a.screenHeight = int(float64(outsideHeight) * deviceScale)
+	a.screenWidth = outsideWidth
+	a.screenHeight = outsideHeight
 
 	// Return the actual resolution, determined by the virtual size and screen device scale
-	return int(float64(outsideWidth) * deviceScale), int(float64(outsideHeight) * deviceScale)
+	return hsutil.ScaleToDevice(outsideWidth), hsutil.ScaleToDevice(outsideHeight)
 }
 
 // configureFonts loads the fonts the app needs.

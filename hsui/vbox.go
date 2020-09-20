@@ -13,123 +13,138 @@ type VBox struct {
 	padding      int
 	childSpacing int
 	expandChild  bool
-	alignment    hscommon.HAlign
+	alignment    hscommon.VAlign
 }
 
-func CreateHBox() *VBox {
+func CreateVBox() *VBox {
 	result := &VBox{
 		children:     []Widget{},
 		dirty:        false,
 		padding:      1,
 		childSpacing: 4,
 		expandChild:  false,
-		alignment:    hscommon.HAlignTop,
+		alignment:    hscommon.VAlignTop,
 	}
 
 	return result
 }
 
-func (h *VBox) Render(screen *ebiten.Image, x, y, width, height int) {
+func (v *VBox) Render(screen *ebiten.Image, x, y, width, height int) {
+	if width <= 0 || height <= 0 {
+		return
+	}
+
 	var childHeight int
 
 	totalChildHeight := 0
 
-	if h.alignment != hscommon.HAlignTop && !h.expandChild {
-		for idx := range h.children {
-			_, childHeight = h.children[idx].GetRequestedSize()
+	if v.alignment != hscommon.VAlignTop && !v.expandChild {
+		for idx := range v.children {
+			_, childHeight = v.children[idx].GetRequestedSize()
 			totalChildHeight += childHeight
 		}
-		totalChildHeight += (len(h.children) - 1) * h.childSpacing
+		totalChildHeight += (len(v.children) - 1) * v.childSpacing
 	}
 
 	curY := 0
-	curX := x + h.padding
+	curX := x + v.padding
 
-	if h.expandChild {
-		curY = y + h.padding
+	if v.expandChild {
+		curY = y + v.padding
 	} else {
-		switch h.alignment {
-		case hscommon.HAlignTop:
-			curY = y + h.padding
-		case hscommon.HAlignMiddle:
+		switch v.alignment {
+		case hscommon.VAlignTop:
+			curY = y + v.padding
+		case hscommon.VAlignMiddle:
 			curY = y + (height / 2) - (totalChildHeight / 2)
-		case hscommon.HAlignBottom:
+		case hscommon.VAlignBottom:
 			curY = y + height - totalChildHeight
 		default:
-			log.Fatal("unknown HAlign type specified")
+			log.Fatal("unknown VAlign type specified")
 		}
 	}
 
-	if h.expandChild {
-		childHeight = (height - (h.padding * 2) - ((len(h.children) - 1) * h.childSpacing)) / len(h.children)
+	if v.expandChild {
+		childHeight = (height - (v.padding * 2) - ((len(v.children) - 1) * v.childSpacing)) / len(v.children)
 	}
 
-	for idx := range h.children {
-		if !h.expandChild {
-			_, childHeight = h.children[idx].GetRequestedSize()
+	for idx := range v.children {
+		if !v.expandChild {
+			_, childHeight = v.children[idx].GetRequestedSize()
 		}
-		h.children[idx].Render(screen, curX, curY, width, childHeight)
-		curY += childHeight + h.childSpacing
+		v.children[idx].Render(screen, curX, curY, width, childHeight)
+		curY += childHeight + v.childSpacing
 	}
 }
 
-func (h *VBox) Update() {
-	if h.dirty {
-		h.Invalidate()
+func (v *VBox) Update() {
+	if v.dirty {
+		v.Invalidate()
 	}
 
-	for idx := range h.children {
-		h.children[idx].Update()
-	}
-}
-
-func (h *VBox) GetRequestedSize() (int, int) {
-	return 0, 0
-}
-
-func (h *VBox) Invalidate() {
-	for idx := range h.children {
-		h.children[idx].Invalidate()
+	for idx := range v.children {
+		v.children[idx].Update()
 	}
 }
 
-func (h *VBox) AddChild(widget Widget) {
-	h.children = append(h.children, widget)
-	h.dirty = true
+func (v *VBox) GetRequestedSize() (int, int) {
+	w := 0
+	h := 0
+
+	for idx := range v.children {
+		cw, ch := v.children[idx].GetRequestedSize()
+		if cw < w {
+			w = cw
+		}
+		h += ch
+	}
+
+	return w, h
 }
 
-func (h *VBox) SetAlignment(align hscommon.HAlign) {
-	h.alignment = align
-	h.dirty = true
+func (v *VBox) Invalidate() {
+	for idx := range v.children {
+		v.children[idx].Invalidate()
+	}
 }
 
-func (h *VBox) GetAlignment() hscommon.HAlign {
-	return h.alignment
+func (v *VBox) AddChild(widget Widget) {
+	v.children = append(v.children, widget)
+	v.dirty = true
 }
 
-func (h *VBox) SetChildSpacing(spacing int) {
-	h.childSpacing = spacing
-	h.dirty = true
+func (v *VBox) SetAlignment(align hscommon.VAlign) {
+	v.alignment = align
+	v.dirty = true
 }
 
-func (h *VBox) GetChildSpacing() int {
-	return h.childSpacing
+func (v *VBox) GetAlignment() hscommon.VAlign {
+	return v.alignment
 }
 
-func (h *VBox) SetPadding(padding int) {
-	h.padding = padding
-	h.dirty = true
+func (v *VBox) SetChildSpacing(spacing int) {
+	v.childSpacing = spacing
+	v.dirty = true
 }
 
-func (h *VBox) GetPadding() int {
-	return h.padding
+func (v *VBox) GetChildSpacing() int {
+	return v.childSpacing
 }
 
-func (h *VBox) SetExpandChild(expand bool) {
-	h.expandChild = expand
-	h.dirty = true
+func (v *VBox) SetPadding(padding int) {
+	v.padding = padding
+	v.dirty = true
 }
 
-func (h *VBox) GetExpandChild() bool {
-	return h.expandChild
+func (v *VBox) GetPadding() int {
+	return v.padding
+}
+
+func (v *VBox) SetExpandChild(expand bool) {
+	v.expandChild = expand
+	v.dirty = true
+}
+
+func (v *VBox) GetExpandChild() bool {
+	return v.expandChild
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/text"
 )
 
-const buttonPaddingH = 8
+const buttonPaddingH = 32
 const buttonPaddingV = 16
 
 type Button struct {
@@ -47,6 +47,10 @@ func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func
 }
 
 func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
+	if width <= 0 || height <= 0 {
+		return
+	}
+
 	primaryColor := b.infoProvider.GetAppConfig().Colors.Primary
 	textColor := b.textColor
 

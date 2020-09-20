@@ -1,9 +1,9 @@
 package hscommon
 
 const (
-	HAlignTop = HAlign(iota)
-	HAlignMiddle
-	HAlignBottom
+	HAlignLeft = HAlign(iota)
+	HAlignCenter
+	HAlignRight
 )
 
 type HAlign = int
