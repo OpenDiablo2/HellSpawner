@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"image/color"
 	"io/ioutil"
-	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -34,7 +34,7 @@ type App struct {
 	screenHeight   int
 	mouseX, mouseY int
 
-	testButton *hsui.Button
+	testbox *hsui.VBox
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -86,7 +86,13 @@ func Create() (*App, error) {
 	// Store off the device scale factor so we can regenerate if we need to
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
-	result.testButton = hsui.CreateButton(result, "Hello, World!", func() { log.Printf("Button clicked!\n") })
+	result.testbox = hsui.CreateHBox()
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Top", func() { result.testbox.SetAlignment(hscommon.HAlignTop) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.HAlignMiddle) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Align Bottom", func() { result.testbox.SetAlignment(hscommon.HAlignBottom) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Toggle Expand Child", func() { result.testbox.SetExpandChild(!result.testbox.GetExpandChild()) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing +", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() + 1) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing -", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() - 1) }))
 
 	return result, nil
 }
@@ -103,10 +109,10 @@ func (a *App) Update(*ebiten.Image) error {
 	if deviceScale != hsutil.GetLastDeviceScale() {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
-		a.testButton.Invalidate()
+		a.testbox.Invalidate()
 	}
 
-	a.testButton.Update()
+	a.testbox.Update()
 
 	return nil
 }
@@ -117,7 +123,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 	// Fill the window with the frame color
 	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
-	a.testButton.Render(screen, 10, 10, 150, 30)
+	a.testbox.Render(screen, 0, 0, 300, 720)
 
 	// Debug print stuff
 	// m := &runtime.MemStats{}

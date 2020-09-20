@@ -8,8 +8,8 @@ import (
 	"github.com/hajimehoshi/ebiten/text"
 )
 
-const buttonPaddingH = 4
-const buttonPaddingV = 8
+const buttonPaddingH = 8
+const buttonPaddingV = 16
 
 type Button struct {
 	caption            string
