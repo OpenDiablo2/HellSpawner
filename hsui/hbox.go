@@ -34,6 +34,15 @@ func (h *HBox) Render(screen *ebiten.Image, x, y, width, height int) {
 		return
 	}
 
+	visibleChildren := 0
+	for idx := range h.children {
+		cw, ch := h.children[idx].GetRequestedSize()
+		if cw <= 0 || ch <= 0 {
+			continue
+		}
+		visibleChildren++
+	}
+
 	var childWidth int
 
 	totalChildWidth := 0
@@ -43,7 +52,7 @@ func (h *HBox) Render(screen *ebiten.Image, x, y, width, height int) {
 			childWidth, _ = h.children[idx].GetRequestedSize()
 			totalChildWidth += childWidth
 		}
-		totalChildWidth += (len(h.children) - 1) * h.childSpacing
+		totalChildWidth += (visibleChildren - 1) * h.childSpacing
 	}
 
 	curY := y + h.padding
@@ -65,26 +74,47 @@ func (h *HBox) Render(screen *ebiten.Image, x, y, width, height int) {
 	}
 
 	if h.expandChild {
-		childWidth = (width - (h.padding * 2) - ((len(h.children) - 1) * h.childSpacing)) / len(h.children)
+		childWidth = (width - (h.padding * 2) - ((visibleChildren - 1) * h.childSpacing)) / visibleChildren
 	}
 
 	for idx := range h.children {
 		if !h.expandChild {
 			childWidth, _ = h.children[idx].GetRequestedSize()
+		} else {
+			cw, _ := h.children[idx].GetRequestedSize()
+			if cw <= 0 {
+				continue
+			}
 		}
+
+		if childWidth <= 0 {
+			continue
+		}
+
 		h.children[idx].Render(screen, curX, curY, childWidth, height)
 		curX += childWidth + h.childSpacing
 	}
 }
 
-func (h *HBox) Update() {
+func (h *HBox) Update() (dirty bool) {
 	if h.dirty {
 		h.Invalidate()
 	}
 
+	dirty = false
 	for idx := range h.children {
-		h.children[idx].Update()
+		childDirty := h.children[idx].Update()
+
+		if childDirty {
+			dirty = true
+		}
 	}
+
+	if dirty {
+		h.dirty = true
+	}
+
+	return dirty
 }
 
 func (h *HBox) GetRequestedSize() (int, int) {

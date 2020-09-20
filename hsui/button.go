@@ -20,7 +20,9 @@ type Button struct {
 	fontBoundsY        int
 	hovered            bool
 	canExecuteCallback bool
+	dirty              bool
 	enabled            bool
+	visible            bool
 	reqWidth           int
 	reqHeight          int
 	onClick            func()
@@ -34,8 +36,10 @@ func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func
 		infoProvider:       infoProvider,
 		caption:            caption,
 		hovered:            false,
+		visible:            true,
 		canExecuteCallback: true,
 		enabled:            true,
+		dirty:              false,
 		textColor:          color.RGBA{R: tc[0], G: tc[1], B: tc[2], A: tc[3]},
 		disabledTextColor:  color.RGBA{R: dtc[0], G: dtc[1], B: dtc[2], A: dtc[3]},
 		onClick:            onClick,
@@ -47,7 +51,7 @@ func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func
 }
 
 func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
-	if width <= 0 || height <= 0 {
+	if width <= 0 || height <= 0 || !b.visible {
 		return
 	}
 
@@ -81,9 +85,15 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 	text.Draw(screen, b.caption, font, offsetX, offsetY, textColor)
 }
 
-func (b *Button) Update() {
-	if !b.enabled {
-		return
+func (b *Button) Update() (dirty bool) {
+	dirty = b.dirty
+
+	if b.dirty {
+		b.dirty = false
+	}
+
+	if !b.enabled || !b.visible {
+		return dirty
 	}
 
 	if b.canExecuteCallback {
@@ -99,9 +109,13 @@ func (b *Button) Update() {
 		}
 	}
 
+	return dirty
 }
 
 func (b *Button) GetRequestedSize() (int, int) {
+	if !b.visible {
+		return 0, 0
+	}
 	return b.reqWidth, b.reqHeight
 }
 
@@ -118,4 +132,13 @@ func (b *Button) SetEnabled(enabled bool) {
 
 func (b *Button) IsEnabled() bool {
 	return b.enabled
+}
+
+func (b *Button) SetVisible(visible bool) {
+	b.visible = visible
+	b.dirty = true
+}
+
+func (b *Button) GetVisible() bool {
+	return b.visible
 }

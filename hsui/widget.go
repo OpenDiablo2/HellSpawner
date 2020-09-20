@@ -8,7 +8,7 @@ type Widget interface {
 	Render(screen *ebiten.Image, x, y, width, height int)
 
 	// Update updates the widget.
-	Update()
+	Update() (dirty bool)
 
 	// GetRequestedSize returns the size the widget wants to be.
 	GetRequestedSize() (int, int)

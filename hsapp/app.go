@@ -97,9 +97,11 @@ func Create() (*App, error) {
 	hbox.AddChild(hsui.CreateButton(result, "Center", func() {}))
 	hbox.AddChild(hsui.CreateButton(result, "Right", func() {}))
 
+	b1 := hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.VAlignMiddle) })
 	result.testbox.AddChild(hsui.CreateButton(result, "Align Top", func() { result.testbox.SetAlignment(hscommon.VAlignTop) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.VAlignMiddle) }))
+	result.testbox.AddChild(b1)
 	result.testbox.AddChild(hsui.CreateButton(result, "Align Bottom", func() { result.testbox.SetAlignment(hscommon.VAlignBottom) }))
+	result.testbox.AddChild(hsui.CreateButton(result, "Vis Toggle", func() { b1.SetVisible(!b1.GetVisible()) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Toggle Expand Child", func() { result.testbox.SetExpandChild(!result.testbox.GetExpandChild()) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing +", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() + 1) }))
 	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing -", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() - 1) }))
@@ -144,7 +146,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 			"Pause:   "+strconv.FormatInt(int64(m.PauseTotalNs/bytesToMegabyte), 10)+"\n"+
 			"HeapSys: "+strconv.FormatInt(int64(m.HeapSys/bytesToMegabyte), 10)+"\n"+
 			"NumGC:   "+strconv.FormatInt(int64(m.NumGC), 10),
-		hsutil.ScaleToDevice(50), hsutil.ScaleToDevice(100))
+		hsutil.ScaleToDevice(550), hsutil.ScaleToDevice(100))
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

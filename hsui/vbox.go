@@ -34,6 +34,15 @@ func (v *VBox) Render(screen *ebiten.Image, x, y, width, height int) {
 		return
 	}
 
+	visibleChildren := 0
+	for idx := range v.children {
+		cw, ch := v.children[idx].GetRequestedSize()
+		if cw <= 0 || ch <= 0 {
+			continue
+		}
+		visibleChildren++
+	}
+
 	var childHeight int
 
 	totalChildHeight := 0
@@ -43,7 +52,7 @@ func (v *VBox) Render(screen *ebiten.Image, x, y, width, height int) {
 			_, childHeight = v.children[idx].GetRequestedSize()
 			totalChildHeight += childHeight
 		}
-		totalChildHeight += (len(v.children) - 1) * v.childSpacing
+		totalChildHeight += (visibleChildren - 1) * v.childSpacing
 	}
 
 	curY := 0
@@ -65,26 +74,47 @@ func (v *VBox) Render(screen *ebiten.Image, x, y, width, height int) {
 	}
 
 	if v.expandChild {
-		childHeight = (height - (v.padding * 2) - ((len(v.children) - 1) * v.childSpacing)) / len(v.children)
+		childHeight = (height - (v.padding * 2) - ((visibleChildren - 1) * v.childSpacing)) / visibleChildren
 	}
 
 	for idx := range v.children {
 		if !v.expandChild {
 			_, childHeight = v.children[idx].GetRequestedSize()
+		} else {
+			_, ch := v.children[idx].GetRequestedSize()
+			if ch <= 0 {
+				continue
+			}
 		}
+
+		if childHeight <= 0 {
+			continue
+		}
+
 		v.children[idx].Render(screen, curX, curY, width, childHeight)
 		curY += childHeight + v.childSpacing
 	}
 }
 
-func (v *VBox) Update() {
+func (v *VBox) Update() (dirty bool) {
 	if v.dirty {
 		v.Invalidate()
 	}
 
+	dirty = false
 	for idx := range v.children {
-		v.children[idx].Update()
+		childDirty := v.children[idx].Update()
+
+		if childDirty {
+			dirty = true
+		}
 	}
+
+	if dirty {
+		v.dirty = true
+	}
+
+	return dirty
 }
 
 func (v *VBox) GetRequestedSize() (int, int) {
