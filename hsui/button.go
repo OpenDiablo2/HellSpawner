@@ -2,6 +2,7 @@ package hsui
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
 	"github.com/hajimehoshi/ebiten"
@@ -29,9 +30,6 @@ type Button struct {
 }
 
 func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func()) *Button {
-	tc := infoProvider.GetAppConfig().Colors.Text
-	dtc := infoProvider.GetAppConfig().Colors.DisabledText
-
 	result := &Button{
 		infoProvider:       infoProvider,
 		caption:            caption,
@@ -40,8 +38,8 @@ func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func
 		canExecuteCallback: true,
 		enabled:            true,
 		dirty:              false,
-		textColor:          color.RGBA{R: tc[0], G: tc[1], B: tc[2], A: tc[3]},
-		disabledTextColor:  color.RGBA{R: dtc[0], G: dtc[1], B: dtc[2], A: dtc[3]},
+		textColor:          hsutil.ArrayToRGBA(infoProvider.GetAppConfig().Colors.Text),
+		disabledTextColor:  hsutil.ArrayToRGBA(infoProvider.GetAppConfig().Colors.DisabledText),
 		onClick:            onClick,
 	}
 
@@ -78,7 +76,7 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 		primaryColor[0], primaryColor[1], primaryColor[2], primaryColor[3])
 
 	font := b.infoProvider.GetNormalFont()
-	heightDelta := int(float64(hsutil.ScaleToDevice(height)-b.fontBoundsY) * 0.30)
+	heightDelta := int(math.Floor(float64(hsutil.ScaleToDevice(height)-b.fontBoundsY) * 0.50)) - 3
 	offsetX := hsutil.ScaleToDevice(x+(width/2)) - (b.fontBoundsX / 2)
 	offsetY := hsutil.ScaleToDevice(y) + b.fontBoundsY + heightDelta
 

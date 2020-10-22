@@ -2,15 +2,13 @@ package hsapp
 
 import (
 	"encoding/json"
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsutil"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
 	"io/ioutil"
 	"runtime"
 	"strconv"
-
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hsutil"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsui"
@@ -138,15 +136,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 
 	a.testbox.Render(screen, 0, 0, 300, a.screenHeight)
 
-	// Debug print stuff
-	m := &runtime.MemStats{}
-	runtime.ReadMemStats(m)
-	ebitenutil.DebugPrintAt(screen,
-		"Alloc:   "+strconv.FormatInt(int64(m.Alloc)/bytesToMegabyte, 10)+"\n"+
-			"Pause:   "+strconv.FormatInt(int64(m.PauseTotalNs/bytesToMegabyte), 10)+"\n"+
-			"HeapSys: "+strconv.FormatInt(int64(m.HeapSys/bytesToMegabyte), 10)+"\n"+
-			"NumGC:   "+strconv.FormatInt(int64(m.NumGC), 10),
-		hsutil.ScaleToDevice(550), hsutil.ScaleToDevice(100))
+	//a.printDebugInfo(screen)
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -218,4 +208,16 @@ func (a *App) regenerateFonts() {
 		Hinting: font.HintingNone,
 	})
 
+}
+
+func (a *App) printDebugInfo(screen *ebiten.Image) {
+	// Debug print stuff
+	m := &runtime.MemStats{}
+	runtime.ReadMemStats(m)
+	ebitenutil.DebugPrintAt(screen,
+		"Alloc:   "+strconv.FormatInt(int64(m.Alloc)/bytesToMegabyte, 10)+"\n"+
+			"Pause:   "+strconv.FormatInt(int64(m.PauseTotalNs/bytesToMegabyte), 10)+"\n"+
+			"HeapSys: "+strconv.FormatInt(int64(m.HeapSys/bytesToMegabyte), 10)+"\n"+
+			"NumGC:   "+strconv.FormatInt(int64(m.NumGC), 10),
+		hsutil.ScaleToDevice(550), hsutil.ScaleToDevice(100))
 }

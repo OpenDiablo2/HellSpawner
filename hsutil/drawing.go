@@ -31,3 +31,7 @@ func DrawColoredRect(target *ebiten.Image, x, y, w, h int, r, g, b, alpha uint8)
 
 	_ = target.DrawImage(imgSquare, drawOptions)
 }
+
+func ArrayToRGBA(tc []uint8) color.Color {
+	return color.RGBA{R: tc[0], G: tc[1], B: tc[2], A: tc[3]}
+}
