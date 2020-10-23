@@ -83,6 +83,8 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 	text.Draw(screen, b.caption, font, offsetX, offsetY, textColor)
 }
 
+var lmbPressed bool
+
 func (b *Button) Update() (dirty bool) {
 	dirty = b.dirty
 
@@ -94,18 +96,16 @@ func (b *Button) Update() (dirty bool) {
 		return dirty
 	}
 
-	if b.canExecuteCallback {
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			if b.hovered {
-				b.onClick()
-			}
+	lmbPressed = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 
-			b.canExecuteCallback = false
+	if b.canExecuteCallback && lmbPressed {
+		if b.hovered {
+			b.onClick()
 		}
-	} else {
-		if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			b.canExecuteCallback = true
-		}
+
+		b.canExecuteCallback = false
+	} else if !lmbPressed {
+		b.canExecuteCallback = true
 	}
 
 	return dirty
