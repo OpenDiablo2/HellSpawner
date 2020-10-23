@@ -6,6 +6,10 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+const (
+	noChildren = -1
+)
+
 func CreatePager(w, h int, children []Widget) *Pager {
 	p := &Pager{
 		children:  children,
@@ -26,21 +30,33 @@ type Pager struct {
 	dirty, visible, enabled bool
 }
 
-const (
-	noChildren = -1
-)
+func (p *Pager) GetChildren() []Widget {
+	return p.children
+}
+
+func (p *Pager) GetChild(idx int) Widget {
+	if idx < 0 || idx >= len(p.children) {
+		return nil
+	}
+
+	return p.children[idx]
+}
 
 func (p *Pager) Render(screen *ebiten.Image, x, y, width, height int) {
+	if width < p.reqWidth {
+		width = p.reqWidth
+	}
+
+	if height < p.reqHeight {
+		height = p.reqHeight
+	}
+
 	if child, err := p.GetSelectedChild(); err == nil {
-		child.Render(screen, x, y, p.reqWidth, p.reqHeight)
+		child.Render(screen, x, y, width, height)
 	}
 }
 
 func (p *Pager) Update() (dirty bool) {
-	if p.dirty {
-		p.Invalidate()
-	}
-
 	dirty = false
 
 	child := p.children[p.selectedChild]
@@ -55,6 +71,7 @@ func (p *Pager) Update() (dirty bool) {
 	}
 
 	if dirty {
+		p.Invalidate()
 		p.dirty = true
 	}
 
@@ -62,7 +79,16 @@ func (p *Pager) Update() (dirty bool) {
 }
 
 func (p *Pager) GetRequestedSize() (int, int) {
-	return p.reqWidth, p.reqHeight
+	w := 0
+	h := 0
+
+	for idx := range p.children {
+		cw, ch := p.children[idx].GetRequestedSize()
+		w += cw
+		h += ch
+	}
+
+	return w, h
 }
 
 func (p *Pager) Invalidate() {
@@ -80,10 +106,8 @@ func (p *Pager) SetSelectedChild(idx int) {
 		return
 	}
 
-	p.Invalidate()
-
 	p.selectedChild = idx
-	fmt.Println(idx)
+	p.Invalidate()
 }
 
 func (p *Pager) GetSelectedChild() (Widget, error) {
@@ -91,7 +115,7 @@ func (p *Pager) GetSelectedChild() (Widget, error) {
 		return nil, fmt.Errorf("hsui.Pager: no child at index %d", p.selectedChild)
 	}
 
-	return p.children[p.selectedChild], nil
+	return p.GetChild(p.selectedChild), nil
 }
 
 func (p *Pager) AddChild(child Widget) {
@@ -112,10 +136,18 @@ func (p *Pager) RemoveChild(idx int) {
 }
 
 func (p *Pager) SelectNextChild() {
+	if len(p.children) < 1 {
+		return
+	}
+
 	p.SetSelectedChild((p.selectedChild + 1) % len(p.children))
 }
 
 func (p *Pager) SelectPreviousChild() {
+	if len(p.children) < 1 {
+		return
+	}
+
 	idx := p.selectedChild - 1
 
 	for idx < 0 {
