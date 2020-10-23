@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"image/color"
 	"io/ioutil"
-	"math/rand"
 	"runtime"
 	"strconv"
 
@@ -169,15 +168,14 @@ func (a *App) createTestBox() {
 }
 
 func (a *App) createTestPager() {
-	numPages := 4
+	numPages := 10
 
 	// each page is a grid of buttons
-	minGridOrder := 3
-	maxGridOrder := 6
+	minGridOrder := 1
+	maxGridOrder := 10
 
 	pager := hsui.CreatePager(300, 300, nil)
 
-	coinToss := func() bool { return rand.Intn(2) > 0 }
 	fn := map[bool]func(){
 		false: pager.SelectPreviousChild,
 		true:  pager.SelectNextChild,
@@ -186,20 +184,18 @@ func (a *App) createTestPager() {
 	// just making a grid of buttons as a test
 	for pageIdx, order := 0, minGridOrder; pageIdx < numPages && order <= maxGridOrder; pageIdx++ {
 		outerVbox := hsui.CreateVBox()
+		outerVbox.SetExpandChild(true)
 		rows, columns := order, order
 
 		for rowIdx := 0; rowIdx < rows; rowIdx++ {
 			row := hsui.CreateHBox()
+			row.SetExpandChild(true)
 
 			for colIdx := 0; colIdx < columns; colIdx++ {
-				pick := coinToss()
+				caption := "next"
 
-				caption := "prev"
-				if pick {
-					caption = "next"
-				}
-
-				button := hsui.CreateButton(a, caption, fn[pick])
+				button := hsui.CreateButton(a, caption, fn[true])
+				fn[true]()
 
 				row.AddChild(button)
 			}
@@ -230,6 +226,7 @@ func (a *App) Update(*ebiten.Image) error {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
 		a.testbox.Invalidate()
+		a.testpager.Invalidate()
 	}
 
 	a.testbox.Update()
@@ -244,8 +241,9 @@ func (a *App) Draw(screen *ebiten.Image) {
 	// Fill the window with the frame color
 	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
-	a.testbox.Render(screen, 0, 0, 400, a.screenHeight)
-	a.testpager.Render(screen, 400, 0, a.screenWidth-400, a.screenHeight)
+	const testSplitPoint = 300
+	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
+	a.testpager.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
