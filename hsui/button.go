@@ -76,12 +76,14 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 		primaryColor[0], primaryColor[1], primaryColor[2], primaryColor[3])
 
 	font := b.infoProvider.GetNormalFont()
-	heightDelta := int(math.Floor(float64(hsutil.ScaleToDevice(height)-b.fontBoundsY) * 0.50)) - 3
+	heightDelta := int(math.Floor(float64(hsutil.ScaleToDevice(height)-b.fontBoundsY)*0.50)) - 3
 	offsetX := hsutil.ScaleToDevice(x+(width/2)) - (b.fontBoundsX / 2)
 	offsetY := hsutil.ScaleToDevice(y) + b.fontBoundsY + heightDelta
 
 	text.Draw(screen, b.caption, font, offsetX, offsetY, textColor)
 }
+
+var lmbPressed bool
 
 func (b *Button) Update() (dirty bool) {
 	dirty = b.dirty
@@ -94,17 +96,16 @@ func (b *Button) Update() (dirty bool) {
 		return dirty
 	}
 
-	if b.canExecuteCallback {
-		if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			if b.hovered {
-				b.onClick()
-			}
-			b.canExecuteCallback = false
+	lmbPressed = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
+
+	if b.canExecuteCallback && lmbPressed {
+		if b.hovered {
+			b.onClick()
 		}
-	} else {
-		if !ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-			b.canExecuteCallback = true
-		}
+
+		b.canExecuteCallback = false
+	} else if !lmbPressed {
+		b.canExecuteCallback = true
 	}
 
 	return dirty
@@ -114,6 +115,7 @@ func (b *Button) GetRequestedSize() (int, int) {
 	if !b.visible {
 		return 0, 0
 	}
+
 	return b.reqWidth, b.reqHeight
 }
 
@@ -135,6 +137,10 @@ func (b *Button) IsEnabled() bool {
 func (b *Button) SetVisible(visible bool) {
 	b.visible = visible
 	b.dirty = true
+}
+
+func (b *Button) ToggleVisible() {
+	b.SetVisible(!b.visible)
 }
 
 func (b *Button) GetVisible() bool {

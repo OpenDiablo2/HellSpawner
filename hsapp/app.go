@@ -2,13 +2,15 @@ package hsapp
 
 import (
 	"encoding/json"
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hsutil"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
 	"io/ioutil"
 	"runtime"
 	"strconv"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+
+	"github.com/OpenDiablo2/HellSpawner/hsutil"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsui"
@@ -21,6 +23,9 @@ const (
 	bytesToMegabyte          = 1024 * 1024
 	windowFrameHeight    int = 30
 	windowFrameThickness int = 3
+	defaultWindowWidth       = 1280
+	defaultWindowHeight      = 720
+	defaultFontDPI           = 96
 )
 
 // App is an instance of the HellSpawner app.
@@ -36,7 +41,8 @@ type App struct {
 	screenHeight   int
 	mouseX, mouseY int
 
-	testbox *hsui.VBox
+	testbox   *hsui.VBox
+	testpager *hsui.Pager
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -74,7 +80,7 @@ func Create() (*App, error) {
 	}
 
 	// Set up the initial window layout and properties
-	ebiten.SetWindowSize(1280, 720)
+	ebiten.SetWindowSize(defaultWindowWidth, defaultWindowHeight)
 	ebiten.SetWindowTitle("HellSpawner")
 	ebiten.SetWindowResizable(true)
 	ebiten.SetVsyncEnabled(true)
@@ -88,24 +94,123 @@ func Create() (*App, error) {
 	// Store off the device scale factor so we can regenerate if we need to
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
-	result.testbox = hsui.CreateVBox()
-	hbox := hsui.CreateHBox()
-	hbox.SetExpandChild(true)
-	hbox.AddChild(hsui.CreateButton(result, "Left", func() {}))
-	hbox.AddChild(hsui.CreateButton(result, "Center", func() {}))
-	hbox.AddChild(hsui.CreateButton(result, "Right", func() {}))
-
-	b1 := hsui.CreateButton(result, "Align Middle", func() { result.testbox.SetAlignment(hscommon.VAlignMiddle) })
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Top", func() { result.testbox.SetAlignment(hscommon.VAlignTop) }))
-	result.testbox.AddChild(b1)
-	result.testbox.AddChild(hsui.CreateButton(result, "Align Bottom", func() { result.testbox.SetAlignment(hscommon.VAlignBottom) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Vis Toggle", func() { b1.SetVisible(!b1.GetVisible()) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Toggle Expand Child", func() { result.testbox.SetExpandChild(!result.testbox.GetExpandChild()) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing +", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() + 1) }))
-	result.testbox.AddChild(hsui.CreateButton(result, "Child Spacing -", func() { result.testbox.SetChildSpacing(result.testbox.GetChildSpacing() - 1) }))
-	result.testbox.AddChild(hbox)
+	result.createTestBox()
+	result.createTestPager()
 
 	return result, nil
+}
+
+func (a *App) createTestBox() {
+	a.testbox = hsui.CreateVBox()
+
+	// button captions
+	const (
+		alignVertTop    = "Align Top"
+		alignVertMiddle = "Align Middle"
+		alignVertBottom = "Align Bottom"
+		visToggle       = "Vis Toggle"
+		expandToggle    = "Toggle Expand Child"
+		spaceInc        = "Child Spacing +"
+		spaceDec        = "Child Spacing -"
+	)
+
+	buttons := make(map[string]*hsui.Button)
+
+	buttonConfigs := []struct {
+		caption  string
+		callback func()
+	}{
+		{
+			alignVertTop,
+			func() { a.testbox.SetAlignment(hscommon.VAlignTop) },
+		},
+		{
+			alignVertMiddle,
+			func() { a.testbox.SetAlignment(hscommon.VAlignMiddle) },
+		},
+		{
+			alignVertBottom,
+			func() { a.testbox.SetAlignment(hscommon.VAlignBottom) },
+		},
+		{
+			visToggle,
+			func() { buttons[alignVertMiddle].ToggleVisible() },
+		},
+		{
+			expandToggle,
+			func() { a.testbox.ToggleExpandChild() },
+		},
+		{
+			spaceInc,
+			func() { a.testbox.SetChildSpacing(a.testbox.GetChildSpacing() + 1) },
+		},
+		{
+			spaceDec,
+			func() { a.testbox.SetChildSpacing(a.testbox.GetChildSpacing() - 1) },
+		},
+	}
+
+	for idx := range buttonConfigs {
+		cfg := &buttonConfigs[idx]
+		button := hsui.CreateButton(a, cfg.caption, cfg.callback)
+		buttons[cfg.caption] = button
+
+		a.testbox.AddChild(button)
+	}
+
+	hbox := hsui.CreateHBox()
+	hbox.SetExpandChild(true)
+	hbox.AddChild(hsui.CreateButton(a, "Left", func() {}))
+	hbox.AddChild(hsui.CreateButton(a, "Center", func() {}))
+	hbox.AddChild(hsui.CreateButton(a, "Right", func() {}))
+
+	a.testbox.AddChild(hbox)
+}
+
+func (a *App) createTestPager() {
+	numPages := 10
+
+	// each page is a grid of buttons
+	minGridOrder := 1
+	maxGridOrder := 10
+
+	pager := hsui.CreatePager(300, 300, nil)
+
+	fn := map[bool]func(){
+		false: pager.SelectPreviousChild,
+		true:  pager.SelectNextChild,
+	}
+
+	// just making a grid of buttons as a test
+	for pageIdx, order := 0, minGridOrder; pageIdx < numPages && order <= maxGridOrder; pageIdx++ {
+		outerVbox := hsui.CreateVBox()
+		outerVbox.SetExpandChild(true)
+		rows, columns := order, order
+
+		for rowIdx := 0; rowIdx < rows; rowIdx++ {
+			row := hsui.CreateHBox()
+			row.SetExpandChild(true)
+
+			for colIdx := 0; colIdx < columns; colIdx++ {
+				caption := "next"
+
+				button := hsui.CreateButton(a, caption, fn[true])
+				fn[true]()
+
+				row.AddChild(button)
+			}
+
+			outerVbox.AddChild(row)
+		}
+
+		pager.AddChild(outerVbox)
+
+		order++
+	}
+
+	pager.SetSelectedChild(0)
+
+	a.testpager = pager
 }
 
 func (a *App) Run() error {
@@ -121,9 +226,11 @@ func (a *App) Update(*ebiten.Image) error {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
 		a.testbox.Invalidate()
+		a.testpager.Invalidate()
 	}
 
 	a.testbox.Update()
+	a.testpager.Update()
 
 	return nil
 }
@@ -134,9 +241,9 @@ func (a *App) Draw(screen *ebiten.Image) {
 	// Fill the window with the frame color
 	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
-	a.testbox.Render(screen, 0, 0, 300, a.screenHeight)
-
-	//a.printDebugInfo(screen)
+	const testSplitPoint = 300
+	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
+	a.testpager.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -192,22 +299,21 @@ func (a *App) regenerateFonts() {
 
 	a.NormalFont = truetype.NewFace(a.ttNormal, &truetype.Options{
 		Size:    float64(a.Config.Fonts.Normal.Size),
-		DPI:     96 * deviceScale,
+		DPI:     defaultFontDPI * deviceScale,
 		Hinting: font.HintingNone,
 	})
 
 	a.SymbolFont = truetype.NewFace(a.ttSymbols, &truetype.Options{
 		Size:    float64(a.Config.Fonts.Symbols.Size),
-		DPI:     96 * deviceScale,
+		DPI:     defaultFontDPI * deviceScale,
 		Hinting: font.HintingNone,
 	})
 
 	a.MonospaceFont = truetype.NewFace(a.ttMono, &truetype.Options{
 		Size:    float64(a.Config.Fonts.Monospaced.Size),
-		DPI:     96 * deviceScale,
+		DPI:     defaultFontDPI * deviceScale,
 		Hinting: font.HintingNone,
 	})
-
 }
 
 func (a *App) printDebugInfo(screen *ebiten.Image) {

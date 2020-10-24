@@ -102,6 +102,7 @@ func (v *VBox) Update() (dirty bool) {
 	}
 
 	dirty = false
+
 	for idx := range v.children {
 		childDirty := v.children[idx].Update()
 
@@ -173,6 +174,10 @@ func (v *VBox) GetPadding() int {
 func (v *VBox) SetExpandChild(expand bool) {
 	v.expandChild = expand
 	v.dirty = true
+}
+
+func (v *VBox) ToggleExpandChild() {
+	v.SetExpandChild(!v.expandChild)
 }
 
 func (v *VBox) GetExpandChild() bool {

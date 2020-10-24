@@ -13,6 +13,6 @@ type Widget interface {
 	// GetRequestedSize returns the size the widget wants to be.
 	GetRequestedSize() (int, int)
 
-	// Invalidate causes the widget to recalculate itself and invalid all of its children.
+	// Invalidate causes the widget to recalculate itself and invalidate all of its children.
 	Invalidate()
 }
