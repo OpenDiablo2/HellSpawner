@@ -59,6 +59,10 @@ func (p *Pager) Render(screen *ebiten.Image, x, y, width, height int) {
 func (p *Pager) Update() (dirty bool) {
 	dirty = false
 
+	if len(p.children) < 1 {
+		return false
+	}
+
 	child := p.children[p.selectedChild]
 	if child == nil {
 		return

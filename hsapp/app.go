@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"encoding/json"
+	"fmt"
 	"image/color"
 	"io/ioutil"
 	"runtime"
@@ -41,8 +42,9 @@ type App struct {
 	screenHeight   int
 	mouseX, mouseY int
 
-	testbox   *hsui.VBox
-	testpager *hsui.Pager
+	testbox     *hsui.VBox
+	testpager   *hsui.Pager
+	testTabView *hsui.TabView
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -95,7 +97,7 @@ func Create() (*App, error) {
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
 	result.createTestBox()
-	result.createTestPager()
+	result.createTestTabView()
 
 	return result, nil
 }
@@ -213,6 +215,49 @@ func (a *App) createTestPager() {
 	a.testpager = pager
 }
 
+func NOOP() {}
+
+func (a *App) createTestTabView() {
+
+	// each page is a grid of buttons
+	minGridOrder := 5
+	maxGridOrder := 10
+
+	numPages := maxGridOrder - minGridOrder
+
+	tabView := hsui.CreateTabView(a, 300, 300)
+
+	// just making a grid of buttons as a test
+	for pageIdx, order := 0, minGridOrder; pageIdx < numPages && order <= maxGridOrder; pageIdx++ {
+		tabTitle := fmt.Sprintf("%dx%d", pageIdx+1, pageIdx+1)
+
+		outerVbox := hsui.CreateVBox()
+		outerVbox.SetExpandChild(true)
+		rows, columns := order, order
+
+		tabView.AddTab(tabTitle, outerVbox, true)
+
+		for rowIdx := 0; rowIdx < rows; rowIdx++ {
+			row := hsui.CreateHBox()
+			row.SetExpandChild(true)
+
+			for colIdx := 0; colIdx < columns; colIdx++ {
+				caption := "test"
+
+				button := hsui.CreateButton(a, caption, NOOP)
+
+				row.AddChild(button)
+			}
+
+			outerVbox.AddChild(row)
+		}
+
+		order++
+	}
+
+	a.testTabView = tabView
+}
+
 func (a *App) Run() error {
 	return ebiten.RunGame(a)
 }
@@ -226,11 +271,11 @@ func (a *App) Update(*ebiten.Image) error {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
 		a.testbox.Invalidate()
-		a.testpager.Invalidate()
+		a.testTabView.Invalidate()
 	}
 
 	a.testbox.Update()
-	a.testpager.Update()
+	a.testTabView.Update()
 
 	return nil
 }
@@ -243,7 +288,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 
 	const testSplitPoint = 300
 	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
-	a.testpager.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
+	a.testTabView.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
