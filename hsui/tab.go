@@ -14,8 +14,6 @@ func newTab(tabViewer *TabView, title string, closeable bool, content Widget) *T
 		title:     title,
 		content:   content,
 		container: CreateHBox(),
-		tabSelect: CreateHBox(),
-		tabClose:  CreateHBox(),
 		enabled:   true,
 		visible:   true,
 		dirty:     true,
@@ -23,19 +21,13 @@ func newTab(tabViewer *TabView, title string, closeable bool, content Widget) *T
 
 	tab.container.SetChildSpacing(-2)
 
-	tab.tabSelect.AddChild(CreateButton(tab.info, title, func() { tab.Select() }))
-	tab.tabSelect.SetExpandChild(true)
-
+	tab.selectButton = CreateButton(tab.info, title, func() { tab.Select() })
 	tab.closeButton = CreateButton(tab.info, closeButtonSymbol, func() { tab.Close() })
-	tab.tabClose.SetExpandChild(false)
 
-	tab.container.AddChild(tab.tabSelect)
-	tab.container.AddChild(tab.tabClose)
-
-	tab.container.SetExpandChild(false)
+	tab.container.AddChild(tab.selectButton)
+	tab.container.AddChild(tab.closeButton)
 
 	tab.SetCloseable(closeable)
-	tab.Invalidate()
 
 	return tab
 }
@@ -46,11 +38,9 @@ type Tab struct {
 	content Widget
 	title   string
 
-	container *HBox // expands, contains
-	tabSelect *HBox // expands, contains a button
-	tabClose  *HBox // doesn't expand, contains a button
-
-	closeButton *Button
+	container    *HBox // expands, contains
+	selectButton *Button
+	closeButton  *Button
 
 	reqWidth, reqHeight int
 
@@ -58,11 +48,31 @@ type Tab struct {
 	visible,
 	expanded,
 	dirty,
-	closeable bool
+	closeable,
+	selected bool
 }
 
 func (t *Tab) Render(screen *ebiten.Image, x, y, width, height int) {
-	t.container.Render(screen, x, y, width, height)
+	/*
+		tab looks like this:
+		+------------------+---+
+		|  <label>         | X |
+		+------------------+---+
+	*/
+	closeWidth, closeHeight := height, height
+	selectWidth, selectHeight := width-closeWidth, height
+	closeX, closeY := x+selectWidth, y
+	// label x,y is incoming x,y
+
+	t.selectButton.Render(screen, x, y, selectWidth, selectHeight)
+	t.closeButton.Render(screen, closeX, closeY, closeWidth, closeHeight)
+
+	if !t.selected {
+		return
+	}
+
+	rgba := t.info.GetAppConfig().Colors.TabSelected
+	hsutil.DrawColoredRect(screen, x, y, width, height, rgba[0], rgba[1], rgba[2], rgba[3])
 }
 
 func (t *Tab) Update() bool {
@@ -95,17 +105,6 @@ func (t *Tab) Invalidate() {
 	if t.content != nil {
 		t.content.Invalidate()
 	}
-
-	if t.closeable {
-		hbox := CreateHBox()
-		hbox.AddChild(t.closeButton)
-		t.tabClose = hbox
-	} else {
-		hbox := CreateHBox()
-		t.tabClose = hbox
-	}
-
-	t.container.children[1] = t.tabClose
 }
 
 func (t *Tab) SetCloseable(b bool) {
@@ -129,4 +128,5 @@ func (t *Tab) Close() {
 
 func (t *Tab) Select() {
 	t.viewer.SelectTab(t)
+	t.selected = true
 }
