@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"image/color"
 	"io/ioutil"
+	"math/rand"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
@@ -97,7 +99,6 @@ func Create() (*App, error) {
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
 	result.createTestBox()
-	result.createTestTabView()
 
 	return result, nil
 }
@@ -167,6 +168,7 @@ func (a *App) createTestBox() {
 	hbox.AddChild(hsui.CreateButton(a, "Right", func() {}))
 
 	a.testbox.AddChild(hbox)
+	a.testbox.AddChild(hsui.CreateButton(a, "Add Tab", a.tabViewTest))
 }
 
 func (a *App) createTestPager() {
@@ -217,45 +219,36 @@ func (a *App) createTestPager() {
 
 func NOOP() {}
 
-func (a *App) createTestTabView() {
-
+func (a *App) tabViewTest() {
 	// each page is a grid of buttons
-	minGridOrder := 5
-	maxGridOrder := 10
 
-	numPages := maxGridOrder - minGridOrder
-
-	tabView := hsui.CreateTabView(a, 300, 300)
-
-	// just making a grid of buttons as a test
-	for pageIdx, order := 0, minGridOrder; pageIdx < numPages && order <= maxGridOrder; pageIdx++ {
-		tabTitle := fmt.Sprintf("%dx%d", pageIdx+1, pageIdx+1)
-
-		outerVbox := hsui.CreateVBox()
-		outerVbox.SetExpandChild(true)
-		rows, columns := order, order
-
-		tabView.AddTab(tabTitle, outerVbox, true)
-
-		for rowIdx := 0; rowIdx < rows; rowIdx++ {
-			row := hsui.CreateHBox()
-			row.SetExpandChild(true)
-
-			for colIdx := 0; colIdx < columns; colIdx++ {
-				caption := "test"
-
-				button := hsui.CreateButton(a, caption, NOOP)
-
-				row.AddChild(button)
-			}
-
-			outerVbox.AddChild(row)
-		}
-
-		order++
+	if a.testTabView == nil {
+		a.testTabView = hsui.CreateTabView(a, 300, 300)
 	}
 
-	a.testTabView = tabView
+	rand.Seed(time.Now().UnixNano())
+
+	outerVbox := hsui.CreateVBox()
+	outerVbox.SetExpandChild(true)
+	rows, columns := rand.Intn(5)+1, rand.Intn(5)+1
+	tabTitle := fmt.Sprintf("test %dx%d", rows, columns)
+
+	a.testTabView.AddTab(tabTitle, outerVbox, true)
+
+	for rowIdx := 0; rowIdx < rows; rowIdx++ {
+		row := hsui.CreateHBox()
+		row.SetExpandChild(true)
+
+		for colIdx := 0; colIdx < columns; colIdx++ {
+			caption := " "
+
+			button := hsui.CreateButton(a, caption, NOOP)
+
+			row.AddChild(button)
+		}
+
+		outerVbox.AddChild(row)
+	}
 }
 
 func (a *App) Run() error {
@@ -275,7 +268,10 @@ func (a *App) Update(*ebiten.Image) error {
 	}
 
 	a.testbox.Update()
-	a.testTabView.Update()
+
+	if a.testTabView != nil {
+		a.testTabView.Update()
+	}
 
 	return nil
 }
@@ -288,7 +284,10 @@ func (a *App) Draw(screen *ebiten.Image) {
 
 	const testSplitPoint = 300
 	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
-	a.testTabView.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
+
+	if a.testTabView != nil {
+		a.testTabView.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
+	}
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
