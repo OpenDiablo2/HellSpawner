@@ -18,9 +18,9 @@ func DrawColoredRect(target *ebiten.Image, x, y, w, h int, r, g, b, alpha uint8)
 			log.Panic(err)
 		}
 
-		if err = imgSquare.Fill(color.Black); err != nil {
-			log.Panic(err)
-		}
+		//if err = imgSquare.Fill(color.Black); err != nil {
+		//	log.Panic(err)
+		//}
 	}
 
 	drawOptions := &ebiten.DrawImageOptions{}
