@@ -2,10 +2,13 @@ package hsapp
 
 import (
 	"encoding/json"
+	"fmt"
 	"image/color"
 	"io/ioutil"
+	"math/rand"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
@@ -41,8 +44,9 @@ type App struct {
 	screenHeight   int
 	mouseX, mouseY int
 
-	testbox   *hsui.VBox
-	testpager *hsui.Pager
+	testbox     *hsui.VBox
+	testpager   *hsui.Pager
+	testTabView *hsui.TabView
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -95,7 +99,6 @@ func Create() (*App, error) {
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
 	result.createTestBox()
-	result.createTestPager()
 
 	return result, nil
 }
@@ -165,6 +168,7 @@ func (a *App) createTestBox() {
 	hbox.AddChild(hsui.CreateButton(a, "Right", func() {}))
 
 	a.testbox.AddChild(hbox)
+	a.testbox.AddChild(hsui.CreateButton(a, "Add Tab", a.tabViewTest))
 }
 
 func (a *App) createTestPager() {
@@ -213,6 +217,40 @@ func (a *App) createTestPager() {
 	a.testpager = pager
 }
 
+func NOOP() {}
+
+func (a *App) tabViewTest() {
+	// each page is a grid of buttons
+
+	if a.testTabView == nil {
+		a.testTabView = hsui.CreateTabView(a, 300, 300)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	outerVbox := hsui.CreateVBox()
+	outerVbox.SetExpandChild(true)
+	rows, columns := rand.Intn(5)+1, rand.Intn(5)+1
+	tabTitle := fmt.Sprintf("test %dx%d", rows, columns)
+
+	a.testTabView.AddTab(tabTitle, outerVbox, true)
+
+	for rowIdx := 0; rowIdx < rows; rowIdx++ {
+		row := hsui.CreateHBox()
+		row.SetExpandChild(true)
+
+		for colIdx := 0; colIdx < columns; colIdx++ {
+			caption := " "
+
+			button := hsui.CreateButton(a, caption, NOOP)
+
+			row.AddChild(button)
+		}
+
+		outerVbox.AddChild(row)
+	}
+}
+
 func (a *App) Run() error {
 	return ebiten.RunGame(a)
 }
@@ -226,11 +264,14 @@ func (a *App) Update(*ebiten.Image) error {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
 		a.testbox.Invalidate()
-		a.testpager.Invalidate()
+		a.testTabView.Invalidate()
 	}
 
 	a.testbox.Update()
-	a.testpager.Update()
+
+	if a.testTabView != nil {
+		a.testTabView.Update()
+	}
 
 	return nil
 }
@@ -243,7 +284,10 @@ func (a *App) Draw(screen *ebiten.Image) {
 
 	const testSplitPoint = 300
 	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
-	a.testpager.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
+
+	if a.testTabView != nil {
+		a.testTabView.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
+	}
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

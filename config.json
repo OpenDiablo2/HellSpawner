@@ -6,12 +6,15 @@
 		"info":       { "face": "NotoSans-Regular.ttf",       "size": 9  }
 	},
 	"colors": {
-		"windowBackground": [   5,   5,   5, 255],
-		"primary":          [  60,  15,  15, 255],
-		"primaryHighlight": [  80,  15,  15, 255],
-		"text":             [ 255, 255, 255, 255],
-		"disabled":         [  24,  24,  24, 255],
-		"disabledText":     [ 128, 128, 128, 255]
-
+		"windowBackground": 	[   5,   5,   5, 255],
+		"primary":          	[  60,  15,  15, 255],
+		"primaryHighlight": 	[  80,  15,  15, 255],
+		"text":             	[ 255, 255, 255, 255],
+		"disabled":         	[  24,  24,  24, 255],
+		"disabledText":     	[ 128, 128, 128, 255],
+		"tab":  				[ 128, 128, 128, 255],
+		"tabSelected": 			[ 255, 128, 128, 48],
+		"tabHighlight":  		[ 128, 128, 128, 255],
+		"tabSelectedHighlight": [ 128, 128, 128, 255]
 	}
 }
