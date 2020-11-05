@@ -16,21 +16,16 @@ func newTab(tabViewer *TabView, title string, closeable bool, content Widget) *T
 		viewer:    tabViewer,
 		title:     title,
 		content:   content,
-		container: CreateHBox(),
 		enabled:   true,
 		visible:   true,
 		dirty:     true,
+		closeable: closeable,
 	}
-
-	tab.container.SetChildSpacing(-2)
 
 	tab.selectButton = CreateButton(tab.info, title, func() { tab.Select() })
 	tab.closeButton = CreateButton(tab.info, closeButtonSymbol, func() { tab.Close() })
 
-	tab.container.AddChild(tab.selectButton)
-	tab.container.AddChild(tab.closeButton)
-
-	tab.SetCloseable(closeable)
+	tab.Invalidate()
 
 	return tab
 }
@@ -41,7 +36,6 @@ type Tab struct {
 	content Widget
 	title   string
 
-	container    *HBox // expands, contains
 	icon         *Image
 	selectButton *Button
 	closeButton  *Button
@@ -76,17 +70,25 @@ func (t *Tab) Render(screen *ebiten.Image, x, y, width, height int) {
 		iconSideLength := height - 2*iconPadding // actual length of the icon
 		t.icon.Render(screen, iconX, iconY, iconSideLength, iconSideLength)
 
-		x += height     // offset by side length of the outer icon square (without the padding)
+		x += height     // offset by side length of the icon square (without the padding)
 		width -= height // adjust for this extra width
 	}
 
 	closeWidth, closeHeight := height, height
-	selectWidth, selectHeight := width-closeWidth, height
+	selectWidth, selectHeight := width, height
+
+	if t.closeable {
+		selectWidth -= closeWidth
+	}
+
 	closeX, closeY := x+selectWidth, y
 	// label x,y is incoming x,y
 
 	t.selectButton.Render(screen, x, y, selectWidth, selectHeight)
-	t.closeButton.Render(screen, closeX, closeY, closeWidth, closeHeight)
+
+	if t.closeable {
+		t.closeButton.Render(screen, closeX, closeY, closeWidth, closeHeight)
+	}
 
 	if !t.selected {
 		return
@@ -97,6 +99,7 @@ func (t *Tab) Render(screen *ebiten.Image, x, y, width, height int) {
 		x -= height
 		width += height
 	}
+
 	rgba := t.info.GetAppConfig().Colors.TabSelected
 	hsutil.DrawColoredRect(screen, x, y, width, height, rgba[0], rgba[1], rgba[2], rgba[3])
 }
@@ -108,15 +111,13 @@ func (t *Tab) Update() bool {
 		return t.dirty
 	}
 
-	t.dirty = t.dirty || t.container.Update()
+	t.dirty = t.dirty || t.selectButton.Update()
+	t.dirty = t.dirty || t.closeButton.Update()
 	t.dirty = t.dirty || t.content.Update()
 
-	if !t.dirty {
-		return t.dirty
+	if t.dirty {
+		t.Invalidate()
 	}
-
-	t.Invalidate()
-	t.dirty = true
 
 	return t.dirty
 }
@@ -126,13 +127,20 @@ func (t *Tab) GetRequestedSize() (int, int) {
 }
 
 func (t *Tab) Invalidate() {
-	t.reqWidth, t.reqHeight = t.container.GetRequestedSize()
+	t.reqWidth, t.reqHeight = 0, 0
 
-	// the icon, like the close button, is a square. if it has been set we
-	// just add another side length
+	sw, sy := t.selectButton.GetRequestedSize()
+
 	if t.icon != nil {
-		t.reqWidth += t.reqHeight
+		iw, _ := t.icon.GetRequestedSize()
+		t.reqWidth += iw
 	}
+
+	t.reqWidth += sw
+	t.reqHeight += sy
+
+	cw, _ := t.closeButton.GetRequestedSize()
+	t.reqWidth += cw
 
 	if t.content != nil {
 		t.content.Invalidate()
@@ -171,4 +179,6 @@ func (t *Tab) SetIcon(imgPath string) {
 
 	t.icon = icon
 	t.icon.SetFit(true)
+
+	t.Invalidate()
 }
