@@ -92,8 +92,10 @@ func (t *TabView) Invalidate() {
 	}
 }
 
-func (t *TabView) AddTab(title string, content Widget, closeable bool) {
+func (t *TabView) AddTab(title, iconPath string, content Widget, closeable bool) {
 	tab := newTab(t, title, closeable, content)
+
+	tab.SetIcon(iconPath)
 
 	t.tabs = append(t.tabs, tab)
 

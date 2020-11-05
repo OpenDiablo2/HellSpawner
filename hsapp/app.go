@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"image/color"
 	"io/ioutil"
+	"log"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"time"
@@ -220,8 +223,20 @@ func (a *App) createTestPager() {
 func NOOP() {}
 
 func (a *App) tabViewTest() {
-	// each page is a grid of buttons
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	tabIconPath, err := filepath.Abs(filepath.Join(dir, "assets", "images", "star.png"))
+	if err != nil {
+		fmt.Println(err)
+		tabIconPath = "" // should be okay
+	}
+
+	fmt.Println(tabIconPath)
+
+	// each page is a grid of buttons
 	if a.testTabView == nil {
 		a.testTabView = hsui.CreateTabView(a, 300, 300)
 	}
@@ -230,21 +245,24 @@ func (a *App) tabViewTest() {
 
 	outerVbox := hsui.CreateVBox()
 	outerVbox.SetExpandChild(true)
-	rows, columns := rand.Intn(5)+1, rand.Intn(5)+1
+	rows, columns := rand.Intn(10)+1, rand.Intn(10)+1
 	tabTitle := fmt.Sprintf("test %dx%d", rows, columns)
 
-	a.testTabView.AddTab(tabTitle, outerVbox, true)
+	a.testTabView.AddTab(tabTitle, tabIconPath, outerVbox, true)
 
 	for rowIdx := 0; rowIdx < rows; rowIdx++ {
 		row := hsui.CreateHBox()
 		row.SetExpandChild(true)
 
 		for colIdx := 0; colIdx < columns; colIdx++ {
-			caption := " "
+			img, err := hsui.CreateImage(tabIconPath)
+			if err != nil {
+				continue
+			}
 
-			button := hsui.CreateButton(a, caption, NOOP)
+			img.SetFit(true)
 
-			row.AddChild(button)
+			row.AddChild(img)
 		}
 
 		outerVbox.AddChild(row)
