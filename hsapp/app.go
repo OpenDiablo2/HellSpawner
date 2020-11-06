@@ -47,9 +47,11 @@ type App struct {
 	screenHeight   int
 	mouseX, mouseY int
 
-	testbox     *hsui.VBox
-	testpager   *hsui.Pager
-	testTabView *hsui.TabView
+	rootWidget  *hsui.Modal
+	mainTabView *hsui.TabView
+	//testbox     *hsui.VBox
+	//testpager   *hsui.Pager
+	//testTabView *hsui.TabView
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -70,7 +72,12 @@ func (a *App) GetMonospaceFont() font.Face {
 
 // Create creates an instance of the HelSpawner app.
 func Create() (*App, error) {
-	result := &App{}
+	result := &App{
+		rootWidget: hsui.CreateModal(),
+	}
+
+	result.mainTabView = hsui.CreateTabView(result, defaultWindowWidth, defaultWindowHeight)
+	result.rootWidget.Push(result.mainTabView)
 
 	var err error
 
@@ -102,12 +109,14 @@ func Create() (*App, error) {
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
 	result.createTestBox()
+	result.createTestPager()
+	result.createTestTabView()
 
 	return result, nil
 }
 
 func (a *App) createTestBox() {
-	a.testbox = hsui.CreateVBox()
+	testbox := hsui.CreateVBox()
 
 	// button captions
 	const (
@@ -128,15 +137,15 @@ func (a *App) createTestBox() {
 	}{
 		{
 			alignVertTop,
-			func() { a.testbox.SetAlignment(hscommon.VAlignTop) },
+			func() { testbox.SetAlignment(hscommon.VAlignTop) },
 		},
 		{
 			alignVertMiddle,
-			func() { a.testbox.SetAlignment(hscommon.VAlignMiddle) },
+			func() { testbox.SetAlignment(hscommon.VAlignMiddle) },
 		},
 		{
 			alignVertBottom,
-			func() { a.testbox.SetAlignment(hscommon.VAlignBottom) },
+			func() { testbox.SetAlignment(hscommon.VAlignBottom) },
 		},
 		{
 			visToggle,
@@ -144,15 +153,15 @@ func (a *App) createTestBox() {
 		},
 		{
 			expandToggle,
-			func() { a.testbox.ToggleExpandChild() },
+			func() { testbox.ToggleExpandChild() },
 		},
 		{
 			spaceInc,
-			func() { a.testbox.SetChildSpacing(a.testbox.GetChildSpacing() + 1) },
+			func() { testbox.SetChildSpacing(testbox.GetChildSpacing() + 1) },
 		},
 		{
 			spaceDec,
-			func() { a.testbox.SetChildSpacing(a.testbox.GetChildSpacing() - 1) },
+			func() { testbox.SetChildSpacing(testbox.GetChildSpacing() - 1) },
 		},
 	}
 
@@ -161,7 +170,7 @@ func (a *App) createTestBox() {
 		button := hsui.CreateButton(a, cfg.caption, cfg.callback)
 		buttons[cfg.caption] = button
 
-		a.testbox.AddChild(button)
+		testbox.AddChild(button)
 	}
 
 	hbox := hsui.CreateHBox()
@@ -170,8 +179,20 @@ func (a *App) createTestBox() {
 	hbox.AddChild(hsui.CreateButton(a, "Center", func() {}))
 	hbox.AddChild(hsui.CreateButton(a, "Right", func() {}))
 
-	a.testbox.AddChild(hbox)
-	a.testbox.AddChild(hsui.CreateButton(a, "Add Tab", a.tabViewTest))
+	testbox.AddChild(hbox)
+
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tabIconPath, err := filepath.Abs(filepath.Join(dir, "assets", "images", "star.png"))
+	if err != nil {
+		fmt.Println(err)
+		tabIconPath = "" // should be okay
+	}
+
+	a.mainTabView.AddTab("testbox", tabIconPath, testbox, false)
 }
 
 func (a *App) createTestPager() {
@@ -215,14 +236,6 @@ func (a *App) createTestPager() {
 		order++
 	}
 
-	pager.SetSelectedChild(0)
-
-	a.testpager = pager
-}
-
-func NOOP() {}
-
-func (a *App) tabViewTest() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
@@ -234,12 +247,27 @@ func (a *App) tabViewTest() {
 		tabIconPath = "" // should be okay
 	}
 
-	fmt.Println(tabIconPath)
+	pager.SetSelectedChild(0)
+
+	a.mainTabView.AddTab("pager test", tabIconPath, pager, false)
+}
+
+func NOOP() {}
+
+func (a *App) createTestTabView() {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tabIconPath, err := filepath.Abs(filepath.Join(dir, "assets", "images", "star.png"))
+	if err != nil {
+		fmt.Println(err)
+		tabIconPath = "" // should be okay
+	}
 
 	// each page is a grid of buttons
-	if a.testTabView == nil {
-		a.testTabView = hsui.CreateTabView(a, 300, 300)
-	}
+	testTabView := hsui.CreateTabView(a, 300, 300)
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -248,7 +276,7 @@ func (a *App) tabViewTest() {
 	rows, columns := rand.Intn(10)+1, rand.Intn(10)+1
 	tabTitle := fmt.Sprintf("test %dx%d", rows, columns)
 
-	a.testTabView.AddTab(tabTitle, tabIconPath, outerVbox, true)
+	testTabView.AddTab(tabTitle, tabIconPath, outerVbox, true)
 
 	for rowIdx := 0; rowIdx < rows; rowIdx++ {
 		row := hsui.CreateHBox()
@@ -267,6 +295,8 @@ func (a *App) tabViewTest() {
 
 		outerVbox.AddChild(row)
 	}
+
+	a.mainTabView.AddTab("test TabView", tabIconPath, testTabView, false)
 }
 
 func (a *App) Run() error {
@@ -281,15 +311,10 @@ func (a *App) Update(*ebiten.Image) error {
 	if deviceScale != hsutil.GetLastDeviceScale() {
 		hsutil.SetDeviceScale(deviceScale)
 		a.regenerateFonts()
-		a.testbox.Invalidate()
-		a.testTabView.Invalidate()
+		a.rootWidget.Invalidate()
 	}
 
-	a.testbox.Update()
-
-	if a.testTabView != nil {
-		a.testTabView.Update()
-	}
+	a.rootWidget.Update()
 
 	return nil
 }
@@ -301,11 +326,7 @@ func (a *App) Draw(screen *ebiten.Image) {
 	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
 	const testSplitPoint = 300
-	a.testbox.Render(screen, 0, 0, testSplitPoint, a.screenHeight)
-
-	if a.testTabView != nil {
-		a.testTabView.Render(screen, testSplitPoint, 0, a.screenWidth-testSplitPoint, a.screenHeight)
-	}
+	a.rootWidget.Render(screen, 0, 0, a.screenWidth, a.screenHeight)
 }
 
 func (a *App) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
