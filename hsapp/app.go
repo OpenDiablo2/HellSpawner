@@ -276,7 +276,7 @@ func (a *App) createTestTabView() {
 	rows, columns := rand.Intn(10)+1, rand.Intn(10)+1
 	tabTitle := fmt.Sprintf("test %dx%d", rows, columns)
 
-	testTabView.AddTab(tabTitle, "", outerVbox, true)
+	testTabView.AddTab(tabTitle, tabIconPath, outerVbox, true)
 
 	for rowIdx := 0; rowIdx < rows; rowIdx++ {
 		row := hsui.CreateHBox()
