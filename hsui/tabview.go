@@ -18,8 +18,6 @@ func CreateTabView(info hsutil.InfoProvider, w, h int) *TabView {
 		tabBox:    CreateHBox(),
 		container: CreateVBox(),
 		pager:     CreatePager(0, 0, nil),
-		reqWidth:  w,
-		reqHeight: h,
 		enabled:   true,
 		visible:   true,
 		expanded:  true,
@@ -47,7 +45,6 @@ type TabView struct {
 	tabBox                     *HBox
 	pager                      *Pager
 	padding                    int
-	reqWidth, reqHeight        int
 	enabled, visible, expanded bool
 }
 
@@ -77,15 +74,13 @@ func (t *TabView) Update() (dirty bool) {
 }
 
 func (t *TabView) GetRequestedSize() (width, height int) {
-	return t.reqWidth, t.reqHeight
+	return t.container.GetRequestedSize()
 }
 
 func (t *TabView) Invalidate() {
 	t.container.Invalidate()
 	t.pager.Invalidate()
 	t.tabBox.Invalidate()
-
-	t.reqWidth, t.reqHeight = 100, 100
 
 	for idx := range t.tabs {
 		t.tabs[idx].Invalidate()
