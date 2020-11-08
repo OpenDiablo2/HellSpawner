@@ -1,9 +1,10 @@
 package hsui
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
-	"github.com/hajimehoshi/ebiten"
 )
 
 const (
@@ -39,13 +40,14 @@ func CreateTabView(info hsutil.InfoProvider, w, h int) *TabView {
 }
 
 type TabView struct {
-	info                       hsutil.InfoProvider
-	tabs                       []*Tab
-	container                  *VBox
-	tabBox                     *HBox
-	pager                      *Pager
-	padding                    int
-	enabled, visible, expanded bool
+	info                              hsutil.InfoProvider
+	tabs                              []*Tab
+	container                         *VBox
+	tabBox                            *HBox
+	pager                             *Pager
+	padding                           int
+	reqWidth, reqHeight               int
+	dirty, enabled, visible, expanded bool
 }
 
 func (t *TabView) Render(screen *ebiten.Image, x, y, width, height int) {
@@ -58,17 +60,21 @@ func (t *TabView) Render(screen *ebiten.Image, x, y, width, height int) {
 }
 
 func (t *TabView) Update() (dirty bool) {
-	dirty = dirty || t.container.Update()
-	dirty = dirty || t.pager.Update()
-	dirty = dirty || t.tabBox.Update()
+	t.dirty = dirty || t.container.Update()
+	t.dirty = dirty || t.pager.Update()
+	t.dirty = dirty || t.tabBox.Update()
 
 	for idx := range t.tabs {
-		dirty = dirty || t.tabs[idx].Update()
+		t.dirty = dirty || t.tabs[idx].Update()
 	}
 
-	if dirty {
+	dirty = t.dirty
+
+	if t.dirty {
 		t.Invalidate()
 	}
+
+	t.dirty = false
 
 	return dirty
 }
@@ -85,6 +91,8 @@ func (t *TabView) Invalidate() {
 	for idx := range t.tabs {
 		t.tabs[idx].Invalidate()
 	}
+
+	t.reqWidth, t.reqHeight = t.container.GetRequestedSize()
 }
 
 func (t *TabView) AddTab(title, iconPath string, content Widget, closeable bool) {
@@ -140,6 +148,7 @@ func (t *TabView) RemoveTab(tab *Tab) {
 
 func (t *TabView) SelectTab(tab *Tab) {
 	t.SelectTabByIndex(t.getTabIndex(tab))
+	t.Invalidate()
 }
 
 func (t *TabView) SelectTabByIndex(selectedIdx int) {

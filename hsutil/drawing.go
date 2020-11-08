@@ -2,25 +2,15 @@ package hsutil
 
 import (
 	"image/color"
-	"log"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var imgSquare *ebiten.Image
 
 func DrawColoredRect(target *ebiten.Image, x, y, w, h int, r, g, b, alpha uint8) {
-	var err error
-
 	if imgSquare == nil {
-		imgSquare, err = ebiten.NewImage(1, 1, ebiten.FilterNearest)
-		if err != nil {
-			log.Panic(err)
-		}
-
-		//if err = imgSquare.Fill(color.Black); err != nil {
-		//	log.Panic(err)
-		//}
+		imgSquare = ebiten.NewImage(1, 1)
 	}
 
 	drawOptions := &ebiten.DrawImageOptions{}
@@ -29,7 +19,7 @@ func DrawColoredRect(target *ebiten.Image, x, y, w, h int, r, g, b, alpha uint8)
 	drawOptions.GeoM.Scale(float64(w), float64(h))
 	drawOptions.ColorM.Translate(float64(r)/255, float64(g)/255, float64(b)/255, float64(alpha)/255)
 
-	_ = target.DrawImage(imgSquare, drawOptions)
+	target.DrawImage(imgSquare, drawOptions)
 }
 
 func ArrayToRGBA(tc []uint8) color.Color {

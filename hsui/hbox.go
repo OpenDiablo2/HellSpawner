@@ -3,8 +3,9 @@ package hsui
 import (
 	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/hajimehoshi/ebiten"
 )
 
 type HBox struct {
@@ -97,22 +98,22 @@ func (h *HBox) Render(screen *ebiten.Image, x, y, width, height int) {
 }
 
 func (h *HBox) Update() (dirty bool) {
-	if h.dirty {
-		h.Invalidate()
-	}
+	h.dirty = false
 
-	dirty = false
 	for idx := range h.children {
 		childDirty := h.children[idx].Update()
 
 		if childDirty {
-			dirty = true
+			h.dirty = true
+			break
 		}
 	}
 
-	if dirty {
-		h.dirty = true
+	if h.dirty {
+		h.Invalidate()
 	}
+
+	h.dirty = dirty
 
 	return dirty
 }

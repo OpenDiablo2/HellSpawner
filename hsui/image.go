@@ -1,10 +1,10 @@
 package hsui
 
 import (
-	"image"
+	"image/png"
 
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 func CreateImage(path string) (*Image, error) {
@@ -13,15 +13,12 @@ func CreateImage(path string) (*Image, error) {
 		return nil, err
 	}
 
-	img, _, err := image.Decode(imageData)
+	img, err := png.Decode(imageData)
 	if err != nil {
 		return nil, err
 	}
 
-	ebitenImage, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
-	if err != nil {
-		return nil, err
-	}
+	ebitenImage := ebiten.NewImageFromImage(img)
 
 	hsImage := &Image{
 		image: ebitenImage,
@@ -33,9 +30,8 @@ func CreateImage(path string) (*Image, error) {
 }
 
 type Image struct {
-	image   *ebiten.Image
-	options *ebiten.DrawImageOptions
-	fit     bool
+	image *ebiten.Image
+	fit   bool
 }
 
 func (i *Image) Render(screen *ebiten.Image, x, y, w, h int) {

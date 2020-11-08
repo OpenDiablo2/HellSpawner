@@ -3,8 +3,9 @@ package hsui
 import (
 	"log"
 
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/hajimehoshi/ebiten"
 )
 
 type VBox struct {
@@ -124,9 +125,10 @@ func (v *VBox) GetRequestedSize() (int, int) {
 
 	for idx := range v.children {
 		cw, ch := v.children[idx].GetRequestedSize()
-		if cw < w {
+		if w < cw {
 			w = cw
 		}
+
 		h += ch
 	}
 
