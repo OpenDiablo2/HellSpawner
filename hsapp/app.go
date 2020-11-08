@@ -14,9 +14,12 @@ import (
 	"time"
 
 	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"golang.org/x/image/font"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2core/d2asset"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -39,6 +42,7 @@ type App struct {
 	NormalFont     font.Face
 	SymbolFont     font.Face
 	MonospaceFont  font.Face
+	asset          *d2asset.AssetManager
 	ttNormal       *truetype.Font
 	ttMono         *truetype.Font
 	ttSymbols      *truetype.Font
@@ -48,9 +52,6 @@ type App struct {
 
 	rootWidget  *hsui.Modal
 	mainTabView *hsui.TabView
-	//testbox     *hsui.VBox
-	//testpager   *hsui.Pager
-	//testTabView *hsui.TabView
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -69,28 +70,21 @@ func (a *App) GetMonospaceFont() font.Face {
 	return a.MonospaceFont
 }
 
-// Create creates an instance of the HelSpawner app.
+// Create creates an instance of the HellSpawner app.
 func Create() (*App, error) {
+	var err error
+
 	result := &App{
 		rootWidget: hsui.CreateModal(),
 	}
 
+	err = result.initAssetManager()
+	if err != nil {
+		return nil, err
+	}
+
 	result.mainTabView = hsui.CreateTabView(result, defaultWindowWidth, defaultWindowHeight)
 	result.rootWidget.Push(result.mainTabView)
-
-	var err error
-
-	var configBytes []byte
-
-	// Load the configuration file
-	// TODO: Check for a custom config file
-	if configBytes, err = ioutil.ReadFile("config.json"); err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(configBytes, &result.Config); err != nil {
-		return nil, err
-	}
 
 	// Set up the initial window layout and properties
 	ebiten.SetWindowSize(defaultWindowWidth, defaultWindowHeight)
@@ -107,11 +101,52 @@ func Create() (*App, error) {
 	// Store off the device scale factor so we can regenerate if we need to
 	hsutil.SetDeviceScale(ebiten.DeviceScaleFactor())
 
-	result.createTestBox()
-	result.createTestPager()
-	result.createTestTabView()
+	result.initTests()
 
 	return result, nil
+}
+
+func (a *App) initAssetManager() error {
+	assetManager, err := d2asset.NewAssetManager()
+	if err != nil {
+		return err
+	}
+
+	a.asset = assetManager
+
+	localDir := filepath.Dir(hsconfig.LocalConfigPath())
+	configDir := filepath.Dir(hsconfig.DefaultConfigPath())
+
+	// ensure the config dir exists
+	if err := os.MkdirAll(configDir, 0750); err != nil {
+		return err
+	}
+
+	// bootstrap the two config dir locations we will check
+	if _, err = a.asset.Loader.AddSource(localDir); err != nil {
+		return err
+	}
+
+	if _, err = a.asset.Loader.AddSource(configDir); err != nil {
+		return err
+	}
+
+	// try to load the config file
+	if configBytes, err := a.asset.LoadFile(hsconfig.ConfigFileName); err == nil {
+		// unmarshal the loaded data if we found the config file
+		return json.Unmarshal(configBytes, &a.Config)
+	}
+
+	// create a default and save to disk if we didnt find one
+	a.Config = *hsconfig.DefaultConfig()
+
+	return a.Config.Save(hsconfig.DefaultConfigPath())
+}
+
+func (a *App) initTests() {
+	a.createTestBox()
+	a.createTestPager()
+	a.createTestTabView()
 }
 
 func (a *App) createTestBox() {
@@ -212,8 +247,8 @@ func (a *App) createTestPager() {
 	for pageIdx, order := 0, minGridOrder; pageIdx < numPages && order <= maxGridOrder; pageIdx++ {
 		outerVbox := hsui.CreateVBox()
 		outerVbox.SetExpandChild(true)
-		rows, columns := order, order
 
+		rows, columns := order, order
 		for rowIdx := 0; rowIdx < rows; rowIdx++ {
 			row := hsui.CreateHBox()
 			row.SetExpandChild(true)
