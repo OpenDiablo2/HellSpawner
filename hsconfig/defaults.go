@@ -31,16 +31,16 @@ func LocalConfigPath() string {
 func DefaultConfig() *AppConfig {
 	config := &AppConfig{
 		Colors: AppColorConfig{
-			WindowBackground:     []uint8{5, 5, 5, 255},
-			Primary:              []uint8{60, 15, 15, 255},
-			PrimaryHighlight:     []uint8{80, 15, 15, 255},
-			Text:                 []uint8{255, 255, 255, 255},
-			Disabled:             []uint8{24, 24, 24, 255},
-			DisabledText:         []uint8{128, 128, 128, 255},
-			Tab:                  []uint8{100, 30, 30, 255},
-			TabSelected:          []uint8{255, 128, 128, 48},
-			TabHighlight:         []uint8{128, 128, 128, 255},
-			TabSelectedHighlight: []uint8{128, 128, 128, 255},
+			WindowBackground:     []int{5, 5, 5, 255},
+			Primary:              []int{60, 15, 15, 255},
+			PrimaryHighlight:     []int{80, 15, 15, 255},
+			Text:                 []int{255, 255, 255, 255},
+			Disabled:             []int{24, 24, 24, 255},
+			DisabledText:         []int{128, 128, 128, 255},
+			Tab:                  []int{100, 30, 30, 255},
+			TabSelected:          []int{255, 128, 128, 48},
+			TabHighlight:         []int{128, 128, 128, 255},
+			TabSelectedHighlight: []int{128, 128, 128, 255},
 		},
 		Fonts: FontConfig{
 			Normal: FontItemConfig{

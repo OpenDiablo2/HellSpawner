@@ -36,16 +36,16 @@ func (c *AppConfig) Save(path string) error {
 }
 
 type AppColorConfig struct {
-	WindowBackground     []uint8 `json:"windowBackground"`
-	Text                 []uint8 `json:"text"`
-	Primary              []uint8 `json:"primary"`
-	PrimaryHighlight     []uint8 `json:"primaryHighlight"`
-	Disabled             []uint8 `json:"disabled"`
-	DisabledText         []uint8 `json:"disabledText"`
-	Tab                  []uint8 `json:"tab"`
-	TabSelected          []uint8 `json:"tabSelected"`
-	TabHighlight         []uint8 `json:"tabHighlight"`
-	TabSelectedHighlight []uint8 `json:"tabSelectedHighlight"`
+	WindowBackground     []int `json:"windowBackground"`
+	Text                 []int `json:"text"`
+	Primary              []int `json:"primary"`
+	PrimaryHighlight     []int `json:"primaryHighlight"`
+	Disabled             []int `json:"disabled"`
+	DisabledText         []int `json:"disabledText"`
+	Tab                  []int `json:"tab"`
+	TabSelected          []int `json:"tabSelected"`
+	TabHighlight         []int `json:"tabHighlight"`
+	TabSelectedHighlight []int `json:"tabSelectedHighlight"`
 }
 
 type FontConfig struct {

@@ -54,7 +54,7 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 		return
 	}
 
-	primaryColor := b.infoProvider.GetAppConfig().Colors.Primary
+	primaryColor := hsutil.ArrayToRGBA(b.infoProvider.GetAppConfig().Colors.Primary)
 	textColor := b.textColor
 
 	if b.enabled {
@@ -62,19 +62,20 @@ func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
 		b.hovered = false
 		if b.canExecuteCallback && mouseX >= hsutil.ScaleToDevice(x) && mouseX < hsutil.ScaleToDevice(x+width) &&
 			mouseY >= hsutil.ScaleToDevice(y) && mouseY < hsutil.ScaleToDevice(y+height) {
-			primaryColor = b.infoProvider.GetAppConfig().Colors.PrimaryHighlight
+			primaryColor = hsutil.ArrayToRGBA(b.infoProvider.GetAppConfig().Colors.PrimaryHighlight)
 			b.hovered = true
 		}
 	} else {
-		primaryColor = b.infoProvider.GetAppConfig().Colors.Disabled
+		primaryColor = hsutil.ArrayToRGBA(b.infoProvider.GetAppConfig().Colors.Disabled)
 		textColor = b.disabledTextColor
 	}
 
-	hsutil.DrawColoredRect(
-		screen,
-		hsutil.ScaleToDevice(x), hsutil.ScaleToDevice(y),
-		hsutil.ScaleToDevice(width), hsutil.ScaleToDevice(height),
-		primaryColor[0], primaryColor[1], primaryColor[2], primaryColor[3])
+	x = hsutil.ScaleToDevice(x)
+	y = hsutil.ScaleToDevice(y)
+	width = hsutil.ScaleToDevice(width)
+	height = hsutil.ScaleToDevice(height)
+
+	hsutil.DrawColoredRect(screen, x, y, width, height, primaryColor)
 
 	font := b.infoProvider.GetNormalFont()
 	heightDelta := int(math.Floor(float64(hsutil.ScaleToDevice(height)-b.fontBoundsY)*0.50)) - 3
