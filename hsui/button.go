@@ -4,9 +4,10 @@ import (
 	"image/color"
 	"math"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/text"
 )
 
 const buttonPaddingH = 32

@@ -13,16 +13,15 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/golang/freetype/truetype"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"golang.org/x/image/font"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-
-	"github.com/OpenDiablo2/HellSpawner/hsutil"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
-
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsui"
-	"github.com/golang/freetype/truetype"
-	"github.com/hajimehoshi/ebiten"
-	"golang.org/x/image/font"
+	"github.com/OpenDiablo2/HellSpawner/hsutil"
 )
 
 const (
@@ -252,8 +251,6 @@ func (a *App) createTestPager() {
 	a.mainTabView.AddTab("pager test", tabIconPath, pager, false)
 }
 
-func NOOP() {}
-
 func (a *App) createTestTabView() {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -283,7 +280,7 @@ func (a *App) createTestTabView() {
 		row.SetExpandChild(true)
 
 		for colIdx := 0; colIdx < columns; colIdx++ {
-			img, err := hsui.CreateImage(tabIconPath)
+			img, _ := hsui.CreateImage(tabIconPath)
 			if err != nil {
 				continue
 			}
@@ -303,7 +300,7 @@ func (a *App) Run() error {
 	return ebiten.RunGame(a)
 }
 
-func (a *App) Update(*ebiten.Image) error {
+func (a *App) Update() error {
 	deviceScale := ebiten.DeviceScaleFactor()
 	a.mouseX, a.mouseY = ebiten.CursorPosition()
 
@@ -323,9 +320,10 @@ func (a *App) Draw(screen *ebiten.Image) {
 	frameColor := a.Config.Colors.WindowBackground
 
 	// Fill the window with the frame color
-	_ = screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
+	screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
 
 	const testSplitPoint = 300
+
 	a.rootWidget.Render(screen, 0, 0, a.screenWidth, a.screenHeight)
 }
 

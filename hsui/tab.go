@@ -1,8 +1,9 @@
 package hsui
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
+
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
-	"github.com/hajimehoshi/ebiten"
 )
 
 const (

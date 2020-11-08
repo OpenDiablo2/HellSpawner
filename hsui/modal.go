@@ -1,6 +1,6 @@
 package hsui
 
-import "github.com/hajimehoshi/ebiten"
+import "github.com/hajimehoshi/ebiten/v2"
 
 func CreateModal() *Modal {
 	return &Modal{children: make([]Widget, 0)}

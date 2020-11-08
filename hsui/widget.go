@@ -1,6 +1,6 @@
 package hsui
 
-import "github.com/hajimehoshi/ebiten"
+import "github.com/hajimehoshi/ebiten/v2"
 
 // Widget is an abstract representation of a UI widget.
 type Widget interface {
