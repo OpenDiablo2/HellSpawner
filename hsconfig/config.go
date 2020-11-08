@@ -1,8 +1,38 @@
 package hsconfig
 
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+)
+
 type AppConfig struct {
 	Colors AppColorConfig `json:"colors"`
 	Fonts  FontConfig     `json:"fonts"`
+}
+
+// Save saves the configuration object to disk
+func (c *AppConfig) Save(path string) error {
+	configDir := filepath.Dir(path)
+	if err := os.MkdirAll(configDir, 0750); err != nil {
+		return err
+	}
+
+	configFile, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+
+	buf, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := configFile.Write(buf); err != nil {
+		return err
+	}
+
+	return configFile.Close()
 }
 
 type AppColorConfig struct {
