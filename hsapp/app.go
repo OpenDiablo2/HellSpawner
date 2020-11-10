@@ -3,7 +3,6 @@ package hsapp
 import (
 	"encoding/json"
 	"fmt"
-	"image/color"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -352,10 +351,10 @@ func (a *App) Update() error {
 }
 
 func (a *App) Draw(screen *ebiten.Image) {
-	frameColor := a.Config.Colors.WindowBackground
+	frameColor := hsutil.ArrayToRGBA(a.Config.Colors.WindowBackground)
 
 	// Fill the window with the frame color
-	screen.Fill(color.RGBA{R: frameColor[0], G: frameColor[1], B: frameColor[2], A: frameColor[3]})
+	screen.Fill(frameColor)
 
 	const testSplitPoint = 300
 

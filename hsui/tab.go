@@ -63,8 +63,8 @@ func (t *Tab) Render(screen *ebiten.Image, x, y, width, height int) {
 		| @ |  <label>         | X |
 		+---+------------------+---+
 	*/
-	bg := t.info.GetAppConfig().Colors.Primary
-	hsutil.DrawColoredRect(screen, x, y, width, height, bg[0], bg[1], bg[2], bg[3])
+	primary := hsutil.ArrayToRGBA(t.info.GetAppConfig().Colors.Primary)
+	hsutil.DrawColoredRect(screen, x, y, width, height, primary)
 
 	if t.icon != nil {
 		iconX, iconY := x+iconPadding, y+iconPadding
@@ -101,8 +101,8 @@ func (t *Tab) Render(screen *ebiten.Image, x, y, width, height int) {
 		width += height
 	}
 
-	rgba := t.info.GetAppConfig().Colors.TabSelected
-	hsutil.DrawColoredRect(screen, x, y, width, height, rgba[0], rgba[1], rgba[2], rgba[3])
+	tabSelected := hsutil.ArrayToRGBA(t.info.GetAppConfig().Colors.TabSelected)
+	hsutil.DrawColoredRect(screen, x, y, width, height, tabSelected)
 }
 
 func (t *Tab) Update() bool {
