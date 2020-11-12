@@ -20,8 +20,8 @@ github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 h1:DACJavvAHhabrF0
 github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0/go.mod h1:E/TSTwGwJL78qG/PmXZO1EjYhfJinVAhrmmHX6Z8B9k=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gravestench/akara v0.0.0-20201014060234-a64208a7fd3c/go.mod h1:fTeda1SogMg5Lkd4lXMEd/Pk/a5/gQuLGaAI2rn1PBQ=
-github.com/gravestench/akara v0.0.0-20201105225456-56f614313a63 h1:bENvaBWG9HLUQBhBxEcHfY/uqLrZJh+/ivDdhC+0Q08=
-github.com/gravestench/akara v0.0.0-20201105225456-56f614313a63/go.mod h1:fTeda1SogMg5Lkd4lXMEd/Pk/a5/gQuLGaAI2rn1PBQ=
+github.com/gravestench/akara v0.0.0-20201112185500-e30f91c8e3fd h1:LhvLxRPGzYx9O9HFNOfdIF8hNiYizVD0hqdZGRuDE3E=
+github.com/gravestench/akara v0.0.0-20201112185500-e30f91c8e3fd/go.mod h1:fTeda1SogMg5Lkd4lXMEd/Pk/a5/gQuLGaAI2rn1PBQ=
 github.com/hajimehoshi/bitmapfont/v2 v2.1.0 h1:Kit9SsNcnrU5Q/39zni2adUMTEm128/lkNnYxnP+v3A=
 github.com/hajimehoshi/bitmapfont/v2 v2.1.0/go.mod h1:2BnYrkTQGThpr/CY6LorYtt/zEPNzvE/ND69CRTaHMs=
 github.com/hajimehoshi/ebiten/v2 v2.0.0 h1:G8mhkKFtnDPPZ/ChaGWx4Bm0NusYEcafGCJ8QLxEaYs=
