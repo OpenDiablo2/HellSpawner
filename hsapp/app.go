@@ -23,6 +23,8 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	. "github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hsui"
 	"github.com/OpenDiablo2/HellSpawner/hsutil"
 )
@@ -46,12 +48,17 @@ type App struct {
 	ttNormal       *truetype.Font
 	ttMono         *truetype.Font
 	ttSymbols      *truetype.Font
+	inputState     *hsinput.InputVector
 	screenWidth    int
 	screenHeight   int
 	mouseX, mouseY int
 
 	rootWidget  *hsui.Modal
 	mainTabView *hsui.TabView
+}
+
+func (a *App) GetInputVector() *hsinput.InputVector {
+	return a.inputState
 }
 
 func (a *App) GetAppConfig() *hsconfig.AppConfig {
@@ -76,6 +83,7 @@ func Create() (*App, error) {
 
 	result := &App{
 		rootWidget: hsui.CreateModal(),
+		inputState: hsinput.CreateInputVector(),
 	}
 
 	err = result.initAssetManager()
@@ -141,6 +149,54 @@ func (a *App) initAssetManager() error {
 	a.Config = *hsconfig.DefaultConfig()
 
 	return a.Config.Save(hsconfig.DefaultConfigPath())
+}
+
+func (a *App) updateInputState() {
+	var keysToCheck = []Key{
+		Key0, Key1, Key2, Key3, Key4, Key5, Key6,
+		Key7, Key8, Key9, KeyA, KeyB, KeyC, KeyD,
+		KeyE, KeyF, KeyG, KeyH, KeyI, KeyJ, KeyK,
+		KeyL, KeyM, KeyN, KeyO, KeyP, KeyQ, KeyR,
+		KeyS, KeyT, KeyU, KeyV, KeyW, KeyX, KeyY,
+		KeyZ, KeyApostrophe, KeyBackslash, KeyBackspace,
+		KeyCapsLock, KeyComma, KeyDelete, KeyDown,
+		KeyEnd, KeyEnter, KeyEqual, KeyEscape,
+		KeyF1, KeyF2, KeyF3, KeyF4, KeyF5, KeyF6,
+		KeyF7, KeyF8, KeyF9, KeyF10, KeyF11, KeyF12,
+		KeyGraveAccent, KeyHome, KeyInsert, KeyKP0,
+		KeyKP1, KeyKP2, KeyKP3, KeyKP4, KeyKP5,
+		KeyKP6, KeyKP7, KeyKP8, KeyKP9,
+		KeyKPAdd, KeyKPDecimal, KeyKPDivide, KeyKPEnter,
+		KeyKPEqual, KeyKPMultiply, KeyKPSubtract, KeyLeft,
+		KeyLeftBracket, KeyMenu, KeyMinus, KeyNumLock,
+		KeyPageDown, KeyPageUp, KeyPause, KeyPeriod,
+		KeyPrintScreen, KeyRight, KeyRightBracket,
+		KeyScrollLock, KeySemicolon, KeySlash,
+		KeySpace, KeyTab, KeyUp,
+	}
+
+	var modifiersToCheck = []Modifier{
+		ModAlt, ModControl, ModShift,
+	}
+
+	var buttonsToCheck = []MouseButton{
+		MouseButtonLeft, MouseButtonMiddle, MouseButtonRight,
+	}
+
+	for _, k := range keysToCheck {
+		truth := ebiten.IsKeyPressed(ebiten.Key(k))
+		a.inputState.KeyVector.Set(int(k), truth)
+	}
+
+	for _, m := range modifiersToCheck {
+		truth := ebiten.IsKeyPressed(ebiten.Key(m))
+		a.inputState.ModifierVector.Set(int(m), truth)
+	}
+
+	for _, b := range buttonsToCheck {
+		truth := ebiten.IsMouseButtonPressed(ebiten.MouseButton(b))
+		a.inputState.MouseButtonVector.Set(int(b), truth)
+	}
 }
 
 func (a *App) initTests() {
@@ -336,6 +392,7 @@ func (a *App) Run() error {
 }
 
 func (a *App) Update() error {
+	a.updateInputState()
 	deviceScale := ebiten.DeviceScaleFactor()
 	a.mouseX, a.mouseY = ebiten.CursorPosition()
 
