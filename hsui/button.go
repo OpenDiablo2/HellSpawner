@@ -4,6 +4,8 @@ import (
 	"image/color"
 	"math"
 
+	. "github.com/OpenDiablo2/HellSpawner/hsinput"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 
@@ -18,6 +20,7 @@ type Button struct {
 	infoProvider       hsutil.InfoProvider
 	textColor          color.Color
 	disabledTextColor  color.Color
+	inputVector        *InputVector
 	fontBoundsX        int
 	fontBoundsY        int
 	hovered            bool
@@ -31,7 +34,7 @@ type Button struct {
 }
 
 func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func()) *Button {
-	result := &Button{
+	button := &Button{
 		infoProvider:       infoProvider,
 		caption:            caption,
 		hovered:            false,
@@ -44,9 +47,11 @@ func CreateButton(infoProvider hsutil.InfoProvider, caption string, onClick func
 		onClick:            onClick,
 	}
 
-	result.Invalidate()
+	button.inputVector = CreateInputVector().SetMouseButton(MouseButtonLeft)
 
-	return result
+	button.Invalidate()
+
+	return button
 }
 
 func (b *Button) Render(screen *ebiten.Image, x, y, width, height int) {
@@ -97,7 +102,7 @@ func (b *Button) Update() (dirty bool) {
 		return dirty
 	}
 
-	lmbPressed = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
+	lmbPressed = b.infoProvider.GetInputVector().Contains(b.inputVector)
 
 	if b.canExecuteCallback && lmbPressed {
 		if b.hovered {
