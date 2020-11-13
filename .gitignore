@@ -21,3 +21,6 @@
 
 # binary on *nix
 HellSpawner
+
+# goland binary when build dir is the repo dir
+go_build*
