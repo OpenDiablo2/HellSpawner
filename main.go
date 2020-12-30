@@ -7,17 +7,11 @@ import (
 )
 
 func main() {
-	var app *hsapp.App = nil
+	app, err := hsapp.Create()
 
-	var err error
-
-	// Create the HellSpawner app instance
-	if app, err = hsapp.Create(); err != nil {
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Run the HellSpawner app
-	if err = app.Run(); err != nil {
-		log.Fatal(err)
-	}
+	app.Run()
 }
