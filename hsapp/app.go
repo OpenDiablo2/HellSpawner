@@ -4,8 +4,12 @@ import (
 	"image/color"
 	"log"
 	"strings"
+	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 
@@ -40,8 +44,13 @@ func Create() (*App, error) {
 
 func (a *App) Run() {
 	wnd := g.NewMasterWindow("HellSpawner", 1280, 720, 0, a.setupFonts)
-
 	wnd.SetBgColor(color.RGBA{10, 10, 10, 255})
+
+	sampleRate := beep.SampleRate(22050)
+	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
+		log.Fatal(err)
+	}
+
 	wnd.Main(a.render)
 }
 
@@ -53,6 +62,8 @@ func (a *App) render() {
 	}
 
 	a.mpqExplorer.Render()
+
+	g.Update()
 }
 
 func (a *App) loadMpq(fileName string) {
@@ -86,7 +97,7 @@ func (a *App) renderMainMenuBar() {
 		g.Menu("File", g.Layout{
 			g.MenuItem("Open MPQ...", func() {
 				file, err := dialog.File().Filter("MPQ Archive", "mpq").Load()
-				if err != nil {
+				if err != nil || len(file) == 0 {
 					return
 				}
 				a.loadMpq(file)
@@ -119,14 +130,14 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		log.Fatal(err)
 	}
 
-	text, err := mpq.ReadTextFile(filePath)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	switch ext {
 	case ".txt":
+		text, err := mpq.ReadTextFile(filePath)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		editor, err := hstexteditor.Create(path.Name, text, a.fontFixed)
 
 		if err != nil {
@@ -134,6 +145,18 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		}
 
 		a.editors = append(a.editors, editor)
+		editor.Show()
+	case ".wav":
+		audioStream, err := mpq.ReadFileStream(filePath)
+
+		editor, err := hssoundeditor.Create(path.Name, audioStream)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+
 		editor.Show()
 	}
 }
