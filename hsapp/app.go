@@ -19,7 +19,7 @@ import (
 
 	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
-	"github.com/sqweek/dialog"
+	"github.com/OpenDiablo2/dialog"
 )
 
 type App struct {
@@ -50,6 +50,8 @@ func (a *App) Run() {
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}
+
+	dialog.Init()
 
 	wnd.Main(a.render)
 }
