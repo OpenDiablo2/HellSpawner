@@ -1,11 +1,14 @@
 package hsapp
 
 import (
+	"fmt"
 	"image/color"
 	"log"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/faiface/beep"
@@ -113,7 +116,7 @@ func (a *App) renderMainMenuBar() {
 				}
 				a.loadMpq(file)
 			}),
-			g.MenuItem("Exit", nil),
+			g.MenuItem("Exit", func() { os.Exit(0) }),
 		}),
 		g.Menu("View", a.buildViewMenu()),
 		g.Menu("Help", g.Layout{
@@ -177,7 +180,24 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		a.editors = append(a.editors, editor)
 		editor.SetId(path.FullPath)
 		editor.Show()
+	case ".dat":
+		data, err := mpq.ReadFile(filePath)
+		if err != nil {
+			return
+		}
+
+		editor, err := hspaletteeditor.Create(fmt.Sprintf("%s]##%s", path.Name, path.FullPath), data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
+
+		editor.Show()
 	}
+
 }
 
 func cleanMpqPathName(name string) string {
