@@ -1,36 +1,27 @@
 package hspaletteeditor
 
 import (
-	"github.com/AllenDang/giu/imgui"
-	"image"
-	"image/color"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
-	g "github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/giu/imgui"
+
+	g "github.com/OpenDiablo2/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
-const (
-	fmtTitle = "Palette Editor [%s]"
-)
-
-const (
-	gridWidth  = 16
-	gridHeight = 16
-	cellSize   = 12
-)
-
-func Create(path string, data []byte) (*PaletteEditor, error) {
+func Create(path string, fullPath string, data []byte) (*PaletteEditor, error) {
 	palette, err := d2dat.Load(data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &PaletteEditor{
-		path:    path,
-		palette: palette,
+		path:     path,
+		fullPath: fullPath,
+		palette:  palette,
 	}
 
 	return result, nil
@@ -38,8 +29,9 @@ func Create(path string, data []byte) (*PaletteEditor, error) {
 
 type PaletteEditor struct {
 	hseditor.Editor
-	palette d2interface.Palette
-	path    string
+	palette  d2interface.Palette
+	path     string
+	fullPath string
 }
 
 func (e *PaletteEditor) GetWindowTitle() string {
@@ -56,34 +48,15 @@ func (e *PaletteEditor) Render() {
 		imgui.SetNextWindowFocus()
 	}
 
-	width := gridWidth * cellSize
-	height := gridHeight * cellSize
-
-	displayPalette := func() {
-		canvas := g.GetCanvas()
-		pos := g.GetCursorScreenPos()
-		colors := e.palette.GetColors()
-
-		for idx, c := range colors {
-			x := (idx % gridWidth) * cellSize
-			y := (idx / gridHeight) * cellSize
-
-			tl, br := pos.Add(image.Pt(x, y)), pos.Add(image.Pt(x+cellSize, y+cellSize))
-
-			theColor := color.RGBA{c.R(), c.G(), c.B(), c.A()}
-
-			canvas.AddRectFilled(tl, br, theColor, 0, 0)
-		}
-	}
-
 	g.WindowV(
 		e.GetWindowTitle(),
 		&e.Visible,
-		g.WindowFlagsNoResize,
+		g.WindowFlagsAlwaysAutoResize,
 		0, 0,
-		float32(width+16), float32(height+40),
+		0, 0,
+		//float32(width+16), float32(height+40),
 		g.Layout{
-			g.Custom(displayPalette),
+			hswidget.PaletteGrid(e.fullPath, e.palette.GetColors()),
 		},
 	)
 }

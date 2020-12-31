@@ -3,9 +3,9 @@ package hstexteditor
 import (
 	"strings"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+	g "github.com/OpenDiablo2/giu"
+	"github.com/OpenDiablo2/giu/imgui"
 )
 
 type TextEditor struct {
