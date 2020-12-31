@@ -48,17 +48,9 @@ func (e *PaletteEditor) Render() {
 		imgui.SetNextWindowFocus()
 	}
 
-	g.WindowV(
-		e.GetWindowTitle(),
-		&e.Visible,
-		g.WindowFlagsAlwaysAutoResize,
-		0, 0,
-		0, 0,
-		//float32(width+16), float32(height+40),
-		g.Layout{
-			hswidget.PaletteGrid(e.fullPath, e.palette.GetColors()),
-		},
-	)
+	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsAlwaysAutoResize, 360, 30, 0, 0, g.Layout{
+		hswidget.PaletteGrid(e.fullPath, e.palette.GetColors()),
+	})
 }
 
 func (e *PaletteEditor) Cleanup() {
