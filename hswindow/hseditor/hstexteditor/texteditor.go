@@ -10,11 +10,16 @@ import (
 
 type TextEditor struct {
 	hseditor.Editor
+
 	fontFixed imgui.Font
 	file      string
 	text      string
 	tableView bool
 	tableRows g.Rows
+}
+
+func (e *TextEditor) Cleanup() {
+
 }
 
 func (e *TextEditor) GetWindowTitle() string {
@@ -62,8 +67,13 @@ func (e *TextEditor) Render() {
 		return
 	}
 
+	if e.ToFront {
+		e.ToFront = false
+		imgui.SetNextWindowFocus()
+	}
+
 	if !e.tableView {
-		g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsNone, 0, 0, 400, 300, g.Layout{
+		g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsNone, 50, 50, 400, 300, g.Layout{
 			g.InputTextMultiline("", &e.text, -1, -1, g.InputTextFlagsAllowTabInput, nil, func() {
 				// On Change Event
 			}),
@@ -72,7 +82,7 @@ func (e *TextEditor) Render() {
 		return
 	}
 
-	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsHorizontalScrollbar|g.WindowFlagsAlwaysVerticalScrollbar, 0, 0, 400, 300, g.Layout{
+	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsNone, 0, 0, 400, 300, g.Layout{
 		g.Table("", true, e.tableRows),
 	})
 }

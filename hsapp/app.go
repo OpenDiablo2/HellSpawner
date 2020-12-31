@@ -59,8 +59,16 @@ func (a *App) Run() {
 func (a *App) render() {
 	a.renderMainMenuBar()
 
-	for idx := range a.editors {
+	idx := 0
+	for idx < len(a.editors) {
+		if !a.editors[idx].IsVisible() {
+			a.editors[idx].Cleanup()
+			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
+			continue
+		}
+
 		a.editors[idx].Render()
+		idx++
 	}
 
 	a.mpqExplorer.Render()
@@ -86,8 +94,9 @@ func (a *App) buildViewMenu() g.Layout {
 	result = append(result, g.Separator())
 
 	for idx := range a.editors {
+		i := idx
 		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle(), func() {
-			a.editors[idx].Show()
+			a.editors[i].BringToFront()
 		}))
 	}
 
@@ -122,6 +131,13 @@ func (a *App) setupFonts() {
 }
 
 func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
+	for idx := range a.editors {
+		if a.editors[idx].GetId() == path.FullPath {
+			a.editors[idx].BringToFront()
+			return
+		}
+	}
+
 	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
 	parts := strings.Split(path.FullPath, "|")
 	mpqFile := parts[0]
@@ -147,6 +163,7 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		}
 
 		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
 		editor.Show()
 	case ".wav":
 		audioStream, err := mpq.ReadFileStream(filePath)
@@ -158,7 +175,7 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		}
 
 		a.editors = append(a.editors, editor)
-
+		editor.SetId(path.FullPath)
 		editor.Show()
 	}
 }

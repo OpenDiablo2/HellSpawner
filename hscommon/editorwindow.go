@@ -5,4 +5,8 @@ type EditorWindow interface {
 
 	GetWindowTitle() string
 	Show()
+	IsVisible() bool
+	SetId(id string)
+	GetId() string
+	BringToFront()
 }
