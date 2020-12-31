@@ -1,22 +1,23 @@
 package hsapp
 
 import (
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"image/color"
 	"log"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/dialog"
-	g "github.com/OpenDiablo2/giu"
-	"github.com/OpenDiablo2/giu/imgui"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
@@ -200,7 +201,7 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 			return
 		}
 
-		editor, err := hsdc6editor.Create(path.Name, data)
+		editor, err := hsdc6editor.Create(path.Name, path.FullPath, data)
 
 		if err != nil {
 			log.Fatal(err)

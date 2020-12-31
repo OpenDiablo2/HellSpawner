@@ -5,7 +5,7 @@ import (
 	image2 "image"
 	"image/color"
 
-	"github.com/OpenDiablo2/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
@@ -15,6 +15,16 @@ const (
 	gridHeight = 16
 	cellSize   = 12
 )
+
+type PaletteGridState struct {
+	loading bool
+	failure bool
+	texture *giu.Texture
+}
+
+func (p *PaletteGridState) Dispose() {
+	p.texture = nil
+}
 
 type PaletteGridWidget struct {
 	id     string
@@ -39,7 +49,7 @@ func (p *PaletteGridWidget) Build() {
 		widget = giu.Image(nil, gridWidth*cellSize, gridHeight*cellSize)
 
 		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &giu.ImageState{})
+		giu.Context.SetState(stateId, &PaletteGridState{})
 
 		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))
 
@@ -60,12 +70,12 @@ func (p *PaletteGridWidget) Build() {
 		go func() {
 			texture, err := giu.NewTextureFromRgba(rgb)
 			if err == nil {
-				giu.Context.SetState(stateId, &giu.ImageState{Texture: texture})
+				giu.Context.SetState(stateId, &PaletteGridState{texture: texture})
 			}
 		}()
 	} else {
-		imgState := state.(*giu.ImageState)
-		widget = giu.Image(imgState.Texture, gridWidth*cellSize, gridHeight*cellSize)
+		imgState := state.(*PaletteGridState)
+		widget = giu.Image(imgState.texture, gridWidth*cellSize, gridHeight*cellSize)
 	}
 
 	widget.Build()

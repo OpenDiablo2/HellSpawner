@@ -10,9 +10,9 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	g "github.com/OpenDiablo2/giu"
-	"github.com/OpenDiablo2/giu/imgui"
 )
 
 type SoundEditor struct {

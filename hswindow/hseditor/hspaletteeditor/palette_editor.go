@@ -3,8 +3,8 @@ package hspaletteeditor
 import (
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
-	g "github.com/OpenDiablo2/giu"
-	"github.com/OpenDiablo2/giu/imgui"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
