@@ -128,7 +128,7 @@ func (a *App) renderMainMenuBar() {
 
 func (a *App) setupFonts() {
 	imgui.CurrentIO().Fonts().AddFontFromFileTTF("NotoSans-Regular.ttf", 17)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 17)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 15)
 	imgui.CurrentStyle().ScaleAllSizes(1.0)
 }
 

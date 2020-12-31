@@ -16,6 +16,7 @@ type TextEditor struct {
 	text      string
 	tableView bool
 	tableRows g.Rows
+	columns   int
 }
 
 func (e *TextEditor) Cleanup() {
@@ -23,7 +24,7 @@ func (e *TextEditor) Cleanup() {
 }
 
 func (e *TextEditor) GetWindowTitle() string {
-	return "Text Editor [" + e.file + "]"
+	return e.file + "##" + e.GetId()
 }
 
 func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
@@ -44,6 +45,7 @@ func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
 	result.tableRows = make([]*g.RowWidget, len(lines))
 
 	columns := strings.Split(firstLine, "\t")
+	result.columns = len(columns)
 	columnWidgets := make([]g.Widget, len(columns))
 	for idx := range columns {
 		columnWidgets[idx] = g.LabelV(columns[idx], false, nil, &result.fontFixed)
@@ -82,7 +84,10 @@ func (e *TextEditor) Render() {
 		return
 	}
 
-	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsNone, 0, 0, 400, 300, g.Layout{
-		g.Table("", true, e.tableRows),
+	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsHorizontalScrollbar, 0, 0, 400, 300, g.Layout{
+		g.Child("", false, float32(e.columns*80), 0,
+			g.WindowFlagsNone, g.Layout{
+				g.FastTable("", true, e.tableRows),
+			}),
 	})
 }

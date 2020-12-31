@@ -78,7 +78,7 @@ func (s *SoundEditor) Render() {
 }
 
 func (s *SoundEditor) GetWindowTitle() string {
-	return "Sound Editor [" + s.file + "]"
+	return s.file + "##" + s.GetId()
 }
 
 func (s *SoundEditor) play() {
