@@ -69,7 +69,14 @@ func (p *DC6ViewerWidget) Build() {
 				for x := 0; x < int(p.dc6.Frames[frameIndex].Width); x++ {
 					idx := x + (y * int(p.dc6.Frames[frameIndex].Width))
 					val := decodedFrame[idx]
-					rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: 255})
+
+					alpha := maxAlpha
+
+					if val == 0 {
+						alpha = 0
+					}
+
+					rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
 				}
 			}
 		}
