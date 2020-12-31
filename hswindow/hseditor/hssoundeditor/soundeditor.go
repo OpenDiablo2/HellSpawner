@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	g "github.com/OpenDiablo2/giu"
-	"github.com/OpenDiablo2/giu/imgui"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
+
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+	g "github.com/OpenDiablo2/giu"
+	"github.com/OpenDiablo2/giu/imgui"
 )
 
 type SoundEditor struct {
