@@ -32,7 +32,7 @@ func Create(fileSelectedCallback MPQExplorerFileSelectedCallback) (*MPQExplorer,
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
 	}
-	result.Visible = true
+	result.Visible = false
 
 	return result, nil
 }
@@ -43,12 +43,7 @@ func (m *MPQExplorer) Render() {
 	}
 
 	g.WindowV("MPQ Explorer", &m.Visible, g.WindowFlagsNone, 10, 30, 300, 400, g.Layout{
-		g.TabBarV("", g.TabBarFlagsNoCloseWithMiddleMouseButton|g.TabBarFlagsReorderable, g.Layout{
-			g.TabItem("Files", g.Layout{
-				g.Child("", false, 0, 0, g.WindowFlagsAlwaysVerticalScrollbar, m.getMpqTreeNodes()),
-			}),
-			g.TabItem("Coalesced", g.Layout{}),
-		}),
+		g.Child("", false, 0, 0, g.WindowFlagsHorizontalScrollbar, m.getMpqTreeNodes()),
 	})
 }
 
