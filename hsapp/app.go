@@ -1,26 +1,27 @@
 package hsapp
 
 import (
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"image/color"
 	"log"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
-	"github.com/OpenDiablo2/giu/imgui"
-
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/OpenDiablo2/giu"
+	"github.com/OpenDiablo2/giu/imgui"
+
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 )
 
 type App struct {
@@ -184,6 +185,22 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		}
 
 		editor, err := hspaletteeditor.Create(path.Name, path.FullPath, data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
+
+		editor.Show()
+	case ".dc6":
+		data, err := mpq.ReadFile(filePath)
+		if err != nil {
+			return
+		}
+
+		editor, err := hsdc6editor.Create(path.Name, data)
 
 		if err != nil {
 			log.Fatal(err)
