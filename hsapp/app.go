@@ -7,29 +7,30 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
-	"github.com/OpenDiablo2/dialog"
-
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	"github.com/OpenDiablo2/dialog"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 )
 
 type App struct {
+	aboutDialog *hsaboutdialog.AboutDialog
 	mpqExplorer *hsmpqexplorer.MPQExplorer
 	editors     []hscommon.EditorWindow
 
-	fontFixed imgui.Font
+	fontFixed         imgui.Font
+	fontFixedSmall    imgui.Font
+	diabloBoldFont    imgui.Font
+	diabloRegularFont imgui.Font
 }
 
 func Create() (*App, error) {
@@ -75,6 +76,7 @@ func (a *App) render() {
 	}
 
 	a.mpqExplorer.Render()
+	a.aboutDialog.Render()
 	g.Update()
 }
 
@@ -120,7 +122,7 @@ func (a *App) renderMainMenuBar() {
 		g.Menu("View", a.buildViewMenu()),
 		g.Menu("Help", g.Layout{
 			g.MenuItem("About HellSpawner...", func() {
-				dialog.Message("%s", "HellSpawner IDE\nPre-Alpha").Title("About HellSpawner").Info()
+				a.aboutDialog.Show()
 			}),
 		}),
 	}).Build()
@@ -129,7 +131,15 @@ func (a *App) renderMainMenuBar() {
 func (a *App) setupFonts() {
 	imgui.CurrentIO().Fonts().AddFontFromFileTTF("NotoSans-Regular.ttf", 17)
 	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 15)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 12)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("DiabloRegular.ttf", 15)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("DiabloBold.ttf", 30)
 	imgui.CurrentStyle().ScaleAllSizes(1.0)
+
+	var err error
+	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
