@@ -87,7 +87,7 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 			if pathNodes[strings.ToLower(path)] == nil {
 				pathNodes[strings.ToLower(path)] = &PathEntry{
 					Name:     elements[elemIdx],
-					FullPath: mpq.Path() + ":" + path,
+					FullPath: mpq.Path() + "|" + path,
 				}
 				pathNodes[strings.ToLower(oldPath)].Children =
 					append(pathNodes[strings.ToLower(oldPath)].Children, pathNodes[strings.ToLower(path)])

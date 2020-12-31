@@ -123,7 +123,7 @@ func (a *App) setupFonts() {
 
 func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
-	parts := strings.Split(path.FullPath, ":")
+	parts := strings.Split(path.FullPath, "|")
 	mpqFile := parts[0]
 	filePath := cleanMpqPathName(parts[1])
 	mpq, err := d2mpq.Load(mpqFile)
