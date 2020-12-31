@@ -9,19 +9,18 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
-
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
-	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/giu/imgui"
 
-	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/dialog"
+	g "github.com/OpenDiablo2/giu"
 )
 
 type App struct {
@@ -74,7 +73,6 @@ func (a *App) render() {
 	}
 
 	a.mpqExplorer.Render()
-
 	g.Update()
 }
 
@@ -185,7 +183,7 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 			return
 		}
 
-		editor, err := hspaletteeditor.Create(path.Name, data)
+		editor, err := hspaletteeditor.Create(path.Name, path.FullPath, data)
 
 		if err != nil {
 			log.Fatal(err)

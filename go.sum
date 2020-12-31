@@ -6,10 +6,12 @@ github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjs
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20201230071234-17fe8f3277a0 h1:zw8Cxn2uiBhY8OBFXfo7e9v87bsw7utwAxpmunecTvk=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20201230071234-17fe8f3277a0/go.mod h1:BN2dcixkTP9mtvt1sRClXT5nGAbar7YG54feQh86sQY=
-github.com/OpenDiablo2/dialog v0.0.0-20201230215525-e9642e34807c h1:AUzLfcWWzWRZb5ZduoMfs3TCsWGFlvhN+Ds9yenCrq4=
-github.com/OpenDiablo2/dialog v0.0.0-20201230215525-e9642e34807c/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
+github.com/OpenDiablo2/giu v0.4.3-0.20201231055219-f09f0006f786 h1:z2j0a0Ux94SGsORYo1g/AVouCSQDLe23i9w9JL+afDI=
+github.com/OpenDiablo2/giu v0.4.3-0.20201231055219-f09f0006f786/go.mod h1:ioSoY8lntzwVwxN3PQpR3UgE99I28HapNL3okC3K1BM=
+github.com/OpenDiablo2/giu v0.4.3-0.20201231060243-aa2f9cb58ffd h1:BT9c/8LEm4o9+yYJkwBokbQYVAwLSN8t/8/AukpkzRE=
+github.com/OpenDiablo2/giu v0.4.3-0.20201231060243-aa2f9cb58ffd/go.mod h1:ioSoY8lntzwVwxN3PQpR3UgE99I28HapNL3okC3K1BM=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf/go.mod h1:peYoMncQljjNS6tZwI9WVyQB3qZS6u79/N3mBOcnd3I=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
@@ -66,8 +68,6 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/profile v1.5.0/go.mod h1:qBsxPvzyUincmltOk6iyRVxHYg4adc0OFOv72ZdLa18=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/robertkrimen/otto v0.0.0-20200922221731-ef014fd054ac/go.mod h1:xvqspoSXJTIpemEonrMDFq6XzwHYYgToXWj5eRX1OtY=
-github.com/sqweek/dialog v0.0.0-20200911184034-8a3d98e8211d h1:Chay1rwJnXxI27H+pzu7P81BKf647un9GOoRPTdXN18=
-github.com/sqweek/dialog v0.0.0-20200911184034-8a3d98e8211d/go.mod h1:/qNPSY91qTz/8TgHEMioAUc6q7+3SOybeKczHMXFcXw=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=

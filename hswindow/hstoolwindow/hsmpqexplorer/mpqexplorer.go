@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+	g "github.com/OpenDiablo2/giu"
 )
 
 type MPQExplorerFileSelectedCallback func(path *PathEntry)
