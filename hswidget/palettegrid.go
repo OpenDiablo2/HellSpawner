@@ -31,7 +31,7 @@ func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
 }
 
 func (p *PaletteGridWidget) Build() {
-	stateId := fmt.Sprintf("ImageWithFile_%s", p.id)
+	stateId := fmt.Sprintf("PaletteGridWidget_%s", p.id)
 	state := giu.Context.GetState(stateId)
 	var widget *giu.ImageWidget
 
@@ -42,9 +42,15 @@ func (p *PaletteGridWidget) Build() {
 		giu.Context.SetState(stateId, &giu.ImageState{})
 
 		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))
-		//rgb.Set(0, 0, colornames.Green)
+
 		for y := 0; y < gridHeight*cellSize; y++ {
+			if y%cellSize == 0 {
+				continue
+			}
 			for x := 0; x < gridWidth*cellSize; x++ {
+				if x%cellSize == 0 {
+					continue
+				}
 				idx := (x / cellSize) + ((y / cellSize) * gridWidth)
 				col := p.colors[idx]
 				rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
