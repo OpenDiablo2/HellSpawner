@@ -54,11 +54,9 @@ func (m *MPQExplorer) Render() {
 
 func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	result := make([]g.Widget, len(m.mpqs))
-
 	for idx := range m.mpqs {
 		result[idx] = g.TreeNode(filepath.Base(m.mpqs[idx].Path()), g.TreeNodeFlagsNone, m.getMpqFileNodes(m.mpqs[idx]))
 	}
-
 	return result
 }
 
