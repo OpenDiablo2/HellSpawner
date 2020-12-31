@@ -1,7 +1,7 @@
 package hspaletteeditor
 
 import (
-	"fmt"
+	"github.com/AllenDang/giu/imgui"
 	"image"
 	"image/color"
 
@@ -43,12 +43,17 @@ type PaletteEditor struct {
 }
 
 func (e *PaletteEditor) GetWindowTitle() string {
-	return fmt.Sprintf(fmtTitle, e.path)
+	return e.path + "##" + e.GetId()
 }
 
 func (e *PaletteEditor) Render() {
 	if !e.Visible {
 		return
+	}
+
+	if e.ToFront {
+		e.ToFront = false
+		imgui.SetNextWindowFocus()
 	}
 
 	width := gridWidth * cellSize
@@ -65,7 +70,7 @@ func (e *PaletteEditor) Render() {
 
 			tl, br := pos.Add(image.Pt(x, y)), pos.Add(image.Pt(x+cellSize, y+cellSize))
 
-			theColor := color.RGBA{c.B(), c.G(), c.R(), c.A()}
+			theColor := color.RGBA{c.R(), c.G(), c.B(), c.A()}
 
 			canvas.AddRectFilled(tl, br, theColor, 0, 0)
 		}
@@ -81,4 +86,8 @@ func (e *PaletteEditor) Render() {
 			g.Custom(displayPalette),
 		},
 	)
+}
+
+func (e *PaletteEditor) Cleanup() {
+	e.Visible = false
 }
