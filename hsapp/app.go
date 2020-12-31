@@ -1,7 +1,6 @@
 package hsapp
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"os"
@@ -186,7 +185,7 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 			return
 		}
 
-		editor, err := hspaletteeditor.Create(fmt.Sprintf("%s]##%s", path.Name, path.FullPath), data)
+		editor, err := hspaletteeditor.Create(path.Name, data)
 
 		if err != nil {
 			log.Fatal(err)
