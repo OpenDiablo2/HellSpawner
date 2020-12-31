@@ -13,11 +13,15 @@ import (
 	"github.com/AllenDang/giu"
 )
 
+const (
+	maxAlpha = uint8(255)
+)
+
 type DC6ViewerState struct {
 	controls struct {
 		direction int32
 		frame     int32
-		scale     float32
+		scale     int32
 	}
 	textures []*giu.Texture
 }
@@ -65,7 +69,14 @@ func (p *DC6ViewerWidget) Build() {
 				for x := 0; x < int(p.dc6.Frames[frameIndex].Width); x++ {
 					idx := x + (y * int(p.dc6.Frames[frameIndex].Width))
 					val := decodedFrame[idx]
-					rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: 255})
+
+					alpha := maxAlpha
+
+					if val == 0 {
+						alpha = 0
+					}
+
+					rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
 				}
 			}
 		}
@@ -98,8 +109,9 @@ func (p *DC6ViewerWidget) Build() {
 		if viewerState.textures == nil || len(viewerState.textures) <= curFrameIndex || viewerState.textures[curFrameIndex] == nil {
 			widget = giu.Image(nil, 32, 32)
 		} else {
-			widget = giu.Image(viewerState.textures[curFrameIndex],
-				float32(p.dc6.Frames[curFrameIndex].Width*imageScale), float32(p.dc6.Frames[curFrameIndex].Height*imageScale))
+			w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
+			h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
+			widget = giu.Image(viewerState.textures[curFrameIndex], w, h)
 		}
 
 		giu.Layout{
@@ -120,7 +132,8 @@ func (p *DC6ViewerWidget) Build() {
 					imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dc6.FramesPerDirection-1))
 				}
 
-				imgui.SliderFloat("Scale", &viewerState.controls.scale, 1, 8)
+				imgui.SliderInt("Scale", &viewerState.controls.scale, 1, 8)
+
 				imgui.EndGroup()
 			}),
 			giu.Separator(),

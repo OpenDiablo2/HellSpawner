@@ -82,6 +82,7 @@ func (a *App) render() {
 
 func (a *App) loadMpq(fileName string) {
 	a.mpqExplorer.AddMPQ(fileName)
+	a.mpqExplorer.Show()
 }
 
 func (a *App) buildViewMenu() g.Layout {
