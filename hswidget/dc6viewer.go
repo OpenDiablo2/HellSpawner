@@ -50,7 +50,7 @@ func (p *DC6ViewerWidget) Build() {
 	var widget *giu.ImageWidget
 
 	if state == nil {
-		widget = giu.Image(nil, float32(p.dc6.Frames[0].Width*imageScale), float32(p.dc6.Frames[0].Height*imageScale))
+		widget = giu.Image(nil, 32, 32)
 
 		//Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateId, &DC6ViewerState{})
@@ -72,7 +72,6 @@ func (p *DC6ViewerWidget) Build() {
 
 		go func() {
 			textures := make([]*giu.Texture, p.dc6.Directions*p.dc6.FramesPerDirection)
-			giu.Context.SetState(stateId, &DC6ViewerState{textures: textures})
 			for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
 				var err error
 				textures[frameIndex], err = giu.NewTextureFromRgba(rgb[frameIndex])
@@ -80,14 +79,22 @@ func (p *DC6ViewerWidget) Build() {
 					log.Fatal(err)
 				}
 			}
-
+			giu.Context.SetState(stateId, &DC6ViewerState{textures: textures})
 		}()
 
 		widget.Build()
 	} else {
 		viewerState := state.(*DC6ViewerState)
-
 		curFrameIndex := int(viewerState.controls.frame) + (int(viewerState.controls.direction) * int(p.dc6.FramesPerDirection))
+
+		var widget *giu.ImageWidget
+		if viewerState.textures == nil || len(viewerState.textures) <= curFrameIndex || viewerState.textures[curFrameIndex] == nil {
+			widget = giu.Image(nil, 32, 32)
+		} else {
+			widget = giu.Image(viewerState.textures[curFrameIndex],
+				float32(p.dc6.Frames[curFrameIndex].Width*imageScale), float32(p.dc6.Frames[curFrameIndex].Height*imageScale))
+		}
+
 		giu.Layout{
 			giu.Label(fmt.Sprintf("Version: %v", p.dc6.Version)),
 			giu.Label(fmt.Sprintf("Flags: %b", int64(p.dc6.Flags))),
@@ -104,7 +111,7 @@ func (p *DC6ViewerWidget) Build() {
 
 			}),
 			giu.Separator(),
-			giu.Image(viewerState.textures[curFrameIndex], float32(p.dc6.Frames[curFrameIndex].Width*imageScale), float32(p.dc6.Frames[curFrameIndex].Height*imageScale)),
+			widget,
 		}.Build()
 	}
 
