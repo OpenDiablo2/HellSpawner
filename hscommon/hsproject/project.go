@@ -4,13 +4,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 )
 
 type Project struct {
-	filePath    string
-	ProjectName string
-	Description string
-	Author      string
+	filePath      string
+	ProjectName   string
+	Description   string
+	Author        string
+	AuxiliaryMPQs []string
 }
 
 func CreateNew(fileName string) (*Project, error) {
@@ -37,6 +41,17 @@ func (p *Project) Save() error {
 		return err
 	}
 	return nil
+}
+
+func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
+	for idx := range p.AuxiliaryMPQs {
+		realPath := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
+		if _, err := os.Stat(realPath); os.IsNotExist(err) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func LoadFromFile(fileName string) (*Project, error) {

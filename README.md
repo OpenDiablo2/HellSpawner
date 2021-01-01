@@ -10,5 +10,12 @@ HellSpawner is the toolset used for developing games on the [OpenDiablo2](https:
 
 It is currently early in development and not ready for active use. 
 
+## Getting the source
+
+After pulling the source, you need to grab the submodules in order to run the project.
+You can do so by running the following command in the root of the project:
+
+`git submodule update --init --recursive`
+
 ## Screenshots
 ![Screenshot](screenshot1.png)

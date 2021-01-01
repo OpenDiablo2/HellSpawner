@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/kirsle/configdir"
 )
@@ -91,4 +92,26 @@ func (c *Config) AddToRecentProjects(filePath string) {
 
 	c.RecentProjects = recent
 	c.Save()
+}
+
+func (c *Config) GetAuxMPQs() []string {
+	if len(c.AuxiliaryMpqPath) == 0 {
+		return []string{}
+	}
+
+	result := make([]string, 0)
+
+	filepath.Walk(c.AuxiliaryMpqPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return nil
+		}
+		ext := strings.ToLower(filepath.Ext(path))
+		if ext == ".mpq" {
+			result = append(result, path)
+		}
+
+		return nil
+	})
+
+	return result
 }

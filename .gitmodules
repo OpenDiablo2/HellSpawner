@@ -1,0 +1,4 @@
+[submodule "3rdparty/iconpack-obsidian"]
+	path = 3rdparty/iconpack-obsidian
+	url = https://github.com/madmaxms/iconpack-obsidian
+	ignore = dirty
