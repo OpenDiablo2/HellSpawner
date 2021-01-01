@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
+
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 
@@ -40,6 +42,7 @@ type App struct {
 	config       *hsconfig.Config
 
 	aboutDialog             *hsaboutdialog.AboutDialog
+	preferencesDialog       *hspreferencesdialog.PreferencesDialog
 	projectPropertiesDialog *hsprojectpropertiesdialog.ProjectPropertiesDialog
 
 	mpqExplorer *hsmpqexplorer.MPQExplorer
@@ -64,6 +67,7 @@ func Create() (*App, error) {
 	}
 
 	result.projectPropertiesDialog = hsprojectpropertiesdialog.Create(result.onProjectPropertiesChanged)
+	result.preferencesDialog = hspreferencesdialog.Create(result.onPreferencesChanged)
 
 	return result, nil
 }
@@ -98,6 +102,7 @@ func (a *App) render() {
 	}
 
 	a.mpqExplorer.Render()
+	a.preferencesDialog.Render()
 	a.aboutDialog.Render()
 	a.projectPropertiesDialog.Render()
 
@@ -163,7 +168,7 @@ func (a *App) renderMainMenuBar() {
 				}),
 			}),
 			g.Separator(),
-			g.MenuItemV("Preferences...##MainMenuFilePreferences", false, false, a.onFilePreferencesClicked),
+			g.MenuItemV("Preferences...##MainMenuFilePreferences", false, true, a.onFilePreferencesClicked),
 			g.Separator(),
 			g.MenuItem("Exit##MainMenuFileExit", func() { os.Exit(0) }),
 		}),
@@ -354,7 +359,7 @@ func (a *App) updateWindowTitle() {
 }
 
 func (a *App) onFilePreferencesClicked() {
-
+	a.preferencesDialog.Show(a.config)
 }
 
 func (a *App) onHelpAboutClicked() {
@@ -379,6 +384,13 @@ func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
 		log.Fatal(err)
 	}
 	a.updateWindowTitle()
+}
+
+func (a *App) onPreferencesChanged(config hsconfig.Config) {
+	a.config = &config
+	if err := a.config.Save(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func cleanMpqPathName(name string) string {
