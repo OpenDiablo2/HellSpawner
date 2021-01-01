@@ -80,6 +80,15 @@ func (c *Config) AddToRecentProjects(filePath string) {
 		}
 	}
 
-	c.RecentProjects = append([]string{filePath}, c.RecentProjects...)[:5]
+	recent := []string{filePath}
+	for idx := range c.RecentProjects {
+		if idx == 5 {
+			break
+		}
+
+		recent = append(recent, c.RecentProjects[idx])
+	}
+
+	c.RecentProjects = recent
 	c.Save()
 }
