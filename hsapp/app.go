@@ -8,27 +8,28 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
+
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hscofeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-	"github.com/OpenDiablo2/dialog"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
 )
 
 const baseWindowTitle = "HellSpawner"
@@ -274,6 +275,22 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		}
 
 		editor, err := hsdc6editor.Create(path.Name, path.FullPath, data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
+
+		editor.Show()
+	case ".cof":
+		data, err := mpq.ReadFile(filePath)
+		if err != nil {
+			return
+		}
+
+		editor, err := hscofeditor.Create(path.Name, path.FullPath, data)
 
 		if err != nil {
 			log.Fatal(err)

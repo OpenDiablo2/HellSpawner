@@ -140,5 +140,6 @@ func (m *MPQExplorer) AddMPQ(fileName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	m.mpqs = append(m.mpqs, data)
 }
