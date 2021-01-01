@@ -11,7 +11,8 @@ import (
 )
 
 type Config struct {
-	RecentProjects []string
+	RecentProjects   []string
+	AuxiliaryMpqPath string
 }
 
 func getConfigPath() string {
@@ -19,16 +20,13 @@ func getConfigPath() string {
 	if err := configdir.MakePath(configPath); err != nil {
 		log.Fatal(err)
 	}
-
 	return filepath.Join(configPath, "environment.json")
-
 }
 
 func generateDefaultConfig() *Config {
 	result := &Config{
 		RecentProjects: []string{},
 	}
-
 	result.Save()
 
 	return result
@@ -55,17 +53,19 @@ func Load() *Config {
 	return result
 }
 
-func (c *Config) Save() {
+func (c *Config) Save() error {
 	var err error
 	var data []byte
 
 	if data, err = json.MarshalIndent(c, "", "   "); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if err = ioutil.WriteFile(getConfigPath(), data, os.FileMode(0644)); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
 func (c *Config) AddToRecentProjects(filePath string) {

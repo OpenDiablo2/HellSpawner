@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
+
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
@@ -41,13 +43,13 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	return result, nil
 }
 
-func (a *AboutDialog) Render() {
-	if !a.Visible {
-		return
-	}
+func (a *AboutDialog) Show() {
+	a.Window.Show()
+	imgui.OpenPopup("About HellSpawner")
+}
 
-	imgui.SetNextWindowFocus()
-	g.WindowV("About HellSpawner", &a.Visible, g.WindowFlagsNoResize|g.WindowFlagsNoCollapse, 200, 100, 0, 0, g.Layout{
+func (a *AboutDialog) Render() {
+	hswidget.ModalDialog("About HellSpawner", &a.Visible, g.Layout{
 		g.Line(
 			g.ImageWithFile("d2logo.png", 256, 256),
 			g.Child("AboutHellSpawnerLayout", false, 500, 0, g.WindowFlagsNone, g.Layout{
