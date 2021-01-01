@@ -67,7 +67,7 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 	files, err := mpq.GetFileList()
 
 	if err != nil {
-		log.Fatal(err)
+		return []g.Widget{}
 	}
 
 	for idx := range files {
@@ -142,4 +142,8 @@ func (m *MPQExplorer) AddMPQ(fileName string) {
 	}
 
 	m.mpqs = append(m.mpqs, data)
+}
+
+func (m *MPQExplorer) Reset() {
+	m.mpqs = make([]d2interface.Archive, 0)
 }

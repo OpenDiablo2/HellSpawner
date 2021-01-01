@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -154,15 +155,7 @@ func (a *App) renderMainMenuBar() {
 					for idx := range a.config.RecentProjects {
 						projectName := a.config.RecentProjects[idx]
 						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx), func() {
-							var err error
-							var project *hsproject.Project
-							if project, err = hsproject.LoadFromFile(projectName); err != nil {
-								dialog.Message("Could not load project.").Error()
-							}
-
-							a.project = project
-							a.config.AddToRecentProjects(projectName)
-							a.updateWindowTitle()
+							a.loadProjectFromFile(projectName)
 						}).Build()
 					}
 				}),
@@ -336,18 +329,31 @@ func (a *App) onOpenProjectClicked() {
 	if err != nil || len(file) == 0 {
 		return
 	}
+	a.loadProjectFromFile(file)
+}
+
+func (a *App) loadProjectFromFile(file string) {
 	var project *hsproject.Project
+	var err error
+
 	if project, err = hsproject.LoadFromFile(file); err != nil {
-		dialog.Message("Could not load project.").Error()
+		dialog.Message("Could not load project.").Title("Load HellSpawner Project Error").Error()
+		return
+	}
+
+	if !project.ValidateAuxiliaryMPQs(a.config) {
+		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
+		return
 	}
 
 	a.project = project
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
+	a.reloadAuxiliaryMPQs()
 }
 
 func (a *App) onProjectPropertiesClicked() {
-	a.projectPropertiesDialog.Show(a.project)
+	a.projectPropertiesDialog.Show(a.project, a.config)
 }
 
 func (a *App) updateWindowTitle() {
@@ -384,12 +390,26 @@ func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
 		log.Fatal(err)
 	}
 	a.updateWindowTitle()
+	a.reloadAuxiliaryMPQs()
 }
 
 func (a *App) onPreferencesChanged(config hsconfig.Config) {
 	a.config = &config
 	if err := a.config.Save(); err != nil {
 		log.Fatal(err)
+	}
+
+	// TODO: This will crash if a path is selected that does not have the aux MPQs for the project
+
+	if a.project != nil {
+		a.reloadAuxiliaryMPQs()
+	}
+}
+
+func (a *App) reloadAuxiliaryMPQs() {
+	a.mpqExplorer.Reset()
+	for idx := range a.project.AuxiliaryMPQs {
+		a.mpqExplorer.AddMPQ(filepath.Join(a.config.AuxiliaryMpqPath, a.project.AuxiliaryMPQs[idx]))
 	}
 }
 
