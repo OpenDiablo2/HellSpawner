@@ -2,7 +2,6 @@ package hsapp
 
 import (
 	"fmt"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdcceditor"
 	"image/color"
 	"log"
 	"os"
@@ -10,30 +9,27 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
-
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
-
-	"github.com/go-gl/glfw/v3.3/glfw"
-
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
-
-	"github.com/OpenDiablo2/dialog"
-
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hscofeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdcceditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	"github.com/OpenDiablo2/dialog"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
+	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const baseWindowTitle = "HellSpawner"
@@ -47,7 +43,8 @@ type App struct {
 	preferencesDialog       *hspreferencesdialog.PreferencesDialog
 	projectPropertiesDialog *hsprojectpropertiesdialog.ProjectPropertiesDialog
 
-	mpqExplorer *hsmpqexplorer.MPQExplorer
+	projectExplorer *hsprojectexplorer.ProjectExplorer
+	mpqExplorer     *hsmpqexplorer.MPQExplorer
 
 	editors []hscommon.EditorWindow
 
@@ -65,6 +62,10 @@ func Create() (*App, error) {
 	var err error
 
 	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor); err != nil {
+		return nil, err
+	}
+
+	if result.projectExplorer, err = hsprojectexplorer.Create(result.openEditor); err != nil {
 		return nil, err
 	}
 
@@ -103,6 +104,7 @@ func (a *App) render() {
 		idx++
 	}
 
+	a.projectExplorer.Render(a.project)
 	a.mpqExplorer.Render()
 	a.preferencesDialog.Render()
 	a.aboutDialog.Render()
@@ -120,6 +122,7 @@ func (a *App) buildViewMenu() g.Layout {
 	result := make([]g.Widget, 0)
 
 	result = append(result, g.Menu("Tool Windows", g.Layout{
+		g.MenuItemV("Project Explorer", a.projectExplorer.Visible, true, a.toggleProjectExplorer),
 		g.MenuItemV("MPQ Explorer", a.mpqExplorer.Visible, true, a.toggleMPQExplorer),
 	}))
 
@@ -145,7 +148,6 @@ func (a *App) renderMainMenuBar() {
 			}),
 			g.Menu("Open##MainMenuFileOpen", g.Layout{
 				g.MenuItem("Project...##MainMenuFileOpenProject", a.onOpenProjectClicked),
-				g.MenuItem("MPQ...##MainMenuFileOpenMPQ", a.onOpenMpqFileClicked),
 			}),
 			g.Menu("Open Recent##MainMenuOpenRecent", g.Layout{
 				g.Custom(func() {
@@ -204,7 +206,7 @@ func (a *App) setupFonts() {
 	}
 }
 
-func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
+func (a *App) openEditor(path *hscommon.PathEntry) {
 	for idx := range a.editors {
 		if a.editors[idx].GetId() == path.FullPath {
 			a.editors[idx].BringToFront()
@@ -332,14 +334,6 @@ func (a *App) onNewProjectClicked() {
 	a.updateWindowTitle()
 }
 
-func (a *App) onOpenMpqFileClicked() {
-	file, err := dialog.File().Filter("MPQ Archive", "mpq").Load()
-	if err != nil || len(file) == 0 {
-		return
-	}
-	a.loadMpq(file)
-}
-
 func (a *App) onOpenProjectClicked() {
 	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Load()
 	if err != nil || len(file) == 0 {
@@ -366,6 +360,7 @@ func (a *App) loadProjectFromFile(file string) {
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
+	a.projectExplorer.Show()
 }
 
 func (a *App) onProjectPropertiesClicked() {
@@ -427,6 +422,10 @@ func (a *App) reloadAuxiliaryMPQs() {
 	for idx := range a.project.AuxiliaryMPQs {
 		a.mpqExplorer.AddMPQ(filepath.Join(a.config.AuxiliaryMpqPath, a.project.AuxiliaryMPQs[idx]))
 	}
+}
+
+func (a *App) toggleProjectExplorer() {
+	a.projectExplorer.ToggleVisibility()
 }
 
 func cleanMpqPathName(name string) string {
