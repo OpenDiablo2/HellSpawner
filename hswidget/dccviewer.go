@@ -2,11 +2,14 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu/imgui"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	image2 "image"
 	"image/color"
 	"log"
+	"math"
+
+	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 
 	"github.com/AllenDang/giu"
 )
@@ -59,15 +62,26 @@ func (p *DCCViewerWidget) Build() {
 
 		images := make([]*image2.RGBA, totalFrames)
 
+		minX, minY := math.MaxInt32, math.MaxInt32
+		maxX, maxY := math.MinInt32, math.MinInt32
+
 		for dirIdx := range p.dcc.Directions {
+
+			for _, dccFrame := range p.dcc.Directions[dirIdx].Frames {
+				minX = d2math.MinInt(minX, dccFrame.Box.Left)
+				minY = d2math.MinInt(minY, dccFrame.Box.Top)
+				maxX = d2math.MaxInt(maxX, dccFrame.Box.Right())
+				maxY = d2math.MaxInt(maxY, dccFrame.Box.Bottom())
+			}
+
+			fw := maxX - minX
+			fh := maxY - minY
+
 			for frameIdx := range p.dcc.Directions[dirIdx].Frames {
 				absoluteFrameIdx := (dirIdx * p.dcc.FramesPerDirection) + frameIdx
 
 				frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
 				pixels := frame.PixelData
-
-				fw := frame.Box.Width
-				fh := frame.Box.Height
 
 				images[absoluteFrameIdx] = image2.NewRGBA(image2.Rect(0, 0, fw, fh))
 
