@@ -2,6 +2,7 @@ package hswidget
 
 import (
 	"fmt"
+
 	"github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
@@ -76,73 +77,48 @@ func (p *COFViewerWidget) Build() {
 		layerStrings = append(layerStrings, fmt.Sprintf("%s", p.cof.CofLayers[idx].Type))
 	}
 
-	layerList := giu.Combo(
-		"##"+p.id+"layer",
-		layerStrings[state.layerIndex],
-		layerStrings,
-		&state.layerIndex,
-		64,
-		giu.ComboFlagNone,
-		p.onUpdate,
-	)
+	layerList := giu.Combo("##"+p.id+"layer", layerStrings[state.layerIndex], layerStrings, &state.layerIndex).
+		Size(64).OnChange(p.onUpdate)
 
 	directionStrings := make([]string, 0)
 	for idx := range p.cof.Priority {
 		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
 	}
 
-	directionList := giu.Combo(
-		"##"+p.id+"dir",
-		directionStrings[state.directionIndex],
-		directionStrings,
-		&state.directionIndex,
-		64,
-		giu.ComboFlagNone,
-		p.onUpdate,
-	)
+	directionList := giu.Combo("##"+p.id+"dir", directionStrings[state.directionIndex], directionStrings, &state.directionIndex).
+		Size(64).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)
 	for idx := range p.cof.Priority[state.directionIndex] {
 		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
 	}
 
-	frameList := giu.Combo(
-		"##"+p.id+"frame",
-		frameStrings[state.frameIndex],
-		frameStrings,
-		&state.frameIndex,
-		64,
-		giu.ComboFlagNone,
-		p.onUpdate,
-	)
+	frameList := giu.Combo("##"+p.id+"frame", frameStrings[state.frameIndex], frameStrings, &state.frameIndex).
+		Size(64).OnChange(p.onUpdate)
 
 	const vspace = 4
 
-	giu.TabBar("", giu.Layout{
-		giu.TabItem("Animation", giu.Layout{
-			giu.Layout{
-				giu.Label(l1),
-				giu.Label(l2),
-				giu.Label(l3),
-				giu.Label(l4),
-			},
+	giu.TabBar("COFViewerTabs").Layout(giu.Layout{
+		giu.TabItem("Animation").Layout(giu.Layout{
+			giu.Label(l1),
+			giu.Label(l2),
+			giu.Label(l3),
+			giu.Label(l4),
 		}),
-		giu.TabItem("Layer", giu.Layout{
+		giu.TabItem("Layer").Layout(giu.Layout{
 			giu.Layout{
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
 			},
 		}),
-		giu.TabItem("Priority", giu.Layout{
-			giu.Layout{
-				giu.Line(
-					giu.Label("Direction: "), directionList,
-					giu.Label("Frame: "), frameList,
-				),
-				giu.Separator(),
-				p.makeDirectionLayout(),
-			},
+		giu.TabItem("Priority").Layout(giu.Layout{
+			giu.Line(
+				giu.Label("Direction: "), directionList,
+				giu.Label("Frame: "), frameList,
+			),
+			giu.Separator(),
+			p.makeDirectionLayout(),
 		}),
 	}).Build()
 }

@@ -2,12 +2,13 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	image2 "image"
 	"image/color"
 	"log"
+
+	"github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 )
 
 type DCCViewerState struct {
@@ -44,7 +45,7 @@ func (p *DCCViewerWidget) Build() {
 	var widget *giu.ImageWidget
 
 	if state == nil {
-		widget = giu.Image(nil, 32, 32)
+		widget = giu.Image(nil).Size(32, 32)
 
 		//Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateId, &DCCViewerState{})
@@ -54,7 +55,7 @@ func (p *DCCViewerWidget) Build() {
 
 		sw := float32(firstFrame.Width)
 		sh := float32(firstFrame.Height)
-		widget = giu.Image(nil, sw, sh)
+		widget = giu.Image(nil).Size(sw, sh)
 
 		images := make([]*image2.RGBA, totalFrames)
 
@@ -124,13 +125,13 @@ func (p *DCCViewerWidget) Build() {
 		giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 		var widget *giu.ImageWidget
 		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
-			widget = giu.Image(nil, 32, 32)
+			widget = giu.Image(nil).Size(32, 32)
 		} else {
 			bw := p.dcc.Directions[dirIdx].Box.Width
 			bh := p.dcc.Directions[dirIdx].Box.Height
 			w := float32(uint32(bw) * imageScale)
 			h := float32(uint32(bh) * imageScale)
-			widget = giu.Image(viewerState.textures[textureIdx], w, h)
+			widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
 		}
 
 		giu.Layout{

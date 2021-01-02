@@ -4,8 +4,10 @@ import (
 	"fmt"
 	image2 "image"
 	"image/color"
-	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+
+	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 
@@ -22,11 +24,16 @@ type DC6ViewerState struct {
 		frame     int32
 		scale     int32
 	}
-	textures []*giu.Texture
+	loadingTexture     bool
+	lastFrame          int32
+	lastDirection      int32
+	framesPerDirection uint32
+	texture            *giu.Texture
+	rgb                []*image2.RGBA
 }
 
 func (is *DC6ViewerState) Dispose() {
-	is.textures = nil
+	is.texture = nil
 }
 
 type DC6ViewerWidget struct {
@@ -49,19 +56,23 @@ func (p *DC6ViewerWidget) Build() {
 	var widget *giu.ImageWidget
 
 	if state == nil {
-		widget = giu.Image(nil, 32, 32)
+		widget = giu.Image(nil).Size(32, 32)
 
 		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &DC6ViewerState{})
+		newState := &DC6ViewerState{
+			lastFrame:          -1,
+			lastDirection:      -1,
+			framesPerDirection: p.dc6.FramesPerDirection,
+		}
 
 		sw := float32(p.dc6.Frames[0].Width)
 		sh := float32(p.dc6.Frames[0].Height)
-		widget = giu.Image(nil, sw, sh)
+		widget = giu.Image(nil).Size(sw, sh)
 
-		rgb := make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
+		newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
 
 		for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-			rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+			newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 			decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 			for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -75,26 +86,34 @@ func (p *DC6ViewerWidget) Build() {
 						alpha = 0
 					}
 
-					rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
+					newState.rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
 				}
 			}
 		}
 
-		go func() {
-			textures := make([]*giu.Texture, p.dc6.Directions*p.dc6.FramesPerDirection)
-			for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-				var err error
-				textures[frameIndex], err = giu.NewTextureFromRgba(rgb[frameIndex])
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-			giu.Context.SetState(stateId, &DC6ViewerState{textures: textures})
-		}()
+		giu.Context.SetState(stateId, newState)
 
 		widget.Build()
 	} else {
 		viewerState := state.(*DC6ViewerState)
+
+		if !viewerState.loadingTexture && (viewerState.lastDirection != viewerState.controls.direction || viewerState.lastFrame != viewerState.controls.frame) {
+			// Control values have changed, need to regenerate the texture
+			viewerState.lastDirection = viewerState.controls.direction
+			viewerState.lastFrame = viewerState.controls.frame
+			viewerState.loadingTexture = true
+			viewerState.texture = nil
+
+			giu.Context.SetState(stateId, viewerState)
+
+			hscommon.CreateTextureFromARGB(viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))], func(tex *g.Texture) {
+				newState := giu.Context.GetState(stateId).(*DC6ViewerState)
+
+				newState.texture = tex
+				newState.loadingTexture = false
+				giu.Context.SetState(stateId, newState)
+			})
+		}
 
 		imageScale := uint32(viewerState.controls.scale)
 		curFrameIndex := int(viewerState.controls.frame) + (int(viewerState.controls.direction) * int(p.dc6.FramesPerDirection))
@@ -105,12 +124,13 @@ func (p *DC6ViewerWidget) Build() {
 
 		giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 		var widget *giu.ImageWidget
-		if viewerState.textures == nil || len(viewerState.textures) <= curFrameIndex || viewerState.textures[curFrameIndex] == nil {
-			widget = giu.Image(nil, 32, 32)
+		w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
+		h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
+		if viewerState.texture == nil {
+			widget = giu.Image(nil).Size(w, h)
 		} else {
-			w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
-			h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
-			widget = giu.Image(viewerState.textures[curFrameIndex], w, h)
+
+			widget = giu.Image(viewerState.texture).Size(w, h)
 		}
 
 		giu.Layout{

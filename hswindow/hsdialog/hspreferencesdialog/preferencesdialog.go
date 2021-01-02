@@ -34,13 +34,13 @@ func (p *PreferencesDialog) Render() {
 	hswidget.ModalDialog("Preferences##AppPreferences", &p.Visible, g.Layout{
 		g.Label("Auxiliary MPQ Path"),
 		g.Line(
-			g.ButtonV("...##AppPreferencesAuxMPQPathBrowse", 30, 0, p.onBrowseAuxMpqPathClicked),
-			g.InputTextV("##AppPreferencesAuxMPQPath", 250, &p.config.AuxiliaryMpqPath, g.InputTextFlagsReadOnly, nil, nil),
+			g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
+			g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(250).Flags(g.InputTextFlagsReadOnly),
 		),
 		g.Separator(),
 		g.Line(
-			g.Button("Save##AppPreferencesSave", p.onSaveClicked),
-			g.Button("Cancel##AppPreferencesCancel", p.onCancelClicked),
+			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
+			g.Button("Cancel##AppPreferencesCancel").OnClick(p.onCancelClicked),
 		),
 	})
 }

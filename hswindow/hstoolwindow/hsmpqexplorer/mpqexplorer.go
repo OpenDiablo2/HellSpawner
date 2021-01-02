@@ -38,15 +38,15 @@ func (m *MPQExplorer) Render() {
 		return
 	}
 
-	g.WindowV("MPQ Explorer", &m.Visible, g.WindowFlagsNone, 10, 30, 300, 400, g.Layout{
-		g.Child("MpqExplorerContent", false, 0, 0, g.WindowFlagsHorizontalScrollbar, m.getMpqTreeNodes()),
+	g.Window("MPQ Explorer").IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
+		g.Child("MpqExplorerContent").Border(false).Flags(g.WindowFlagsHorizontalScrollbar).Layout(m.getMpqTreeNodes()),
 	})
 }
 
 func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	result := make([]g.Widget, len(m.mpqs))
 	for idx := range m.mpqs {
-		result[idx] = g.TreeNode(filepath.Base(m.mpqs[idx].Path()), g.TreeNodeFlagsNone, m.getMpqFileNodes(m.mpqs[idx]))
+		result[idx] = g.TreeNode(filepath.Base(m.mpqs[idx].Path())).Layout(m.getMpqFileNodes(m.mpqs[idx]))
 	}
 	return result
 }
@@ -109,7 +109,7 @@ func sortPaths(rootPath *hscommon.PathEntry) {
 
 func renderNodes(pathEntry *hscommon.PathEntry, m *MPQExplorer) g.Widget {
 	if len(pathEntry.Children) == 0 {
-		return g.Selectable(pathEntry.Name, func() {
+		return g.Selectable(pathEntry.Name).OnClick(func() {
 			m.fileSelectedCallback(pathEntry)
 		})
 	}
@@ -122,7 +122,7 @@ func renderNodes(pathEntry *hscommon.PathEntry, m *MPQExplorer) g.Widget {
 		widgets[idx] = renderNodes(pathEntry.Children[idx], m)
 	}
 
-	return g.TreeNode(pathEntry.Name, g.TreeNodeFlagsNone, widgets)
+	return g.TreeNode(pathEntry.Name).Layout(widgets)
 }
 
 func (m *MPQExplorer) AddMPQ(fileName string) {

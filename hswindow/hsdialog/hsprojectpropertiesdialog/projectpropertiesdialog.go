@@ -80,21 +80,21 @@ func (p *ProjectPropertiesDialog) Render() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
 	hswidget.ModalDialog("Select Auxiliary MPQ##ProjectPropertiesSelectAuxMPQDialog", &p.mpqSelectDialogVisible, g.Layout{
-		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout", false, 300, 200, g.WindowFlagsNone, g.Layout{
-			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames, func(selectedIndex int) {
+		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Border(false).Size(300, 200).Layout(g.Layout{
+			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
-			}, func(selectedIndex int) {
+			}).OnDClick(func(selectedIndex int) {
 				p.mpqSelectDialogVisible = false
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
 			}),
 		}),
 		g.Separator(),
 		g.Line(
-			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected", func() {
+			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
 				p.mpqSelectDialogVisible = false
 			}),
-			g.Button("Cancel##ProjectPropertiesSelectAuxMPQDialogCancel", func() {
+			g.Button("Cancel##ProjectPropertiesSelectAuxMPQDialogCancel").OnClick(func() {
 				p.mpqSelectDialogVisible = false
 			}),
 		),
@@ -103,17 +103,17 @@ func (p *ProjectPropertiesDialog) Render() {
 	if !p.mpqSelectDialogVisible {
 		hswidget.ModalDialog("Project Properties##ProjectPropertiesDialog", &p.Visible, g.Layout{
 			g.Line(
-				g.Child("ProjectPropertiesLayout", false, 300, 250, g.WindowFlagsNone, g.Layout{
+				g.Child("ProjectPropertiesLayout").Border(false).Size(300, 250).Layout(g.Layout{
 					g.Label("Project Name:"),
-					g.InputText("##ProjectPropertiesDialogProjectName", 250, &p.project.ProjectName),
+					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(250),
 					g.Label("Description:"),
-					g.InputText("##ProjectPropertiesDialogDescription", 250, &p.project.Description),
+					g.InputText("##ProjectPropertiesDialogDescription", &p.project.Description).Size(250),
 					g.Label("Author:"),
-					g.InputText("##ProjectPropertiesDialogAuthor", 250, &p.project.Author),
+					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(250),
 				}),
-				g.Child("ProjectPropertiesLayout2", false, 300, 250, g.WindowFlagsNone, g.Layout{
+				g.Child("ProjectPropertiesLayout2").Border(false).Size(300, 250).Layout(g.Layout{
 					g.Label("Auxiliary MPQs:"),
-					g.Child("ProjectPropertiesAuxMpqLayoutGroup", true, 0, 170, g.WindowFlagsNone, g.Layout{
+					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Size(0, 170).Layout(g.Layout{
 						g.Custom(func() {
 							imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
@@ -124,7 +124,7 @@ func (p *ProjectPropertiesDialog) Render() {
 								}
 								g.Line(
 									g.Custom(func() { imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", idx)) }),
-									g.ImageButton(p.removeIconTexture, 16, 16, func() {
+									g.ImageButton(p.removeIconTexture).Size(16, 16).OnClick(func() {
 										copy(p.project.AuxiliaryMPQs[idx:], p.project.AuxiliaryMPQs[idx+1:])
 										p.project.AuxiliaryMPQs = p.project.AuxiliaryMPQs[:len(p.project.AuxiliaryMPQs)-1]
 									}),
@@ -132,7 +132,7 @@ func (p *ProjectPropertiesDialog) Render() {
 										imgui.PopID()
 										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqDown_%d", idx))
 									}),
-									g.ImageButton(p.downIconTexture, 16, 16, func() {
+									g.ImageButton(p.downIconTexture).Size(16, 16).OnClick(func() {
 										if idx < len(p.project.AuxiliaryMPQs)-1 {
 											p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx+1] = p.project.AuxiliaryMPQs[idx+1], p.project.AuxiliaryMPQs[idx]
 										}
@@ -141,7 +141,7 @@ func (p *ProjectPropertiesDialog) Render() {
 										imgui.PopID()
 										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqUp_%d", idx))
 									}),
-									g.ImageButton(p.upIconTexture, 16, 16, func() {
+									g.ImageButton(p.upIconTexture).Size(16, 16).OnClick(func() {
 										if idx > 0 {
 											p.project.AuxiliaryMPQs[idx-1], p.project.AuxiliaryMPQs[idx] = p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx-1]
 										}
@@ -155,7 +155,7 @@ func (p *ProjectPropertiesDialog) Render() {
 							imgui.PopStyleColorV(2)
 						}),
 					}),
-					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq", p.onAddAuxMpqClicked),
+					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq").OnClick(p.onAddAuxMpqClicked),
 				}),
 			),
 			g.Separator(),
@@ -165,13 +165,13 @@ func (p *ProjectPropertiesDialog) Render() {
 						imgui.PushStyleVarFloat(imgui.StyleVarAlpha, 0.5)
 					}
 				}),
-				g.Button("Save##ProjectPropertiesDialogSave", p.onSaveClicked),
+				g.Button("Save##ProjectPropertiesDialogSave").OnClick(p.onSaveClicked),
 				g.Custom(func() {
 					if !canSave {
 						imgui.PopStyleVar()
 					}
 				}),
-				g.Button("Cancel##ProjectPropertiesDialogCancel", p.onCancelClicked),
+				g.Button("Cancel##ProjectPropertiesDialogCancel").OnClick(p.onCancelClicked),
 			),
 		},
 		)
