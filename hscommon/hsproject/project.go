@@ -122,9 +122,11 @@ func (p *Project) GetFileStructure() *hscommon.PathEntry {
 	}
 
 	result := &hscommon.PathEntry{
-		Name:     p.ProjectName,
-		FullPath: p.filePath,
-		Children: make([]*hscommon.PathEntry, 0),
+		Name:        p.ProjectName,
+		FullPath:    p.filePath,
+		Children:    make([]*hscommon.PathEntry, 0),
+		IsDirectory: true,
+		IsRoot:      true,
 	}
 
 	p.getFileNodes(filepath.Join(filepath.Dir(p.filePath), "content"), result)
@@ -152,6 +154,7 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 		}
 
 		if files[idx].IsDir() {
+			fileNode.IsDirectory = true
 			p.getFileNodes(fileNode.FullPath, fileNode)
 		}
 

@@ -78,18 +78,26 @@ func (m *ProjectExplorer) getProjectTreeNodes(project *hsproject.Project) g.Layo
 		return []g.Widget{g.Label("No file structure detected...")}
 	}
 
-	return []g.Widget{renderNodes(project.GetFileStructure(), m)}
+	return []g.Widget{m.renderNodes(project.GetFileStructure())}
 }
 
 func (m *ProjectExplorer) onRefreshProjectExplorerClicked(project *hsproject.Project) {
 	project.InvalidateFileStructure()
 }
 
-func renderNodes(pathEntry *hscommon.PathEntry, m *ProjectExplorer) g.Widget {
+func (m *ProjectExplorer) onNewFontClicked() {
+
+}
+
+func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
+
+	if !pathEntry.IsDirectory {
+		return m.createFileTreeItem(pathEntry)
+	}
+
+	// File items and empty dirs
 	if len(pathEntry.Children) == 0 {
-		return g.Selectable(pathEntry.Name).OnClick(func() {
-			m.fileSelectedCallback(pathEntry)
-		})
+		return m.createDirectoryTreeItem(pathEntry, nil)
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))
@@ -97,10 +105,42 @@ func renderNodes(pathEntry *hscommon.PathEntry, m *ProjectExplorer) g.Widget {
 	sortPaths(pathEntry)
 
 	for idx := range pathEntry.Children {
-		widgets[idx] = renderNodes(pathEntry.Children[idx], m)
+		widgets[idx] = m.renderNodes(pathEntry.Children[idx])
 	}
 
-	return g.TreeNode(pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath).Layout(widgets)
+	return m.createDirectoryTreeItem(pathEntry, widgets)
+}
+
+func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Widget {
+	return g.Selectable(pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath).OnClick(func() {
+		m.fileSelectedCallback(pathEntry)
+	})
+}
+
+func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout) g.Widget {
+	var id = pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath
+
+	var menuLayout g.Layout
+
+	if pathEntry.IsRoot {
+		menuLayout = g.Layout{}
+	} else {
+		menuLayout = g.Layout{
+			g.Custom(func() { imgui.PushID(id) }),
+			g.ContextMenu("Context").Layout(g.Layout{
+				g.Menu("New").Layout(g.Layout{
+					g.MenuItem("Font").OnClick(m.onNewFontClicked),
+				}),
+			}),
+			g.Custom(func() { imgui.PopID() }),
+		}
+	}
+
+	if layout == nil {
+		return g.TreeNode(id).Layout(menuLayout)
+	}
+
+	return g.TreeNode(id).Layout(append(menuLayout, layout...))
 }
 
 func sortPaths(rootPath *hscommon.PathEntry) {

@@ -145,6 +145,8 @@ func (a *App) buildViewMenu() g.Layout {
 }
 
 func (a *App) renderMainMenuBar() {
+	projectOpened := a.project != nil
+
 	g.MainMenuBar().Layout(g.Layout{
 		g.Menu("File##MainMenuFile").Layout(g.Layout{
 			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
@@ -174,11 +176,11 @@ func (a *App) renderMainMenuBar() {
 		}),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
-			g.MenuItem("Run in OpenDiablo2##MainMenuProjectRun").Enabled(a.project != nil).OnClick(a.onProjectRunClicked),
+			g.MenuItem("Run in OpenDiablo2##MainMenuProjectRun").Enabled(projectOpened).OnClick(a.onProjectRunClicked),
 			g.Separator(),
-			g.MenuItem("Properties...##MainMenuProjectProperties").Enabled(a.project != nil).OnClick(a.onProjectPropertiesClicked),
+			g.MenuItem("Properties...##MainMenuProjectProperties").Enabled(projectOpened).OnClick(a.onProjectPropertiesClicked),
 			g.Separator(),
-			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(a.project != nil).OnClick(a.onProjectExportMPQClicked),
+			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(projectOpened).OnClick(a.onProjectExportMPQClicked),
 		}),
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
@@ -225,6 +227,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	mpq, err := d2mpq.Load(mpqFile)
 
 	if err != nil {
+		return // TODO: This loader is not done, this will always happen when trying to load project files
 		log.Fatal(err)
 	}
 
