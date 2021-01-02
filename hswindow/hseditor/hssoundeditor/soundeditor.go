@@ -68,13 +68,13 @@ func (s *SoundEditor) Render() {
 	secondsCurrent := s.streamer.Position() / 22050
 	secondsTotal := s.streamer.Len() / 22050
 
-	g.WindowV(s.GetWindowTitle(), &s.Visible, g.WindowFlagsNoResize, 50, 50, 300, 100, g.Layout{
-		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len()), -1, 24,
-			fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
+	g.Window(s.GetWindowTitle()).IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Pos(50, 50).Size(300, 100).Layout(g.Layout{
+		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(0, 24).
+			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
 		g.Separator(),
 		g.Line(
-			g.Button("Play", s.play),
-			g.Button("Stop", s.stop),
+			g.Button("Play").OnClick(s.play),
+			g.Button("Stop").OnClick(s.stop),
 		),
 	})
 }

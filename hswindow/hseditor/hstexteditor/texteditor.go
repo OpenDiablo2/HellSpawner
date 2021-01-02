@@ -49,7 +49,7 @@ func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
 	result.columns = len(columns)
 	columnWidgets := make([]g.Widget, len(columns))
 	for idx := range columns {
-		columnWidgets[idx] = g.LabelV(columns[idx], false, nil, &result.fontFixed)
+		columnWidgets[idx] = g.Label(columns[idx]).Font(&result.fontFixed)
 	}
 	result.tableRows[0] = g.Row(columnWidgets...)
 
@@ -57,7 +57,7 @@ func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
 		columns := strings.Split(lines[lineIdx+1], "\t")
 		columnWidgets := make([]g.Widget, len(columns))
 		for idx := range columns {
-			columnWidgets[idx] = g.LabelV(columns[idx], false, nil, &result.fontFixed)
+			columnWidgets[idx] = g.Label(columns[idx]).Font(&result.fontFixed)
 		}
 		result.tableRows[lineIdx+1] = g.Row(columnWidgets...)
 	}
@@ -76,19 +76,15 @@ func (e *TextEditor) Render() {
 	}
 
 	if !e.tableView {
-		g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsNone, 50, 50, 400, 300, g.Layout{
-			g.InputTextMultiline("", &e.text, -1, -1, g.InputTextFlagsAllowTabInput, nil, func() {
-				// On Change Event
-			}),
+		g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+			g.InputTextMultiline("", &e.text).Flags(g.InputTextFlagsAllowTabInput),
 		})
-
 		return
 	}
 
-	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsHorizontalScrollbar, 0, 0, 400, 300, g.Layout{
-		g.Child("", false, float32(e.columns*80), 0,
-			g.WindowFlagsNone, g.Layout{
-				g.FastTable("", true, e.tableRows),
-			}),
+	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+		g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
+			g.FastTable("").Border(true).Rows(e.tableRows),
+		}),
 	})
 }

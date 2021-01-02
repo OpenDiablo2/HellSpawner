@@ -47,7 +47,7 @@ func (e *PaletteEditor) Render() {
 		imgui.SetNextWindowFocus()
 	}
 
-	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsAlwaysAutoResize, 360, 30, 0, 0, g.Layout{
+	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Pos(360, 30).Layout(g.Layout{
 		hswidget.PaletteGrid(e.fullPath, e.palette.GetColors()),
 	})
 }

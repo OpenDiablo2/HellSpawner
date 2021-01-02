@@ -45,7 +45,7 @@ func (m *ProjectExplorer) Render(project *hsproject.Project) {
 		return
 	}
 
-	g.WindowV("Project Explorer", &m.Visible, g.WindowFlagsNone, 10, 30, 300, 400, g.Layout{
+	g.Window("Project Explorer").IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
 		g.Line(
 			g.Custom(func() {
 				imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
@@ -53,7 +53,7 @@ func (m *ProjectExplorer) Render(project *hsproject.Project) {
 				imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: 4})
 				imgui.PushID("ProjectExplorerRefresh")
 			}),
-			g.ImageButton(m.refreshIconTexture, 16, 16, func() { m.onRefreshProjectExplorerClicked(project) }),
+			g.ImageButton(m.refreshIconTexture).Size(16, 16).OnClick(func() { m.onRefreshProjectExplorerClicked(project) }),
 			g.Tooltip("Refresh the view from the filesystem."),
 			g.Custom(func() {
 				imgui.PopID()
@@ -62,7 +62,7 @@ func (m *ProjectExplorer) Render(project *hsproject.Project) {
 			}),
 		),
 		g.Separator(),
-		g.Child("", false, 0, 0, g.WindowFlagsHorizontalScrollbar, m.getProjectTreeNodes(project)),
+		g.Child("ProjectExplorerProjectTreeContainer").Flags(g.WindowFlagsHorizontalScrollbar).Layout(m.getProjectTreeNodes(project)),
 	})
 }
 
@@ -87,7 +87,7 @@ func (m *ProjectExplorer) onRefreshProjectExplorerClicked(project *hsproject.Pro
 
 func renderNodes(pathEntry *hscommon.PathEntry, m *ProjectExplorer) g.Widget {
 	if len(pathEntry.Children) == 0 {
-		return g.Selectable(pathEntry.Name, func() {
+		return g.Selectable(pathEntry.Name).OnClick(func() {
 			m.fileSelectedCallback(pathEntry)
 		})
 	}
@@ -100,7 +100,7 @@ func renderNodes(pathEntry *hscommon.PathEntry, m *ProjectExplorer) g.Widget {
 		widgets[idx] = renderNodes(pathEntry.Children[idx], m)
 	}
 
-	return g.TreeNode(pathEntry.Name+"##ProjectExplorerNode_"+pathEntry.FullPath, g.TreeNodeFlagsNone, widgets)
+	return g.TreeNode(pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath).Layout(widgets)
 }
 
 func sortPaths(rootPath *hscommon.PathEntry) {

@@ -51,21 +51,21 @@ func (a *AboutDialog) Show() {
 func (a *AboutDialog) Render() {
 	hswidget.ModalDialog("About HellSpawner", &a.Visible, g.Layout{
 		g.Line(
-			g.ImageWithFile("d2logo.png", 256, 256),
-			g.Child("AboutHellSpawnerLayout", false, 500, 0, g.WindowFlagsNone, g.Layout{
-				g.LabelV("HellSpawner", false, &color.RGBA{R: 255, G: 255, B: 255, A: 255}, &a.titleFont),
-				g.LabelV("The OpenDiablo 2 Toolset", false, &color.RGBA{R: 255, G: 255, B: 255, A: 255}, &a.regularFont),
-				g.LabelV("Local Build", false, &color.RGBA{R: 255, G: 255, B: 255, A: 255}, &a.fixedFont),
+			g.ImageWithFile("d2logo.png").Size(256, 256),
+			g.Child("AboutHellSpawnerLayout").Size(500, 0).Layout(g.Layout{
+				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
+				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),
+				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),
 				g.Separator(),
-				g.TabBarV("AboutHellSpawnerTabBar", g.TabBarFlagsNoCloseWithMiddleMouseButton, g.Layout{
-					g.TabItem("Credits##AboutHellSpawner", g.Layout{
+				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
+					g.TabItem("Credits##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("", &a.credits, 500, 150, g.InputTextFlagsReadOnly|g.InputTextFlagsNoHorizontalScroll, nil, nil),
+						g.InputTextMultiline("", &a.credits).Size(500, 150).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
-					g.TabItem("Licenses##AboutHellSpawner", g.Layout{
+					g.TabItem("Licenses##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("", &a.license, 500, 150, g.InputTextFlagsReadOnly|g.InputTextFlagsNoHorizontalScroll, nil, nil),
+						g.InputTextMultiline("", &a.license).Size(500, 150).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 				}),

@@ -35,6 +35,7 @@ import (
 const baseWindowTitle = "HellSpawner"
 
 type App struct {
+	isRunning    bool
 	masterWindow *g.MasterWindow
 	project      *hsproject.Project
 	config       *hsconfig.Config
@@ -85,11 +86,12 @@ func (a *App) Run() {
 	}
 
 	dialog.Init()
-
-	wnd.Main(a.render)
+	hscommon.ProcessTextureLoadRequests()
+	wnd.Run(a.render)
 }
 
 func (a *App) render() {
+	hscommon.StopLoadingTextures()
 	a.renderMainMenuBar()
 
 	idx := 0
@@ -111,6 +113,8 @@ func (a *App) render() {
 	a.projectPropertiesDialog.Render()
 
 	g.Update()
+	hscommon.ResumeLoadingTextures()
+
 }
 
 func (a *App) loadMpq(fileName string) {
@@ -121,9 +125,9 @@ func (a *App) loadMpq(fileName string) {
 func (a *App) buildViewMenu() g.Layout {
 	result := make([]g.Widget, 0)
 
-	result = append(result, g.Menu("Tool Windows", g.Layout{
-		g.MenuItemV("Project Explorer", a.projectExplorer.Visible, true, a.toggleProjectExplorer),
-		g.MenuItemV("MPQ Explorer", a.mpqExplorer.Visible, true, a.toggleMPQExplorer),
+	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
+		g.MenuItem("Project Explorer").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
+		g.MenuItem("MPQ Explorer").Selected(a.mpqExplorer.Visible).Enabled(true).OnClick(a.toggleMPQExplorer),
 	}))
 
 	if len(a.editors) == 0 {
@@ -134,50 +138,50 @@ func (a *App) buildViewMenu() g.Layout {
 
 	for idx := range a.editors {
 		i := idx
-		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle(), a.editors[i].BringToFront))
+		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle()).OnClick(a.editors[i].BringToFront))
 	}
 
 	return result
 }
 
 func (a *App) renderMainMenuBar() {
-	g.MainMenuBar(g.Layout{
-		g.Menu("File##MainMenuFile", g.Layout{
-			g.Menu("New##MainMenuFileNew", g.Layout{
-				g.MenuItem("Project...##MainMenuFileNewProject", a.onNewProjectClicked),
+	g.MainMenuBar().Layout(g.Layout{
+		g.Menu("File##MainMenuFile").Layout(g.Layout{
+			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
+				g.MenuItem("Project...##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
 			}),
-			g.Menu("Open##MainMenuFileOpen", g.Layout{
-				g.MenuItem("Project...##MainMenuFileOpenProject", a.onOpenProjectClicked),
+			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
+				g.MenuItem("Project...##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
 			}),
-			g.Menu("Open Recent##MainMenuOpenRecent", g.Layout{
+			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
 				g.Custom(func() {
 					if len(a.config.RecentProjects) == 0 {
-						g.MenuItemV("No recent projects...##MainMenuOpenRecentItems", false, false, func() {}).Build()
+						g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
 						return
 					}
 					for idx := range a.config.RecentProjects {
 						projectName := a.config.RecentProjects[idx]
-						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx), func() {
+						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
 							a.loadProjectFromFile(projectName)
 						}).Build()
 					}
 				}),
 			}),
 			g.Separator(),
-			g.MenuItemV("Preferences...##MainMenuFilePreferences", false, true, a.onFilePreferencesClicked),
+			g.MenuItem("Preferences...##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
-			g.MenuItem("Exit##MainMenuFileExit", func() { os.Exit(0) }),
+			g.MenuItem("Exit##MainMenuFileExit").OnClick(func() { os.Exit(0) }),
 		}),
-		g.Menu("View##MainMenuView", a.buildViewMenu()),
-		g.Menu("Project##MainMenuProject", g.Layout{
-			g.MenuItemV("Run in OpenDiablo2##MainMenuProjectRun", false, a.project != nil, a.onProjectRunClicked),
+		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
+		g.Menu("Project##MainMenuProject").Layout(g.Layout{
+			g.MenuItem("Run in OpenDiablo2##MainMenuProjectRun").Enabled(a.project != nil).OnClick(a.onProjectRunClicked),
 			g.Separator(),
-			g.MenuItemV("Properties...##MainMenuProjectProperties", false, a.project != nil, a.onProjectPropertiesClicked),
+			g.MenuItem("Properties...##MainMenuProjectProperties").Enabled(a.project != nil).OnClick(a.onProjectPropertiesClicked),
 			g.Separator(),
-			g.MenuItemV("Export MPQ...##MainMenuProjectExport", false, a.project != nil, a.onProjectExportMPQClicked),
+			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(a.project != nil).OnClick(a.onProjectExportMPQClicked),
 		}),
-		g.Menu("Help", g.Layout{
-			g.MenuItem("About HellSpawner...##MainMenuHelpAbout", a.onHelpAboutClicked),
+		g.Menu("Help").Layout(g.Layout{
+			g.MenuItem("About HellSpawner...##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
 		}),
 	}).Build()
 }

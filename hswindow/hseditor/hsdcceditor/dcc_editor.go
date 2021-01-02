@@ -53,7 +53,7 @@ func (e *DCCEditor) Render() {
 		imgui.SetNextWindowFocus()
 	}
 
-	g.WindowV(e.GetWindowTitle(), &e.Visible, g.WindowFlagsAlwaysAutoResize, 0, 0, 0, 0, g.Layout{
+	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.DCCViewer(e.fullPath, e.dcc),
 	})
 

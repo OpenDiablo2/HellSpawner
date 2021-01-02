@@ -46,7 +46,7 @@ func (p *PaletteGridWidget) Build() {
 	var widget *giu.ImageWidget
 
 	if state == nil {
-		widget = giu.Image(nil, gridWidth*cellSize, gridHeight*cellSize)
+		widget = giu.Image(nil).Size(gridWidth*cellSize, gridHeight*cellSize)
 
 		//Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateId, &PaletteGridState{})
@@ -75,7 +75,7 @@ func (p *PaletteGridWidget) Build() {
 		}()
 	} else {
 		imgState := state.(*PaletteGridState)
-		widget = giu.Image(imgState.texture, gridWidth*cellSize, gridHeight*cellSize)
+		widget = giu.Image(imgState.texture).Size(gridWidth*cellSize, gridHeight*cellSize)
 	}
 
 	widget.Build()
