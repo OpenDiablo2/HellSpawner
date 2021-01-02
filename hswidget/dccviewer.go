@@ -2,16 +2,12 @@ package hswidget
 
 import (
 	"fmt"
+	"github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	image2 "image"
 	"image/color"
 	"log"
-	"math"
-
-	"github.com/AllenDang/giu/imgui"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
-
-	"github.com/AllenDang/giu"
 )
 
 type DCCViewerState struct {
@@ -62,20 +58,10 @@ func (p *DCCViewerWidget) Build() {
 
 		images := make([]*image2.RGBA, totalFrames)
 
-		minX, minY := math.MaxInt32, math.MaxInt32
-		maxX, maxY := math.MinInt32, math.MinInt32
-
 		for dirIdx := range p.dcc.Directions {
 
-			for _, dccFrame := range p.dcc.Directions[dirIdx].Frames {
-				minX = d2math.MinInt(minX, dccFrame.Box.Left)
-				minY = d2math.MinInt(minY, dccFrame.Box.Top)
-				maxX = d2math.MaxInt(maxX, dccFrame.Box.Right())
-				maxY = d2math.MaxInt(maxY, dccFrame.Box.Bottom())
-			}
-
-			fw := maxX - minX
-			fh := maxY - minY
+			fw := p.dcc.Directions[dirIdx].Box.Width
+			fh := p.dcc.Directions[dirIdx].Box.Height
 
 			for frameIdx := range p.dcc.Directions[dirIdx].Frames {
 				absoluteFrameIdx := (dirIdx * p.dcc.FramesPerDirection) + frameIdx
@@ -88,6 +74,10 @@ func (p *DCCViewerWidget) Build() {
 				for y := 0; y < fh; y++ {
 					for x := 0; x < fw; x++ {
 						idx := x + (y * fw)
+						if idx >= len(pixels) {
+							continue
+						}
+
 						val := pixels[idx]
 
 						alpha := maxAlpha
@@ -124,7 +114,8 @@ func (p *DCCViewerWidget) Build() {
 		imageScale := uint32(viewerState.controls.scale)
 		dirIdx := int(viewerState.controls.direction)
 		frameIdx := viewerState.controls.frame
-		frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
+
+		textureIdx := dirIdx*len(p.dcc.Directions[dirIdx].Frames) + int(frameIdx)
 
 		if imageScale < 1 {
 			imageScale = 1
@@ -135,9 +126,11 @@ func (p *DCCViewerWidget) Build() {
 		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
 			widget = giu.Image(nil, 32, 32)
 		} else {
-			w := float32(uint32(frame.Width) * imageScale)
-			h := float32(uint32(frame.Height) * imageScale)
-			widget = giu.Image(viewerState.textures[frameIdx], w, h)
+			bw := p.dcc.Directions[dirIdx].Box.Width
+			bh := p.dcc.Directions[dirIdx].Box.Height
+			w := float32(uint32(bw) * imageScale)
+			h := float32(uint32(bh) * imageScale)
+			widget = giu.Image(viewerState.textures[textureIdx], w, h)
 		}
 
 		giu.Layout{
