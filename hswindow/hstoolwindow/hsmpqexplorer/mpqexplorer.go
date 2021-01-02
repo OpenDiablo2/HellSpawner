@@ -6,19 +6,15 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+
 	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
-type MPQExplorerFileSelectedCallback func(path *PathEntry)
-
-type PathEntry struct {
-	Children []*PathEntry
-	Name     string
-	FullPath string
-}
+type MPQExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
 type MPQExplorer struct {
 	hstoolwindow.ToolWindow
@@ -43,7 +39,7 @@ func (m *MPQExplorer) Render() {
 	}
 
 	g.WindowV("MPQ Explorer", &m.Visible, g.WindowFlagsNone, 10, 30, 300, 400, g.Layout{
-		g.Child("", false, 0, 0, g.WindowFlagsHorizontalScrollbar, m.getMpqTreeNodes()),
+		g.Child("MpqExplorerContent", false, 0, 0, g.WindowFlagsHorizontalScrollbar, m.getMpqTreeNodes()),
 	})
 }
 
@@ -60,8 +56,8 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 		return m.nodeCache[mpq.Path()]
 	}
 
-	pathNodes := make(map[string]*PathEntry)
-	rootNode := &PathEntry{Name: "/"}
+	pathNodes := make(map[string]*hscommon.PathEntry)
+	rootNode := &hscommon.PathEntry{Name: "/"}
 	pathNodes[""] = rootNode
 
 	files, err := mpq.GetFileList()
@@ -78,7 +74,7 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 
 			path += "/" + elements[elemIdx]
 			if pathNodes[strings.ToLower(path)] == nil {
-				pathNodes[strings.ToLower(path)] = &PathEntry{
+				pathNodes[strings.ToLower(path)] = &hscommon.PathEntry{
 					Name:     elements[elemIdx],
 					FullPath: mpq.Path() + "|" + path,
 				}
@@ -100,7 +96,7 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 	return result
 }
 
-func sortPaths(rootPath *PathEntry) {
+func sortPaths(rootPath *hscommon.PathEntry) {
 	sort.Slice(rootPath.Children, func(i, j int) bool {
 		if ((len(rootPath.Children[i].Children) == 0) && (len(rootPath.Children[j].Children) == 0)) ||
 			((len(rootPath.Children[i].Children) != 0) && (len(rootPath.Children[j].Children) != 0)) {
@@ -111,7 +107,7 @@ func sortPaths(rootPath *PathEntry) {
 	})
 }
 
-func renderNodes(pathEntry *PathEntry, m *MPQExplorer) g.Widget {
+func renderNodes(pathEntry *hscommon.PathEntry, m *MPQExplorer) g.Widget {
 	if len(pathEntry.Children) == 0 {
 		return g.Selectable(pathEntry.Name, func() {
 			m.fileSelectedCallback(pathEntry)

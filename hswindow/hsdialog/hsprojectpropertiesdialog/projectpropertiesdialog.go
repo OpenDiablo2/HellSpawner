@@ -2,10 +2,11 @@ package hsprojectpropertiesdialog
 
 import (
 	"fmt"
-	"image"
 	"log"
 	"path/filepath"
 	"strings"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
@@ -43,23 +44,19 @@ func Create(onProjectPropertiesChanged func(project hsproject.Project)) *Project
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
 		mpqSelectDialogVisible:     false,
 	}
-	var imgRemove, imgUp, imgDown *image.RGBA
-	var err error
-	if imgRemove, err = g.LoadImage(removeItemButtonPath); err != nil {
-		log.Fatal(err)
-	}
-	if imgUp, err = g.LoadImage(upItemButtonPath); err != nil {
-		log.Fatal(err)
-	}
-	if imgDown, err = g.LoadImage(downItemButtonPath); err != nil {
-		log.Fatal(err)
-	}
 
-	go func() {
-		result.removeIconTexture, err = g.NewTextureFromRgba(imgRemove)
-		result.upIconTexture, err = g.NewTextureFromRgba(imgUp)
-		result.downIconTexture, err = g.NewTextureFromRgba(imgDown)
-	}()
+	hscommon.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+		result.removeIconTexture = texture
+	})
+
+	hscommon.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+		result.upIconTexture = texture
+	})
+
+	hscommon.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+		result.downIconTexture = texture
+	})
+
 	return result
 }
 
