@@ -80,15 +80,14 @@ func (p *ProjectPropertiesDialog) Render() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
 	hswidget.ModalDialog("Select Auxiliary MPQ##ProjectPropertiesSelectAuxMPQDialog", &p.mpqSelectDialogVisible, g.Layout{
-		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Border(false).Size(300, 200).Layout(g.Layout{
-			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).OnChange(func(selectedIndex int) {
+		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(300, 200).Layout(g.Layout{
+			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
 				p.mpqSelectDialogVisible = false
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
 			}),
 		}),
-		g.Separator(),
 		g.Line(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
@@ -103,7 +102,7 @@ func (p *ProjectPropertiesDialog) Render() {
 	if !p.mpqSelectDialogVisible {
 		hswidget.ModalDialog("Project Properties##ProjectPropertiesDialog", &p.Visible, g.Layout{
 			g.Line(
-				g.Child("ProjectPropertiesLayout").Border(false).Size(300, 250).Layout(g.Layout{
+				g.Child("ProjectPropertiesLayout").Size(300, 250).Layout(g.Layout{
 					g.Label("Project Name:"),
 					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(250),
 					g.Label("Description:"),
@@ -111,9 +110,9 @@ func (p *ProjectPropertiesDialog) Render() {
 					g.Label("Author:"),
 					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(250),
 				}),
-				g.Child("ProjectPropertiesLayout2").Border(false).Size(300, 250).Layout(g.Layout{
+				g.Child("ProjectPropertiesLayout2").Size(300, 250).Layout(g.Layout{
 					g.Label("Auxiliary MPQs:"),
-					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Size(0, 170).Layout(g.Layout{
+					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(0, 180).Layout(g.Layout{
 						g.Custom(func() {
 							imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
@@ -158,7 +157,6 @@ func (p *ProjectPropertiesDialog) Render() {
 					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq").OnClick(p.onAddAuxMpqClicked),
 				}),
 			),
-			g.Separator(),
 			g.Line(
 				g.Custom(func() {
 					if !canSave {

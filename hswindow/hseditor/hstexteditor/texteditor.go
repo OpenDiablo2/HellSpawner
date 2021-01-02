@@ -77,7 +77,7 @@ func (e *TextEditor) Render() {
 
 	if !e.tableView {
 		g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
-			g.InputTextMultiline("", &e.text).Flags(g.InputTextFlagsAllowTabInput),
+			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
 		})
 		return
 	}
