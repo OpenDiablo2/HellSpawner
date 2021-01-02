@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"fmt"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdcceditor"
 	"image/color"
 	"log"
 	"os"
@@ -284,6 +285,22 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 		editor.SetId(path.FullPath)
 
 		editor.Show()
+	case ".dcc":
+		data, err := mpq.ReadFile(filePath)
+		if err != nil {
+			return
+		}
+
+		editor, err := hsdcceditor.Create(path.Name, path.FullPath, data)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
+
+		editor.Show()
 	case ".cof":
 		data, err := mpq.ReadFile(filePath)
 		if err != nil {
@@ -301,7 +318,6 @@ func (a *App) openEditor(path *hsmpqexplorer.PathEntry) {
 
 		editor.Show()
 	}
-
 }
 
 func (a *App) onNewProjectClicked() {
