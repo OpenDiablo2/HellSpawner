@@ -52,7 +52,7 @@ func (a *AboutDialog) Render() {
 	hswidget.ModalDialog("About HellSpawner", &a.Visible, g.Layout{
 		g.Line(
 			g.ImageWithFile("d2logo.png").Size(256, 256),
-			g.Child("AboutHellSpawnerLayout").Size(500, 0).Layout(g.Layout{
+			g.Child("AboutHellSpawnerLayout").Size(500, -1).Layout(g.Layout{
 				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
 				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),
 				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),
@@ -60,12 +60,14 @@ func (a *AboutDialog) Render() {
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
 					g.TabItem("Credits##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("", &a.credits).Size(500, 150).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+						g.InputTextMultiline("##AboutHellSpawnerCredits", &a.credits).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 					g.TabItem("Licenses##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("", &a.license).Size(500, 150).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+						g.InputTextMultiline("##AboutHellSpawnerLicense", &a.license).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 				}),

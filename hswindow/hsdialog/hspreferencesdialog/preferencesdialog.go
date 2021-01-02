@@ -32,12 +32,13 @@ func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 
 func (p *PreferencesDialog) Render() {
 	hswidget.ModalDialog("Preferences##AppPreferences", &p.Visible, g.Layout{
-		g.Label("Auxiliary MPQ Path"),
-		g.Line(
-			g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
-			g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(250).Flags(g.InputTextFlagsReadOnly),
-		),
-		g.Separator(),
+		g.Child("PreferencesLayout").Size(300, 75).Layout(g.Layout{
+			g.Label("Auxiliary MPQ Path"),
+			g.Line(
+				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
+				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(-1).Flags(g.InputTextFlagsReadOnly),
+			),
+		}),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
 			g.Button("Cancel##AppPreferencesCancel").OnClick(p.onCancelClicked),
