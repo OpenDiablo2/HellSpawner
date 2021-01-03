@@ -14,6 +14,7 @@ import (
 type Config struct {
 	RecentProjects   []string
 	AuxiliaryMpqPath string
+	ExternalListfile string
 }
 
 func getConfigPath() string {

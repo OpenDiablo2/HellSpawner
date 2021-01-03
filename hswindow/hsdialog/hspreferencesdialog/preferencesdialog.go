@@ -32,11 +32,16 @@ func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 
 func (p *PreferencesDialog) Render() {
 	hswidget.ModalDialog("Preferences##AppPreferences", &p.Visible, g.Layout{
-		g.Child("PreferencesLayout").Size(300, 75).Layout(g.Layout{
+		g.Child("PreferencesLayout").Size(300, 110).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(-1).Flags(g.InputTextFlagsReadOnly),
+			),
+			g.Label("External MPQ listfile Path"),
+			g.Line(
+				g.Button("...##AppPreferencesListfilePathBrowse").Size(30, 0).OnClick(p.onBrowseExternalListfileClicked),
+				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListfile).Size(-1).Flags(g.InputTextFlagsReadOnly),
 			),
 		}),
 		g.Line(
@@ -52,6 +57,17 @@ func (p *PreferencesDialog) onBrowseAuxMpqPathClicked() {
 		return
 	}
 	p.config.AuxiliaryMpqPath = path
+}
+
+func (p *PreferencesDialog) onBrowseExternalListfileClicked() {
+	path := dialog.File()
+	path.Filter("Text file", "txt")
+	filePath, err := path.Load()
+
+	if err != nil || len(filePath) == 0 {
+		return
+	}
+	p.config.ExternalListfile = filePath
 }
 
 func (p *PreferencesDialog) onSaveClicked() {
