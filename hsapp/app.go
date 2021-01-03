@@ -62,7 +62,7 @@ func Create() (*App, error) {
 
 	var err error
 
-	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor); err != nil {
+	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor, *result.config); err != nil {
 		return nil, err
 	}
 
