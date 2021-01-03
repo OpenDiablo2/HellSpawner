@@ -1,12 +1,16 @@
 package hsmpqexplorer
 
 import (
+	"bufio"
+	"errors"
 	"log"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
 	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
@@ -18,15 +22,17 @@ type MPQExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
 type MPQExplorer struct {
 	hstoolwindow.ToolWindow
+	config               hsconfig.Config
 	fileSelectedCallback MPQExplorerFileSelectedCallback
 	mpqs                 []d2interface.Archive
 	nodeCache            map[string][]g.Widget
 }
 
-func Create(fileSelectedCallback MPQExplorerFileSelectedCallback) (*MPQExplorer, error) {
+func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config hsconfig.Config) (*MPQExplorer, error) {
 	result := &MPQExplorer{
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
+		config:               config,
 	}
 	result.Visible = false
 
@@ -51,6 +57,30 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	return result
 }
 
+// Search for files in MPQ's without listfiles using a list of known filenames
+func (m *MPQExplorer) searchForMpqFiles(mpq d2interface.Archive) ([]string, error) {
+	var files []string
+
+	if m.config.ExternalListfile != "" {
+		file, err := os.Open(m.config.ExternalListfile)
+		if err != nil {
+			return files, errors.New("Couldn't open listfile")
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fileName := scanner.Text()
+			if mpq.FileExists(fileName) {
+				files = append(files, fileName)
+			}
+		}
+		return files, scanner.Err()
+	}
+
+	return files, nil
+}
+
 func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 	if m.nodeCache[mpq.Path()] != nil {
 		return m.nodeCache[mpq.Path()]
@@ -63,7 +93,10 @@ func (m *MPQExplorer) getMpqFileNodes(mpq d2interface.Archive) []g.Widget {
 	files, err := mpq.GetFileList()
 
 	if err != nil {
-		return []g.Widget{}
+		files, err = m.searchForMpqFiles(mpq)
+		if err != nil {
+			return []g.Widget{}
+		}
 	}
 
 	for idx := range files {
