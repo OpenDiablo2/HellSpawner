@@ -2,15 +2,19 @@ package hsproject
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/dialog"
 )
 
 type Project struct {
@@ -123,13 +127,13 @@ func (p *Project) GetFileStructure() *hscommon.PathEntry {
 
 	result := &hscommon.PathEntry{
 		Name:        p.ProjectName,
-		FullPath:    p.filePath,
 		Children:    make([]*hscommon.PathEntry, 0),
 		IsDirectory: true,
 		IsRoot:      true,
 	}
 
-	p.getFileNodes(filepath.Join(filepath.Dir(p.filePath), "content"), result)
+	result.FullPath = filepath.Join(filepath.Dir(p.filePath), "content")
+	p.getFileNodes(result.FullPath, result)
 
 	p.pathEntryCache = result
 
@@ -164,4 +168,98 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 
 func (p *Project) InvalidateFileStructure() {
 	p.pathEntryCache = nil
+}
+
+func (p *Project) RenameFile(path string) {
+	pathEntry := p.FindPathEntry(path)
+	if pathEntry == nil {
+		return
+	}
+	pathEntry.OldName = pathEntry.Name
+	pathEntry.IsRenaming = true
+}
+
+func (p *Project) FindPathEntry(path string) *hscommon.PathEntry {
+	if p.pathEntryCache == nil {
+		return nil
+	}
+	return p.searchPathEntries(p.pathEntryCache, path)
+}
+
+func (p *Project) searchPathEntries(pathEntry *hscommon.PathEntry, path string) *hscommon.PathEntry {
+	if pathEntry.FullPath == path {
+		return p.pathEntryCache
+	}
+
+	for child := range pathEntry.Children {
+		if pathEntry.Children[child].FullPath == path {
+			return pathEntry.Children[child]
+		}
+
+		if found := p.searchPathEntries(pathEntry.Children[child], path); found != nil {
+			return found
+		}
+	}
+
+	return nil
+}
+
+func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
+	basePath := path.FullPath
+
+	filePathFormat := filepath.Join(basePath, "untitled%d")
+	var fileName string
+
+	for i := 0; ; i++ {
+		possibleFileName := fmt.Sprintf(filePathFormat, i)
+		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
+			fileName = possibleFileName
+			break
+		}
+
+		if i > 100 {
+			dialog.Message("Could not create a new project folder!").Error()
+			return
+		}
+	}
+
+	if err := os.Mkdir(fileName, 0775); err != nil {
+		dialog.Message("Could not create a new project folder!").Error()
+		return
+	}
+
+	p.InvalidateFileStructure()
+	p.GetFileStructure()
+	p.RenameFile(fileName)
+}
+
+func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) {
+	basePath := path.FullPath
+
+	filePathFormat := filepath.Join(basePath, "untitled%d"+fileType.FileExtension())
+	var fileName string
+
+	for i := 0; ; i++ {
+		possibleFileName := fmt.Sprintf(filePathFormat, i)
+		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
+			fileName = possibleFileName
+			break
+		}
+
+		if i > 100 {
+			dialog.Message("Could not create a new project file!").Error()
+			return
+		}
+	}
+
+	switch fileType {
+	case hsfiletypes.FileTypeFont:
+		hsfont.NewFile(fileName)
+	}
+
+	p.InvalidateFileStructure()
+
+	// Force regeneration of file structure so that rename can find the file
+	p.GetFileStructure()
+	p.RenameFile(fileName)
 }

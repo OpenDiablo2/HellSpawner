@@ -4,7 +4,6 @@ import (
 	"image"
 	"log"
 	"sync"
-	"time"
 
 	"github.com/enriquebris/goconcurrentqueue"
 
@@ -44,7 +43,6 @@ func ProcessTextureLoadRequests() {
 
 				if !canLoadTextures {
 					mutex.Unlock()
-					time.Sleep(50 * time.Millisecond)
 					continue
 				}
 				mutex.Unlock()
@@ -53,13 +51,11 @@ func ProcessTextureLoadRequests() {
 
 			loadRequest := item.(TextureLoadRequestItem)
 			var texture *g.Texture
-			log.Printf("Loading texture...")
 
 			if texture, err = g.NewTextureFromRgba(loadRequest.rgb); err != nil {
 				log.Fatal(err)
 			}
 
-			log.Printf("Done loading texture")
 			loadRequest.callback(texture)
 		}
 	}()

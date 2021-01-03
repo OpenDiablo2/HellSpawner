@@ -222,12 +222,17 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
 	parts := strings.Split(path.FullPath, "|")
+
+	// Temporary fix until we get mpq/project loading more sane
+	if len(parts) == 1 {
+		return
+	}
+
 	mpqFile := parts[0]
 	filePath := cleanMpqPathName(parts[1])
 	mpq, err := d2mpq.Load(mpqFile)
 
 	if err != nil {
-		return // TODO: This loader is not done, this will always happen when trying to load project files
 		log.Fatal(err)
 	}
 
