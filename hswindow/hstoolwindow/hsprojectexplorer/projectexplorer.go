@@ -1,8 +1,11 @@
 package hsprojectexplorer
 
 import (
+	"os"
 	"sort"
 	"strings"
+
+	"github.com/OpenDiablo2/dialog"
 
 	"github.com/AllenDang/giu/imgui"
 
@@ -78,7 +81,7 @@ func (m *ProjectExplorer) getProjectTreeNodes(project *hsproject.Project) g.Layo
 		return []g.Widget{g.Label("No file structure detected...")}
 	}
 
-	return []g.Widget{m.renderNodes(project.GetFileStructure())}
+	return []g.Widget{m.renderNodes(project.GetFileStructure(), project)}
 }
 
 func (m *ProjectExplorer) onRefreshProjectExplorerClicked(project *hsproject.Project) {
@@ -89,15 +92,15 @@ func (m *ProjectExplorer) onNewFontClicked() {
 
 }
 
-func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
+func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry, project *hsproject.Project) g.Widget {
 
 	if !pathEntry.IsDirectory {
-		return m.createFileTreeItem(pathEntry)
+		return m.createFileTreeItem(pathEntry, project)
 	}
 
 	// File items and empty dirs
 	if len(pathEntry.Children) == 0 {
-		return m.createDirectoryTreeItem(pathEntry, nil)
+		return m.createDirectoryTreeItem(pathEntry, nil, project)
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))
@@ -105,19 +108,25 @@ func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	sortPaths(pathEntry)
 
 	for idx := range pathEntry.Children {
-		widgets[idx] = m.renderNodes(pathEntry.Children[idx])
+		widgets[idx] = m.renderNodes(pathEntry.Children[idx], project)
 	}
 
-	return m.createDirectoryTreeItem(pathEntry, widgets)
+	return m.createDirectoryTreeItem(pathEntry, widgets, project)
 }
 
-func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Widget {
-	return g.Selectable(pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath).OnClick(func() {
-		m.fileSelectedCallback(pathEntry)
-	})
+func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry, project *hsproject.Project) g.Widget {
+	id := "##ProjectExplorerNode_" + pathEntry.FullPath
+	return g.Layout{
+		g.Selectable(pathEntry.Name + id).OnClick(func() {
+			m.fileSelectedCallback(pathEntry)
+		}),
+		g.ContextMenu("Context" + id).Layout(g.Layout{
+			g.MenuItem("Delete...").OnClick(func() { m.onDeleteFileClicked(pathEntry, project) }),
+		}),
+	}
 }
 
-func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout) g.Widget {
+func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout, project *hsproject.Project) g.Widget {
 	var id = pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath
 
 	var menuLayout g.Layout
@@ -131,6 +140,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 				g.Menu("New").Layout(g.Layout{
 					g.MenuItem("Font").OnClick(m.onNewFontClicked),
 				}),
+				g.MenuItem("Delete Folder...").OnClick(func() { m.onDeleteFolderClicked(pathEntry, project) }),
 			}),
 			g.Custom(func() { imgui.PopID() }),
 		}
@@ -141,6 +151,31 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 	}
 
 	return g.TreeNode(id).Layout(append(menuLayout, layout...))
+}
+
+func (m *ProjectExplorer) onDeleteFolderClicked(entry *hscommon.PathEntry, project *hsproject.Project) {
+	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
+		return
+	}
+
+	if err := os.RemoveAll(entry.FullPath); err != nil {
+		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
+		return
+	}
+
+	project.InvalidateFileStructure()
+}
+
+func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry, project *hsproject.Project) {
+	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
+		return
+	}
+	if err := os.Remove(entry.FullPath); err != nil {
+		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
+		return
+	}
+
+	project.InvalidateFileStructure()
 }
 
 func sortPaths(rootPath *hscommon.PathEntry) {

@@ -2,15 +2,19 @@ package hsproject
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/dialog"
 )
 
 type Project struct {
@@ -164,4 +168,30 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 
 func (p *Project) InvalidateFileStructure() {
 	p.pathEntryCache = nil
+}
+
+func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path hscommon.PathEntry) {
+	filePathFormat := filepath.Join(path.FullPath, "untitled%d"+fileType.FileExtension())
+	var fileName string
+
+	for i := 0; ; i++ {
+		possibleFileName := fmt.Sprintf(filePathFormat, i)
+		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
+			fileName = possibleFileName
+			break
+		}
+
+		if i > 100 {
+			dialog.Message("Could not create a new project file!").Error()
+			return
+		}
+	}
+
+	switch fileType {
+	case hsfiletypes.FileTypeFont:
+		hsfont.NewFile(fileName)
+	}
+
+	p.InvalidateFileStructure()
+
 }
