@@ -14,12 +14,16 @@ type Font struct {
 	PaletteFile string
 }
 
-func NewFile(filePath string) *Font {
+func NewFile(filePath string) (*Font, error) {
 	result := &Font{
 		filePath: filePath,
 	}
 
-	return result
+	if err := result.SaveToFile(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (f *Font) SaveToFile() error {

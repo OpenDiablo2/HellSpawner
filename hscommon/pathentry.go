@@ -6,4 +6,7 @@ type PathEntry struct {
 	FullPath    string
 	IsDirectory bool
 	IsRoot      bool
+
+	IsRenaming bool
+	OldName    string
 }
