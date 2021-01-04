@@ -14,6 +14,6 @@ func (f FileType) String() string {
 
 func (f FileType) FileExtension() string {
 	return [...]string{
-		".fnt",
+		".hsf",
 	}[f]
 }

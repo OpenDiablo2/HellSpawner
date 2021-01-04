@@ -133,10 +133,8 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry, proj
 			}),
 		}
 	} else {
-		layout = append(layout, g.Selectable(pathEntry.Name+id).Flags(g.SelectableFlagsAllowDoubleClick).OnClick(func() {
-			if imgui.IsMouseDoubleClicked(int(g.MouseButtonLeft)) {
-				m.fileSelectedCallback(pathEntry)
-			}
+		layout = append(layout, g.Selectable(pathEntry.Name+id).OnClick(func() {
+			m.fileSelectedCallback(pathEntry)
 		}))
 	}
 

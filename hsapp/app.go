@@ -5,9 +5,12 @@ import (
 	"image/color"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonteditor"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
@@ -26,6 +29,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 	"github.com/OpenDiablo2/dialog"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
@@ -62,7 +66,7 @@ func Create() (*App, error) {
 
 	var err error
 
-	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor, *result.config); err != nil {
+	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor, result.config); err != nil {
 		return nil, err
 	}
 
@@ -107,7 +111,7 @@ func (a *App) render() {
 	}
 
 	a.projectExplorer.Render(a.project)
-	a.mpqExplorer.Render()
+	a.mpqExplorer.Render(a.project, a.config)
 	a.preferencesDialog.Render()
 	a.aboutDialog.Render()
 	a.projectPropertiesDialog.Render()
@@ -115,11 +119,6 @@ func (a *App) render() {
 	g.Update()
 	hscommon.ResumeLoadingTextures()
 
-}
-
-func (a *App) loadMpq(fileName string) {
-	a.mpqExplorer.AddMPQ(fileName)
-	a.mpqExplorer.Show()
 }
 
 func (a *App) buildViewMenu() g.Layout {
@@ -212,6 +211,15 @@ func (a *App) setupFonts() {
 	}
 }
 
+//func (a *App) GetFileBytes(fileName string) ([]byte, error) {
+//	entry := a.project.FindPathEntry(filepath.Join(filepath.Base(a.project.GetProjectFilePath()), fileName))
+//
+//	if entry == nil {
+//
+//	}
+//
+//}
+
 func (a *App) openEditor(path *hscommon.PathEntry) {
 	for idx := range a.editors {
 		if a.editors[idx].GetId() == path.FullPath {
@@ -223,17 +231,23 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
 	parts := strings.Split(path.FullPath, "|")
 
-	// Temporary fix until we get mpq/project loading more sane
+	// TODO: This is dumb as hell.. If there is no pipe, it's not an MPQ path. Fix this shit.
+	var mpqFile string
+	var filePath string
+	var mpq d2interface.Archive
+	var err error
+
 	if len(parts) == 1 {
-		return
-	}
 
-	mpqFile := parts[0]
-	filePath := cleanMpqPathName(parts[1])
-	mpq, err := d2mpq.Load(mpqFile)
+	} else {
 
-	if err != nil {
-		log.Fatal(err)
+		mpqFile = parts[0]
+		filePath = cleanMpqPathName(parts[1])
+		mpq, err = d2mpq.Load(mpqFile)
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	switch ext {
@@ -245,6 +259,16 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		}
 
 		editor, err := hstexteditor.Create(path.Name, text, a.fontFixed)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.FullPath)
+		editor.Show()
+	case hsfiletypes.FileTypeFont.FileExtension():
+		editor, err := hsfonteditor.Create(path)
 
 		if err != nil {
 			log.Fatal(err)
@@ -430,10 +454,8 @@ func (a *App) onPreferencesChanged(config hsconfig.Config) {
 }
 
 func (a *App) reloadAuxiliaryMPQs() {
+	a.project.ReloadAuxiliaryMPQs(a.config)
 	a.mpqExplorer.Reset()
-	for idx := range a.project.AuxiliaryMPQs {
-		a.mpqExplorer.AddMPQ(filepath.Join(a.config.AuxiliaryMpqPath, a.project.AuxiliaryMPQs[idx]))
-	}
 }
 
 func (a *App) toggleProjectExplorer() {
