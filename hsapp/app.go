@@ -1,16 +1,17 @@
 package hsapp
 
 import (
-	"fmt"
+	"errors"
 	"image/color"
+	"io/ioutil"
 	"log"
 	"os"
-	"strings"
+	"path/filepath"
 	"time"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonteditor"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
@@ -20,16 +21,8 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hscofeditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdcceditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 	"github.com/OpenDiablo2/dialog"
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
@@ -51,7 +44,8 @@ type App struct {
 	projectExplorer *hsprojectexplorer.ProjectExplorer
 	mpqExplorer     *hsmpqexplorer.MPQExplorer
 
-	editors []hscommon.EditorWindow
+	editors            []hscommon.EditorWindow
+	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)
 
 	fontFixed         imgui.Font
 	fontFixedSmall    imgui.Font
@@ -60,22 +54,11 @@ type App struct {
 }
 
 func Create() (*App, error) {
-	result := &App{}
-	result.editors = make([]hscommon.EditorWindow, 0)
-	result.config = hsconfig.Load()
-
-	var err error
-
-	if result.mpqExplorer, err = hsmpqexplorer.Create(result.openEditor, result.config); err != nil {
-		return nil, err
+	result := &App{
+		editors:            make([]hscommon.EditorWindow, 0),
+		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)),
+		config:             hsconfig.Load(),
 	}
-
-	if result.projectExplorer, err = hsprojectexplorer.Create(result.openEditor); err != nil {
-		return nil, err
-	}
-
-	result.projectPropertiesDialog = hsprojectpropertiesdialog.Create(result.onProjectPropertiesChanged)
-	result.preferencesDialog = hspreferencesdialog.Create(result.onPreferencesChanged)
 
 	return result, nil
 }
@@ -121,72 +104,6 @@ func (a *App) render() {
 
 }
 
-func (a *App) buildViewMenu() g.Layout {
-	result := make([]g.Widget, 0)
-
-	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
-		g.MenuItem("Project Explorer").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
-		g.MenuItem("MPQ Explorer").Selected(a.mpqExplorer.Visible).Enabled(true).OnClick(a.toggleMPQExplorer),
-	}))
-
-	if len(a.editors) == 0 {
-		return result
-	}
-
-	result = append(result, g.Separator())
-
-	for idx := range a.editors {
-		i := idx
-		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle()).OnClick(a.editors[i].BringToFront))
-	}
-
-	return result
-}
-
-func (a *App) renderMainMenuBar() {
-	projectOpened := a.project != nil
-
-	g.MainMenuBar().Layout(g.Layout{
-		g.Menu("File##MainMenuFile").Layout(g.Layout{
-			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
-				g.MenuItem("Project...##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
-			}),
-			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
-				g.MenuItem("Project...##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
-			}),
-			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
-				g.Custom(func() {
-					if len(a.config.RecentProjects) == 0 {
-						g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
-						return
-					}
-					for idx := range a.config.RecentProjects {
-						projectName := a.config.RecentProjects[idx]
-						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
-							a.loadProjectFromFile(projectName)
-						}).Build()
-					}
-				}),
-			}),
-			g.Separator(),
-			g.MenuItem("Preferences...##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
-			g.Separator(),
-			g.MenuItem("Exit##MainMenuFileExit").OnClick(func() { os.Exit(0) }),
-		}),
-		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
-		g.Menu("Project##MainMenuProject").Layout(g.Layout{
-			g.MenuItem("Run in OpenDiablo2##MainMenuProjectRun").Enabled(projectOpened).OnClick(a.onProjectRunClicked),
-			g.Separator(),
-			g.MenuItem("Properties...##MainMenuProjectProperties").Enabled(projectOpened).OnClick(a.onProjectPropertiesClicked),
-			g.Separator(),
-			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(projectOpened).OnClick(a.onProjectExportMPQClicked),
-		}),
-		g.Menu("Help").Layout(g.Layout{
-			g.MenuItem("About HellSpawner...##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
-		}),
-	}).Build()
-}
-
 func (a *App) setupFonts() {
 	// Note: To support other languages we'll have to do something with glyph ranges here...
 	// ranges := imgui.NewGlyphRanges()
@@ -205,15 +122,30 @@ func (a *App) setupFonts() {
 	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("DiabloBold.ttf", 30)
 	imgui.CurrentStyle().ScaleAllSizes(1.0)
 
-	var err error
-	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
+	if err := a.setup(); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
+	if pathEntry.Source == hscommon.PathEntrySourceProject {
+		if _, err := os.Stat(pathEntry.FullPath); os.IsNotExist(err) {
+			return nil, err
+		}
 
-	return nil, nil
+		return ioutil.ReadFile(pathEntry.FullPath)
+	}
+
+	mpq, err := d2mpq.Load(pathEntry.MPQFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if mpq.FileExists(pathEntry.FullPath) {
+		return mpq.ReadFile(pathEntry.FullPath)
+	}
+
+	return nil, errors.New("could not locate file in mpq")
 }
 
 func (a *App) openEditor(path *hscommon.PathEntry) {
@@ -231,153 +163,26 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		return
 	}
 
-	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
-	parts := strings.Split(path.FullPath, "|")
-
-	// TODO: This is dumb as hell.. If there is no pipe, it's not an MPQ path. Fix this shit.
-	var mpqFile string
-	var filePath string
-	var mpq d2interface.Archive
-
-	if len(parts) == 1 {
-
-	} else {
-
-		mpqFile = parts[0]
-		filePath = cleanMpqPathName(parts[1])
-		mpq, err = d2mpq.Load(mpqFile)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	switch ext {
-	case ".txt":
-		text, err := mpq.ReadTextFile(filePath)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		editor, err := hstexteditor.Create(path.Name, text, a.fontFixed)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-		editor.Show()
-	case hsfiletypes.FileTypeFont.FileExtension():
-		editor, err := hsfonteditor.Create(path)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-		editor.Show()
-	case ".wav":
-		audioStream, err := mpq.ReadFileStream(filePath)
-
-		editor, err := hssoundeditor.Create(path.Name, audioStream)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-		editor.Show()
-	case ".dat":
-		data, err := mpq.ReadFile(filePath)
-		if err != nil {
-			return
-		}
-
-		editor, err := hspaletteeditor.Create(path.Name, path.FullPath, data)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-
-		editor.Show()
-	case ".dc6":
-		data, err := mpq.ReadFile(filePath)
-		if err != nil {
-			return
-		}
-
-		editor, err := hsdc6editor.Create(path.Name, path.FullPath, data)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-
-		editor.Show()
-	case ".dcc":
-		data, err := mpq.ReadFile(filePath)
-		if err != nil {
-			return
-		}
-
-		editor, err := hsdcceditor.Create(path.Name, path.FullPath, data)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-
-		editor.Show()
-	case ".cof":
-		data, err := mpq.ReadFile(filePath)
-		if err != nil {
-			return
-		}
-
-		editor, err := hscofeditor.Create(path.Name, path.FullPath, data)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		a.editors = append(a.editors, editor)
-		editor.SetId(path.FullPath)
-
-		editor.Show()
-	}
-}
-
-func (a *App) onNewProjectClicked() {
-	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Save()
-	if err != nil || len(file) == 0 {
+	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath))
+	if err != nil {
+		dialog.Message("No file type is defined for this extension!").Error()
 		return
 	}
-	var project *hsproject.Project
-	if project, err = hsproject.CreateNew(file); err != nil {
-		return
-	}
-	a.project = project
-	a.config.AddToRecentProjects(file)
-	a.updateWindowTitle()
-}
 
-func (a *App) onOpenProjectClicked() {
-	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Load()
-	if err != nil || len(file) == 0 {
+	if a.editorConstructors[fileType] == nil {
+		dialog.Message("No editor is defined for this file type!").Error()
+	}
+
+	editor, err := a.editorConstructors[fileType](path, &data)
+
+	if err != nil {
+		dialog.Message("Error creating editor!").Error()
 		return
 	}
-	a.loadProjectFromFile(file)
+
+	a.editors = append(a.editors, editor)
+	editor.SetId(path.GetUniqueId())
+	editor.Show()
 }
 
 func (a *App) loadProjectFromFile(file string) {
@@ -401,32 +206,12 @@ func (a *App) loadProjectFromFile(file string) {
 	a.projectExplorer.Show()
 }
 
-func (a *App) onProjectPropertiesClicked() {
-	a.projectPropertiesDialog.Show(a.project, a.config)
-}
-
 func (a *App) updateWindowTitle() {
 	if a.project == nil {
 		glfw.GetCurrentContext().SetTitle(baseWindowTitle)
 		return
 	}
 	glfw.GetCurrentContext().SetTitle(baseWindowTitle + " - " + a.project.ProjectName)
-}
-
-func (a *App) onFilePreferencesClicked() {
-	a.preferencesDialog.Show(a.config)
-}
-
-func (a *App) onHelpAboutClicked() {
-	a.aboutDialog.Show()
-}
-
-func (a *App) onProjectRunClicked() {
-
-}
-
-func (a *App) onProjectExportMPQClicked() {
-
 }
 
 func (a *App) toggleMPQExplorer() {
@@ -448,8 +233,6 @@ func (a *App) onPreferencesChanged(config hsconfig.Config) {
 		log.Fatal(err)
 	}
 
-	// TODO: This will crash if a path is selected that does not have the aux MPQs for the project
-
 	if a.project != nil {
 		a.reloadAuxiliaryMPQs()
 	}
@@ -462,14 +245,4 @@ func (a *App) reloadAuxiliaryMPQs() {
 
 func (a *App) toggleProjectExplorer() {
 	a.projectExplorer.ToggleVisibility()
-}
-
-func cleanMpqPathName(name string) string {
-	name = strings.ReplaceAll(name, "/", "\\")
-
-	if string(name[0]) == "\\" {
-		name = name[1:]
-	}
-
-	return name
 }

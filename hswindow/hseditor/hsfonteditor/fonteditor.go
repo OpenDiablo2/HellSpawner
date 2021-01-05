@@ -21,7 +21,7 @@ func (e *FontEditor) GetWindowTitle() string {
 	return e.pathEntry.Name + "##" + e.GetId()
 }
 
-func Create(pathEntry *hscommon.PathEntry) (*FontEditor, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	result := &FontEditor{
 		pathEntry: pathEntry,
 	}

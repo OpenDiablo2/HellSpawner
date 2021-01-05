@@ -1,19 +1,56 @@
 package hsfiletypes
 
-type FileType int
-
-const (
-	FileTypeFont FileType = iota
+import (
+	"errors"
+	"strings"
 )
 
+type FileType int
+
+type fileTypeInfoStruct struct {
+	Name      string
+	Extension string
+}
+
+const (
+	FileTypeUnknown FileType = iota
+	FileTypeText
+	FileTypeFont
+	FileTypePalette
+	FileTypeAudio
+	FileTypeDCC
+	FileTypeDC6
+	FileTypeCOF
+)
+
+func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
+	return map[FileType]fileTypeInfoStruct{
+		FileTypeUnknown: {},
+		FileTypeText:    {Name: "Text", Extension: ".txt"},
+		FileTypeFont:    {Name: "Font", Extension: ".hsf"},
+		FileTypePalette: {Name: "Palette", Extension: ".dat"},
+		FileTypeAudio:   {Name: "Audio", Extension: ".wav"},
+		FileTypeDCC:     {Name: "DCC", Extension: ".dcc"},
+		FileTypeDC6:     {Name: "DC6", Extension: ".dc6"},
+		FileTypeCOF:     {Name: "COF", Extension: ".cof"},
+	}
+}
+
 func (f FileType) String() string {
-	return [...]string{
-		"Font",
-	}[f]
+	return fileExtensionInfo()[f].Name
 }
 
 func (f FileType) FileExtension() string {
-	return [...]string{
-		".hsf",
-	}[f]
+	return fileExtensionInfo()[f].Extension
+}
+
+func GetFileTypeFromExtension(extension string) (FileType, error) {
+	info := fileExtensionInfo()
+	for idx := range info {
+		if strings.EqualFold(info[idx].Extension, extension) {
+			return idx, nil
+		}
+	}
+
+	return FileTypeUnknown, errors.New("filetype: no file type matches the extension provided")
 }
