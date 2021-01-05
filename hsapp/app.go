@@ -173,16 +173,18 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		dialog.Message("No editor is defined for this file type!").Error()
 	}
 
-	editor, err := a.editorConstructors[fileType](path, &data)
+	go func() {
+		editor, err := a.editorConstructors[fileType](path, &data)
 
-	if err != nil {
-		dialog.Message("Error creating editor!").Error()
-		return
-	}
+		if err != nil {
+			dialog.Message("Error creating editor!").Error()
+			return
+		}
 
-	a.editors = append(a.editors, editor)
-	editor.SetId(path.GetUniqueId())
-	editor.Show()
+		a.editors = append(a.editors, editor)
+		editor.SetId(path.GetUniqueId())
+		editor.Show()
+	}()
 }
 
 func (a *App) loadProjectFromFile(file string) {

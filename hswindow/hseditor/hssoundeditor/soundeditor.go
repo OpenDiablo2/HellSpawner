@@ -35,7 +35,7 @@ func (s *SoundEditor) Cleanup() {
 }
 
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
-	streamer, format, err := wav.Decode(bytes.NewBuffer(*data))
+	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
 	if err != nil {
 		log.Fatal(err)
@@ -43,7 +43,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 
 	control := &beep.Ctrl{
 		Streamer: beep.Loop(-1, streamer),
-		Paused:   true,
+		Paused:   false,
 	}
 
 	result := &SoundEditor{
@@ -94,6 +94,7 @@ func (s *SoundEditor) play() {
 
 func (s *SoundEditor) stop() {
 	speaker.Lock()
+
 	if s.control.Paused {
 		if err := s.streamer.Seek(0); err != nil {
 			log.Fatal(err)
