@@ -1,16 +1,19 @@
 package hsdcceditor
 
 import (
+	"path/filepath"
+
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 )
 
-func Create(path string, fullPath string, data []byte) (*DCCEditor, error) {
-	dcc, err := d2dcc.Load(data)
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+	dcc, err := d2dcc.Load(*data)
 	if err != nil {
 		return nil, err
 	}
@@ -18,9 +21,8 @@ func Create(path string, fullPath string, data []byte) (*DCCEditor, error) {
 	//numFrames := dcc.Directions * dcc.FramesPerDirection
 
 	result := &DCCEditor{
-		path:     path,
-		fullPath: fullPath,
-		dcc:      dcc,
+		path: filepath.Base(pathEntry.FullPath),
+		dcc:  dcc,
 		//decodedFrames: make([][]byte, numFrames),
 		//textures:      make([]*g.Texture, numFrames),
 	}

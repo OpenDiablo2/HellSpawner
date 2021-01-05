@@ -1,24 +1,26 @@
 package hscofeditor
 
 import (
+	"path/filepath"
+
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 )
 
-func Create(path string, fullPath string, data []byte) (*COFEditor, error) {
-	cof, err := d2cof.Load(data)
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+	cof, err := d2cof.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &COFEditor{
-		path:     path,
-		fullPath: fullPath,
-		cof:      cof,
+		path: filepath.Base(pathEntry.FullPath),
+		cof:  cof,
 	}
 
 	return result, nil

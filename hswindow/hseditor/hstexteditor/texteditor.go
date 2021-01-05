@@ -1,7 +1,10 @@
 package hstexteditor
 
 import (
+	"path/filepath"
 	"strings"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
@@ -12,7 +15,7 @@ import (
 type TextEditor struct {
 	hseditor.Editor
 
-	fontFixed imgui.Font
+	//fontFixed imgui.Font
 	file      string
 	text      string
 	tableView bool
@@ -28,16 +31,15 @@ func (e *TextEditor) GetWindowTitle() string {
 	return e.file + "##" + e.GetId()
 }
 
-func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
-		file:      file,
-		text:      text,
-		fontFixed: fontFixed,
+		file: filepath.Base(pathEntry.FullPath),
+		text: string(*data),
 	}
 
-	lines := strings.Split(text, "\n")
+	lines := strings.Split(result.text, "\n")
 	firstLine := lines[0]
-	result.tableView = strings.Count(firstLine, "\t") > 2
+	result.tableView = strings.Count(firstLine, "\t") > 0
 
 	if !result.tableView {
 		return result, nil
@@ -49,7 +51,7 @@ func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
 	result.columns = len(columns)
 	columnWidgets := make([]g.Widget, len(columns))
 	for idx := range columns {
-		columnWidgets[idx] = g.Label(columns[idx]).Font(&result.fontFixed)
+		columnWidgets[idx] = g.Label(columns[idx])
 	}
 	result.tableRows[0] = g.Row(columnWidgets...)
 
@@ -57,7 +59,7 @@ func Create(file, text string, fontFixed imgui.Font) (*TextEditor, error) {
 		columns := strings.Split(lines[lineIdx+1], "\t")
 		columnWidgets := make([]g.Widget, len(columns))
 		for idx := range columns {
-			columnWidgets[idx] = g.Label(columns[idx]).Font(&result.fontFixed)
+			columnWidgets[idx] = g.Label(columns[idx])
 		}
 		result.tableRows[lineIdx+1] = g.Row(columnWidgets...)
 	}

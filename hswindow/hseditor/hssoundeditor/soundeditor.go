@@ -1,8 +1,12 @@
 package hssoundeditor
 
 import (
+	"bytes"
 	"fmt"
 	"log"
+	"path/filepath"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
@@ -12,7 +16,6 @@ import (
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 type SoundEditor struct {
@@ -31,8 +34,8 @@ func (s *SoundEditor) Cleanup() {
 	speaker.Unlock()
 }
 
-func Create(file string, audioStream d2interface.DataStream) (*SoundEditor, error) {
-	streamer, format, err := wav.Decode(audioStream)
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+	streamer, format, err := wav.Decode(bytes.NewBuffer(*data))
 
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +47,7 @@ func Create(file string, audioStream d2interface.DataStream) (*SoundEditor, erro
 	}
 
 	result := &SoundEditor{
-		file:     file,
+		file:     filepath.Base(pathEntry.FullPath),
 		streamer: streamer,
 		control:  control,
 		format:   format,
@@ -69,7 +72,7 @@ func (s *SoundEditor) Render() {
 	secondsTotal := s.streamer.Len() / 22050
 
 	g.Window(s.GetWindowTitle()).IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Pos(50, 50).Size(300, 100).Layout(g.Layout{
-		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(0, 24).
+		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
 			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
 		g.Separator(),
 		g.Line(

@@ -8,6 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
@@ -18,13 +23,14 @@ import (
 )
 
 type Project struct {
-	filePath       string
-	ProjectName    string
-	pathEntryCache *hscommon.PathEntry
-
+	ProjectName   string
 	Description   string
 	Author        string
 	AuxiliaryMPQs []string
+
+	filePath       string
+	pathEntryCache *hscommon.PathEntry
+	mpqs           []d2interface.Archive
 }
 
 func CreateNew(fileName string) (*Project, error) {
@@ -47,6 +53,14 @@ func CreateNew(fileName string) (*Project, error) {
 	}
 
 	return result, nil
+}
+
+func (p *Project) GetProjectFileContentPath() string {
+	return filepath.Join(filepath.Base(p.filePath), "content")
+}
+
+func (p *Project) GetProjectFilePath() string {
+	return p.filePath
 }
 
 func (p *Project) Save() error {
@@ -130,6 +144,7 @@ func (p *Project) GetFileStructure() *hscommon.PathEntry {
 		Children:    make([]*hscommon.PathEntry, 0),
 		IsDirectory: true,
 		IsRoot:      true,
+		Source:      hscommon.PathEntrySourceProject,
 	}
 
 	result.FullPath = filepath.Join(filepath.Dir(p.filePath), "content")
@@ -151,6 +166,7 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 			Children: []*hscommon.PathEntry{},
 			Name:     files[idx].Name(),
 			FullPath: filepath.Join(path, files[idx].Name()),
+			Source:   hscommon.PathEntrySourceProject,
 		}
 
 		if fileNode.Name[0] == '.' || fileNode.FullPath == p.filePath {
@@ -262,4 +278,26 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	// Force regeneration of file structure so that rename can find the file
 	p.GetFileStructure()
 	p.RenameFile(fileName)
+}
+
+func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
+	p.mpqs = make([]d2interface.Archive, len(p.AuxiliaryMPQs))
+
+	wg := sync.WaitGroup{}
+	wg.Add(len(p.AuxiliaryMPQs))
+
+	for mpqIdx := range p.AuxiliaryMPQs {
+		go func(idx int) {
+			fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
+			data, err := d2mpq.Load(fileName)
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			p.mpqs[idx] = data
+			wg.Done()
+		}(mpqIdx)
+	}
+	wg.Wait()
 }
