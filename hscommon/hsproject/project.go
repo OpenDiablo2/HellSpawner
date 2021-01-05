@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 
@@ -282,15 +283,21 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 	p.mpqs = make([]d2interface.Archive, len(p.AuxiliaryMPQs))
 
-	for idx := range p.AuxiliaryMPQs {
-		fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
-		data, err := d2mpq.Load(fileName)
+	wg := sync.WaitGroup{}
+	wg.Add(len(p.AuxiliaryMPQs))
 
-		if err != nil {
-			log.Fatal(err)
-		}
+	for mpqIdx := range p.AuxiliaryMPQs {
+		go func(idx int) {
+			fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
+			data, err := d2mpq.Load(fileName)
 
-		p.mpqs[idx] = data
+			if err != nil {
+				log.Fatal(err)
+			}
 
+			p.mpqs[idx] = data
+			wg.Done()
+		}(mpqIdx)
 	}
+	wg.Wait()
 }

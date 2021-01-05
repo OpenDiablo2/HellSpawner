@@ -3,6 +3,7 @@ package hsmpqexplorer
 import (
 	"log"
 	"path/filepath"
+	"sync"
 
 	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -52,15 +53,24 @@ func (m *MPQExplorer) getMpqTreeNodes(project *hsproject.Project, config *hsconf
 		return m.nodeCache
 	}
 
+	wg := sync.WaitGroup{}
 	result := make([]g.Widget, len(project.AuxiliaryMPQs))
-	for idx := range project.AuxiliaryMPQs {
-		mpq, err := d2mpq.Load(filepath.Join(m.config.AuxiliaryMpqPath, project.AuxiliaryMPQs[idx]))
-		if err != nil {
-			log.Fatal(err)
-		}
-		nodes := project.GetMPQFileNodes(mpq, config)
-		result[idx] = m.renderNodes(nodes)
+	wg.Add(len(project.AuxiliaryMPQs))
+
+	for mpqIndex := range project.AuxiliaryMPQs {
+		go func(idx int) {
+			mpq, err := d2mpq.Load(filepath.Join(m.config.AuxiliaryMpqPath, project.AuxiliaryMPQs[idx]))
+			if err != nil {
+				log.Fatal(err)
+			}
+			nodes := project.GetMPQFileNodes(mpq, config)
+			result[idx] = m.renderNodes(nodes)
+
+			wg.Done()
+		}(mpqIndex)
 	}
+
+	wg.Wait()
 
 	m.nodeCache = result
 	return result
@@ -74,12 +84,19 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))
-
 	hscommon.SortPaths(pathEntry)
 
-	for idx := range pathEntry.Children {
-		widgets[idx] = m.renderNodes(pathEntry.Children[idx])
+	wg := sync.WaitGroup{}
+	wg.Add(len(pathEntry.Children))
+
+	for childIdx := range pathEntry.Children {
+		go func(idx int) {
+			widgets[idx] = m.renderNodes(pathEntry.Children[idx])
+			wg.Done()
+		}(childIdx)
 	}
+
+	wg.Wait()
 
 	return g.TreeNode(pathEntry.Name).Layout(widgets)
 }

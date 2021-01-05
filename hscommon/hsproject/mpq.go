@@ -13,7 +13,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
-func (m *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Config) *hscommon.PathEntry {
+func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Config) *hscommon.PathEntry {
 	result := &hscommon.PathEntry{
 		Name:        filepath.Base(mpq.Path()),
 		IsDirectory: true,
@@ -24,7 +24,7 @@ func (m *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 	files, err := mpq.GetFileList()
 
 	if err != nil {
-		files, err = m.searchForMpqFiles(mpq, config)
+		files, err = p.searchForMpqFiles(mpq, config)
 		if err != nil {
 			return result
 		}
@@ -65,7 +65,7 @@ func (m *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 }
 
 // Search for files in MPQ's without listfiles using a list of known filenames
-func (m *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Config) ([]string, error) {
+func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Config) ([]string, error) {
 	var files []string
 
 	if config.ExternalListfile != "" {

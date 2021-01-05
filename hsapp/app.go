@@ -211,21 +211,24 @@ func (a *App) setupFonts() {
 	}
 }
 
-//func (a *App) GetFileBytes(fileName string) ([]byte, error) {
-//	entry := a.project.FindPathEntry(filepath.Join(filepath.Base(a.project.GetProjectFilePath()), fileName))
-//
-//	if entry == nil {
-//
-//	}
-//
-//}
+func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
+
+	return nil, nil
+}
 
 func (a *App) openEditor(path *hscommon.PathEntry) {
+	uniqueId := path.GetUniqueId()
 	for idx := range a.editors {
-		if a.editors[idx].GetId() == path.FullPath {
+		if a.editors[idx].GetId() == uniqueId {
 			a.editors[idx].BringToFront()
 			return
 		}
+	}
+
+	data, err := a.GetFileBytes(path)
+	if err != nil {
+		dialog.Message("Could not load file!").Error()
+		return
 	}
 
 	ext := strings.ToLower(path.FullPath[len(path.FullPath)-4:])
@@ -235,7 +238,6 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	var mpqFile string
 	var filePath string
 	var mpq d2interface.Archive
-	var err error
 
 	if len(parts) == 1 {
 

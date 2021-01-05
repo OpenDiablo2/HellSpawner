@@ -1,11 +1,20 @@
 package hscommon
 
+import "fmt"
+
 // PathEntrySource represents the type of path entry.
 type PathEntrySource int
 
 const (
+	// PathEntrySourceMPQ represents a PathEntry that is relative to a specific MPQ.
 	PathEntrySourceMPQ PathEntrySource = iota
+
+	// PathEntrySourceProject represents a PathEntry that is relative to the project.
 	PathEntrySourceProject
+
+	// PathEntryCoalesced represents a PathEntry that is based on the coalesced view of
+	// the project and all MPQs (Project first, then MPQs based on load order).
+	PathEntryCoalesced
 )
 
 // PathEntry defines a file/folder
@@ -37,4 +46,8 @@ type PathEntry struct {
 
 	// MPQFile represents the full path to the MPQ that contains this file (if this is an MPQ path).
 	MPQFile string
+}
+
+func (p *PathEntry) GetUniqueId() string {
+	return fmt.Sprintf("%d_%s_%s", p.Source, p.MPQFile, p.FullPath)
 }
