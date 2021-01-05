@@ -15,7 +15,7 @@ type TextureLoadRequestItem struct {
 	callback func(*g.Texture)
 }
 
-var canLoadTextures = true
+var canLoadTextures = false
 var mutex = &sync.Mutex{}
 var loadQueue = goconcurrentqueue.NewFIFO()
 
