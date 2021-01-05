@@ -666,6 +666,18 @@ func (f subtileFlag) unknown7() bool {
 	return ((f >> 7) & 0b1) > 0
 }
 
+func getFlagFromPos(x, y int) int {
+	var subtileLookup = [5][5]int{
+		{20, 21, 22, 23, 24},
+		{15, 16, 17, 18, 19},
+		{10, 11, 12, 13, 14},
+		{5, 6, 7, 8, 9},
+		{0, 1, 2, 3, 4},
+	}
+
+	return subtileLookup[y][x]
+}
+
 func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Tile) giu.Layout {
 	_, h := float32(tile.Width), float32(tile.Height)
 	if h < 0 {
@@ -722,7 +734,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 						A: 255,
 					}
 
-					flag := subtileFlag(0).from(tile.SubTileFlags[flagOffsetIdx*gridDivisionsXY])
+					flag := subtileFlag(0).from(tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)])
 
 					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
 
