@@ -21,6 +21,7 @@ const (
 	FileTypeDCC
 	FileTypeDC6
 	FileTypeCOF
+	FileTypeDT1
 )
 
 func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
@@ -33,6 +34,7 @@ func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 		FileTypeDCC:     {Name: "DCC", Extension: ".dcc"},
 		FileTypeDC6:     {Name: "DC6", Extension: ".dc6"},
 		FileTypeCOF:     {Name: "COF", Extension: ".cof"},
+		FileTypeDT1:     {Name: "DT1", Extension: ".dt1"},
 	}
 }
 

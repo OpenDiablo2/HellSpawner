@@ -1,6 +1,7 @@
 package hsapp
 
 import (
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"log"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
@@ -29,6 +30,7 @@ func (a *App) setup() error {
 	a.editorConstructors[hsfiletypes.FileTypeDCC] = hsdcceditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeCOF] = hscofeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeFont] = hsfonteditor.Create
+	a.editorConstructors[hsfiletypes.FileTypeDT1] = hsdt1editor.Create
 
 	// Register the tool windows
 	if a.mpqExplorer, err = hsmpqexplorer.Create(a.openEditor, a.config); err != nil {
