@@ -59,7 +59,7 @@ func (a *App) buildViewMenu() g.Layout {
 
 	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
 		g.MenuItem("Project Explorer").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
-		g.MenuItem("MPQ Explorer").Selected(a.mpqExplorer.Visible).Enabled(true).OnClick(a.toggleMPQExplorer),
+		g.MenuItem("MPQ Explorer").Selected(a.mpqExplorer.Visible).Enabled(a.project != nil).OnClick(a.toggleMPQExplorer),
 	}))
 
 	if len(a.editors) == 0 {
