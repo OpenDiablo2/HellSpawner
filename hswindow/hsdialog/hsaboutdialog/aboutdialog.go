@@ -51,7 +51,7 @@ func (a *AboutDialog) Show() {
 func (a *AboutDialog) Render() {
 	hswidget.ModalDialog("About HellSpawner", &a.Visible, g.Layout{
 		g.Line(
-			g.ImageWithFile("d2logo.png").Size(256, 256),
+			g.ImageWithFile("hsassets/images/d2logo.png").Size(256, 256),
 			g.Child("AboutHellSpawnerLayout").Size(500, -1).Layout(g.Layout{
 				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
 				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),

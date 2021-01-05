@@ -116,11 +116,11 @@ func (a *App) setupFonts() {
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
 
-	imgui.CurrentIO().Fonts().AddFontFromFileTTF("NotoSans-Regular.ttf", 17)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 15)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("CascadiaCode.ttf", 12)
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("DiabloRegular.ttf", 15)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("DiabloBold.ttf", 30)
+	imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
 	imgui.CurrentStyle().ScaleAllSizes(1.0)
 
 	if err := a.setup(); err != nil {

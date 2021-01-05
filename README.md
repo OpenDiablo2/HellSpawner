@@ -1,6 +1,6 @@
 # HellSpawner
 
-![Logo](d2logo.png)
+![Logo](hsassets/images/d2logo.png)
 
 [Join us on Discord!](https://discord.gg/pRy8tdc)\
 [Development Live stream](https://www.twitch.tv/essial/)\
