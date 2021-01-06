@@ -9,22 +9,12 @@ import (
 
 type FontEditor struct {
 	hseditor.Editor
-
-	pathEntry *hscommon.PathEntry
-}
-
-func (e *FontEditor) Cleanup() {
-
-}
-
-func (e *FontEditor) GetWindowTitle() string {
-	return e.pathEntry.Name + "##" + e.GetId()
 }
 
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
-	result := &FontEditor{
-		pathEntry: pathEntry,
-	}
+	result := &FontEditor{}
+
+	result.Path = pathEntry
 
 	return result, nil
 }

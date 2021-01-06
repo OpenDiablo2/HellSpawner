@@ -1,7 +1,6 @@
 package hstexteditor
 
 import (
-	"path/filepath"
 	"strings"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -15,25 +14,14 @@ import (
 type TextEditor struct {
 	hseditor.Editor
 
-	//fontFixed imgui.Font
-	file      string
 	text      string
 	tableView bool
 	tableRows g.Rows
 	columns   int
 }
 
-func (e *TextEditor) Cleanup() {
-
-}
-
-func (e *TextEditor) GetWindowTitle() string {
-	return e.file + "##" + e.GetId()
-}
-
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
-		file: filepath.Base(pathEntry.FullPath),
 		text: string(*data),
 	}
 

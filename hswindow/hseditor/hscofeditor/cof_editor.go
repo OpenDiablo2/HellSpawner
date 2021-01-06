@@ -1,8 +1,6 @@
 package hscofeditor
 
 import (
-	"path/filepath"
-
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -19,25 +17,17 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &COFEditor{
-		path: filepath.Base(pathEntry.FullPath),
-		cof:  cof,
+		cof: cof,
 	}
+
+	result.Path = pathEntry
 
 	return result, nil
 }
 
 type COFEditor struct {
 	hseditor.Editor
-	path string
-	cof  *d2cof.COF
-}
-
-func (e *COFEditor) GetWindowTitle() string {
-	return e.path + "##" + e.GetId()
-}
-
-func (e *COFEditor) Cleanup() {
-	e.Visible = false
+	cof *d2cof.COF
 }
 
 func (e *COFEditor) Render() {
@@ -51,6 +41,6 @@ func (e *COFEditor) Render() {
 	}
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.COFViewer(e.path, e.cof),
+		hswidget.COFViewer(e.Path.GetUniqueId(), e.cof),
 	})
 }

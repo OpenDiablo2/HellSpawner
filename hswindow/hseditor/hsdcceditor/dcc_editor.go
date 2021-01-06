@@ -1,8 +1,6 @@
 package hsdcceditor
 
 import (
-	"path/filepath"
-
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -18,30 +16,18 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 		return nil, err
 	}
 
-	//numFrames := dcc.Directions * dcc.FramesPerDirection
-
 	result := &DCCEditor{
-		path: filepath.Base(pathEntry.FullPath),
-		dcc:  dcc,
-		//decodedFrames: make([][]byte, numFrames),
-		//textures:      make([]*g.Texture, numFrames),
+		dcc: dcc,
 	}
+
+	result.Path = pathEntry
 
 	return result, nil
 }
 
 type DCCEditor struct {
 	hseditor.Editor
-	path string
-	dcc  *d2dcc.DCC
-}
-
-func (e *DCCEditor) GetWindowTitle() string {
-	return e.path + "##" + e.GetId()
-}
-
-func (e *DCCEditor) Cleanup() {
-	e.Visible = false
+	dcc *d2dcc.DCC
 }
 
 func (e *DCCEditor) Render() {
@@ -55,7 +41,7 @@ func (e *DCCEditor) Render() {
 	}
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.DCCViewer(e.path, e.dcc),
+		hswidget.DCCViewer(e.Path.GetUniqueId(), e.dcc),
 	})
 
 }
