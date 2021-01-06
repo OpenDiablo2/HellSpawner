@@ -32,9 +32,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 
 type DC6Editor struct {
 	hseditor.Editor
-	path     string
-	fullPath string
-	dc6      *d2dc6.DC6
+	path string
+	dc6  *d2dc6.DC6
 }
 
 func (e *DC6Editor) GetWindowTitle() string {
@@ -56,7 +55,7 @@ func (e *DC6Editor) Render() {
 	}
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.DC6Viewer(e.fullPath, e.dc6),
+		hswidget.DC6Viewer(e.path, e.dc6),
 	})
 
 }

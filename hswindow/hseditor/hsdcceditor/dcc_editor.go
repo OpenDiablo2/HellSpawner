@@ -32,9 +32,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 
 type DCCEditor struct {
 	hseditor.Editor
-	path     string
-	fullPath string
-	dcc      *d2dcc.DCC
+	path string
+	dcc  *d2dcc.DCC
 }
 
 func (e *DCCEditor) GetWindowTitle() string {
@@ -56,7 +55,7 @@ func (e *DCCEditor) Render() {
 	}
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.DCCViewer(e.fullPath, e.dcc),
+		hswidget.DCCViewer(e.path, e.dcc),
 	})
 
 }
