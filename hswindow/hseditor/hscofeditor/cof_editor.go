@@ -28,9 +28,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 
 type COFEditor struct {
 	hseditor.Editor
-	path     string
-	fullPath string
-	cof      *d2cof.COF
+	path string
+	cof  *d2cof.COF
 }
 
 func (e *COFEditor) GetWindowTitle() string {
@@ -52,6 +51,6 @@ func (e *COFEditor) Render() {
 	}
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.COFViewer(e.fullPath, e.cof),
+		hswidget.COFViewer(e.path, e.cof),
 	})
 }
