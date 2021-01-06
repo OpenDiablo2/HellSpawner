@@ -1,11 +1,14 @@
 package hseditor
 
-import "github.com/OpenDiablo2/HellSpawner/hswindow"
+import (
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswindow"
+)
 
 type Editor struct {
 	hswindow.Window
+	Path *hscommon.PathEntry
 
-	id      string
 	ToFront bool
 }
 
@@ -13,14 +16,18 @@ func (e *Editor) IsVisible() bool {
 	return e.Visible
 }
 
-func (e *Editor) SetId(id string) {
-	e.id = id
+func (e *Editor) GetId() string {
+	return e.Path.GetUniqueId()
 }
 
-func (e *Editor) GetId() string {
-	return e.id
+func (e *Editor) GetWindowTitle() string {
+	return e.Path.Name + "##" + e.GetId()
 }
 
 func (e *Editor) BringToFront() {
 	e.ToFront = true
+}
+
+func (e *Editor) Cleanup() {
+	e.Visible = false
 }

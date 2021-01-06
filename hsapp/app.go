@@ -183,7 +183,6 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		}
 
 		a.editors = append(a.editors, editor)
-		editor.SetId(path.GetUniqueId())
 		editor.Show()
 	}()
 }

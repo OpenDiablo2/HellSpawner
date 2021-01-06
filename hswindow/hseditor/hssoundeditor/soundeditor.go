@@ -27,13 +27,6 @@ type SoundEditor struct {
 	file     string
 }
 
-func (s *SoundEditor) Cleanup() {
-	speaker.Lock()
-	s.control.Paused = true
-	s.streamer.Close()
-	speaker.Unlock()
-}
-
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
@@ -82,8 +75,12 @@ func (s *SoundEditor) Render() {
 	})
 }
 
-func (s *SoundEditor) GetWindowTitle() string {
-	return s.file + "##" + s.GetId()
+func (s *SoundEditor) Cleanup() {
+	speaker.Lock()
+	s.control.Paused = true
+	s.streamer.Close()
+	s.Editor.Cleanup()
+	speaker.Unlock()
 }
 
 func (s *SoundEditor) play() {

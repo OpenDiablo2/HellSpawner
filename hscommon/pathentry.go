@@ -12,9 +12,9 @@ const (
 	// PathEntrySourceProject represents a PathEntry that is relative to the project.
 	PathEntrySourceProject
 
-	// PathEntryCoalesced represents a PathEntry that is based on the coalesced view of
-	// the project and all MPQs (Project first, then MPQs based on load order).
-	PathEntryCoalesced
+	// PathEntryVirtual represents a PathEntry that is based on the composite view of
+	// the project directory and all MPQs (Project first, then MPQs based on load order).
+	PathEntryVirtual
 )
 
 // PathEntry defines a file/folder

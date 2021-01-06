@@ -1,8 +1,6 @@
 package hspaletteeditor
 
 import (
-	"path/filepath"
-
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
@@ -17,7 +15,6 @@ import (
 type PaletteEditor struct {
 	hseditor.Editor
 	palette d2interface.Palette
-	path    string
 }
 
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
@@ -27,15 +24,12 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &PaletteEditor{
-		path:    filepath.Base(pathEntry.FullPath),
 		palette: palette,
 	}
 
-	return result, nil
-}
+	result.Path = pathEntry
 
-func (e *PaletteEditor) GetWindowTitle() string {
-	return e.path + "##" + e.GetId()
+	return result, nil
 }
 
 func (e *PaletteEditor) Render() {
@@ -51,8 +45,4 @@ func (e *PaletteEditor) Render() {
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Pos(360, 30).Layout(g.Layout{
 		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
 	})
-}
-
-func (e *PaletteEditor) Cleanup() {
-	e.Visible = false
 }

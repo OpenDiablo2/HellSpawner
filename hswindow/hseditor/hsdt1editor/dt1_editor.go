@@ -17,25 +17,17 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &DT1Editor{
-		path: pathEntry.FullPath,
-		dt1:  dt1,
+		dt1: dt1,
 	}
+
+	result.Path = pathEntry
 
 	return result, nil
 }
 
 type DT1Editor struct {
 	hseditor.Editor
-	path string
-	dt1  *d2dt1.DT1
-}
-
-func (e *DT1Editor) GetWindowTitle() string {
-	return e.path + "##" + e.GetId()
-}
-
-func (e *DT1Editor) Cleanup() {
-	e.Visible = false
+	dt1 *d2dt1.DT1
 }
 
 func (e *DT1Editor) Render() {
@@ -52,5 +44,5 @@ func (e *DT1Editor) Render() {
 		IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Pos(360, 30).
-		Layout(g.Layout{hswidget.DT1Viewer(e.path, e.dt1)})
+		Layout(g.Layout{hswidget.DT1Viewer(e.Path.GetUniqueId(), e.dt1)})
 }
