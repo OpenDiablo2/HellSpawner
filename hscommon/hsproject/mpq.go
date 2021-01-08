@@ -21,7 +21,7 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 		MPQFile:     mpq.Path(),
 	}
 
-	files, err := mpq.GetFileList()
+	files, err := mpq.Listfile()
 
 	if err != nil {
 		files, err = p.searchForMpqFiles(mpq, config)
@@ -78,7 +78,7 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			fileName := scanner.Text()
-			if mpq.FileExists(fileName) {
+			if mpq.Contains(fileName) {
 				files = append(files, fileName)
 			}
 		}

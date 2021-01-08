@@ -59,7 +59,7 @@ func (m *MPQExplorer) getMpqTreeNodes(project *hsproject.Project, config *hsconf
 
 	for mpqIndex := range project.AuxiliaryMPQs {
 		go func(idx int) {
-			mpq, err := d2mpq.Load(filepath.Join(m.config.AuxiliaryMpqPath, project.AuxiliaryMPQs[idx]))
+			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, project.AuxiliaryMPQs[idx]))
 			if err != nil {
 				log.Fatal(err)
 			}

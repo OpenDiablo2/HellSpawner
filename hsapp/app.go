@@ -137,12 +137,12 @@ func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
 		return ioutil.ReadFile(pathEntry.FullPath)
 	}
 
-	mpq, err := d2mpq.Load(pathEntry.MPQFile)
+	mpq, err := d2mpq.FromFile(pathEntry.MPQFile)
 	if err != nil {
 		return nil, err
 	}
 
-	if mpq.FileExists(pathEntry.FullPath) {
+	if mpq.Contains(pathEntry.FullPath) {
 		return mpq.ReadFile(pathEntry.FullPath)
 	}
 

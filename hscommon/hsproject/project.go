@@ -289,7 +289,7 @@ func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 	for mpqIdx := range p.AuxiliaryMPQs {
 		go func(idx int) {
 			fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
-			data, err := d2mpq.Load(fileName)
+			data, err := d2mpq.FromFile(fileName)
 
 			if err != nil {
 				log.Fatal(err)
