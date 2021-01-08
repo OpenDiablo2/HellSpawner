@@ -244,7 +244,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 
 	l := giu.Layout{}
 
-	numSelections := int32(len(transforms) - 1)
+	numSelections := int32(len(transforms))
 
 	if state.slider1 >= numSelections {
 		state.slider1 = numSelections - 1
@@ -253,7 +253,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 
 	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
 
-	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections))
+	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections-1))
 
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, giu.Image(tex).Size(208, 208))
