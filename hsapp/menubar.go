@@ -85,9 +85,7 @@ func (a *App) onNewProjectClicked() {
 	if project, err = hsproject.CreateNew(file); err != nil {
 		return
 	}
-	a.project = project
-	a.config.AddToRecentProjects(file)
-	a.updateWindowTitle()
+	a.loadProjectFromFile(project.GetProjectFilePath())
 }
 
 func (a *App) onOpenProjectClicked() {
