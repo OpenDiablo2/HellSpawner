@@ -34,13 +34,15 @@ type Project struct {
 }
 
 func CreateNew(fileName string) (*Project, error) {
+	defaultProjectName := filepath.Base(fileName)
+
 	if strings.ToLower(filepath.Ext(fileName)) != ".hsp" {
 		fileName += ".hsp"
 	}
 
 	result := &Project{
 		filePath:       fileName,
-		ProjectName:    "Untitled Project",
+		ProjectName:    defaultProjectName,
 		pathEntryCache: nil,
 	}
 
