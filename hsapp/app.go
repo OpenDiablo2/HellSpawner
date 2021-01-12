@@ -73,6 +73,10 @@ func (a *App) Run() {
 		log.Fatal(err)
 	}
 
+	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
+		a.loadProjectFromFile(a.config.RecentProjects[0])
+	}
+
 	dialog.Init()
 	hscommon.ProcessTextureLoadRequests()
 	wnd.Run(a.render)

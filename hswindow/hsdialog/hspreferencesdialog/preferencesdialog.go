@@ -32,7 +32,7 @@ func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 
 func (p *PreferencesDialog) Render() {
 	hswidget.ModalDialog("Preferences##AppPreferences", &p.Visible, g.Layout{
-		g.Child("PreferencesLayout").Size(300, 110).Layout(g.Layout{
+		g.Child("PreferencesLayout").Size(300, 150).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
@@ -43,6 +43,7 @@ func (p *PreferencesDialog) Render() {
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(30, 0).OnClick(p.onBrowseExternalListfileClicked),
 				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListfile).Size(-1).Flags(g.InputTextFlagsReadOnly),
 			),
+			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 		}),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
