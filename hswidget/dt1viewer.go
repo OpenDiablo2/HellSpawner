@@ -173,6 +173,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 		group := make([]map[string]*giu.Texture, len(state.tileGroups[groupIdx]))
 
 		for variantIdx := range state.tileGroups[groupIdx] {
+			variantIdx := variantIdx
 			tile := state.tileGroups[groupIdx][variantIdx]
 
 			floorPix, wallPix := p.makePixelBuffer(tile)
