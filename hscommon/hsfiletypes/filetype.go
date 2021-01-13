@@ -28,6 +28,7 @@ const (
 	FileTypePL2
 	FileTypeTBL
 	FileTypeTBLStringTable
+	FileTypeTBLFontTable
 )
 
 func determineTBLtype(data *[]byte) (FileType, error) {
@@ -36,13 +37,17 @@ func determineTBLtype(data *[]byte) (FileType, error) {
 		return FileTypeTBLStringTable, err
 	}
 
-	return FileTypeUnknown, errors.New("unknown file type")
+	d := *data
+	if string(d[:4]) == "Woo!" {
+		return FileTypeTBLFontTable, nil
+	}
+
+	return FileTypeText, nil
 }
 
 func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 	return map[FileType]fileTypeInfoStruct{
 		FileTypeUnknown: {},
-		FileTypeText:    {Name: "Text", Extension: ".txt"},
 		FileTypeFont:    {Name: "Font", Extension: ".hsf"},
 		FileTypePalette: {Name: "Palette", Extension: ".dat"},
 		FileTypePL2:     {Name: "Palette Map", Extension: ".pl2"},
@@ -52,6 +57,7 @@ func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 		FileTypeCOF:     {Name: "COF", Extension: ".cof"},
 		FileTypeDT1:     {Name: "DT1", Extension: ".dt1"},
 		FileTypeTBL:     {Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
+		FileTypeText:    {Name: "Text", Extension: ".txt"},
 	}
 }
 

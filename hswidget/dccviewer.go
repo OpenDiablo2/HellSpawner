@@ -120,7 +120,11 @@ func (p *DCCViewerWidget) Build() {
 			imageScale = 1
 		}
 
-		_ = giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+		err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+		if err != nil {
+			log.Print(err)
+		}
+
 		var widget *giu.ImageWidget
 		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
 			widget = giu.Image(nil).Size(32, 32)

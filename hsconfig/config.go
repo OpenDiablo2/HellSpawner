@@ -31,9 +31,10 @@ func generateDefaultConfig() *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 	}
+
 	err := result.Save()
 	if err != nil {
-		log.Fatalf("failed to save config: %s", err)
+		log.Fatalf("filed to save config: %s", err)
 	}
 
 	return result
@@ -118,6 +119,7 @@ func (c *Config) GetAuxMPQs() []string {
 		if err != nil {
 			return nil
 		}
+
 		ext := strings.ToLower(filepath.Ext(path))
 		if ext == ".mpq" {
 			result = append(result, path)
@@ -126,7 +128,7 @@ func (c *Config) GetAuxMPQs() []string {
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("failed to walk path %s: %s", c.AuxiliaryMpqPath, err)
+		log.Printf("failed to walk path for aux MPQs %s: %s", c.AuxiliaryMpqPath, err)
 	}
 
 	return result
