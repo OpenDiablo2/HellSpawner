@@ -167,7 +167,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		return
 	}
 
-	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath))
+	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &data)
 	if err != nil {
 		dialog.Message("No file type is defined for this extension!").Error()
 		return

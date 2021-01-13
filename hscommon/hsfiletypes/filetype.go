@@ -3,13 +3,16 @@ package hsfiletypes
 import (
 	"errors"
 	"strings"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 )
 
 type FileType int
 
 type fileTypeInfoStruct struct {
-	Name      string
-	Extension string
+	Name         string
+	Extension    string
+	subTypeCheck func(*[]byte) (FileType, error)
 }
 
 const (
@@ -23,7 +26,18 @@ const (
 	FileTypeCOF
 	FileTypeDT1
 	FileTypePL2
+	FileTypeTBL
+	FileTypeTBLStringTable
 )
+
+func determineTBLtype(data *[]byte) (FileType, error) {
+	_, err := d2tbl.LoadTextDictionary(*data)
+	if err == nil {
+		return FileTypeTBLStringTable, err
+	}
+
+	return FileTypeUnknown, errors.New("unknown file type")
+}
 
 func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 	return map[FileType]fileTypeInfoStruct{
@@ -37,6 +51,7 @@ func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 		FileTypeDC6:     {Name: "DC6", Extension: ".dc6"},
 		FileTypeCOF:     {Name: "COF", Extension: ".cof"},
 		FileTypeDT1:     {Name: "DT1", Extension: ".dt1"},
+		FileTypeTBL:     {Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
 	}
 }
 
@@ -48,11 +63,15 @@ func (f FileType) FileExtension() string {
 	return fileExtensionInfo()[f].Extension
 }
 
-func GetFileTypeFromExtension(extension string) (FileType, error) {
+func GetFileTypeFromExtension(extension string, data *[]byte) (FileType, error) {
 	info := fileExtensionInfo()
 	for idx := range info {
 		if strings.EqualFold(info[idx].Extension, extension) {
-			return idx, nil
+			if info[idx].subTypeCheck == nil {
+				return idx, nil
+			}
+
+			return info[idx].subTypeCheck(data)
 		}
 	}
 

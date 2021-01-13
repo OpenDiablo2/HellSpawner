@@ -5,8 +5,8 @@ github.com/AllenDang/giu v0.5.1-0.20210103063223-76b922d44612/go.mod h1:nyl3XzqS
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjsvq1Bi7DpoUjqI76VVvW045vpeFeM=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210108204611-db8381452721 h1:WzQtQp/ZNnywnlOz99S2Rg5Wq3Kbehh/MZ1e2vu0TiU=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210108204611-db8381452721/go.mod h1:BN2dcixkTP9mtvt1sRClXT5nGAbar7YG54feQh86sQY=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf h1:lOICf3azuupncMGo1jVpTmt7xLdT5muBONs/efUDAhQ=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=
@@ -53,8 +53,8 @@ github.com/hajimehoshi/oto v0.3.1/go.mod h1:e9eTLBB9iZto045HLbzfHJIc+jP3xaKrjZTg
 github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.6.8 h1:yRb3EJQ4lAkBgZYheqmdH6Lr77RV9nSWFsK/jwWdTNY=
 github.com/hajimehoshi/oto v0.6.8/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
-github.com/hajimehoshi/oto v0.7.0 h1:4HbTRhNuHd4SdFfA4vhIgmwvVO3qWueHK+fF1cButpg=
-github.com/hajimehoshi/oto v0.7.0/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
+github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk=
+github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
 github.com/jfreymuth/oggvorbis v1.0.0/go.mod h1:abe6F9QRjuU9l+2jek3gj46lu40N4qlYxh2grqkLEDM=
 github.com/jfreymuth/oggvorbis v1.0.1/go.mod h1:NqS+K+UXKje0FUYUPosyQ+XTVvjmVjps1aEZH1sumIk=
@@ -133,8 +133,8 @@ golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201028215240-c5abc1b1d397 h1:YZ169h3kkKEXsueizzMwOT9AaiffbOa6oXSmUFJ4vxM=
 golang.org/x/sys v0.0.0-20201028215240-c5abc1b1d397/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20210108172913-0df2131ae363 h1:wHn06sgWHMO1VsQ8F+KzDJx/JzqfsNLnc+oEi07qD7s=
-golang.org/x/sys v0.0.0-20210108172913-0df2131ae363/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2 h1:F9vNgpIiamoF+Q1/c78bikg/NScXEtbZSNEpnRelOzs=
+golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/tools v0.0.0-20190312151545-0bb0c0a6e846/go.mod h1:LCzVGOaR6xXOjkQ3onu1FJEFr0SW1gC7cKk1uF8kGRs=
 golang.org/x/tools v0.0.0-20191119224855-298f0cb1881e/go.mod h1:b+2E5dAYhXwXZwtnZ6UAqBI28+e2cm9otk0dWdXHAEo=
