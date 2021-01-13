@@ -25,6 +25,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 		text: string(*data),
 	}
 
+	result.Path = pathEntry
+
 	lines := strings.Split(result.text, "\n")
 	firstLine := lines[0]
 	result.tableView = strings.Count(firstLine, "\t") > 0
