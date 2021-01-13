@@ -1,0 +1,131 @@
+package hsfonttableeditor
+
+import (
+	"encoding/binary"
+	"fmt"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
+	"sort"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+)
+
+const (
+	charTableGridWidth = 16
+)
+
+type FontTableEditor struct {
+	hseditor.Editor
+	fontTable
+	rows g.Rows
+}
+
+type fontTable map[rune]*fontGlyph
+
+type fontGlyph struct {
+	rune
+	frameIndex int
+	width      int
+}
+
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+	glyphs := make(fontTable)
+
+	table := *data
+
+	const (
+		numHeaderBytes = 12
+		bytesPerGlyph  = 14
+	)
+
+	for i := numHeaderBytes; i < len(table); i += bytesPerGlyph {
+		chr := rune(binary.LittleEndian.Uint16(table[i : i+2]))
+
+		glyphs[chr] = &fontGlyph{
+			rune:       chr,
+			frameIndex: int(binary.LittleEndian.Uint16(table[i+8 : i+10])),
+			width:      int(table[i+3]),
+		}
+	}
+
+	editor := &FontTableEditor{
+		fontTable: glyphs,
+	}
+
+	editor.Path = pathEntry
+
+	return editor, nil
+}
+
+func (e *FontTableEditor) init() {
+	e.rows = make(g.Rows, 0)
+
+	e.rows = append(e.rows, g.Row(
+		g.Label("Index"),
+		g.Label("Character"),
+		g.Label("Width (px)"),
+	))
+
+	// so that we can sort the glyphs
+	glyphs := make([]*fontGlyph, len(e.fontTable))
+
+	idx := 0
+	for _, glyph := range e.fontTable {
+		glyphs[idx] = glyph
+		idx++
+	}
+
+	sort.Slice(glyphs, func(i, j int) bool {
+		return glyphs[i].frameIndex < glyphs[j].frameIndex
+	})
+
+	for idx := range glyphs {
+		e.rows = append(e.rows, e.makeGlyphLayout(glyphs[idx]))
+	}
+}
+
+func (e *FontTableEditor) Render() {
+	if e.rows == nil {
+		e.init()
+		return
+	}
+
+	if !e.Visible {
+		return
+	}
+
+	if e.ToFront {
+		e.ToFront = false
+		imgui.SetNextWindowFocus()
+	}
+
+	tableLayout := g.Layout{g.Child("").
+		Border(false).
+		Layout(
+			g.Layout{
+				g.FastTable("").Border(true).Rows(e.rows),
+			},
+		)}
+
+	g.Window(e.GetWindowTitle()).
+		IsOpen(&e.Visible).
+		Flags(g.WindowFlagsHorizontalScrollbar).
+		Pos(50, 50).
+		Size(400, 300).
+		Layout(tableLayout)
+}
+
+func (e *FontTableEditor) makeGlyphLayout(glyph *fontGlyph) *g.RowWidget {
+	if glyph == nil {
+		return &g.RowWidget{}
+	}
+
+	row := g.Row(
+		g.Label(fmt.Sprintf("%d", glyph.frameIndex)),
+		g.Label(fmt.Sprintf("%s", string(glyph.rune))),
+		g.Label(fmt.Sprintf("%d", glyph.width)),
+	)
+
+	return row
+}
