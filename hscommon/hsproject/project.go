@@ -272,7 +272,10 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 
 	switch fileType {
 	case hsfiletypes.FileTypeFont:
-		hsfont.NewFile(fileName)
+		_, err := hsfont.NewFile(fileName)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 
 	p.InvalidateFileStructure()
