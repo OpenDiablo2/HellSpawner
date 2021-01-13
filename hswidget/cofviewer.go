@@ -2,6 +2,7 @@ package hswidget
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
@@ -74,7 +75,7 @@ func (p *COFViewerWidget) Build() {
 
 	layerStrings := make([]string, 0)
 	for idx := range p.cof.CofLayers {
-		layerStrings = append(layerStrings, fmt.Sprintf("%s", p.cof.CofLayers[idx].Type))
+		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
 	}
 
 	layerList := giu.Combo("##"+p.id+"layer", layerStrings[state.layerIndex], layerStrings, &state.layerIndex).
@@ -96,7 +97,7 @@ func (p *COFViewerWidget) Build() {
 	frameList := giu.Combo("##"+p.id+"frame", frameStrings[state.frameIndex], frameStrings, &state.frameIndex).
 		Size(64).OnChange(p.onUpdate)
 
-	const vspace = 4
+	const vspace = 4 //nolint:unused // will be used
 
 	giu.TabBar("COFViewerTabs").Layout(giu.Layout{
 		giu.TabItem("Animation").Layout(giu.Layout{

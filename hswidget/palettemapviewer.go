@@ -2,13 +2,14 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu"
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 	"image"
 	"log"
 
+	"github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
 type PaletteMapViewerState struct {

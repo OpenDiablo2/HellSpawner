@@ -19,6 +19,7 @@ const (
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
+//nolint:unused,structcheck // will be used
 type controls struct {
 	tileGroup    int32
 	tileVariant  int32
@@ -114,31 +115,18 @@ func (p *DT1ViewerWidget) Build() {
 	tiles := state.tileGroups[int(state.controls.tileGroup)]
 	tile := tiles[int(state.controls.tileVariant)]
 
-	if state == nil {
-		emptyWidget := giu.Image(nil).Size(32, 32)
-		emptyWidget.Build()
+	giu.Layout{
+		p.makeTileSelector(),
+		giu.Separator(),
+		p.makeTileDisplay(state, tile),
+		giu.Separator(),
+		giu.TabBar("##TabBar_dt1_" + p.id).Layout(giu.Layout{
+			giu.TabItem("Info").Layout(p.makeTileInfoTab(tile)),
+			giu.TabItem("Material").Layout(p.makeMaterialTab(tile)),
+			giu.TabItem("Subtile Flags").Layout(p.makeSubtileFlags(state, tile)),
+		}),
+	}.Build()
 
-		p.init()
-
-	} else {
-		giu.Layout{
-			p.makeTileSelector(),
-			giu.Separator(),
-			p.makeTileDisplay(state, tile),
-			giu.Separator(),
-			giu.TabBar("##TabBar_dt1_" + p.id).Layout(giu.Layout{
-				giu.TabItem("Info").Layout(p.makeTileInfoTab(state, tile)),
-				giu.TabItem("Material").Layout(p.makeMaterialTab(state, tile)),
-				giu.TabItem("Subtile Flags").Layout(p.makeSubtileFlags(state, tile)),
-			}),
-		}.Build()
-	}
-
-}
-
-func (p *DT1ViewerWidget) init() {
-	p.getState()
-	//go p.makeTileTextures()
 }
 
 func (p *DT1ViewerWidget) groupTilesByIdentity() [][]*d2dt1.Tile {
@@ -279,12 +267,7 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	state := p.getState()
 
-	// dummy layout, used if something goes wrong
-	layout := giu.Layout{}
-
 	if state.lastTileGroup != state.controls.tileGroup {
-		var identity tileIdentity
-		identity = identity.fromTile(&p.dt1.Tiles[0])
 		state.lastTileGroup = state.controls.tileGroup
 		state.controls.tileVariant = 0
 	}
@@ -293,7 +276,7 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	numVariants := len(state.tileGroups[state.controls.tileGroup]) - 1
 
 	// actual layout
-	layout = giu.Layout{
+	layout := giu.Layout{
 		giu.SliderInt("Tile Group", &state.controls.tileGroup, 0, int32(numGroups)),
 	}
 
@@ -309,16 +292,15 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
-	imageScale := uint32(state.controls.scale)
 	//curFrameIndex := int(state.controls.frame) + (int(state.controls.direction) * int(p.dt1.FramesPerDirection))
 
-	if imageScale < 1 {
-		imageScale = 1
+	if uint32(state.controls.scale) < 1 {
+		state.controls.scale = 1
 	}
 
 	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 	}
 
 	w, h := float32(tile.Width), float32(tile.Height)
@@ -375,7 +357,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
-				c := color.RGBA{0, 255, 0, 255}
+				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
@@ -396,7 +378,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
-				c := color.RGBA{0, 255, 0, 255}
+				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
@@ -506,7 +488,7 @@ func getTileTypeImage(t int32) string {
 	}
 }
 
-func (p *DT1ViewerWidget) makeTileInfoTab(state *DT1ViewerState, tile *d2dt1.Tile) giu.Layout {
+func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	strType := getTileTypeString(tile.Type)
 
 	var tileTypeImage *giu.ImageWithFileWidget
@@ -559,17 +541,17 @@ func (p *DT1ViewerWidget) makeTileInfoTab(state *DT1ViewerState, tile *d2dt1.Til
 	}
 }
 
-func (p *DT1ViewerWidget) makeMaterialTab(state *DT1ViewerState, tile *d2dt1.Tile) giu.Layout {
-	isOther := tile.MaterialFlags.Other == true
-	isWater := tile.MaterialFlags.Water == true
-	isWoodObject := tile.MaterialFlags.WoodObject == true
-	isInsideStone := tile.MaterialFlags.InsideStone == true
-	isOutsideStone := tile.MaterialFlags.OutsideStone == true
-	isDirt := tile.MaterialFlags.Dirt == true
-	isSand := tile.MaterialFlags.Sand == true
-	isWood := tile.MaterialFlags.Wood == true
-	isLava := tile.MaterialFlags.Lava == true
-	isSnow := tile.MaterialFlags.Snow == true
+func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
+	isOther := tile.MaterialFlags.Other
+	isWater := tile.MaterialFlags.Water
+	isWoodObject := tile.MaterialFlags.WoodObject
+	isInsideStone := tile.MaterialFlags.InsideStone
+	isOutsideStone := tile.MaterialFlags.OutsideStone
+	isDirt := tile.MaterialFlags.Dirt
+	isSand := tile.MaterialFlags.Sand
+	isWood := tile.MaterialFlags.Wood
+	isLava := tile.MaterialFlags.Lava
+	isSnow := tile.MaterialFlags.Snow
 
 	return giu.Layout{
 		giu.Label("Material Flags"),
@@ -639,34 +621,42 @@ func (f subtileFlag) String() string {
 	return str
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) blockWalk() bool {
 	return ((f >> 0) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) blockLightAndLOS() bool {
 	return ((f >> 1) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) blockJumpAndTeleport() bool {
 	return ((f >> 2) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) blockPlayerAllowMercWalk() bool {
 	return ((f >> 3) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) unknown4() bool {
 	return ((f >> 4) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) blockLightOnly() bool {
 	return ((f >> 5) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) unknown6() bool {
 	return ((f >> 6) & 0b1) > 0
 }
 
+//nolint:unused // will be used
 func (f subtileFlag) unknown7() bool {
 	return ((f >> 7) & 0b1) > 0
 }
@@ -684,14 +674,13 @@ func getFlagFromPos(x, y int) int {
 }
 
 func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Tile) giu.Layout {
-	_, h := float32(tile.Width), float32(tile.Height)
-	if h < 0 {
-		h *= -1
+	if tile.Height < 0 {
+		tile.Height *= -1
 	}
 
 	return giu.Layout{
 		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, 7),
-		giu.Label(fmt.Sprintf("%s", subtileFlag(1<<state.controls.subtileFlag))),
+		giu.Label(subtileFlag(1 << state.controls.subtileFlag).String()),
 		giu.Dummy(0, 4),
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
@@ -713,7 +702,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
-				c := color.RGBA{0, 255, 0, 255}
+				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
@@ -763,7 +752,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
-				c := color.RGBA{0, 255, 0, 255}
+				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255

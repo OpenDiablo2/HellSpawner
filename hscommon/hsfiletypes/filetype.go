@@ -2,8 +2,9 @@ package hsfiletypes
 
 import (
 	"errors"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 	"strings"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 )
 
 type FileType int

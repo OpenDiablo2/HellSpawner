@@ -1,11 +1,12 @@
 package hsapp
 
 import (
+	"log"
+
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsstringtableeditor"
-	"log"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"

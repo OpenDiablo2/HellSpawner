@@ -11,6 +11,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+//nolint:structcheck,unused // will be used
 type StringTableEditor struct {
 	hseditor.Editor
 	header g.RowWidget

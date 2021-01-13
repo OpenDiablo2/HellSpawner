@@ -11,15 +11,13 @@ import (
 	"sync"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
+	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/dialog"
 )
 
 type Project struct {
@@ -274,7 +272,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	case hsfiletypes.FileTypeFont:
 		_, err := hsfont.NewFile(fileName)
 		if err != nil {
-			log.Print(err)
+			log.Fatalf("failed to save font: %s", err)
 		}
 	}
 

@@ -69,21 +69,19 @@ func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 		log.Fatal(err)
 	}
 
-	err = loadQueue.Enqueue(TextureLoadRequestItem{
-		rgb:      imageData,
-		callback: callback,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	addTextureToLoadQueue(imageData, callback)
 }
 
 func CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
+	addTextureToLoadQueue(rgb, callback)
+}
+
+func addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.Texture)) {
 	err := loadQueue.Enqueue(TextureLoadRequestItem{
 		rgb:      rgb,
 		callback: callback,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to add texture load request to queue: %s", err)
 	}
 }

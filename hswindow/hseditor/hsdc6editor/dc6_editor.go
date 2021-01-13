@@ -3,11 +3,13 @@ package hsdc6editor
 import (
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
+
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {

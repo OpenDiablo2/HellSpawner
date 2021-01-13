@@ -16,6 +16,7 @@ const (
 	cellSize   = 12
 )
 
+//nolint:structcheck,unused // will be used
 type PaletteGridState struct {
 	loading bool
 	failure bool

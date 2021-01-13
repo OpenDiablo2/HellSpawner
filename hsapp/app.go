@@ -16,6 +16,11 @@ import (
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/giu/imgui"
 
+	"github.com/OpenDiablo2/dialog"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
+	"github.com/go-gl/glfw/v3.3/glfw"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -24,19 +29,13 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
-	"github.com/OpenDiablo2/dialog"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
-	"github.com/go-gl/glfw/v3.3/glfw"
 )
 
 const baseWindowTitle = "HellSpawner"
 
 type App struct {
-	isRunning    bool
-	masterWindow *g.MasterWindow
-	project      *hsproject.Project
-	config       *hsconfig.Config
+	project *hsproject.Project
+	config  *hsconfig.Config
 
 	aboutDialog             *hsaboutdialog.AboutDialog
 	preferencesDialog       *hspreferencesdialog.PreferencesDialog

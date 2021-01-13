@@ -128,7 +128,7 @@ func (c *Config) GetAuxMPQs() []string {
 		return nil
 	})
 	if err != nil {
-		return nil
+		log.Printf("failed to walk path for aux MPQs %s: %s", c.AuxiliaryMpqPath, err)
 	}
 
 	return result
