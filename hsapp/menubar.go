@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	g "github.com/AllenDang/giu"
 )

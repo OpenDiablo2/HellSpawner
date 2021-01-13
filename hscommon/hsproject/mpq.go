@@ -9,8 +9,9 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
 func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Config) *hscommon.PathEntry {

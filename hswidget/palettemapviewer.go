@@ -2,10 +2,12 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu"
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 	"image"
+
+	"github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 )
@@ -87,7 +89,7 @@ func (p *PaletteMapViewerWidget) Build() {
 		"Text ColorShifts",
 	}
 
-	giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+	_ = giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 
 	left := giu.Layout{
 		giu.Label("Base Palette"),

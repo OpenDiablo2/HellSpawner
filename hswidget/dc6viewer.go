@@ -56,8 +56,6 @@ func (p *DC6ViewerWidget) Build() {
 	var widget *giu.ImageWidget
 
 	if state == nil {
-		widget = giu.Image(nil).Size(32, 32)
-
 		//Prevent multiple invocation to LoadImage.
 		newState := &DC6ViewerState{
 			lastFrame:          -1,
@@ -122,7 +120,7 @@ func (p *DC6ViewerWidget) Build() {
 			imageScale = 1
 		}
 
-		giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+		_ = giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 		var widget *giu.ImageWidget
 		w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
 		h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)

@@ -17,9 +17,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
 
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/dialog"
 )
 
 type Project struct {
@@ -272,7 +273,10 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 
 	switch fileType {
 	case hsfiletypes.FileTypeFont:
-		hsfont.NewFile(fileName)
+		_, err := hsfont.NewFile(fileName)
+		if err != nil {
+			log.Fatalf("failed to save font: %s", err)
+		}
 	}
 
 	p.InvalidateFileStructure()

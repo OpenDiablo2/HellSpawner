@@ -2,10 +2,11 @@ package hspreferencesdialog
 
 import (
 	g "github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
-	"github.com/OpenDiablo2/dialog"
 )
 
 type PreferencesDialog struct {
