@@ -1,5 +1,7 @@
 package hscommon
 
+const test = "huh?"
+
 type EditorWindow interface {
 	Renderable
 
