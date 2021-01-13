@@ -69,15 +69,21 @@ func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 		log.Fatal(err)
 	}
 
-	loadQueue.Enqueue(TextureLoadRequestItem{
+	err = loadQueue.Enqueue(TextureLoadRequestItem{
 		rgb:      imageData,
 		callback: callback,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
-	loadQueue.Enqueue(TextureLoadRequestItem{
+	err := loadQueue.Enqueue(TextureLoadRequestItem{
 		rgb:      rgb,
 		callback: callback,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

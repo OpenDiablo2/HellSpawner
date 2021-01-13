@@ -8,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 	"image"
 	"image/color"
+	"log"
 )
 
 const (
@@ -315,7 +316,10 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 		imageScale = 1
 	}
 
-	giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+	if err != nil {
+		log.Print(err)
+	}
 
 	w, h := float32(tile.Width), float32(tile.Height)
 	if h < 0 {
