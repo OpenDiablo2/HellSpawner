@@ -1,6 +1,9 @@
 package hswindow
 
+import "github.com/AllenDang/giu"
+
 type Window struct {
+	Widget  *giu.WindowWidget
 	Visible bool
 }
 

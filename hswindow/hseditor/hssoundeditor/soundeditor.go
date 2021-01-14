@@ -74,6 +74,9 @@ func (s *SoundEditor) Render() {
 			g.Button("Play").OnClick(s.play),
 			g.Button("Stop").OnClick(s.stop),
 		),
+		g.Custom(func() {
+			s.Focused = imgui.IsWindowFocused(0)
+		}),
 	})
 }
 
@@ -101,4 +104,20 @@ func (s *SoundEditor) stop() {
 	}
 	s.control.Paused = true
 	speaker.Unlock()
+}
+
+func (e *SoundEditor) UpdateMainMenuLayout(l *g.Layout) {
+	m := g.Menu("Sound Editor").Layout(g.Layout{
+		g.MenuItem("Add to project").OnClick(func() {}),
+		g.MenuItem("Remove from project").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Import from file...").OnClick(func() {}),
+		g.MenuItem("Export to file...").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Close").OnClick(func() {
+			e.Visible = false
+		}),
+	})
+
+	*l = append(*l, m)
 }

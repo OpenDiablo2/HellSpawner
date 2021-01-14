@@ -46,5 +46,26 @@ func (e *DT1Editor) Render() {
 		IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Pos(360, 30).
-		Layout(g.Layout{hswidget.DT1Viewer(e.Path.GetUniqueId(), e.dt1)})
+		Layout(g.Layout{
+			hswidget.DT1Viewer(e.Path.GetUniqueId(), e.dt1),
+			g.Custom(func() {
+				e.Focused = imgui.IsWindowFocused(0)
+			}),
+		})
+}
+
+func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
+	m := g.Menu("DT1 Editor").Layout(g.Layout{
+		g.MenuItem("Add to project").OnClick(func() {}),
+		g.MenuItem("Remove from project").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Import from file...").OnClick(func() {}),
+		g.MenuItem("Export to file...").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Close").OnClick(func() {
+			e.Visible = false
+		}),
+	})
+
+	*l = append(*l, m)
 }

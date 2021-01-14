@@ -7,7 +7,6 @@ github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjs
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf h1:lOICf3azuupncMGo1jVpTmt7xLdT5muBONs/efUDAhQ=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113210205-9f5cde36df89 h1:A50Xu8c67B3Uxm0Qtz6TYD0zLPk9javIJuFccC05iWo=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=
