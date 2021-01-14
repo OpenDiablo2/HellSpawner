@@ -7,13 +7,23 @@ import (
 
 type Editor struct {
 	hswindow.Window
-	Path *hscommon.PathEntry
+	Path    *hscommon.PathEntry
+	focuser hscommon.EditorFocuser
 
 	ToFront bool
+	Focused bool
+}
+
+func (e *Editor) Control(focuser hscommon.EditorFocuser) {
+	e.focuser = focuser
 }
 
 func (e *Editor) IsVisible() bool {
 	return e.Visible
+}
+
+func (e *Editor) IsFocused() bool {
+	return e.Focused
 }
 
 func (e *Editor) GetId() string {

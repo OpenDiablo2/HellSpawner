@@ -70,6 +70,9 @@ func (e *TextEditor) Render() {
 	if !e.tableView {
 		g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
 			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
+			g.Custom(func() {
+				e.Focused = imgui.IsWindowFocused(0)
+			}),
 		})
 		return
 	}
@@ -78,5 +81,24 @@ func (e *TextEditor) Render() {
 		g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
 			g.FastTable("").Border(true).Rows(e.tableRows),
 		}),
+		g.Custom(func() {
+			e.Focused = imgui.IsWindowFocused(0)
+		}),
 	})
+}
+
+func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
+	m := g.Menu("Text Editor").Layout(g.Layout{
+		g.MenuItem("Add to project").OnClick(func() {}),
+		g.MenuItem("Remove from project").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Import from file...").OnClick(func() {}),
+		g.MenuItem("Export to file...").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Close").OnClick(func() {
+			e.Visible = false
+		}),
+	})
+
+	*l = append(*l, m)
 }

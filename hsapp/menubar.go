@@ -14,7 +14,7 @@ import (
 func (a *App) renderMainMenuBar() {
 	projectOpened := a.project != nil
 
-	g.MainMenuBar().Layout(g.Layout{
+	menuLayout := g.Layout{
 		g.Menu("File##MainMenuFile").Layout(g.Layout{
 			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
 				g.MenuItem("Project...##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
@@ -52,7 +52,15 @@ func (a *App) renderMainMenuBar() {
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
 		}),
-	}).Build()
+	}
+
+	if a.focusedEditor != nil {
+		a.focusedEditor.UpdateMainMenuLayout(&menuLayout)
+	}
+
+	menuBar := g.MainMenuBar().Layout(menuLayout)
+
+	menuBar.Build()
 }
 
 func (a *App) buildViewMenu() g.Layout {

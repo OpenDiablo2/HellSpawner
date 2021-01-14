@@ -96,13 +96,14 @@ func (e *FontTableEditor) Render() {
 		imgui.SetNextWindowFocus()
 	}
 
-	tableLayout := g.Layout{g.Child("").
-		Border(false).
-		Layout(
-			g.Layout{
-				g.FastTable("").Border(true).Rows(e.rows),
-			},
-		)}
+	tableLayout := g.Layout{
+		g.Child("").Border(false).Layout(g.Layout{
+			g.FastTable("").Border(true).Rows(e.rows),
+		}),
+		g.Custom(func() {
+			e.Focused = imgui.IsWindowFocused(0)
+		}),
+	}
 
 	g.Window(e.GetWindowTitle()).
 		IsOpen(&e.Visible).
@@ -124,4 +125,20 @@ func (e *FontTableEditor) makeGlyphLayout(glyph *fontGlyph) *g.RowWidget {
 	)
 
 	return row
+}
+
+func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
+	m := g.Menu("Font Table Editor").Layout(g.Layout{
+		g.MenuItem("Add to project").OnClick(func() {}),
+		g.MenuItem("Remove from project").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Import from file...").OnClick(func() {}),
+		g.MenuItem("Export to file...").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Close").OnClick(func() {
+			e.Visible = false
+		}),
+	})
+
+	*l = append(*l, m)
 }

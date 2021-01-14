@@ -44,6 +44,24 @@ func (e *DC6Editor) Render() {
 
 	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.DC6Viewer(e.Path.GetUniqueId(), e.dc6),
+		g.Custom(func() {
+			e.Focused = imgui.IsWindowFocused(0)
+		}),
+	})
+}
+
+func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
+	m := g.Menu("DC6 Editor").Layout(g.Layout{
+		g.MenuItem("Add to project").OnClick(func() {}),
+		g.MenuItem("Remove from project").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Import from file...").OnClick(func() {}),
+		g.MenuItem("Export to file...").OnClick(func() {}),
+		g.Separator(),
+		g.MenuItem("Close").OnClick(func() {
+			e.Visible = false
+		}),
 	})
 
+	*l = append(*l, m)
 }

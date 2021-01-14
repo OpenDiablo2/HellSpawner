@@ -46,11 +46,16 @@ type App struct {
 
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)
+	focusedEditor      hscommon.EditorWindow
 
 	fontFixed         imgui.Font
 	fontFixedSmall    imgui.Font
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
+}
+
+func (a *App) FocusOn(editor hscommon.EditorWindow) {
+	a.focusedEditor = editor
 }
 
 func Create() (*App, error) {
@@ -87,8 +92,17 @@ func (a *App) render() {
 
 	idx := 0
 	for idx < len(a.editors) {
+		if a.editors[idx].IsFocused() {
+			a.FocusOn(a.editors[idx])
+		}
+
 		if !a.editors[idx].IsVisible() {
 			a.editors[idx].Cleanup()
+
+			if a.focusedEditor == a.editors[idx] {
+				a.focusedEditor = nil
+			}
+
 			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
 			continue
 		}
@@ -105,7 +119,6 @@ func (a *App) render() {
 
 	g.Update()
 	hscommon.ResumeLoadingTextures()
-
 }
 
 func (a *App) setupFonts() {
@@ -193,6 +206,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		}
 
 		a.editors = append(a.editors, editor)
+		a.focusedEditor = editor
 		editor.Show()
 	}()
 }
@@ -257,4 +271,8 @@ func (a *App) reloadAuxiliaryMPQs() {
 
 func (a *App) toggleProjectExplorer() {
 	a.projectExplorer.ToggleVisibility()
+}
+
+func (a *App) SetFocusedEditor(e hscommon.EditorWindow) {
+	a.focusedEditor = e
 }
