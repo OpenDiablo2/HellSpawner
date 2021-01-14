@@ -20,7 +20,7 @@ const (
 )
 
 //nolint:unused,structcheck // will be used
-type controls struct {
+type dt1Controls struct {
 	tileGroup    int32
 	tileVariant  int32
 	tileType     int32
@@ -34,7 +34,7 @@ type controls struct {
 }
 
 type DT1ViewerState struct {
-	*controls
+	*dt1Controls
 
 	lastTileGroup int32
 
@@ -93,7 +93,7 @@ func (p *DT1ViewerWidget) setState(s *DT1ViewerState) {
 
 func (p *DT1ViewerWidget) initState() {
 	state := &DT1ViewerState{
-		controls: &controls{
+		dt1Controls: &dt1Controls{
 			showGrid:  true,
 			showFloor: true,
 			showWall:  true,
@@ -107,13 +107,13 @@ func (p *DT1ViewerWidget) initState() {
 func (p *DT1ViewerWidget) Build() {
 	state := p.getState()
 
-	if state.lastTileGroup != state.controls.tileGroup {
-		state.lastTileGroup = state.controls.tileGroup
-		state.controls.tileVariant = 0
+	if state.lastTileGroup != state.dt1Controls.tileGroup {
+		state.lastTileGroup = state.dt1Controls.tileGroup
+		state.dt1Controls.tileVariant = 0
 	}
 
-	tiles := state.tileGroups[int(state.controls.tileGroup)]
-	tile := tiles[int(state.controls.tileVariant)]
+	tiles := state.tileGroups[int(state.dt1Controls.tileGroup)]
+	tile := tiles[int(state.dt1Controls.tileVariant)]
 
 	giu.Layout{
 		p.makeTileSelector(),
@@ -267,21 +267,21 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	state := p.getState()
 
-	if state.lastTileGroup != state.controls.tileGroup {
-		state.lastTileGroup = state.controls.tileGroup
-		state.controls.tileVariant = 0
+	if state.lastTileGroup != state.dt1Controls.tileGroup {
+		state.lastTileGroup = state.dt1Controls.tileGroup
+		state.dt1Controls.tileVariant = 0
 	}
 
 	numGroups := len(state.tileGroups) - 1
-	numVariants := len(state.tileGroups[state.controls.tileGroup]) - 1
+	numVariants := len(state.tileGroups[state.dt1Controls.tileGroup]) - 1
 
 	// actual layout
 	layout := giu.Layout{
-		giu.SliderInt("Tile Group", &state.controls.tileGroup, 0, int32(numGroups)),
+		giu.SliderInt("Tile Group", &state.dt1Controls.tileGroup, 0, int32(numGroups)),
 	}
 
 	if numVariants > 1 {
-		layout = append(layout, giu.SliderInt("Tile Variant", &state.controls.tileVariant, 0, int32(numVariants)))
+		layout = append(layout, giu.SliderInt("Tile Variant", &state.dt1Controls.tileVariant, 0, int32(numVariants)))
 	}
 
 	p.setState(state)
@@ -292,10 +292,10 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
-	//curFrameIndex := int(state.controls.frame) + (int(state.controls.direction) * int(p.dt1.FramesPerDirection))
+	//curFrameIndex := int(state.dt1Controls.frame) + (int(state.dt1Controls.direction) * int(p.dt1.FramesPerDirection))
 
-	if uint32(state.controls.scale) < 1 {
-		state.controls.scale = 1
+	if uint32(state.dt1Controls.scale) < 1 {
+		state.dt1Controls.scale = 1
 	}
 
 	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
@@ -308,7 +308,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 		h *= -1
 	}
 
-	curGroup, curVariant := int(state.controls.tileGroup), int(state.controls.tileVariant)
+	curGroup, curVariant := int(state.dt1Controls.tileGroup), int(state.dt1Controls.tileVariant)
 
 	var floorTexture, wallTexture *giu.Texture
 
@@ -325,9 +325,9 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 	}
 
 	imageControls := giu.Line(
-		giu.Checkbox("Show Grid", &state.controls.showGrid),
-		giu.Checkbox("Show Floor", &state.controls.showFloor),
-		giu.Checkbox("Show Wall", &state.controls.showWall),
+		giu.Checkbox("Show Grid", &state.dt1Controls.showGrid),
+		giu.Checkbox("Show Floor", &state.dt1Controls.showFloor),
+		giu.Checkbox("Show Wall", &state.dt1Controls.showWall),
 	)
 
 	layout = append(layout, giu.Custom(func() {
@@ -340,7 +340,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			gridOffsetY -= subtileHeight
 		}
 
-		if state.controls.showGrid && (state.controls.showFloor || state.controls.showWall) {
+		if state.dt1Controls.showGrid && (state.dt1Controls.showFloor || state.dt1Controls.showWall) {
 			left := image.Point{X: 0 + pos.X, Y: pos.Y + gridOffsetY}
 
 			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
@@ -388,7 +388,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			}
 		}
 
-		if state.controls.showFloor && floorTexture != nil {
+		if state.dt1Controls.showFloor && floorTexture != nil {
 			floorTL := image.Point{
 				X: pos.X,
 				Y: pos.Y,
@@ -402,7 +402,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			canvas.AddImage(floorTexture, floorTL, floorBR)
 		}
 
-		if state.controls.showWall && wallTexture != nil {
+		if state.dt1Controls.showWall && wallTexture != nil {
 			wallTL := image.Point{
 				X: pos.X,
 				Y: pos.Y,
@@ -417,7 +417,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 		}
 	}))
 
-	if state.controls.showFloor || state.controls.showWall {
+	if state.dt1Controls.showFloor || state.dt1Controls.showWall {
 		layout = append(layout, giu.Dummy(w, h))
 	}
 
@@ -679,8 +679,8 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 	}
 
 	return giu.Layout{
-		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, 7),
-		giu.Label(subtileFlag(1 << state.controls.subtileFlag).String()),
+		giu.SliderInt("Subtile Type", &state.dt1Controls.subtileFlag, 0, 7),
+		giu.Label(subtileFlag(1 << state.dt1Controls.subtileFlag).String()),
 		giu.Dummy(0, 4),
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
@@ -730,7 +730,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 
 					flag := subtileFlag(0).from(tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)])
 
-					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
+					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
 
 					if hasFlag {
 						canvas.AddCircle(flagPoint, 3, c, 1)

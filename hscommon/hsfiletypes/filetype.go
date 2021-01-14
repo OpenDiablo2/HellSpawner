@@ -29,6 +29,7 @@ const (
 	FileTypeTBL
 	FileTypeTBLStringTable
 	FileTypeTBLFontTable
+	FileTypeDS1
 )
 
 func determineTBLtype(data *[]byte) (FileType, error) {
@@ -58,6 +59,7 @@ func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 		FileTypeDT1:     {Name: "DT1", Extension: ".dt1"},
 		FileTypeTBL:     {Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
 		FileTypeText:    {Name: "Text", Extension: ".txt"},
+		FileTypeDS1:     {Name: "DS1", Extension: ".ds1"},
 	}
 }
 

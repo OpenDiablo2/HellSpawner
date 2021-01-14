@@ -178,9 +178,16 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	}
 
 	go func() {
-		editor, err := a.editorConstructors[fileType](path, &data)
+		var editor hscommon.EditorWindow
 
-		if err != nil {
+		var err error
+
+		editorMaker, editorFound := a.editorConstructors[fileType]
+		if editorFound {
+			editor, err = editorMaker(path, &data)
+		}
+
+		if !editorFound || err != nil {
 			dialog.Message("Error creating editor!").Error()
 			return
 		}

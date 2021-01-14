@@ -46,6 +46,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 		format:   format,
 	}
 
+	result.Path = pathEntry
+
 	speaker.Play(result.control)
 
 	return result, nil
