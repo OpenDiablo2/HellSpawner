@@ -11,10 +11,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-const (
-	charTableGridWidth = 16
-)
-
 type FontTableEditor struct {
 	hseditor.Editor
 	fontTable
@@ -123,7 +119,7 @@ func (e *FontTableEditor) makeGlyphLayout(glyph *fontGlyph) *g.RowWidget {
 
 	row := g.Row(
 		g.Label(fmt.Sprintf("%d", glyph.frameIndex)),
-		g.Label(fmt.Sprintf("%s", string(glyph.rune))),
+		g.Label(string(glyph.rune)),
 		g.Label(fmt.Sprintf("%d", glyph.width)),
 	)
 
