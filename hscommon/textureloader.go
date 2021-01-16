@@ -7,7 +7,7 @@ import (
 
 	"github.com/enriquebris/goconcurrentqueue"
 
-	g "github.com/AllenDang/giu"
+	g "github.com/ianling/giu"
 )
 
 type TextureLoadRequestItem struct {

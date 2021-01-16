@@ -6,9 +6,9 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
+	"github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 )
 
 type DCCViewerState struct {
@@ -42,23 +42,15 @@ func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 func (p *DCCViewerWidget) Build() {
 	stateId := fmt.Sprintf("DCCViewerWidget_%s", p.id)
 	state := giu.Context.GetState(stateId)
-	var widget *giu.ImageWidget
 
 	if state == nil {
 		//Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateId, &DCCViewerState{})
 
-		firstFrame := p.dcc.Directions[0].Frames[0]
 		totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
-
-		sw := float32(firstFrame.Width)
-		sh := float32(firstFrame.Height)
-		widget = giu.Image(nil).Size(sw, sh)
-
 		images := make([]*image2.RGBA, totalFrames)
 
 		for dirIdx := range p.dcc.Directions {
-
 			fw := p.dcc.Directions[dirIdx].Box.Width
 			fh := p.dcc.Directions[dirIdx].Box.Height
 
@@ -106,6 +98,11 @@ func (p *DCCViewerWidget) Build() {
 			giu.Context.SetState(stateId, &DCCViewerState{textures: textures})
 		}()
 
+		// display a temporary dummy image until the real one ready
+		firstFrame := p.dcc.Directions[0].Frames[0]
+		sw := float32(firstFrame.Width)
+		sh := float32(firstFrame.Height)
+		widget := giu.Image(nil).Size(sw, sh)
 		widget.Build()
 	} else {
 		viewerState := state.(*DCCViewerState)

@@ -5,14 +5,13 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 type TextEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 
 	text      string
 	tableView bool
@@ -22,7 +21,8 @@ type TextEditor struct {
 
 func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
-		text: string(*data),
+		Editor: hseditor.New(pathEntry),
+		text:   string(*data),
 	}
 
 	result.Path = pathEntry
@@ -57,34 +57,18 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	return result, nil
 }
 
-func (e *TextEditor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
+func (e *TextEditor) Build() {
 	if !e.tableView {
-		g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
 			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
-			g.Custom(func() {
-				e.Focused = imgui.IsWindowFocused(0)
+		})
+	} else {
+		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+			g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
+				g.FastTable("").Border(true).Rows(e.tableRows),
 			}),
 		})
-		return
 	}
-
-	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Pos(50, 50).Size(400, 300).Layout(g.Layout{
-		g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
-			g.FastTable("").Border(true).Rows(e.tableRows),
-		}),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
-	})
 }
 
 func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {

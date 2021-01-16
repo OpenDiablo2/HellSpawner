@@ -1,8 +1,7 @@
 package hsdc6editor
 
 import (
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
@@ -19,34 +18,21 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &DC6Editor{
-		dc6: dc6,
+		Editor: hseditor.New(pathEntry),
+		dc6:    dc6,
 	}
-
-	result.Path = pathEntry
 
 	return result, nil
 }
 
 type DC6Editor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	dc6 *d2dc6.DC6
 }
 
-func (e *DC6Editor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
+func (e *DC6Editor) Build() {
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.DC6Viewer(e.Path.GetUniqueId(), e.dc6),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
 	})
 }
 

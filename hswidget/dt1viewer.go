@@ -2,10 +2,10 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
+	"github.com/ianling/giu"
 	"image"
 	"image/color"
 	"log"
@@ -64,7 +64,13 @@ func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 		dt1: dt1,
 	}
 
+	result.registerKeyboardShortcuts()
+
 	return result
+}
+
+func (p *DT1ViewerWidget) registerKeyboardShortcuts() {
+
 }
 
 func (p *DT1ViewerWidget) getStateID() string {
@@ -563,6 +569,21 @@ func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	}
 }
 
+func (p *DT1ViewerWidget) TileGroup() int32 {
+	state := p.getState()
+	return state.tileGroup
+}
+
+func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
+	state := p.getState()
+	if int(tileGroup) > len(state.tileGroups) {
+		tileGroup = int32(len(state.tileGroups))
+	} else if tileGroup < 0 {
+		tileGroup = 0
+	}
+	state.tileGroup = tileGroup
+}
+
 type subtileFlag byte
 
 func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
@@ -733,7 +754,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
 
 					if hasFlag {
-						canvas.AddCircle(flagPoint, 3, c, 1)
+						canvas.AddCircle(flagPoint, 3, c, 1, 0)
 					}
 				}
 

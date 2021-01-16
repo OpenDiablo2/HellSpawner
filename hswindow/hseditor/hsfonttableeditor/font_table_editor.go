@@ -3,16 +3,16 @@ package hsfonttableeditor
 import (
 	"encoding/binary"
 	"fmt"
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
 	"sort"
+
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 type FontTableEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	fontTable
 	rows g.Rows
 }
@@ -46,10 +46,9 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	editor := &FontTableEditor{
+		Editor:    hseditor.New(pathEntry),
 		fontTable: glyphs,
 	}
-
-	editor.Path = pathEntry
 
 	return editor, nil
 }
@@ -81,32 +80,21 @@ func (e *FontTableEditor) init() {
 	}
 }
 
-func (e *FontTableEditor) Render() {
+func (e *FontTableEditor) Build() {
 	if e.rows == nil {
 		e.init()
 		return
 	}
 
-	if !e.Visible {
-		return
-	}
+	tableLayout := g.Layout{g.Child("").
+		Border(false).
+		Layout(
+			g.Layout{
+				g.FastTable("").Border(true).Rows(e.rows),
+			},
+		)}
 
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	tableLayout := g.Layout{
-		g.Child("").Border(false).Layout(g.Layout{
-			g.FastTable("").Border(true).Rows(e.rows),
-		}),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
-	}
-
-	g.Window(e.GetWindowTitle()).
-		IsOpen(&e.Visible).
+	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
 		Pos(50, 50).
 		Size(400, 300).

@@ -7,14 +7,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
+
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/dialog"
 	"github.com/faiface/beep"
@@ -46,16 +49,13 @@ type App struct {
 
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)
+	editorManagerMutex sync.Mutex
 	focusedEditor      hscommon.EditorWindow
 
 	fontFixed         imgui.Font
 	fontFixedSmall    imgui.Font
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
-}
-
-func (a *App) FocusOn(editor hscommon.EditorWindow) {
-	a.focusedEditor = editor
 }
 
 func Create() (*App, error) {
@@ -70,7 +70,7 @@ func Create() (*App, error) {
 
 func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
-	wnd.SetBgColor(color.RGBA{10, 10, 10, 255})
+	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
 
 	sampleRate := beep.SampleRate(22050)
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
@@ -92,30 +92,53 @@ func (a *App) render() {
 
 	idx := 0
 	for idx < len(a.editors) {
-		if a.editors[idx].IsFocused() {
-			a.FocusOn(a.editors[idx])
-		}
-
-		if !a.editors[idx].IsVisible() {
-			a.editors[idx].Cleanup()
-
-			if a.focusedEditor == a.editors[idx] {
+		editor := a.editors[idx]
+		if !editor.IsVisible() {
+			editor.Cleanup()
+			if editor.HasFocus() {
 				a.focusedEditor = nil
 			}
-
 			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
 			continue
 		}
 
-		a.editors[idx].Render()
+		hadFocus := editor.HasFocus()
+
+		editor.Build()
+		editor.Render()
+
+		// if this window didn't have focus before, but it does now,
+		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
+		if !hadFocus && editor.HasFocus() {
+			hsinput.UnregisterWindowShortcuts()
+			editor.RegisterKeyboardShortcuts()
+			a.focusedEditor = editor
+		}
+
 		idx++
 	}
 
-	a.projectExplorer.Render(a.project)
-	a.mpqExplorer.Render(a.project, a.config)
-	a.preferencesDialog.Render()
-	a.aboutDialog.Render()
-	a.projectPropertiesDialog.Render()
+	if a.projectExplorer.IsVisible() {
+		a.projectExplorer.Build(a.project)
+		a.projectExplorer.Render()
+	}
+	if a.mpqExplorer.IsVisible() {
+		a.mpqExplorer.Build()
+		a.mpqExplorer.Render()
+	}
+
+	if a.preferencesDialog.IsVisible() {
+		a.preferencesDialog.Build()
+		a.preferencesDialog.Render()
+	}
+	if a.aboutDialog.IsVisible() {
+		a.aboutDialog.Build()
+		a.aboutDialog.Render()
+	}
+	if a.projectPropertiesDialog.IsVisible() {
+		a.projectPropertiesDialog.Build()
+		a.projectPropertiesDialog.Render()
+	}
 
 	g.Update()
 	hscommon.ResumeLoadingTextures()
@@ -166,6 +189,9 @@ func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
 }
 
 func (a *App) openEditor(path *hscommon.PathEntry) {
+	a.editorManagerMutex.Lock()
+	defer a.editorManagerMutex.Unlock()
+
 	uniqueId := path.GetUniqueId()
 	for idx := range a.editors {
 		if a.editors[idx].GetId() == uniqueId {
@@ -188,27 +214,19 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 	if a.editorConstructors[fileType] == nil {
 		dialog.Message("No editor is defined for this file type!").Error()
+		return
 	}
 
-	go func() {
-		var editor hscommon.EditorWindow
+	editor, err := a.editorConstructors[fileType](path, &data)
 
-		var err error
+	if err != nil {
+		dialog.Message("Error creating editor!").Error()
+		return
+	}
 
-		editorMaker, editorFound := a.editorConstructors[fileType]
-		if editorFound {
-			editor, err = editorMaker(path, &data)
-		}
-
-		if !editorFound || err != nil {
-			dialog.Message("Error creating editor!").Error()
-			return
-		}
-
-		a.editors = append(a.editors, editor)
-		a.focusedEditor = editor
-		editor.Show()
-	}()
+	a.editors = append(a.editors, editor)
+	editor.Show()
+	editor.BringToFront()
 }
 
 func (a *App) loadProjectFromFile(file string) {
@@ -229,6 +247,7 @@ func (a *App) loadProjectFromFile(file string) {
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
+	a.mpqExplorer.SetProject(a.project)
 	a.projectExplorer.Show()
 }
 
@@ -273,6 +292,21 @@ func (a *App) toggleProjectExplorer() {
 	a.projectExplorer.ToggleVisibility()
 }
 
-func (a *App) SetFocusedEditor(e hscommon.EditorWindow) {
-	a.focusedEditor = e
+func (a *App) closeActiveEditor() {
+	for _, editor := range a.editors {
+		if editor.HasFocus() {
+			editor.Cleanup()
+			return
+		}
+	}
+}
+
+func (a *App) closePopups() {
+	a.projectPropertiesDialog.Cleanup()
+	a.aboutDialog.Cleanup()
+	a.preferencesDialog.Cleanup()
+}
+
+func (a *App) quit() {
+	os.Exit(0)
 }

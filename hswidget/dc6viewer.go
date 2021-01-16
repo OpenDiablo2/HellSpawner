@@ -8,11 +8,11 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
+	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
-	"github.com/AllenDang/giu"
+	"github.com/ianling/giu"
 )
 
 const (

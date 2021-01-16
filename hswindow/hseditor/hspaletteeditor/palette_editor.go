@@ -4,17 +4,15 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
-
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 type PaletteEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	palette d2interface.Palette
 }
 
@@ -25,29 +23,16 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &PaletteEditor{
+		Editor:  hseditor.New(pathEntry),
 		palette: palette,
 	}
-
-	result.Path = pathEntry
 
 	return result, nil
 }
 
-func (e *PaletteEditor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Pos(360, 30).Layout(g.Layout{
+func (e *PaletteEditor) Build() {
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Pos(360, 30).Layout(g.Layout{
 		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
 	})
 }
 
