@@ -69,8 +69,8 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Config) ([]string, error) {
 	var files []string
 
-	if config.ExternalListfile != "" {
-		file, err := os.Open(config.ExternalListfile)
+	if config.ExternalListFile != "" {
+		file, err := os.Open(config.ExternalListFile)
 		if err != nil {
 			return files, errors.New("Couldn't open listfile")
 		}

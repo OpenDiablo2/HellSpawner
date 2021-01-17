@@ -13,8 +13,9 @@ import (
 
 type Config struct {
 	RecentProjects          []string
+	AbyssEnginePath         string
 	AuxiliaryMpqPath        string
-	ExternalListfile        string
+	ExternalListFile        string
 	OpenMostRecentOnStartup bool
 }
 

@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
+
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
@@ -37,8 +39,9 @@ import (
 const baseWindowTitle = "HellSpawner"
 
 type App struct {
-	project *hsproject.Project
-	config  *hsconfig.Config
+	project      *hsproject.Project
+	config       *hsconfig.Config
+	abyssWrapper *abysswrapper.AbyssWrapper
 
 	aboutDialog             *hsaboutdialog.AboutDialog
 	preferencesDialog       *hspreferencesdialog.PreferencesDialog
@@ -64,6 +67,8 @@ func Create() (*App, error) {
 		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)),
 		config:             hsconfig.Load(),
 	}
+
+	result.abyssWrapper = abysswrapper.Create()
 
 	return result, nil
 }
