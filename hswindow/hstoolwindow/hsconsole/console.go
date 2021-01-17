@@ -18,10 +18,10 @@ func (c *Console) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func Create(fontFixed imgui.Font) *Console {
+func Create(fontFixed imgui.Font, x, y float32) *Console {
 	result := &Console{
 		fontFixed:  fontFixed,
-		ToolWindow: hstoolwindow.New("Console"),
+		ToolWindow: hstoolwindow.New("Console", x, y),
 	}
 
 	return result

@@ -48,15 +48,15 @@ func (a *App) setup() error {
 	a.editorConstructors[hsfiletypes.FileTypeDS1] = hsds1editor.Create
 
 	// Register the tool windows
-	if a.mpqExplorer, err = hsmpqexplorer.Create(a.openEditor, a.config); err != nil {
+	if a.mpqExplorer, err = hsmpqexplorer.Create(a.openEditor, a.config, mpqExplorerDefaultX, mpqExplorerDefaultY); err != nil {
 		return err
 	}
 
-	if a.projectExplorer, err = hsprojectexplorer.Create(a.openEditor); err != nil {
+	if a.projectExplorer, err = hsprojectexplorer.Create(a.openEditor, projectExplorerDefaultX, projectExplorerDefaultY); err != nil {
 		return err
 	}
 
-	a.console = hsconsole.Create(a.fontFixed)
+	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
@@ -76,7 +76,7 @@ func (a *App) registerGlobalKeyboardShortcuts() {
 	hsinput.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
 	hsinput.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
 	hsinput.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
-	hsinput.RegisterShortcut(a.quit, g.KeyQ, g.ModAlt, true)
+	hsinput.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
 	hsinput.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
 
 	hsinput.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)

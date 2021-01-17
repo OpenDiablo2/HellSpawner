@@ -34,9 +34,9 @@ type ProjectExplorer struct {
 	refreshIconTexture   *g.Texture
 }
 
-func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectExplorer, error) {
+func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
-		ToolWindow:           hstoolwindow.New("Project Explorer"),
+		ToolWindow:           hstoolwindow.New("Project Explorer", x, y),
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
 	}

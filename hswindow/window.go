@@ -7,9 +7,9 @@ type Window struct {
 	Visible bool
 }
 
-func New(title string) *Window {
+func New(title string, x, y float32) *Window {
 	return &Window{
-		WindowWidget: giu.Window(title),
+		WindowWidget: giu.Window(title).Pos(x, y),
 	}
 }
 

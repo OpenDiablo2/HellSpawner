@@ -24,9 +24,9 @@ type MPQExplorer struct {
 	nodeCache            []g.Widget
 }
 
-func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config) (*MPQExplorer, error) {
+func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config, x, y float32) (*MPQExplorer, error) {
 	result := &MPQExplorer{
-		ToolWindow:           hstoolwindow.New("MPQ Explorer"),
+		ToolWindow:           hstoolwindow.New("MPQ Explorer", x, y),
 		fileSelectedCallback: fileSelectedCallback,
 		config:               config,
 	}

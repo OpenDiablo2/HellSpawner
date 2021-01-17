@@ -25,7 +25,7 @@ type fontGlyph struct {
 	width      int
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	glyphs := make(fontTable)
 
 	table := *data
@@ -46,7 +46,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	editor := &FontTableEditor{
-		Editor:    hseditor.New(pathEntry),
+		Editor:    hseditor.New(pathEntry, x, y),
 		fontTable: glyphs,
 	}
 

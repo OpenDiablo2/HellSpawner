@@ -10,9 +10,9 @@ type Editor struct {
 	Path *hscommon.PathEntry
 }
 
-func New(path *hscommon.PathEntry) *Editor {
+func New(path *hscommon.PathEntry, x, y float32) *Editor {
 	return &Editor{
-		Window: hswindow.New(generateWindowTitle(path)),
+		Window: hswindow.New(generateWindowTitle(path), x, y),
 		Path:   path,
 	}
 }

@@ -38,7 +38,17 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 )
 
-const baseWindowTitle = "HellSpawner"
+const (
+	baseWindowTitle         = "HellSpawner"
+	editorWindowDefaultX    = 320
+	editorWindowDefaultY    = 30
+	projectExplorerDefaultX = 0
+	projectExplorerDefaultY = 0
+	mpqExplorerDefaultX     = 30
+	mpqExplorerDefaultY     = 30
+	consoleDefaultX         = 10
+	consoleDefaultY         = 500
+)
 
 type App struct {
 	project      *hsproject.Project
@@ -54,7 +64,7 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error)
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
@@ -67,19 +77,13 @@ type App struct {
 func Create() (*App, error) {
 	result := &App{
 		editors:            make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)),
+		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error)),
 		config:             hsconfig.Load(),
 	}
 
 	result.abyssWrapper = abysswrapper.Create()
 
 	return result, nil
-}
-
-func (a *App) Shutdown() {
-	if a.abyssWrapper.IsRunning() {
-		_ = a.abyssWrapper.Kill()
-	}
 }
 
 func (a *App) Run() {
@@ -98,7 +102,7 @@ func (a *App) Run() {
 	dialog.Init()
 	hscommon.ProcessTextureLoadRequests()
 
-	defer a.Shutdown()
+	defer a.Quit()
 
 	wnd.SetInputCallback(hsinput.HandleInput)
 	wnd.Run(a.render)
@@ -214,18 +218,7 @@ func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
 	return nil, errors.New("could not locate file in mpq")
 }
 
-func (a *App) openEditor(path *hscommon.PathEntry) {
-	a.editorManagerMutex.Lock()
-	defer a.editorManagerMutex.Unlock()
-
-	uniqueId := path.GetUniqueId()
-	for idx := range a.editors {
-		if a.editors[idx].GetId() == uniqueId {
-			a.editors[idx].BringToFront()
-			return
-		}
-	}
-
+func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 	data, err := a.GetFileBytes(path)
 	if err != nil {
 		dialog.Message("Could not load file!").Error()
@@ -243,7 +236,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](path, &data)
+	editor, err := a.editorConstructors[fileType](path, &data, x, y)
 
 	if err != nil {
 		dialog.Message("Error creating editor!").Error()
@@ -253,6 +246,21 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	a.editors = append(a.editors, editor)
 	editor.Show()
 	editor.BringToFront()
+}
+
+func (a *App) openEditor(path *hscommon.PathEntry) {
+	a.editorManagerMutex.Lock()
+	defer a.editorManagerMutex.Unlock()
+
+	uniqueId := path.GetUniqueId()
+	for idx := range a.editors {
+		if a.editors[idx].GetId() == uniqueId {
+			a.editors[idx].BringToFront()
+			return
+		}
+	}
+
+	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY)
 }
 
 func (a *App) loadProjectFromFile(file string) {
@@ -333,17 +341,21 @@ func (a *App) closePopups() {
 	a.preferencesDialog.Cleanup()
 }
 
-func (a *App) quit() {
-	a.Quit()
-}
-
 func (a *App) toggleConsole() {
 	a.console.ToggleVisibility()
+}
+
+func (a *App) SaveState() error {
+	return nil
 }
 
 func (a *App) Quit() {
 	if a.abyssWrapper.IsRunning() {
 		_ = a.abyssWrapper.Kill()
+	}
+
+	if err := a.SaveState(); err != nil {
+		log.Print("failed to save state before exiting: ", err)
 	}
 
 	p, _ := os.FindProcess(os.Getpid())

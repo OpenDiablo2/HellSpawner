@@ -12,14 +12,14 @@ import (
 
 var _ hscommon.EditorWindow = &DS1Editor{}
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DS1Editor{
-		Editor: hseditor.New(pathEntry),
+		Editor: hseditor.New(pathEntry, x, y),
 		ds1:    ds1,
 	}
 

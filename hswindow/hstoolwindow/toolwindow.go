@@ -6,8 +6,8 @@ type ToolWindow struct {
 	*hswindow.Window
 }
 
-func New(title string) *ToolWindow {
+func New(title string, x, y float32) *ToolWindow {
 	return &ToolWindow{
-		Window: hswindow.New(title),
+		Window: hswindow.New(title, x, y),
 	}
 }

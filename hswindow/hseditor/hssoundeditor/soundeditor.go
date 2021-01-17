@@ -26,7 +26,7 @@ type SoundEditor struct {
 	file     string
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
 	if err != nil {
@@ -39,7 +39,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &SoundEditor{
-		Editor:   hseditor.New(pathEntry),
+		Editor:   hseditor.New(pathEntry, x, y),
 		file:     filepath.Base(pathEntry.FullPath),
 		streamer: streamer,
 		control:  control,

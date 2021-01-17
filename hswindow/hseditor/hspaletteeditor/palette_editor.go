@@ -16,14 +16,14 @@ type PaletteEditor struct {
 	palette d2interface.Palette
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &PaletteEditor{
-		Editor:  hseditor.New(pathEntry),
+		Editor:  hseditor.New(pathEntry, x, y),
 		palette: palette,
 	}
 
