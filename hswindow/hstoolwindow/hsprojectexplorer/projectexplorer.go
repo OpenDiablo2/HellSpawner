@@ -1,6 +1,7 @@
 package hsprojectexplorer
 
 import (
+	"image/color"
 	"os"
 	"path/filepath"
 	"sort"
@@ -49,25 +50,55 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectE
 }
 
 func (m *ProjectExplorer) Build(project *hsproject.Project) {
-	m.IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
-		g.Line(
-			g.Custom(func() {
-				imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
-				imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
-				imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: 4})
-				imgui.PushID("ProjectExplorerRefresh")
-			}),
-			g.ImageButton(m.refreshIconTexture).Size(16, 16).OnClick(func() { m.onRefreshProjectExplorerClicked(project) }),
-			g.Tooltip("Refresh the view from the filesystem."),
-			g.Custom(func() {
-				imgui.PopID()
-				imgui.PopStyleVar()
-				imgui.PopStyleColorV(2)
-			}),
-		),
-		g.Separator(),
-		g.Child("ProjectExplorerProjectTreeContainer").Flags(g.WindowFlagsHorizontalScrollbar).Layout(m.getProjectTreeNodes(project)),
-	})
+	header := g.Line(
+		m.makeRefreshButtonLayout(project),
+	)
+
+	tree := g.Child("ProjectExplorerProjectTreeContainer").
+		Flags(g.WindowFlagsHorizontalScrollbar).
+		Layout(m.getProjectTreeNodes(project))
+
+	m.IsOpen(&m.Visible).
+		Pos(10, 30).
+		Size(300, 400).
+		Layout(g.Layout{
+			header,
+			g.Separator(),
+			tree,
+		})
+}
+
+func (m *ProjectExplorer) makeRefreshButtonLayout(project *hsproject.Project) g.Layout {
+	button := g.ImageButton(m.refreshIconTexture).
+		Size(16, 16).
+		OnClick(func() {
+			m.onRefreshProjectExplorerClicked(project)
+		})
+
+	const tooltipText = "Refresh the view from the filesystem."
+
+	if project == nil {
+		button.TintColor(color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x20})
+	}
+
+	return g.Layout{
+		g.Custom(func() {
+			imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
+			imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
+			imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: 4})
+			imgui.PushID("ProjectExplorerRefresh")
+		}),
+
+		button,
+
+		g.Tooltip(tooltipText),
+
+		g.Custom(func() {
+			imgui.PopID()
+			imgui.PopStyleVar()
+			imgui.PopStyleColorV(2)
+		}),
+	}
 }
 
 func (m *ProjectExplorer) getProjectTreeNodes(project *hsproject.Project) g.Layout {
@@ -86,6 +117,10 @@ func (m *ProjectExplorer) getProjectTreeNodes(project *hsproject.Project) g.Layo
 }
 
 func (m *ProjectExplorer) onRefreshProjectExplorerClicked(project *hsproject.Project) {
+	if project == nil {
+		return
+	}
+
 	project.InvalidateFileStructure()
 }
 
