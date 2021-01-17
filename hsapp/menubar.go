@@ -79,8 +79,19 @@ func (a *App) buildViewMenu() g.Layout {
 	result := make([]g.Widget, 0)
 
 	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
-		g.MenuItem("Project Explorer\tCtrl+Shift+P").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
-		g.MenuItem("MPQ Explorer\t\tCtrl+Shift+M").Selected(a.mpqExplorer.Visible).Enabled(a.project != nil).OnClick(a.toggleMPQExplorer),
+		g.MenuItem("Project Explorer\tCtrl+Shift+P").
+			Selected(a.projectExplorer.Visible).
+			Enabled(true).
+			OnClick(a.toggleProjectExplorer),
+
+		g.MenuItem("MPQ Explorer\t\tCtrl+Shift+M").
+			Selected(a.mpqExplorer.Visible).
+			Enabled(a.project != nil).
+			OnClick(a.toggleMPQExplorer),
+
+		g.MenuItem("Console\t\t\t\t\tCtrl+Shift+C").
+			Selected(a.console.Visible).
+			OnClick(a.toggleConsole),
 	}))
 
 	if len(a.editors) == 0 {
@@ -134,9 +145,12 @@ func (a *App) onProjectRunClicked() {
 		if err := a.abyssWrapper.Kill(); err != nil {
 			dialog.Message(err.Error()).Error()
 		}
+
+		return
 	}
 
-	if err := a.abyssWrapper.Launch(a.config); err != nil {
+	a.console.Show()
+	if err := a.abyssWrapper.Launch(a.config, a.console); err != nil {
 		dialog.Message(err.Error()).Error()
 	}
 }

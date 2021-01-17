@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
+
 	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
 
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -49,10 +51,11 @@ type App struct {
 
 	projectExplorer *hsprojectexplorer.ProjectExplorer
 	mpqExplorer     *hsmpqexplorer.MPQExplorer
+	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error)
-	editorManagerMutex sync.Mutex
+	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
 	fontFixed         imgui.Font
@@ -73,6 +76,12 @@ func Create() (*App, error) {
 	return result, nil
 }
 
+func (a *App) Shutdown() {
+	if a.abyssWrapper.IsRunning() {
+		_ = a.abyssWrapper.Kill()
+	}
+}
+
 func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
@@ -88,7 +97,11 @@ func (a *App) Run() {
 
 	dialog.Init()
 	hscommon.ProcessTextureLoadRequests()
+
+	defer a.Shutdown()
+
 	wnd.Run(a.render)
+
 }
 
 func (a *App) render() {
@@ -136,13 +149,20 @@ func (a *App) render() {
 		a.preferencesDialog.Build()
 		a.preferencesDialog.Render()
 	}
+
 	if a.aboutDialog.IsVisible() {
 		a.aboutDialog.Build()
 		a.aboutDialog.Render()
 	}
+
 	if a.projectPropertiesDialog.IsVisible() {
 		a.projectPropertiesDialog.Build()
 		a.projectPropertiesDialog.Render()
+	}
+
+	if a.console.IsVisible() {
+		a.console.Build()
+		a.console.Render()
 	}
 
 	g.Update()
@@ -313,5 +333,18 @@ func (a *App) closePopups() {
 }
 
 func (a *App) quit() {
-	os.Exit(0)
+	a.Quit()
+}
+
+func (a *App) toggleConsole() {
+	a.console.ToggleVisibility()
+}
+
+func (a *App) Quit() {
+	if a.abyssWrapper.IsRunning() {
+		_ = a.abyssWrapper.Kill()
+	}
+
+	p, _ := os.FindProcess(os.Getpid())
+	_ = p.Kill()
 }

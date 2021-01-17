@@ -3,6 +3,8 @@ package hsapp
 import (
 	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
+
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -54,6 +56,8 @@ func (a *App) setup() error {
 	if a.projectExplorer, err = hsprojectexplorer.Create(a.openEditor); err != nil {
 		return err
 	}
+
+	a.console = hsconsole.Create(a.fontFixed)
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
