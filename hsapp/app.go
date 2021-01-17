@@ -100,6 +100,7 @@ func (a *App) Run() {
 
 	defer a.Shutdown()
 
+	wnd.SetInputCallback(hsinput.HandleInput)
 	wnd.Run(a.render)
 
 }

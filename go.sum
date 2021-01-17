@@ -7,10 +7,14 @@ github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjs
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf h1:lOICf3azuupncMGo1jVpTmt7xLdT5muBONs/efUDAhQ=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113003256-845abcae0faf/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113210205-9f5cde36df89 h1:A50Xu8c67B3Uxm0Qtz6TYD0zLPk9javIJuFccC05iWo=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210113210205-9f5cde36df89/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf/go.mod h1:peYoMncQljjNS6tZwI9WVyQB3qZS6u79/N3mBOcnd3I=
+github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d h1:2xp1BQbqcDDaikHnASWpVZRjibOxu7y9LhAv04whugI=
+github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d/go.mod h1:peYoMncQljjNS6tZwI9WVyQB3qZS6u79/N3mBOcnd3I=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk541a8SKzHPHnH3zbiI+7dagKZ0cgpgrD7Fyho=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
@@ -63,6 +67,8 @@ github.com/ianling/giu v0.5.1-0.20210115052648-239d4fd10884 h1:crD/BY+LAScrnDjFM
 github.com/ianling/giu v0.5.1-0.20210115052648-239d4fd10884/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
 github.com/ianling/giu v0.5.1-0.20210116114754-3532805bb5b0 h1:L2UqsNynu7LVqOId2+zWf3CUsWUgy8/ujKLs1V+biz4=
 github.com/ianling/giu v0.5.1-0.20210116114754-3532805bb5b0/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
+github.com/ianling/giu v0.5.1-0.20210117210417-49e09fba0b14 h1:EMiSGc6JNXFyu4yhAXooL2l4BMDjXMzVz62L+aMP2dE=
+github.com/ianling/giu v0.5.1-0.20210117210417-49e09fba0b14/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82 h1:0MOR+YCbB8lqENL09KZzWMGiCCc3gnVfo4OLS1UWL4s=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82/go.mod h1:yFLUkH/g8eMfNx16GrLoCGUDjTjjHAQjrg5EMdspDUY=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
@@ -149,6 +155,8 @@ golang.org/x/sys v0.0.0-20201028215240-c5abc1b1d397/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2 h1:F9vNgpIiamoF+Q1/c78bikg/NScXEtbZSNEpnRelOzs=
 golang.org/x/sys v0.0.0-20210113000019-eaf3bda374d2/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 h1:nVuTkr9L6Bq62qpUqKo/RnZCFfzDBL0bYo6w9OJUqZY=
+golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.3/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=

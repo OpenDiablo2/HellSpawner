@@ -65,7 +65,7 @@ func UnregisterWindowShortcuts() {
 	}
 }
 
-func HandleInput(_ *glfw.Window, key glfw.Key, _ int, action glfw.Action, mods glfw.ModifierKey) {
+func HandleInput(key glfw.Key, mods glfw.ModifierKey, action glfw.Action) {
 	for keyCombo, callbackFuncs := range shortcuts {
 		if key == keyCombo.Key && mods == keyCombo.Modifier && action == glfw.Press {
 			if callbackFuncs.Window != nil {

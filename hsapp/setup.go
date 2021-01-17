@@ -7,7 +7,6 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
-	"github.com/go-gl/glfw/v3.3/glfw"
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -68,7 +67,6 @@ func (a *App) setup() error {
 	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged)
 
 	// Set up keyboard shortcuts
-	glfw.GetCurrentContext().SetKeyCallback(hsinput.HandleInput)
 	a.registerGlobalKeyboardShortcuts()
 
 	return nil
