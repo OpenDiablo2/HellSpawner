@@ -2,8 +2,9 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/AllenDang/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
+	"github.com/ianling/giu"
 )
 
 const (
@@ -14,6 +15,7 @@ const (
 //subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
+//nolint:structcheck,unused // will be used
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
@@ -135,7 +137,6 @@ func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 
 	if numObjects > 0 {
 		l = append(l, p.makeObjectLayout(state))
-		l = append(l)
 	} else {
 		line := giu.Line(
 			giu.Label("No objects."),
@@ -268,7 +269,7 @@ func (p *DS1ViewerWidget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRec
 func (p *DS1ViewerWidget) makeTileFloorsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
-	if records == nil || len(records) == 0 {
+	if len(records) == 0 {
 		return l
 	}
 
@@ -311,7 +312,7 @@ func (p *DS1ViewerWidget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) g
 func (p *DS1ViewerWidget) makeTileWallsLayout(state *DS1ViewerState, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
-	if records == nil || len(records) == 0 {
+	if len(records) == 0 {
 		return l
 	}
 
@@ -354,7 +355,7 @@ func (p *DS1ViewerWidget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layou
 func (p *DS1ViewerWidget) makeTileShadowsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
-	if records == nil || len(records) == 0 {
+	if len(records) == 0 {
 		return l
 	}
 
@@ -397,7 +398,7 @@ func (p *DS1ViewerWidget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) 
 func (p *DS1ViewerWidget) makeTileSubsLayout(state *DS1ViewerState, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
-	if records == nil || len(records) == 0 {
+	if len(records) == 0 {
 		return l
 	}
 

@@ -5,7 +5,7 @@ import (
 	image2 "image"
 	"image/color"
 
-	"github.com/AllenDang/giu"
+	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )

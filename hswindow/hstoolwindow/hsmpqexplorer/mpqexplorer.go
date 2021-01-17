@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
@@ -17,36 +17,37 @@ import (
 type MPQExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
 type MPQExplorer struct {
-	hstoolwindow.ToolWindow
+	*hstoolwindow.ToolWindow
 	config               *hsconfig.Config
+	project              *hsproject.Project
 	fileSelectedCallback MPQExplorerFileSelectedCallback
 	nodeCache            []g.Widget
 }
 
-//result := make([]g.Widget, len(pathNodes[""].Children))
-//
-//for idx := range rootNode.Children {
-//result[idx] = renderNodes(rootNode.Children[idx], m)
-//}
-
 func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config) (*MPQExplorer, error) {
 	result := &MPQExplorer{
+		ToolWindow:           hstoolwindow.New("MPQ Explorer"),
 		fileSelectedCallback: fileSelectedCallback,
 		config:               config,
 	}
-	result.Visible = false
 
 	return result, nil
 }
 
-func (m *MPQExplorer) Render(project *hsproject.Project, config *hsconfig.Config) {
-	if !m.Visible {
-		return
-	}
+func (m *MPQExplorer) SetProject(project *hsproject.Project) {
+	m.project = project
+}
 
-	g.Window("MPQ Explorer").IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
-		g.Child("MpqExplorerContent").Border(false).Flags(g.WindowFlagsHorizontalScrollbar).Layout(m.getMpqTreeNodes(project, config)),
-	})
+func (m *MPQExplorer) Build() {
+	m.IsOpen(&m.Visible).
+		Pos(10, 30).
+		Size(300, 400).
+		Layout(g.Layout{
+			g.Child("MpqExplorerContent").
+				Border(false).
+				Flags(g.WindowFlagsHorizontalScrollbar).
+				Layout(m.getMpqTreeNodes(m.project, m.config)),
+		})
 }
 
 func (m *MPQExplorer) getMpqTreeNodes(project *hsproject.Project, config *hsconfig.Config) []g.Widget {
@@ -80,7 +81,7 @@ func (m *MPQExplorer) getMpqTreeNodes(project *hsproject.Project, config *hsconf
 func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	if !pathEntry.IsDirectory {
 		return g.Selectable(pathEntry.Name).OnClick(func() {
-			m.fileSelectedCallback(pathEntry)
+			go m.fileSelectedCallback(pathEntry)
 		})
 	}
 

@@ -1,16 +1,15 @@
 package hspreferencesdialog
 
 import (
-	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/dialog"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
 type PreferencesDialog struct {
-	hsdialog.Dialog
+	*hsdialog.Dialog
 
 	config          hsconfig.Config
 	onConfigChanged func(config hsconfig.Config)
@@ -18,6 +17,7 @@ type PreferencesDialog struct {
 
 func Create(onConfigChanged func(config hsconfig.Config)) *PreferencesDialog {
 	result := &PreferencesDialog{
+		Dialog:          hsdialog.New("Preferences"),
 		onConfigChanged: onConfigChanged,
 	}
 	result.Visible = false
@@ -31,8 +31,8 @@ func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 	p.config = *config
 }
 
-func (p *PreferencesDialog) Render() {
-	hswidget.ModalDialog("Preferences##AppPreferences", &p.Visible, g.Layout{
+func (p *PreferencesDialog) Build() {
+	p.IsOpen(&p.Visible).Layout(g.Layout{
 		g.Child("PreferencesLayout").Size(300, 150).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(

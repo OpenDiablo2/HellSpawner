@@ -5,16 +5,14 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
-
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
 type AboutDialog struct {
-	hsdialog.Dialog
+	*hsdialog.Dialog
 	titleFont   imgui.Font
 	regularFont imgui.Font
 	fixedFont   imgui.Font
@@ -24,6 +22,7 @@ type AboutDialog struct {
 
 func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
+		Dialog:      hsdialog.New("About HellSpawner"),
 		titleFont:   titleFont,
 		regularFont: regularFont,
 		fixedFont:   fixedFont,
@@ -44,13 +43,8 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	return result, nil
 }
 
-func (a *AboutDialog) Show() {
-	a.Window.Show()
-	imgui.OpenPopup("About HellSpawner")
-}
-
-func (a *AboutDialog) Render() {
-	hswidget.ModalDialog("About HellSpawner", &a.Visible, g.Layout{
+func (a *AboutDialog) Build() {
+	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
 			g.ImageWithFile("hsassets/images/d2logo.png").Size(256, 256),
 			g.Child("AboutHellSpawnerLayout").Size(500, -1).Layout(g.Layout{

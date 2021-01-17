@@ -10,10 +10,8 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
-
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
@@ -26,7 +24,7 @@ const (
 )
 
 type ProjectPropertiesDialog struct {
-	hsdialog.Dialog
+	*hsdialog.Dialog
 
 	removeIconTexture          *g.Texture
 	upIconTexture              *g.Texture
@@ -42,6 +40,7 @@ type ProjectPropertiesDialog struct {
 
 func Create(onProjectPropertiesChanged func(project hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
+		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
 		mpqSelectDialogVisible:     false,
 	}
@@ -73,14 +72,10 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 	p.Dialog.Show()
 }
 
-func (p *ProjectPropertiesDialog) Render() {
-	if !p.Visible {
-		return
-	}
-
+func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
-	hswidget.ModalDialog("Select Auxiliary MPQ##ProjectPropertiesSelectAuxMPQDialog", &p.mpqSelectDialogVisible, g.Layout{
+	p.IsOpen(&p.mpqSelectDialogVisible).Layout(g.Layout{
 		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(300, 200).Layout(g.Layout{
 			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
@@ -101,7 +96,7 @@ func (p *ProjectPropertiesDialog) Render() {
 	})
 
 	if !p.mpqSelectDialogVisible {
-		hswidget.ModalDialog("Project Properties##ProjectPropertiesDialog", &p.Visible, g.Layout{
+		p.IsOpen(&p.Visible).Layout(g.Layout{
 			g.Line(
 				g.Child("ProjectPropertiesLayout").Size(300, 250).Layout(g.Layout{
 					g.Label("Project Name:"),

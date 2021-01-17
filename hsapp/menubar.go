@@ -2,13 +2,12 @@ package hsapp
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
-	g "github.com/AllenDang/giu"
+	g "github.com/ianling/giu"
 )
 
 func (a *App) renderMainMenuBar() {
@@ -17,10 +16,10 @@ func (a *App) renderMainMenuBar() {
 	menuLayout := g.Layout{
 		g.Menu("File##MainMenuFile").Layout(g.Layout{
 			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
-				g.MenuItem("Project...##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
+				g.MenuItem("Project...\t\tCtrl+Shift+N##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
 			}),
 			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
-				g.MenuItem("Project...##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
+				g.MenuItem("Project...\t\tCtrl+O##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
 			}),
 			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
 				g.Custom(func() {
@@ -37,9 +36,9 @@ func (a *App) renderMainMenuBar() {
 				}),
 			}),
 			g.Separator(),
-			g.MenuItem("Preferences...##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
+			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
-			g.MenuItem("Exit##MainMenuFileExit").OnClick(func() { os.Exit(0) }),
+			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(a.quit),
 		}),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
@@ -50,7 +49,7 @@ func (a *App) renderMainMenuBar() {
 			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(projectOpened).OnClick(a.onProjectExportMPQClicked),
 		}),
 		g.Menu("Help").Layout(g.Layout{
-			g.MenuItem("About HellSpawner...##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
+			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
 		}),
 	}
 
@@ -67,8 +66,8 @@ func (a *App) buildViewMenu() g.Layout {
 	result := make([]g.Widget, 0)
 
 	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
-		g.MenuItem("Project Explorer").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
-		g.MenuItem("MPQ Explorer").Selected(a.mpqExplorer.Visible).Enabled(a.project != nil).OnClick(a.toggleMPQExplorer),
+		g.MenuItem("Project Explorer\tCtrl+Shift+P").Selected(a.projectExplorer.Visible).Enabled(true).OnClick(a.toggleProjectExplorer),
+		g.MenuItem("MPQ Explorer\t\tCtrl+Shift+M").Selected(a.mpqExplorer.Visible).Enabled(a.project != nil).OnClick(a.toggleMPQExplorer),
 	}))
 
 	if len(a.editors) == 0 {

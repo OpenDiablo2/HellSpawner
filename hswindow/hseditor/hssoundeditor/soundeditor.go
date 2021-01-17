@@ -14,12 +14,11 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
 )
 
 type SoundEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 
 	streamer beep.StreamSeekCloser
 	control  *beep.Ctrl
@@ -40,6 +39,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &SoundEditor{
+		Editor:   hseditor.New(pathEntry),
 		file:     filepath.Base(pathEntry.FullPath),
 		streamer: streamer,
 		control:  control,
@@ -53,20 +53,11 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	return result, nil
 }
 
-func (s *SoundEditor) Render() {
-	if !s.Visible {
-		return
-	}
-
-	if s.ToFront {
-		s.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
+func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / 22050
 	secondsTotal := s.streamer.Len() / 22050
 
-	g.Window(s.GetWindowTitle()).IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Pos(50, 50).Size(300, 100).Layout(g.Layout{
+	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Pos(50, 50).Size(300, 100).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
 			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
 		g.Separator(),
@@ -74,9 +65,6 @@ func (s *SoundEditor) Render() {
 			g.Button("Play").OnClick(s.play),
 			g.Button("Stop").OnClick(s.stop),
 		),
-		g.Custom(func() {
-			s.Focused = imgui.IsWindowFocused(0)
-		}),
 	})
 }
 

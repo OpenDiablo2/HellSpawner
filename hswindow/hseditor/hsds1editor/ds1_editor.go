@@ -1,8 +1,7 @@
 package hsds1editor
 
 import (
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
@@ -20,7 +19,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &DS1Editor{
-		ds1: ds1,
+		Editor: hseditor.New(pathEntry),
+		ds1:    ds1,
 	}
 
 	result.Path = pathEntry
@@ -29,29 +29,16 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 }
 
 type DS1Editor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	ds1 *d2ds1.DS1
 }
 
-func (e *DS1Editor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	g.Window(e.GetWindowTitle()).
-		IsOpen(&e.Visible).
+func (e *DS1Editor) Build() {
+	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Pos(360, 30).
 		Layout(g.Layout{
 			hswidget.DS1Viewer(e.Path.GetUniqueId(), e.ds1),
-			g.Custom(func() {
-				e.Focused = imgui.IsWindowFocused(0)
-			}),
 		})
 }
 

@@ -1,13 +1,11 @@
 package hsdcceditor
 
 import (
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -19,34 +17,21 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &DCCEditor{
-		dcc: dcc,
+		Editor: hseditor.New(pathEntry),
+		dcc:    dcc,
 	}
-
-	result.Path = pathEntry
 
 	return result, nil
 }
 
 type DCCEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	dcc *d2dcc.DCC
 }
 
-func (e *DCCEditor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
+func (e *DCCEditor) Build() {
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.DCCViewer(e.Path.GetUniqueId(), e.dcc),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
 	})
 }
 

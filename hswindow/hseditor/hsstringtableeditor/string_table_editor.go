@@ -5,15 +5,14 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 //nolint:structcheck,unused // will be used
 type StringTableEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	header g.RowWidget
 	rows   g.Rows
 	dict   d2tbl.TextDictionary
@@ -26,7 +25,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &StringTableEditor{
-		dict: dict,
+		Editor: hseditor.New(pathEntry),
+		dict:   dict,
 	}
 
 	result.Path = pathEntry
@@ -61,27 +61,14 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	return result, nil
 }
 
-func (e *StringTableEditor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
+func (e *StringTableEditor) Build() {
 	l := g.Layout{
 		g.Child("").Border(false).Layout(g.Layout{
 			g.FastTable("").Border(true).Rows(e.rows),
 		}),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
 	}
 
-	g.Window(e.GetWindowTitle()).
-		IsOpen(&e.Visible).
+	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
 		Pos(50, 50).
 		Size(400, 300).

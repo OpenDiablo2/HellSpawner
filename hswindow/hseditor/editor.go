@@ -6,38 +6,25 @@ import (
 )
 
 type Editor struct {
-	hswindow.Window
-	Path    *hscommon.PathEntry
-	focuser hscommon.EditorFocuser
-
-	ToFront bool
-	Focused bool
+	*hswindow.Window
+	Path *hscommon.PathEntry
 }
 
-func (e *Editor) Control(focuser hscommon.EditorFocuser) {
-	e.focuser = focuser
+func New(path *hscommon.PathEntry) *Editor {
+	return &Editor{
+		Window: hswindow.New(generateWindowTitle(path)),
+		Path:   path,
+	}
 }
 
-func (e *Editor) IsVisible() bool {
-	return e.Visible
-}
-
-func (e *Editor) IsFocused() bool {
-	return e.Focused
+func (e *Editor) GetWindowTitle() string {
+	return generateWindowTitle(e.Path)
 }
 
 func (e *Editor) GetId() string {
 	return e.Path.GetUniqueId()
 }
 
-func (e *Editor) GetWindowTitle() string {
-	return e.Path.Name + "##" + e.GetId()
-}
-
-func (e *Editor) BringToFront() {
-	e.ToFront = true
-}
-
-func (e *Editor) Cleanup() {
-	e.Visible = false
+func generateWindowTitle(path *hscommon.PathEntry) string {
+	return path.Name + "##" + path.GetUniqueId()
 }

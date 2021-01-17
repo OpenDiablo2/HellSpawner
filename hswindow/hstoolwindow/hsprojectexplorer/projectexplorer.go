@@ -10,9 +10,9 @@ import (
 
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/AllenDang/giu/imgui"
+	"github.com/ianling/imgui-go"
 
-	g "github.com/AllenDang/giu"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
@@ -26,7 +26,7 @@ const (
 type ProjectExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
 type ProjectExplorer struct {
-	hstoolwindow.ToolWindow
+	*hstoolwindow.ToolWindow
 
 	fileSelectedCallback ProjectExplorerFileSelectedCallback
 	nodeCache            map[string][]g.Widget
@@ -35,6 +35,7 @@ type ProjectExplorer struct {
 
 func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
+		ToolWindow:           hstoolwindow.New("Project Explorer"),
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
 	}
@@ -47,12 +48,8 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectE
 	return result, nil
 }
 
-func (m *ProjectExplorer) Render(project *hsproject.Project) {
-	if !m.Visible {
-		return
-	}
-
-	g.Window("Project Explorer").IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
+func (m *ProjectExplorer) Build(project *hsproject.Project) {
+	m.IsOpen(&m.Visible).Pos(10, 30).Size(300, 400).Layout(g.Layout{
 		g.Line(
 			g.Custom(func() {
 				imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})

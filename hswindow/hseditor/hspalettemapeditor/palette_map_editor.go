@@ -1,9 +1,8 @@
 package hspalettemapeditor
 
 import (
-	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
@@ -18,7 +17,8 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 	}
 
 	result := &PaletteMapEditor{
-		pl2: pl2,
+		Editor: hseditor.New(pathEntry),
+		pl2:    pl2,
 	}
 
 	result.Path = pathEntry
@@ -27,25 +27,13 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 }
 
 type PaletteMapEditor struct {
-	hseditor.Editor
+	*hseditor.Editor
 	pl2 *d2pl2.PL2
 }
 
-func (e *PaletteMapEditor) Render() {
-	if !e.Visible {
-		return
-	}
-
-	if e.ToFront {
-		e.ToFront = false
-		imgui.SetNextWindowFocus()
-	}
-
-	g.Window(e.GetWindowTitle()).IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
+func (e *PaletteMapEditor) Build() {
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.PaletteMapViewer(e.Path.GetUniqueId(), e.pl2),
-		g.Custom(func() {
-			e.Focused = imgui.IsWindowFocused(0)
-		}),
 	})
 }
 
