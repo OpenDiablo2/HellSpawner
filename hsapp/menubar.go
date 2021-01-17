@@ -12,6 +12,13 @@ import (
 
 func (a *App) renderMainMenuBar() {
 	projectOpened := a.project != nil
+	enginePathSet := len(a.config.AbyssEnginePath) > 0
+	var runAbyssEngineLabel string
+	if a.abyssWrapper.IsRunning() {
+		runAbyssEngineLabel = "Stop Abyss Engine"
+	} else {
+		runAbyssEngineLabel = "Run in Abyss Engine"
+	}
 
 	menuLayout := g.Layout{
 		g.Menu("File##MainMenuFile").Layout(g.Layout{
@@ -42,11 +49,17 @@ func (a *App) renderMainMenuBar() {
 		}),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
-			g.MenuItem("Run in OpenDiablo2##MainMenuProjectRun").Enabled(projectOpened).OnClick(a.onProjectRunClicked),
+			g.MenuItem(runAbyssEngineLabel + "##MainMenuProjectRun").
+				Enabled(projectOpened && enginePathSet).
+				OnClick(a.onProjectRunClicked),
 			g.Separator(),
-			g.MenuItem("Properties...##MainMenuProjectProperties").Enabled(projectOpened).OnClick(a.onProjectPropertiesClicked),
+			g.MenuItem("Properties...##MainMenuProjectProperties").
+				Enabled(projectOpened).
+				OnClick(a.onProjectPropertiesClicked),
 			g.Separator(),
-			g.MenuItem("Export MPQ...##MainMenuProjectExport").Enabled(projectOpened).OnClick(a.onProjectExportMPQClicked),
+			g.MenuItem("Export MPQ...##MainMenuProjectExport").
+				Enabled(projectOpened).
+				OnClick(a.onProjectExportMPQClicked),
 		}),
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
@@ -117,7 +130,15 @@ func (a *App) onHelpAboutClicked() {
 }
 
 func (a *App) onProjectRunClicked() {
+	if a.abyssWrapper.IsRunning() {
+		if err := a.abyssWrapper.Kill(); err != nil {
+			dialog.Message(err.Error()).Error()
+		}
+	}
 
+	if err := a.abyssWrapper.Launch(a.config); err != nil {
+		dialog.Message(err.Error()).Error()
+	}
 }
 
 func (a *App) onProjectExportMPQClicked() {

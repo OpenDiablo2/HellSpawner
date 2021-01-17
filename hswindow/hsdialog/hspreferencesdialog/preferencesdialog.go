@@ -33,17 +33,25 @@ func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 
 func (p *PreferencesDialog) Build() {
 	p.IsOpen(&p.Visible).Layout(g.Layout{
-		g.Child("PreferencesLayout").Size(300, 150).Layout(g.Layout{
+		g.Child("PreferencesLayout").Size(300, 200).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(-1).Flags(g.InputTextFlagsReadOnly),
 			),
+			g.Separator(),
 			g.Label("External MPQ listfile Path"),
 			g.Line(
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(30, 0).OnClick(p.onBrowseExternalListfileClicked),
-				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListfile).Size(-1).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(-1).Flags(g.InputTextFlagsReadOnly),
 			),
+			g.Separator(),
+			g.Label("Abyss Engine Path"),
+			g.Line(
+				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(30, 0).OnClick(p.onBrowseAbyssEngineClicked),
+				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(-1).Flags(g.InputTextFlagsReadOnly),
+			),
+			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 		}),
 		g.Line(
@@ -69,7 +77,7 @@ func (p *PreferencesDialog) onBrowseExternalListfileClicked() {
 	if err != nil || len(filePath) == 0 {
 		return
 	}
-	p.config.ExternalListfile = filePath
+	p.config.ExternalListFile = filePath
 }
 
 func (p *PreferencesDialog) onSaveClicked() {
@@ -79,4 +87,14 @@ func (p *PreferencesDialog) onSaveClicked() {
 
 func (p *PreferencesDialog) onCancelClicked() {
 	p.Visible = false
+}
+
+func (p *PreferencesDialog) onBrowseAbyssEngineClicked() {
+	path := dialog.File()
+	filePath, err := path.Load()
+
+	if err != nil || len(filePath) == 0 {
+		return
+	}
+	p.config.AbyssEnginePath = filePath
 }
