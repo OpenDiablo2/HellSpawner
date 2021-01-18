@@ -1,11 +1,9 @@
 package hsconsole
 
 import (
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
 type Console struct {
@@ -20,10 +18,10 @@ func (c *Console) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func Create(fontFixed imgui.Font, x, y float32) *Console {
+func Create(fontFixed imgui.Font) *Console {
 	result := &Console{
 		fontFixed:  fontFixed,
-		ToolWindow: hstoolwindow.New("Console", hsstate.ToolWindowTypeConsole, x, y),
+		ToolWindow: hstoolwindow.New("Console"),
 	}
 
 	return result
@@ -31,6 +29,7 @@ func Create(fontFixed imgui.Font, x, y float32) *Console {
 
 func (c *Console) Build() {
 	c.IsOpen(&c.Visible).
+		Pos(10, 500).
 		Size(600, 200).
 		Layout(g.Layout{
 			g.Custom(func() {

@@ -12,14 +12,14 @@ import (
 
 var _ hscommon.EditorWindow = &DS1Editor{}
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DS1Editor{
-		Editor: hseditor.New(pathEntry, x, y),
+		Editor: hseditor.New(pathEntry),
 		ds1:    ds1,
 	}
 
@@ -36,6 +36,7 @@ type DS1Editor struct {
 func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
+		Pos(360, 30).
 		Layout(g.Layout{
 			hswidget.DS1Viewer(e.Path.GetUniqueId(), e.ds1),
 		})
