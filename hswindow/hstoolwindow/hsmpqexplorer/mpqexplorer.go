@@ -41,32 +41,36 @@ func (m *MPQExplorer) SetProject(project *hsproject.Project) {
 }
 
 func (m *MPQExplorer) Build() {
+	if m.project == nil {
+		return
+	}
+
 	m.IsOpen(&m.Visible).
 		Size(300, 400).
 		Layout(g.Layout{
 			g.Child("MpqExplorerContent").
 				Border(false).
 				Flags(g.WindowFlagsHorizontalScrollbar).
-				Layout(m.getMpqTreeNodes(m.project, m.config)),
+				Layout(m.getMpqTreeNodes()),
 		})
 }
 
-func (m *MPQExplorer) getMpqTreeNodes(project *hsproject.Project, config *hsconfig.Config) []g.Widget {
+func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	if m.nodeCache != nil {
 		return m.nodeCache
 	}
 
 	wg := sync.WaitGroup{}
-	result := make([]g.Widget, len(project.AuxiliaryMPQs))
-	wg.Add(len(project.AuxiliaryMPQs))
+	result := make([]g.Widget, len(m.project.AuxiliaryMPQs))
+	wg.Add(len(m.project.AuxiliaryMPQs))
 
-	for mpqIndex := range project.AuxiliaryMPQs {
+	for mpqIndex := range m.project.AuxiliaryMPQs {
 		go func(idx int) {
-			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, project.AuxiliaryMPQs[idx]))
+			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx]))
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("failed to load mpq: ", err)
 			}
-			nodes := project.GetMPQFileNodes(mpq, config)
+			nodes := m.project.GetMPQFileNodes(mpq, m.config)
 			result[idx] = m.renderNodes(nodes)
 
 			wg.Done()

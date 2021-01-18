@@ -11,7 +11,7 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/go-resty/resty/v2 v2.4.0 // indirect
 	github.com/hajimehoshi/oto v0.7.1 // indirect
-	github.com/ianling/giu v0.5.1-0.20210118001039-3474e38a32ea
+	github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7
 	github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	golang.org/x/exp v0.0.0-20201229011636-eab1b5eb1a03 // indirect
