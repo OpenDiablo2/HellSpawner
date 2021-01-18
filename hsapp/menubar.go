@@ -28,6 +28,7 @@ func (a *App) renderMainMenuBar() {
 			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
 				g.MenuItem("Project...\t\tCtrl+O##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
 			}),
+			g.MenuItem("Save\t\t\t\t\t\tCtrl+S##MainMenuFileSaveProject").OnClick(a.Save),
 			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
 				g.Custom(func() {
 					if len(a.config.RecentProjects) == 0 {

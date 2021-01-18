@@ -96,7 +96,6 @@ func (e *FontTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Pos(50, 50).
 		Size(400, 300).
 		Layout(tableLayout)
 }

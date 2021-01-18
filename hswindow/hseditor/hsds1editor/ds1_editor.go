@@ -36,7 +36,6 @@ type DS1Editor struct {
 func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
-		Pos(360, 30).
 		Layout(g.Layout{
 			hswidget.DS1Viewer(e.Path.GetUniqueId(), e.ds1),
 		})

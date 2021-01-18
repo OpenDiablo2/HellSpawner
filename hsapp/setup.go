@@ -75,6 +75,7 @@ func (a *App) setup() error {
 func (a *App) registerGlobalKeyboardShortcuts() {
 	hsinput.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
 	hsinput.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
+	hsinput.RegisterShortcut(a.Save, g.KeyS, g.ModControl, true)
 	hsinput.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
 	hsinput.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
 	hsinput.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)

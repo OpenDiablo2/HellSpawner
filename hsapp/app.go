@@ -142,7 +142,7 @@ func (a *App) render() {
 	}
 
 	if a.projectExplorer.IsVisible() {
-		a.projectExplorer.Build(a.project)
+		a.projectExplorer.Build()
 		a.projectExplorer.Render()
 	}
 	if a.mpqExplorer.IsVisible() {
@@ -243,22 +243,26 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 		return
 	}
 
+	a.editorManagerMutex.Lock()
 	a.editors = append(a.editors, editor)
+	a.editorManagerMutex.Unlock()
 	editor.Show()
 	editor.BringToFront()
 }
 
 func (a *App) openEditor(path *hscommon.PathEntry) {
-	a.editorManagerMutex.Lock()
-	defer a.editorManagerMutex.Unlock()
+	a.editorManagerMutex.RLock()
 
 	uniqueId := path.GetUniqueId()
 	for idx := range a.editors {
 		if a.editors[idx].GetId() == uniqueId {
 			a.editors[idx].BringToFront()
+			a.editorManagerMutex.RUnlock()
 			return
 		}
 	}
+
+	a.editorManagerMutex.RUnlock()
 
 	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY)
 }
@@ -281,8 +285,17 @@ func (a *App) loadProjectFromFile(file string) {
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
+	a.projectExplorer.SetProject(a.project)
 	a.mpqExplorer.SetProject(a.project)
-	a.projectExplorer.Show()
+
+	a.CloseAllOpenWindows()
+
+	if state, ok := a.config.ProjectStates[a.project.GetProjectFilePath()]; ok {
+		a.RestoreAppState(state)
+	} else {
+		// if we don't have a state saved for this project, just open the project explorer
+		a.projectExplorer.Show()
+	}
 }
 
 func (a *App) updateWindowTitle() {
@@ -345,8 +358,23 @@ func (a *App) toggleConsole() {
 	a.console.ToggleVisibility()
 }
 
-func (a *App) SaveState() error {
-	return nil
+func (a *App) CloseAllOpenWindows() {
+	a.closePopups()
+	a.projectExplorer.Cleanup()
+	a.mpqExplorer.Cleanup()
+	for _, editor := range a.editors {
+		editor.Cleanup()
+	}
+}
+
+func (a *App) Save() {
+	a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
+
+	err := a.config.Save()
+	if err != nil {
+		log.Print("failed to save config: ", err)
+		return
+	}
 }
 
 func (a *App) Quit() {
@@ -354,9 +382,9 @@ func (a *App) Quit() {
 		_ = a.abyssWrapper.Kill()
 	}
 
-	if err := a.SaveState(); err != nil {
-		log.Print("failed to save state before exiting: ", err)
-	}
+	a.Save()
+
+	a.CloseAllOpenWindows()
 
 	p, _ := os.FindProcess(os.Getpid())
 	_ = p.Kill()

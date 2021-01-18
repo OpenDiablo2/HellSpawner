@@ -20,7 +20,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon
 }
 
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{})
+	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{})
 }
 
 func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {

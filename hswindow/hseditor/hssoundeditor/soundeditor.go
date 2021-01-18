@@ -57,7 +57,7 @@ func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / 22050
 	secondsTotal := s.streamer.Len() / 22050
 
-	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Pos(50, 50).Size(300, 100).Layout(g.Layout{
+	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(300, 100).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
 			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
 		g.Separator(),
