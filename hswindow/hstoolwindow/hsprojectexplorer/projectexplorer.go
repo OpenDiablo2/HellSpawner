@@ -7,6 +7,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	"github.com/OpenDiablo2/dialog"
@@ -29,14 +31,15 @@ type ProjectExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 type ProjectExplorer struct {
 	*hstoolwindow.ToolWindow
 
+	project              *hsproject.Project
 	fileSelectedCallback ProjectExplorerFileSelectedCallback
 	nodeCache            map[string][]g.Widget
 	refreshIconTexture   *g.Texture
 }
 
-func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectExplorer, error) {
+func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
-		ToolWindow:           hstoolwindow.New("Project Explorer"),
+		ToolWindow:           hstoolwindow.New("Project Explorer", hsstate.ToolWindowTypeProjectExplorer, x, y),
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
 	}
@@ -49,17 +52,24 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback) (*ProjectE
 	return result, nil
 }
 
-func (m *ProjectExplorer) Build(project *hsproject.Project) {
+func (m *ProjectExplorer) SetProject(project *hsproject.Project) {
+	m.project = project
+}
+
+func (m *ProjectExplorer) Build() {
+	if m.project == nil {
+		return
+	}
+
 	header := g.Line(
-		m.makeRefreshButtonLayout(project),
+		m.makeRefreshButtonLayout(),
 	)
 
 	tree := g.Child("ProjectExplorerProjectTreeContainer").
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Layout(m.getProjectTreeNodes(project))
+		Layout(m.getProjectTreeNodes())
 
 	m.IsOpen(&m.Visible).
-		Pos(10, 30).
 		Size(300, 400).
 		Layout(g.Layout{
 			header,
@@ -68,16 +78,16 @@ func (m *ProjectExplorer) Build(project *hsproject.Project) {
 		})
 }
 
-func (m *ProjectExplorer) makeRefreshButtonLayout(project *hsproject.Project) g.Layout {
+func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	button := g.ImageButton(m.refreshIconTexture).
 		Size(16, 16).
 		OnClick(func() {
-			m.onRefreshProjectExplorerClicked(project)
+			m.onRefreshProjectExplorerClicked()
 		})
 
 	const tooltipText = "Refresh the view from the filesystem."
 
-	if project == nil {
+	if m.project == nil {
 		button.TintColor(color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x20})
 	}
 
@@ -101,42 +111,41 @@ func (m *ProjectExplorer) makeRefreshButtonLayout(project *hsproject.Project) g.
 	}
 }
 
-func (m *ProjectExplorer) getProjectTreeNodes(project *hsproject.Project) g.Layout {
-
-	if project == nil {
+func (m *ProjectExplorer) getProjectTreeNodes() g.Layout {
+	if m.project == nil {
 		return []g.Widget{g.Label("No project loaded...")}
 	}
 
-	fileStructure := project.GetFileStructure()
+	fileStructure := m.project.GetFileStructure()
 
 	if fileStructure == nil {
 		return []g.Widget{g.Label("No file structure detected...")}
 	}
 
-	return []g.Widget{m.renderNodes(project.GetFileStructure(), project)}
+	return []g.Widget{m.renderNodes(m.project.GetFileStructure())}
 }
 
-func (m *ProjectExplorer) onRefreshProjectExplorerClicked(project *hsproject.Project) {
-	if project == nil {
+func (m *ProjectExplorer) onRefreshProjectExplorerClicked() {
+	if m.project == nil {
 		return
 	}
 
-	project.InvalidateFileStructure()
+	m.project.InvalidateFileStructure()
 }
 
-func (m *ProjectExplorer) onNewFontClicked(pathEntry *hscommon.PathEntry, project *hsproject.Project) {
-	project.CreateNewFile(hsfiletypes.FileTypeFont, pathEntry)
+func (m *ProjectExplorer) onNewFontClicked(pathEntry *hscommon.PathEntry) {
+	m.project.CreateNewFile(hsfiletypes.FileTypeFont, pathEntry)
 }
 
-func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry, project *hsproject.Project) g.Widget {
+func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 
 	if !pathEntry.IsDirectory {
-		return m.createFileTreeItem(pathEntry, project)
+		return m.createFileTreeItem(pathEntry)
 	}
 
 	// File items and empty dirs
 	if len(pathEntry.Children) == 0 {
-		return m.createDirectoryTreeItem(pathEntry, nil, project)
+		return m.createDirectoryTreeItem(pathEntry, nil)
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))
@@ -144,13 +153,13 @@ func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry, project *hs
 	sortPaths(pathEntry)
 
 	for idx := range pathEntry.Children {
-		widgets[idx] = m.renderNodes(pathEntry.Children[idx], project)
+		widgets[idx] = m.renderNodes(pathEntry.Children[idx])
 	}
 
-	return m.createDirectoryTreeItem(pathEntry, widgets, project)
+	return m.createDirectoryTreeItem(pathEntry, widgets)
 }
 
-func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry, project *hsproject.Project) g.Widget {
+func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Widget {
 	id := "##ProjectExplorerNode_" + pathEntry.FullPath
 	var layout g.Layout = make([]g.Widget, 0)
 
@@ -161,7 +170,7 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry, proj
 				if imgui.InputTextV("##RenameField_"+pathEntry.FullPath, &pathEntry.Name,
 					int(g.InputTextFlagsAutoSelectAll|g.InputTextFlagsEnterReturnsTrue), nil) {
 					pathEntry.IsRenaming = false
-					m.onFileRenamed(pathEntry, project)
+					m.onFileRenamed(pathEntry)
 				}
 			}),
 		}
@@ -174,14 +183,14 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry, proj
 	layout = append(layout,
 		g.ContextMenu("Context"+id).Layout(g.Layout{
 			g.MenuItem("Rename").OnClick(func() { m.onRenameFileClicked(pathEntry) }),
-			g.MenuItem("Delete...").OnClick(func() { m.onDeleteFileClicked(pathEntry, project) }),
+			g.MenuItem("Delete...").OnClick(func() { m.onDeleteFileClicked(pathEntry) }),
 		}),
 	)
 
 	return layout
 }
 
-func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout, project *hsproject.Project) g.Widget {
+func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout) g.Widget {
 	var id = pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath
 
 	if pathEntry.IsRenaming {
@@ -191,7 +200,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 				if imgui.InputTextV("##RenameField_"+pathEntry.FullPath, &pathEntry.Name,
 					int(g.InputTextFlagsAutoSelectAll|g.InputTextFlagsEnterReturnsTrue), nil) {
 					pathEntry.IsRenaming = false
-					m.onFileRenamed(pathEntry, project)
+					m.onFileRenamed(pathEntry)
 				}
 			}),
 		}
@@ -199,8 +208,8 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 
 	contextMenuLayout := g.Layout{
 		g.Menu("New").Layout(g.Layout{
-			g.MenuItem("Folder").OnClick(func() { m.onNewFolderClicked(pathEntry, project) }),
-			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry, project) }),
+			g.MenuItem("Folder").OnClick(func() { m.onNewFolderClicked(pathEntry) }),
+			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry) }),
 		}),
 	}
 
@@ -208,7 +217,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 		contextMenuLayout = append(contextMenuLayout,
 			g.Separator(),
 			g.MenuItem("Rename").OnClick(func() { m.onRenameFileClicked(pathEntry) }),
-			g.MenuItem("Delete Folder...").OnClick(func() { m.onDeleteFolderClicked(pathEntry, project) }),
+			g.MenuItem("Delete Folder...").OnClick(func() { m.onDeleteFolderClicked(pathEntry) }),
 		)
 	}
 
@@ -225,7 +234,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 	return g.TreeNode(id).Layout(append(menuLayout, layout...))
 }
 
-func (m *ProjectExplorer) onDeleteFolderClicked(entry *hscommon.PathEntry, project *hsproject.Project) {
+func (m *ProjectExplorer) onDeleteFolderClicked(entry *hscommon.PathEntry) {
 	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
 		return
 	}
@@ -235,10 +244,10 @@ func (m *ProjectExplorer) onDeleteFolderClicked(entry *hscommon.PathEntry, proje
 		return
 	}
 
-	project.InvalidateFileStructure()
+	m.project.InvalidateFileStructure()
 }
 
-func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry, project *hsproject.Project) {
+func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry) {
 	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
 		return
 	}
@@ -247,7 +256,7 @@ func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry, project
 		return
 	}
 
-	project.InvalidateFileStructure()
+	m.project.InvalidateFileStructure()
 }
 
 func (m *ProjectExplorer) onRenameFileClicked(entry *hscommon.PathEntry) {
@@ -255,7 +264,7 @@ func (m *ProjectExplorer) onRenameFileClicked(entry *hscommon.PathEntry) {
 	entry.IsRenaming = true
 }
 
-func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry, project *hsproject.Project) {
+func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 	if entry.Name == entry.OldName {
 		entry.OldName = ""
 		return
@@ -297,11 +306,11 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry, project *hspr
 		return
 	}
 
-	project.InvalidateFileStructure()
+	m.project.InvalidateFileStructure()
 }
 
-func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry, project *hsproject.Project) {
-	project.CreateNewFolder(pathEntry)
+func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry) {
+	m.project.CreateNewFolder(pathEntry)
 }
 
 func sortPaths(rootPath *hscommon.PathEntry) {

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	g "github.com/ianling/giu"
 
@@ -24,9 +26,9 @@ type MPQExplorer struct {
 	nodeCache            []g.Widget
 }
 
-func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config) (*MPQExplorer, error) {
+func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config, x, y float32) (*MPQExplorer, error) {
 	result := &MPQExplorer{
-		ToolWindow:           hstoolwindow.New("MPQ Explorer"),
+		ToolWindow:           hstoolwindow.New("MPQ Explorer", hsstate.ToolWindowTypeMPQExplorer, x, y),
 		fileSelectedCallback: fileSelectedCallback,
 		config:               config,
 	}
@@ -40,7 +42,6 @@ func (m *MPQExplorer) SetProject(project *hsproject.Project) {
 
 func (m *MPQExplorer) Build() {
 	m.IsOpen(&m.Visible).
-		Pos(10, 30).
 		Size(300, 400).
 		Layout(g.Layout{
 			g.Child("MpqExplorerContent").
