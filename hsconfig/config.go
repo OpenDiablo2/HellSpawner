@@ -8,8 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
-
 	"github.com/kirsle/configdir"
 )
 
@@ -19,7 +17,6 @@ type Config struct {
 	AuxiliaryMpqPath        string
 	ExternalListFile        string
 	OpenMostRecentOnStartup bool
-	ProjectStates           map[string]hsstate.AppState
 }
 
 func getConfigPath() string {
@@ -34,7 +31,6 @@ func generateDefaultConfig() *Config {
 	result := &Config{
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
-		ProjectStates:           make(map[string]hsstate.AppState),
 	}
 
 	err := result.Save()
@@ -58,7 +54,7 @@ func Load() *Config {
 		return generateDefaultConfig()
 	}
 
-	result := generateDefaultConfig()
+	var result *Config
 	if err = json.Unmarshal(data, &result); err != nil {
 		return generateDefaultConfig()
 	}

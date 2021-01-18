@@ -16,14 +16,14 @@ type PaletteEditor struct {
 	palette d2interface.Palette
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &PaletteEditor{
-		Editor:  hseditor.New(pathEntry, x, y),
+		Editor:  hseditor.New(pathEntry),
 		palette: palette,
 	}
 
@@ -31,7 +31,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon
 }
 
 func (e *PaletteEditor) Build() {
-	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Pos(360, 30).Layout(g.Layout{
 		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
 	})
 }

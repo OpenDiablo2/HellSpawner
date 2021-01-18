@@ -28,7 +28,6 @@ func (a *App) renderMainMenuBar() {
 			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
 				g.MenuItem("Project...\t\tCtrl+O##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
 			}),
-			g.MenuItem("Save\t\t\t\t\t\tCtrl+S##MainMenuFileSaveProject").OnClick(a.Save),
 			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
 				g.Custom(func() {
 					if len(a.config.RecentProjects) == 0 {
@@ -46,7 +45,7 @@ func (a *App) renderMainMenuBar() {
 			g.Separator(),
 			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
-			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(a.Quit),
+			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(a.quit),
 		}),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
