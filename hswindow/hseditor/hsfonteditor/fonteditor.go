@@ -11,16 +11,16 @@ type FontEditor struct {
 	*hseditor.Editor
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	result := &FontEditor{
-		Editor: hseditor.New(pathEntry),
+		Editor: hseditor.New(pathEntry, x, y),
 	}
 
 	return result, nil
 }
 
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{})
+	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{})
 }
 
 func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {

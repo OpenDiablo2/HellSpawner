@@ -10,14 +10,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DT1Editor{
-		Editor:    hseditor.New(pathEntry),
+		Editor:    hseditor.New(pathEntry, x, y),
 		dt1:       dt1,
 		dt1Viewer: hswidget.DT1Viewer(pathEntry.GetUniqueId(), dt1),
 	}
@@ -35,7 +35,6 @@ type DT1Editor struct {
 func (e *DT1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
-		Pos(360, 30).
 		Layout(g.Layout{
 			hswidget.DT1Viewer(e.Path.GetUniqueId(), e.dt1),
 		})

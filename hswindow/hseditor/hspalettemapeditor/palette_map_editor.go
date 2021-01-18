@@ -10,14 +10,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	pl2, err := d2pl2.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &PaletteMapEditor{
-		Editor: hseditor.New(pathEntry),
+		Editor: hseditor.New(pathEntry, x, y),
 		pl2:    pl2,
 	}
 

@@ -19,9 +19,9 @@ type TextEditor struct {
 	columns   int
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
-		Editor: hseditor.New(pathEntry),
+		Editor: hseditor.New(pathEntry, x, y),
 		text:   string(*data),
 	}
 
@@ -59,11 +59,11 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow,
 
 func (e *TextEditor) Build() {
 	if !e.tableView {
-		e.IsOpen(&e.Visible).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
 			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
 		})
 	} else {
-		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Pos(50, 50).Size(400, 300).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(400, 300).Layout(g.Layout{
 			g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
 				g.FastTable("").Border(true).Rows(e.tableRows),
 			}),

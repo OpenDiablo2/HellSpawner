@@ -11,14 +11,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DC6Editor{
-		Editor: hseditor.New(pathEntry),
+		Editor: hseditor.New(pathEntry, x, y),
 		dc6:    dc6,
 	}
 
