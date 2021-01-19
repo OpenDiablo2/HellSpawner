@@ -1,9 +1,7 @@
 package hsapp
 
 import (
-	"errors"
 	"image/color"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,8 +15,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
@@ -196,29 +192,8 @@ func (a *App) setupFonts() {
 	}
 }
 
-func (a *App) GetFileBytes(pathEntry *hscommon.PathEntry) ([]byte, error) {
-	if pathEntry.Source == hscommon.PathEntrySourceProject {
-		if _, err := os.Stat(pathEntry.FullPath); os.IsNotExist(err) {
-			return nil, err
-		}
-
-		return ioutil.ReadFile(pathEntry.FullPath)
-	}
-
-	mpq, err := d2mpq.FromFile(pathEntry.MPQFile)
-	if err != nil {
-		return nil, err
-	}
-
-	if mpq.Contains(pathEntry.FullPath) {
-		return mpq.ReadFile(pathEntry.FullPath)
-	}
-
-	return nil, errors.New("could not locate file in mpq")
-}
-
 func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
-	data, err := a.GetFileBytes(path)
+	data, err := path.GetFileBytes()
 	if err != nil {
 		dialog.Message("Could not load file!").Error()
 		return

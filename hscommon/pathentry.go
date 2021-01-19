@@ -1,6 +1,12 @@
 package hscommon
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
+	"io/ioutil"
+	"os"
+)
 
 // PathEntrySource represents the type of path entry.
 type PathEntrySource int
@@ -50,4 +56,25 @@ type PathEntry struct {
 
 func (p *PathEntry) GetUniqueId() string {
 	return fmt.Sprintf("%d_%s_%s", p.Source, p.MPQFile, p.FullPath)
+}
+
+func (p *PathEntry) GetFileBytes() ([]byte, error) {
+	if p.Source == PathEntrySourceProject {
+		if _, err := os.Stat(p.FullPath); os.IsNotExist(err) {
+			return nil, err
+		}
+
+		return ioutil.ReadFile(p.FullPath)
+	}
+
+	mpq, err := d2mpq.FromFile(p.MPQFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if mpq.Contains(p.FullPath) {
+		return mpq.ReadFile(p.FullPath)
+	}
+
+	return nil, errors.New("could not locate file in mpq")
 }
