@@ -106,7 +106,6 @@ func (a *App) Run() {
 
 	wnd.SetInputCallback(hsinput.HandleInput)
 	wnd.Run(a.render)
-
 }
 
 func (a *App) render() {
@@ -320,7 +319,7 @@ func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
 }
 
 func (a *App) onPreferencesChanged(config hsconfig.Config) {
-	a.config = &config
+	*a.config = config
 	if err := a.config.Save(); err != nil {
 		log.Fatal(err)
 	}
@@ -368,7 +367,9 @@ func (a *App) CloseAllOpenWindows() {
 }
 
 func (a *App) Save() {
-	a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
+	if a.project != nil {
+		a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
+	}
 
 	err := a.config.Save()
 	if err != nil {
@@ -386,6 +387,5 @@ func (a *App) Quit() {
 
 	a.CloseAllOpenWindows()
 
-	p, _ := os.FindProcess(os.Getpid())
-	_ = p.Kill()
+	os.Exit(0)
 }
