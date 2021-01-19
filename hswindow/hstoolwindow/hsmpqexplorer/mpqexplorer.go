@@ -3,6 +3,7 @@ package hsmpqexplorer
 import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -27,6 +28,13 @@ type MPQExplorer struct {
 	project              *hsproject.Project
 	fileSelectedCallback MPQExplorerFileSelectedCallback
 	nodeCache            []g.Widget
+
+	filesToOverwrite []fileToOverwrite
+}
+
+type fileToOverwrite struct {
+	Path string
+	Data []byte
 }
 
 func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config, x, y float32) (*MPQExplorer, error) {
@@ -48,14 +56,34 @@ func (m *MPQExplorer) Build() {
 		return
 	}
 
-	m.IsOpen(&m.Visible).
-		Size(300, 400).
-		Layout(g.Layout{
-			g.Child("MpqExplorerContent").
-				Border(false).
-				Flags(g.WindowFlagsHorizontalScrollbar).
-				Layout(m.getMpqTreeNodes()),
-		})
+	needToShowOverwritePrompt := len(m.filesToOverwrite) > 0
+	if needToShowOverwritePrompt {
+		m.IsOpen(&needToShowOverwritePrompt).Layout(g.Layout{
+			g.PopupModal("Overwrite File?").IsOpen(&needToShowOverwritePrompt).Layout(g.Layout{
+				g.Label("File at " + m.filesToOverwrite[0].Path + " already exists. Overwrite?"),
+				g.Line(
+					g.Button("Overwrite").OnClick(func() {
+						success := hsutil.CreateFileAtPath(m.filesToOverwrite[0].Path, m.filesToOverwrite[0].Data)
+						if success {
+							m.project.InvalidateFileStructure()
+						}
+						m.filesToOverwrite = m.filesToOverwrite[1:]
+					}),
+					g.Button("Cancel").OnClick(func() {
+						m.filesToOverwrite = m.filesToOverwrite[1:]
+					}),
+				),
+			})})
+	} else {
+		m.IsOpen(&m.Visible).
+			Size(300, 400).
+			Layout(g.Layout{
+				g.Child("MpqExplorerContent").
+					Border(false).
+					Flags(g.WindowFlagsHorizontalScrollbar).
+					Layout(m.getMpqTreeNodes()),
+			})
+	}
 }
 
 func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
@@ -96,7 +124,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 				}),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
-					go m.copyToProject(pathEntry)
+					m.copyToProject(pathEntry)
 				}),
 			})}
 	}
@@ -133,6 +161,16 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 	}
 	pathToFile = path.Join(m.project.GetProjectFileContentPath(), pathToFile)
 	pathToFile = strings.ReplaceAll(pathToFile, "\\", "/")
+
+	if _, err := os.Stat(pathToFile); err == nil {
+		// file already exists
+		fileInfo := fileToOverwrite{
+			Path: pathToFile,
+			Data: data,
+		}
+		m.filesToOverwrite = append(m.filesToOverwrite, fileInfo)
+		return
+	}
 
 	success := hsutil.CreateFileAtPath(pathToFile, data)
 	if success {
