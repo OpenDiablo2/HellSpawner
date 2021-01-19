@@ -56,7 +56,7 @@ func CreateNew(fileName string) (*Project, error) {
 }
 
 func (p *Project) GetProjectFileContentPath() string {
-	return filepath.Join(filepath.Base(p.filePath), "content")
+	return filepath.Join(filepath.Dir(p.filePath), "content")
 }
 
 func (p *Project) GetProjectFilePath() string {
