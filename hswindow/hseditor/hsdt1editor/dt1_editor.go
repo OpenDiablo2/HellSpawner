@@ -36,7 +36,7 @@ func (e *DT1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.DT1Viewer(e.Path.GetUniqueId(), e.dt1),
+			e.dt1Viewer,
 		})
 }
 
