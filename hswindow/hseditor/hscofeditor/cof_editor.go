@@ -44,7 +44,7 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 		g.MenuItem("Export to file...").OnClick(func() {}),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
-			e.Visible = false
+			e.Cleanup()
 		}),
 	})
 
