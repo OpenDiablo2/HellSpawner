@@ -86,7 +86,12 @@ func (p *ProjectPropertiesDialog) Build() {
 		}),
 		g.Line(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
-				p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
+				// checks if aux MPQs list isn't empty
+				if len(p.auxMPQs) > 0 {
+					p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
+					p.onProjectPropertiesChanged(p.project)
+				}
+
 				p.mpqSelectDialogVisible = false
 			}),
 			g.Button("Cancel##ProjectPropertiesSelectAuxMPQDialogCancel").OnClick(func() {
