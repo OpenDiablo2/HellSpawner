@@ -80,8 +80,9 @@ func (p *ProjectPropertiesDialog) Build() {
 			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
-				p.mpqSelectDialogVisible = false
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
+				p.onProjectPropertiesChanged(p.project)
+				p.mpqSelectDialogVisible = false
 			}),
 		}),
 		g.Line(
