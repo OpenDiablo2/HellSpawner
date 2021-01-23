@@ -81,7 +81,7 @@ func (a *App) registerGlobalKeyboardShortcuts() {
 	hsinput.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
 
 	hsinput.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)
-	hsinput.RegisterShortcut(a.closePopups, g.KeyEscape, g.ModNone, true)
+	hsinput.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, g.ModNone, true)
 
 	hsinput.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, g.ModControl+g.ModShift, true)
 	hsinput.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, g.ModControl+g.ModShift, true)
