@@ -39,7 +39,7 @@ const (
 	editorWindowDefaultX    = 320
 	editorWindowDefaultY    = 30
 	projectExplorerDefaultX = 0
-	projectExplorerDefaultY = 0
+	projectExplorerDefaultY = 25
 	mpqExplorerDefaultX     = 30
 	mpqExplorerDefaultY     = 30
 	consoleDefaultX         = 10
