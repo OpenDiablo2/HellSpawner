@@ -1,7 +1,13 @@
 package hsfonteditor
 
 import (
+	"fmt"
+
+	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes/hsfont"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -9,18 +15,79 @@ import (
 
 type FontEditor struct {
 	*hseditor.Editor
+	*hsfont.Font
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+	font, err := hsfont.LoadFromJSON(*data)
+	if err != nil {
+		return nil, err
+	}
+
 	result := &FontEditor{
-		Editor: hseditor.New(pathEntry, x, y),
+		Editor: hseditor.New(pathEntry, x, y, project),
+		Font:   font,
 	}
 
 	return result, nil
 }
 
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{})
+	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
+		g.Label("DC6 Path"),
+		g.Line(
+			g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(245).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorDC6Browse").Size(30, 0).OnClick(e.onBrowseDC6PathClicked),
+		),
+		g.Separator(),
+		g.Label("TBL Path"),
+		g.Line(
+			g.InputText("##FontEditorTBLPath", &e.TableFile).Size(245).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorTBLBrowse").Size(30, 0).OnClick(e.onBrowseTBLPathClicked),
+		),
+		g.Separator(),
+		g.Label("PL2 Path"),
+		g.Line(
+			g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(245).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorPL2Browse").Size(30, 0).OnClick(e.onBrowsePL2PathClicked),
+		),
+	})
+}
+
+func (e *FontEditor) onBrowseDC6PathClicked() {
+	path := dialog.File().SetStartDir(e.Project.GetProjectFileContentPath())
+	path.Filter("DC6 File", "dc6", "DC6")
+
+	filePath, err := path.Load()
+
+	if err != nil || len(filePath) == 0 {
+		return
+	}
+	e.SpriteFile = filePath
+}
+
+func (e *FontEditor) onBrowseTBLPathClicked() {
+	path := dialog.File().SetStartDir(e.Project.GetProjectFileContentPath())
+	path.Filter("TBL File", "tbl", "TBL")
+
+	filePath, err := path.Load()
+
+	if err != nil || len(filePath) == 0 {
+		return
+	}
+	e.TableFile = filePath
+}
+
+func (e *FontEditor) onBrowsePL2PathClicked() {
+	path := dialog.File().SetStartDir(e.Project.GetProjectFileContentPath())
+	path.Filter("PL2 File", "pl2", "PL2")
+
+	filePath, err := path.Load()
+
+	if err != nil || len(filePath) == 0 {
+		return
+	}
+	e.PaletteFile = filePath
 }
 
 func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {
@@ -37,4 +104,29 @@ func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+func (e *FontEditor) GenerateSaveData() []byte {
+	data, err := e.JSON()
+	if err != nil {
+		fmt.Println("failed to marshal font to JSON:, ", err)
+		return nil
+	}
+
+	return data
+}
+
+func (e *FontEditor) Save() {
+	e.Editor.Save(e)
+}
+
+func (e *FontEditor) Cleanup() {
+	if e.HasChanges(e) {
+		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
+			e.Path.FullPath).YesNo(); shouldSave {
+			e.Save()
+		}
+	}
+
+	e.Editor.Cleanup()
 }

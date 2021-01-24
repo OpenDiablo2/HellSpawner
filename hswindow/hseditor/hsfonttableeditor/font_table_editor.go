@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -25,7 +29,7 @@ type fontGlyph struct {
 	width      int
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	glyphs := make(fontTable)
 
 	table := *data
@@ -46,7 +50,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon
 	}
 
 	editor := &FontTableEditor{
-		Editor:    hseditor.New(pathEntry, x, y),
+		Editor:    hseditor.New(pathEntry, x, y, project),
 		fontTable: glyphs,
 	}
 
@@ -128,4 +132,26 @@ func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+func (e *FontTableEditor) GenerateSaveData() []byte {
+	// TODO -- save real data for this editor
+	data, _ := e.Path.GetFileBytes()
+
+	return data
+}
+
+func (e *FontTableEditor) Save() {
+	e.Editor.Save(e)
+}
+
+func (e *FontTableEditor) Cleanup() {
+	if e.HasChanges(e) {
+		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
+			e.Path.FullPath).YesNo(); shouldSave {
+			e.Save()
+		}
+	}
+
+	e.Editor.Cleanup()
 }

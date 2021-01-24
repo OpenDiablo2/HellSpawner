@@ -2,7 +2,10 @@ package hsdt1editor
 
 import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -10,14 +13,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DT1Editor{
-		Editor:    hseditor.New(pathEntry, x, y),
+		Editor:    hseditor.New(pathEntry, x, y, project),
 		dt1:       dt1,
 		dt1Viewer: hswidget.DT1Viewer(pathEntry.GetUniqueId(), dt1),
 	}
@@ -65,4 +68,26 @@ func (e *DT1Editor) RegisterKeyboardShortcuts() {
 	hsinput.RegisterShortcut(func() {
 		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
 	}, g.KeyLeft, g.ModNone, false)
+}
+
+func (e *DT1Editor) GenerateSaveData() []byte {
+	// TODO -- save real data for this editor
+	data, _ := e.Path.GetFileBytes()
+
+	return data
+}
+
+func (e *DT1Editor) Save() {
+	e.Editor.Save(e)
+}
+
+func (e *DT1Editor) Cleanup() {
+	if e.HasChanges(e) {
+		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
+			e.Path.FullPath).YesNo(); shouldSave {
+			e.Save()
+		}
+	}
+
+	e.Editor.Cleanup()
 }

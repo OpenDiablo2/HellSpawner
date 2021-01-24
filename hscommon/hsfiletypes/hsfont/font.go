@@ -3,7 +3,6 @@ package hsfont
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -26,12 +25,27 @@ func NewFile(filePath string) (*Font, error) {
 	return result, nil
 }
 
+func LoadFromJSON(data []byte) (*Font, error) {
+	var font *Font = &Font{}
+
+	err := json.Unmarshal(data, font)
+
+	return font, err
+}
+
+func (f *Font) JSON() ([]byte, error) {
+	data, err := json.MarshalIndent(f, "", "   ")
+
+	return data, err
+}
+
 func (f *Font) SaveToFile() error {
 	var data []byte
 	var err error
 
-	if data, err = json.MarshalIndent(f, "", "   "); err != nil {
-		log.Fatal(err)
+	data, err = f.JSON()
+	if err != nil {
+		return err
 	}
 
 	if err = ioutil.WriteFile(f.filePath, data, os.FileMode(0644)); err != nil {
