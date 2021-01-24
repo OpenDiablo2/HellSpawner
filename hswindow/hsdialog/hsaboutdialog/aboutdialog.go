@@ -4,10 +4,14 @@ import (
 	"image/color"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
+	"github.com/jaytaylor/html2text"
+	"github.com/russross/blackfriday"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
@@ -18,6 +22,7 @@ type AboutDialog struct {
 	fixedFont   imgui.Font
 	credits     string
 	license     string
+	readme      string
 }
 
 func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
@@ -40,6 +45,23 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	}
 	result.credits = string(data)
 
+	if data, err = ioutil.ReadFile("README.md"); err != nil {
+		log.Fatal(err)
+	}
+	output := []byte(data)
+
+	// convert output md to html
+	html := blackfriday.MarkdownBasic(output)
+	// convert html to text
+	text, err := html2text.FromString(string(html), html2text.Options{PrettyTables: true})
+	if err != nil {
+		return result, err
+	}
+
+	// set string's max lenght
+	text = strings.Join(hsutil.SplitIntoLinesWithMaxWidth(text, 70), "\n")
+	result.readme = text
+
 	return result, nil
 }
 
@@ -53,6 +75,12 @@ func (a *AboutDialog) Build() {
 				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),
 				g.Separator(),
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
+					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{
+						g.Custom(func() { g.PushFont(a.fixedFont) }),
+						g.InputTextMultiline("##AboutHellSpawnerReadme", &a.readme).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+						g.Custom(func() { g.PopFont() }),
+					}),
 					g.TabItem("Credits##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
 						g.InputTextMultiline("##AboutHellSpawnerCredits", &a.credits).
