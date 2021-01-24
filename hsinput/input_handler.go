@@ -73,6 +73,8 @@ func HandleInput(key glfw.Key, mods glfw.ModifierKey, action glfw.Action) {
 			} else if callbackFuncs.Global != nil {
 				callbackFuncs.Global()
 			}
+
+			return
 		}
 	}
 }
