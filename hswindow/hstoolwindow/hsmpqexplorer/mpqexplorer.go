@@ -1,13 +1,14 @@
 package hsmpqexplorer
 
 import (
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 

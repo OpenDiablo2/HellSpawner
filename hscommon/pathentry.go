@@ -3,9 +3,10 @@ package hscommon
 import (
 	"errors"
 	"fmt"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"io/ioutil"
 	"os"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 )
 
 // PathEntrySource represents the type of path entry.
@@ -58,6 +59,7 @@ func (p *PathEntry) GetUniqueId() string {
 	return fmt.Sprintf("%d_%s_%s", p.Source, p.MPQFile, p.FullPath)
 }
 
+// GetFileBytes reads the file and returns the contents
 func (p *PathEntry) GetFileBytes() ([]byte, error) {
 	if p.Source == PathEntrySourceProject {
 		if _, err := os.Stat(p.FullPath); os.IsNotExist(err) {
@@ -77,4 +79,23 @@ func (p *PathEntry) GetFileBytes() ([]byte, error) {
 	}
 
 	return nil, errors.New("could not locate file in mpq")
+}
+
+// WriteFile overwrites the file with the given data
+func (p *PathEntry) WriteFile(data []byte) error {
+	if p.Source != PathEntrySourceProject {
+		return errors.New("saving is only supported for files in project, cannot write to MPQs")
+	}
+
+	info, err := os.Stat(p.FullPath)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(p.FullPath, data, info.Mode())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

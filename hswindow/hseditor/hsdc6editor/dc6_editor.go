@@ -1,7 +1,10 @@
 package hsdc6editor
 
 import (
+	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
@@ -11,14 +14,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DC6Editor{
-		Editor: hseditor.New(pathEntry, x, y),
+		Editor: hseditor.New(pathEntry, x, y, project),
 		dc6:    dc6,
 	}
 
@@ -45,9 +48,31 @@ func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 		g.MenuItem("Export to file...").OnClick(func() {}),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
-			e.Visible = false
+			e.Cleanup()
 		}),
 	})
 
 	*l = append(*l, m)
+}
+
+func (e *DC6Editor) GenerateSaveData() []byte {
+	// TODO -- save real data for this editor
+	data, _ := e.Path.GetFileBytes()
+
+	return data
+}
+
+func (e *DC6Editor) Save() {
+	e.Editor.Save(e)
+}
+
+func (e *DC6Editor) Cleanup() {
+	if e.HasChanges(e) {
+		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
+			e.Path.FullPath).YesNo(); shouldSave {
+			e.Save()
+		}
+	}
+
+	e.Editor.Cleanup()
 }
