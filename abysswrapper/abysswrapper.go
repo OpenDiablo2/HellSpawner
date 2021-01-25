@@ -9,18 +9,29 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 )
 
+const (
+	waitTime = 3
+)
+
 var (
 	mutex sync.RWMutex = sync.RWMutex{}
 )
 
+// AbyssWrapper represents abyss wrapper
 type AbyssWrapper struct {
 	running bool
 	output  io.Writer
 	cmd     *exec.Cmd
 }
 
+// Create creates new Abyss Wrapper
+func Create() *AbyssWrapper {
+	result := &AbyssWrapper{}
+	return result
+}
+
 func (a *AbyssWrapper) Read(p []byte) (n int, err error) {
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * waitTime)
 	bytes := []byte("Hello from HellSpawner! " + time.Now().String() + "\n")
 	n = copy(p, bytes)
 	err = nil
@@ -32,11 +43,7 @@ func (a *AbyssWrapper) Write(p []byte) (n int, err error) {
 	return a.output.Write(p)
 }
 
-func Create() *AbyssWrapper {
-	result := &AbyssWrapper{}
-	return result
-}
-
+// Launch launchs abyss wrapper
 func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 	mutex.RLock()
 	if a.running {
@@ -64,6 +71,7 @@ func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 
 	go func() {
 		_ = a.cmd.Wait()
+
 		mutex.Lock()
 		a.running = false
 		mutex.Unlock()
@@ -72,6 +80,7 @@ func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 	return nil
 }
 
+// Kill stops abyss wrapper
 func (a *AbyssWrapper) Kill() error {
 	mutex.RLock()
 	defer mutex.RUnlock()
@@ -83,8 +92,10 @@ func (a *AbyssWrapper) Kill() error {
 	return a.cmd.Process.Kill()
 }
 
+// IsRunning returns true, if AbyssWrapper is running
 func (a *AbyssWrapper) IsRunning() bool {
 	mutex.RLock()
 	defer mutex.RUnlock()
+
 	return a.running
 }

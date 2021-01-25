@@ -15,6 +15,12 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
+const (
+	mainWindowW, mainWindowH = 256, 256
+	mainLayoutW, mainLayoutH = 500, -1
+)
+
+// AboutDialog represents about dialog
 type AboutDialog struct {
 	*hsdialog.Dialog
 	titleFont   imgui.Font
@@ -25,6 +31,7 @@ type AboutDialog struct {
 	readme      string
 }
 
+// Create creates a new AboutDialog
 func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
 		Dialog:      hsdialog.New("About HellSpawner"),
@@ -32,17 +39,21 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 		regularFont: regularFont,
 		fixedFont:   fixedFont,
 	}
+
 	var err error
+
 	var data []byte
 
 	if data, err = ioutil.ReadFile("LICENSE"); err != nil {
 		log.Fatal(err)
 	}
+
 	result.license = string(data)
 
 	if data, err = ioutil.ReadFile("CONTRIBUTORS"); err != nil {
 		log.Fatal(err)
 	}
+
 	result.credits = string(data)
 
 	if data, err = ioutil.ReadFile("README.md"); err != nil {
@@ -65,11 +76,12 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	return result, nil
 }
 
+// Build build an about dialog
 func (a *AboutDialog) Build() {
 	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
-			g.ImageWithFile("hsassets/images/d2logo.png").Size(256, 256),
-			g.Child("AboutHellSpawnerLayout").Size(500, -1).Layout(g.Layout{
+			g.ImageWithFile("hsassets/images/d2logo.png").Size(mainWindowW, mainWindowH),
+			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(g.Layout{
 				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
 				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),
 				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),

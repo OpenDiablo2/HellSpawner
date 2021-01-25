@@ -3,6 +3,7 @@ package hsproject
 import (
 	"bufio"
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -74,7 +75,13 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 		if err != nil {
 			return files, errors.New("Couldn't open listfile")
 		}
-		defer file.Close()
+
+		defer func() {
+			err := file.Close()
+			if err != nil {
+				log.Print(err)
+			}
+		}()
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {

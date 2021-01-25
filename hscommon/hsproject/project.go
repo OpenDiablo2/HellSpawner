@@ -20,6 +20,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 )
 
+const (
+	projectExtension = ".hsp"
+)
+
 type Project struct {
 	ProjectName   string
 	Description   string
@@ -34,8 +38,8 @@ type Project struct {
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
-	if strings.ToLower(filepath.Ext(fileName)) != ".hsp" {
-		fileName += ".hsp"
+	if strings.ToLower(filepath.Ext(fileName)) != projectExtension {
+		fileName += projectExtension
 	}
 
 	result := &Project{
@@ -65,11 +69,13 @@ func (p *Project) GetProjectFilePath() string {
 
 func (p *Project) Save() error {
 	var err error
+
 	var file []byte
 
 	if file, err = json.MarshalIndent(p, "", "   "); err != nil {
 		return err
 	}
+
 	if err = ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
 		return err
 	}
@@ -264,6 +270,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 
 		if i > 100 {
 			dialog.Message("Could not create a new project file!").Error()
+
 			return
 		}
 	}

@@ -1,3 +1,4 @@
+// represents a dc6 editor window
 package hsdc6editor
 
 import (
@@ -14,6 +15,13 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// DC6Editor represents a dc6 editor
+type DC6Editor struct {
+	*hseditor.Editor
+	dc6 *d2dc6.DC6
+}
+
+// Create creates a new dc6 editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
@@ -28,17 +36,14 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
-type DC6Editor struct {
-	*hseditor.Editor
-	dc6 *d2dc6.DC6
-}
-
+// Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.DC6Viewer(e.Path.GetUniqueId(), e.dc6),
 	})
 }
 
+// UpdateMainMenuLayout updates main menu to it contain DC6's editor menu
 func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DC6 Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),

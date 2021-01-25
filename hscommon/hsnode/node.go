@@ -7,18 +7,23 @@ const (
 	sep    = "/"
 )
 
+// Name represents node's name
 type Name = string
 
+// Children represents represents subnodes
 type Children map[Name]*Node
 
+// Path represents node path
 type Path = string
 
+// Node represents node
 type Node struct {
 	Parent *Node
 	Name
 	Children
 }
 
+// String represents node's name
 func (n *Node) String() string {
 	return n.Name
 }
@@ -47,12 +52,14 @@ func (n *Node) Insert(p Path) *Node {
 	return n
 }
 
+// SetParent sets node's parent
 func (n *Node) SetParent(p *Node) *Node {
 	n.Parent = p
 
 	return n
 }
 
+// NewNode creates a new node
 func NewNode(name string) *Node {
 	n := &Node{
 		Name:     name,
