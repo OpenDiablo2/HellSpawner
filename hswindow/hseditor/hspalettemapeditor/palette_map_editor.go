@@ -36,7 +36,7 @@ type PaletteMapEditor struct {
 
 func (e *PaletteMapEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteMapViewer(e.Path.GetUniqueId(), e.pl2),
+		hswidget.PaletteMapViewer(e.Path.GetUniqueID(), e.pl2),
 	})
 }
 

@@ -22,7 +22,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	result := &DT1Editor{
 		Editor:    hseditor.New(pathEntry, x, y, project),
 		dt1:       dt1,
-		dt1Viewer: hswidget.DT1Viewer(pathEntry.GetUniqueId(), dt1),
+		dt1Viewer: hswidget.DT1Viewer(pathEntry.GetUniqueID(), dt1),
 	}
 
 	return result, nil

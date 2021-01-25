@@ -10,6 +10,7 @@ import (
 	g "github.com/ianling/giu"
 )
 
+// TextureLoadRequestItem represents texture request item
 type TextureLoadRequestItem struct {
 	rgb      *image.RGBA
 	callback func(*g.Texture)
@@ -19,18 +20,21 @@ var canLoadTextures = false
 var mutex = &sync.Mutex{}
 var loadQueue = goconcurrentqueue.NewFIFO()
 
+// StopLoadingTextures stops loading a texture
 func StopLoadingTextures() {
 	mutex.Lock()
 	canLoadTextures = false
 	mutex.Unlock()
 }
 
+// ResumeLoadingTextures resumes loading textures
 func ResumeLoadingTextures() {
 	mutex.Lock()
 	canLoadTextures = true
 	mutex.Unlock()
 }
 
+// ProcessTextureLoadRequests proceses texture loading request
 func ProcessTextureLoadRequests() {
 	go func() {
 		for {
@@ -38,6 +42,7 @@ func ProcessTextureLoadRequests() {
 			if err != nil {
 				break
 			}
+
 			for {
 				mutex.Lock()
 
@@ -46,10 +51,12 @@ func ProcessTextureLoadRequests() {
 					continue
 				}
 				mutex.Unlock()
+
 				break
 			}
 
 			loadRequest := item.(TextureLoadRequestItem)
+
 			var texture *g.Texture
 
 			if texture, err = g.NewTextureFromRgba(loadRequest.rgb); err != nil {
@@ -61,8 +68,10 @@ func ProcessTextureLoadRequests() {
 	}()
 }
 
+// CreateTextureFromFileAsync creates an texture
 func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 	var imageData *image.RGBA
+
 	var err error
 
 	if imageData, err = g.LoadImage(fileName); err != nil {
@@ -72,6 +81,7 @@ func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 	addTextureToLoadQueue(imageData, callback)
 }
 
+// CreateTextureFromARGB creates a texture fromo color given
 func CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
 	addTextureToLoadQueue(rgb, callback)
 }

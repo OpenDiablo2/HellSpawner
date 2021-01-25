@@ -13,7 +13,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-//nolint:structcheck,unused // will be used
+// StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
 	header g.RowWidget
@@ -21,6 +21,7 @@ type StringTableEditor struct {
 	dict   d2tbl.TextDictionary
 }
 
+// Create creates a new string table editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {
@@ -52,6 +53,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	result.rows[0] = g.Row(columnWidgets...)
 
 	keyIdx := 0
+
 	for key := range result.dict {
 		result.rows[keyIdx+1] = g.Row(
 			g.Label(key),
@@ -64,6 +66,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
+// Build builds an editor
 func (e *StringTableEditor) Build() {
 	l := g.Layout{
 		g.Child("").Border(false).Layout(g.Layout{
@@ -77,6 +80,7 @@ func (e *StringTableEditor) Build() {
 		Layout(l)
 }
 
+// UpdateMainMenuLayout updates main menu layout to it contain editors options
 func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("String Table Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -93,6 +97,7 @@ func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *StringTableEditor) GenerateSaveData() []byte {
 	// TODO -- save real data for this editor
 	data, _ := e.Path.GetFileBytes()
@@ -100,10 +105,12 @@ func (e *StringTableEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves an editor
 func (e *StringTableEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides an editor
 func (e *StringTableEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

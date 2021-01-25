@@ -8,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
+// PreferencesDialog represents preferences dialog
 type PreferencesDialog struct {
 	*hsdialog.Dialog
 
@@ -15,6 +16,7 @@ type PreferencesDialog struct {
 	onConfigChanged func(config hsconfig.Config)
 }
 
+// Create creates a new preferences dialog
 func Create(onConfigChanged func(config hsconfig.Config)) *PreferencesDialog {
 	result := &PreferencesDialog{
 		Dialog:          hsdialog.New("Preferences"),
@@ -25,12 +27,7 @@ func Create(onConfigChanged func(config hsconfig.Config)) *PreferencesDialog {
 	return result
 }
 
-func (p *PreferencesDialog) Show(config *hsconfig.Config) {
-	p.Dialog.Show()
-
-	p.config = *config
-}
-
+// Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
 	p.IsOpen(&p.Visible).Layout(g.Layout{
 		g.Child("PreferencesLayout").Size(300, 200).Layout(g.Layout{
@@ -61,6 +58,13 @@ func (p *PreferencesDialog) Build() {
 	})
 }
 
+// Show switch preferences dialog to visible state
+func (p *PreferencesDialog) Show(config *hsconfig.Config) {
+	p.Dialog.Show()
+
+	p.config = *config
+}
+
 func (p *PreferencesDialog) onBrowseAuxMpqPathClicked() {
 	path, err := dialog.Directory().Browse()
 	if err != nil || len(path) == 0 {
@@ -77,6 +81,7 @@ func (p *PreferencesDialog) onBrowseExternalListfileClicked() {
 	if err != nil || len(filePath) == 0 {
 		return
 	}
+
 	p.config.ExternalListFile = filePath
 }
 
@@ -91,10 +96,12 @@ func (p *PreferencesDialog) onCancelClicked() {
 
 func (p *PreferencesDialog) onBrowseAbyssEngineClicked() {
 	path := dialog.File()
+
 	filePath, err := path.Load()
 
 	if err != nil || len(filePath) == 0 {
 		return
 	}
+
 	p.config.AbyssEnginePath = filePath
 }

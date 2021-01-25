@@ -13,6 +13,7 @@ const (
 	fps25 = 25
 )
 
+// COFViewer represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
@@ -20,15 +21,18 @@ type COFViewerState struct {
 	layer          *d2cof.CofLayer
 }
 
+// Dispse clears viewer's layers
 func (s *COFViewerState) Dispose() {
 	s.layer = nil
 }
 
+// COFViewerWidget represents cof viewer's widget
 type COFViewerWidget struct {
 	id  string
 	cof *d2cof.COF
 }
 
+// COFViewer creates a cof viewer widget
 func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 	result := &COFViewerWidget{
 		id:  id,
@@ -38,6 +42,7 @@ func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 	return result
 }
 
+// Build builds a cof viewer
 func (p *COFViewerWidget) Build() {
 	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
 	s := giu.Context.GetState(stateId)

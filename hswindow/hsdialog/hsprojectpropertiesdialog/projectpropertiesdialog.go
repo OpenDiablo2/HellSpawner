@@ -23,6 +23,7 @@ const (
 	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
 )
 
+// ProjectPropertiesDialog represent project properties' dialog
 type ProjectPropertiesDialog struct {
 	*hsdialog.Dialog
 
@@ -38,6 +39,7 @@ type ProjectPropertiesDialog struct {
 	mpqSelectDialogVisible bool
 }
 
+// Create creates a new project properties' dialog
 func Create(onProjectPropertiesChanged func(project hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
@@ -60,6 +62,7 @@ func Create(onProjectPropertiesChanged func(project hsproject.Project)) *Project
 	return result
 }
 
+// Show shows project properties dialog
 func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hsconfig.Config) {
 	p.config = config
 	p.project = *project
@@ -72,6 +75,7 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 	p.Dialog.Show()
 }
 
+// Build builds a dialog
 func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 

@@ -2,6 +2,7 @@ package hscommon
 
 import "github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 
+// EditorWindow represents editor window
 type EditorWindow interface {
 	Renderable
 	MainMenuUpdater

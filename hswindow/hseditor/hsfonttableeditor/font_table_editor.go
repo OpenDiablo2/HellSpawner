@@ -1,3 +1,4 @@
+// represents fontTableEditor's window
 package hsfonttableeditor
 
 import (
@@ -15,11 +16,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-type FontTableEditor struct {
-	*hseditor.Editor
-	fontTable
-	rows g.Rows
-}
+const (
+	mainWindowW, mainWindowH = 400, 300
+)
 
 type fontTable map[rune]*fontGlyph
 
@@ -29,6 +28,14 @@ type fontGlyph struct {
 	width      int
 }
 
+// FontTableEditor represents font table editor
+type FontTableEditor struct {
+	*hseditor.Editor
+	fontTable
+	rows g.Rows
+}
+
+// Create creates a new font table editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	glyphs := make(fontTable)
 
@@ -70,6 +77,7 @@ func (e *FontTableEditor) init() {
 	glyphs := make([]*fontGlyph, len(e.fontTable))
 
 	idx := 0
+
 	for _, glyph := range e.fontTable {
 		glyphs[idx] = glyph
 		idx++
@@ -84,6 +92,7 @@ func (e *FontTableEditor) init() {
 	}
 }
 
+// Build builds a font table editor's window
 func (e *FontTableEditor) Build() {
 	if e.rows == nil {
 		e.init()
@@ -100,7 +109,7 @@ func (e *FontTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(400, 300).
+		Size(mainWindowW, mainWindowH).
 		Layout(tableLayout)
 }
 
@@ -118,6 +127,7 @@ func (e *FontTableEditor) makeGlyphLayout(glyph *fontGlyph) *g.RowWidget {
 	return row
 }
 
+// UpdateMainMenuLayout updates mainMenu layout's to it contain FontTableEditor's options
 func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Font Table Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),

@@ -14,11 +14,13 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// PaletteEditor represents a palette editor
 type PaletteEditor struct {
 	*hseditor.Editor
 	palette d2interface.Palette
 }
 
+// Create creates a new palette editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
@@ -33,12 +35,14 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
+// Build builds a palette editor
 func (e *PaletteEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
 	})
 }
 
+// UpdateMainMenuLayout updates a main menu layout to it contain pallete editor's options
 func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Palette Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -55,6 +59,7 @@ func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *PaletteEditor) GenerateSaveData() []byte {
 	// TODO -- save real data for this editor
 	data, _ := e.Path.GetFileBytes()
@@ -62,10 +67,12 @@ func (e *PaletteEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves editor
 func (e *PaletteEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides palette editor
 func (e *PaletteEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

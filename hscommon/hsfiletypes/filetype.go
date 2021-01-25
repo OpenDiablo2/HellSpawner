@@ -1,3 +1,4 @@
+// Package hsfiletypes determinates file types
 package hsfiletypes
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 )
 
+// FileType represents file type
 type FileType int
 
 type fileTypeInfoStruct struct {
@@ -15,6 +17,7 @@ type fileTypeInfoStruct struct {
 	subTypeCheck func(*[]byte) (FileType, error)
 }
 
+// enumerate known file types
 const (
 	FileTypeUnknown FileType = iota
 	FileTypeText
@@ -32,10 +35,11 @@ const (
 	FileTypeDS1
 )
 
+// determinateTBLtype returns table type
 func determineTBLtype(data *[]byte) (FileType, error) {
 	_, err := d2tbl.LoadTextDictionary(*data)
 	if err == nil {
-		return FileTypeTBLStringTable, err
+		return FileTypeTBLStringTable, nil
 	}
 
 	d := *data
@@ -63,14 +67,17 @@ func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
 	}
 }
 
+// String returns file type string
 func (f FileType) String() string {
 	return fileExtensionInfo()[f].Name
 }
 
+// FileExtension returns file's extension
 func (f FileType) FileExtension() string {
 	return fileExtensionInfo()[f].Extension
 }
 
+// GetFileTypeFromExtension returns file type
 func GetFileTypeFromExtension(extension string, data *[]byte) (FileType, error) {
 	info := fileExtensionInfo()
 	for idx := range info {

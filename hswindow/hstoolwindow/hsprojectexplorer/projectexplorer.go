@@ -26,8 +26,10 @@ const (
 	refreshItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/reload.png"
 )
 
+// ProjectExplorerFileSelectedCallback represents callback on project file selected
 type ProjectExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
+// ProjectExplorer represents a project explorer
 type ProjectExplorer struct {
 	*hstoolwindow.ToolWindow
 
@@ -37,6 +39,7 @@ type ProjectExplorer struct {
 	refreshIconTexture   *g.Texture
 }
 
+// Create creates a new project explorer
 func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
 		ToolWindow:           hstoolwindow.New("Project Explorer", hsstate.ToolWindowTypeProjectExplorer, x, y),
@@ -52,10 +55,12 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float
 	return result, nil
 }
 
+// SetProject sets explored project
 func (m *ProjectExplorer) SetProject(project *hsproject.Project) {
 	m.project = project
 }
 
+// Build builds explorer
 func (m *ProjectExplorer) Build() {
 	if m.project == nil {
 		return
@@ -138,7 +143,6 @@ func (m *ProjectExplorer) onNewFontClicked(pathEntry *hscommon.PathEntry) {
 }
 
 func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
-
 	if !pathEntry.IsDirectory {
 		return m.createFileTreeItem(pathEntry)
 	}
@@ -161,6 +165,7 @@ func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 
 func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Widget {
 	id := "##ProjectExplorerNode_" + pathEntry.FullPath
+
 	var layout g.Layout = make([]g.Widget, 0)
 
 	if pathEntry.IsRenaming {
@@ -241,6 +246,7 @@ func (m *ProjectExplorer) onDeleteFolderClicked(entry *hscommon.PathEntry) {
 
 	if err := os.RemoveAll(entry.FullPath); err != nil {
 		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
+
 		return
 	}
 
@@ -253,6 +259,7 @@ func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry) {
 	}
 	if err := os.Remove(entry.FullPath); err != nil {
 		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
+
 		return
 	}
 
@@ -267,6 +274,7 @@ func (m *ProjectExplorer) onRenameFileClicked(entry *hscommon.PathEntry) {
 func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 	if entry.Name == entry.OldName {
 		entry.OldName = ""
+
 		return
 	}
 
@@ -274,6 +282,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 		dialog.Message("Cannot rename file:\nFiles cannot have a blank name.").Error()
 		entry.Name = entry.OldName
 		entry.OldName = ""
+
 		return
 	}
 
@@ -283,19 +292,25 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if !strings.EqualFold(filepath.Ext(entry.OldName), filepath.Ext(entry.Name)) {
 		dialog.Message("Cannot rename file:\nFile extension cannot be changed.").Error()
+
 		entry.Name = entry.OldName
+
 		entry.OldName = ""
+
 		return
 	}
 
 	basePath := filepath.Dir(entry.FullPath)
+
 	oldPath := filepath.Join(basePath, entry.OldName)
+
 	newPath := filepath.Join(basePath, entry.Name)
 
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {
 		dialog.Message("Cannot rename file:\nAlready exists.").Error()
 		entry.Name = entry.OldName
 		entry.OldName = ""
+
 		return
 	}
 
@@ -303,6 +318,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 		dialog.Message("Could not rename file:\n" + err.Error()).Error()
 		entry.Name = entry.OldName
 		entry.OldName = ""
+
 		return
 	}
 

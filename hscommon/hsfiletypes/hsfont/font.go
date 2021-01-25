@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Font represents font
 type Font struct {
 	filePath    string
 	TableFile   string
@@ -13,6 +14,7 @@ type Font struct {
 	PaletteFile string
 }
 
+// NewFile creates a new font
 func NewFile(filePath string) (*Font, error) {
 	result := &Font{
 		filePath: filePath,
@@ -25,6 +27,7 @@ func NewFile(filePath string) (*Font, error) {
 	return result, nil
 }
 
+// LoadFromJSON loads a new font from json
 func LoadFromJSON(data []byte) (*Font, error) {
 	var font *Font = &Font{}
 
@@ -33,12 +36,14 @@ func LoadFromJSON(data []byte) (*Font, error) {
 	return font, err
 }
 
+// JSON exports font to json
 func (f *Font) JSON() ([]byte, error) {
 	data, err := json.MarshalIndent(f, "", "   ")
 
 	return data, err
 }
 
+// SaveToFile saves font
 func (f *Font) SaveToFile() error {
 	var data []byte
 	var err error
