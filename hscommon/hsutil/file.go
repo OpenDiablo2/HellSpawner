@@ -26,7 +26,13 @@ func CreateFileAtPath(pathToFile string, data []byte) bool {
 		log.Printf("failed to create new file %s: %s", pathToFile, err)
 		return false
 	}
-	defer newFile.Close()
+
+	defer func() {
+		err := newFile.Close()
+		if err != nil {
+			log.Print(err)
+		}
+	}()
 
 	bytesWritten, err := newFile.Write(data)
 	if err != nil || bytesWritten != len(data) {

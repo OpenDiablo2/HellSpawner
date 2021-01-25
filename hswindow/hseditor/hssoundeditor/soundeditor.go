@@ -81,10 +81,15 @@ func (s *SoundEditor) Build() {
 	})
 }
 
+// Cleanup closes an editor
 func (s *SoundEditor) Cleanup() {
 	speaker.Lock()
 	s.control.Paused = true
-	s.streamer.Close()
+
+	err := s.streamer.Close()
+	if err != nil {
+		log.Print(err)
+	}
 
 	if s.HasChanges(s) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
