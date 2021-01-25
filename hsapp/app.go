@@ -228,7 +228,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 func (a *App) openEditor(path *hscommon.PathEntry) {
 	a.editorManagerMutex.RLock()
 
-	uniqueId := path.GetUniqueId()
+	uniqueId := path.GetUniqueID()
 	for idx := range a.editors {
 		if a.editors[idx].GetId() == uniqueId {
 			a.editors[idx].BringToFront()

@@ -23,11 +23,22 @@ type Node struct {
 	Children
 }
 
+// NewNode creates a new node
+func NewNode(name string) *Node {
+	n := &Node{
+		Name:     name,
+		Children: make(Children),
+	}
+
+	return n
+}
+
 // String represents node's name
 func (n *Node) String() string {
 	return n.Name
 }
 
+// Insert inserts a new path to node
 func (n *Node) Insert(p Path) *Node {
 	p = strings.ToLower(p)
 	p = strings.ReplaceAll(p, badSep, sep)
@@ -55,16 +66,6 @@ func (n *Node) Insert(p Path) *Node {
 // SetParent sets node's parent
 func (n *Node) SetParent(p *Node) *Node {
 	n.Parent = p
-
-	return n
-}
-
-// NewNode creates a new node
-func NewNode(name string) *Node {
-	n := &Node{
-		Name:     name,
-		Children: make(Children),
-	}
 
 	return n
 }

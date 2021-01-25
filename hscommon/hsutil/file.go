@@ -11,6 +11,7 @@ const (
 	defaultFilePermissions os.FileMode = 0755
 )
 
+// CreateFileAtPath creates file at path
 func CreateFileAtPath(pathToFile string, data []byte) bool {
 	folder := filepath.Dir(pathToFile)
 

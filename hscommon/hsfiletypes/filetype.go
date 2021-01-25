@@ -1,4 +1,4 @@
-// determinates file types
+// Package hsfiletypes determinates file types
 package hsfiletypes
 
 import (
@@ -8,7 +8,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 )
 
-// File type represents file type
+// FileType represents file type
 type FileType int
 
 type fileTypeInfoStruct struct {

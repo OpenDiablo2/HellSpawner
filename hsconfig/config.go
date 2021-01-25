@@ -13,6 +13,7 @@ import (
 	"github.com/kirsle/configdir"
 )
 
+// Config represents HellSpawner's config
 type Config struct {
 	RecentProjects          []string
 	AbyssEnginePath         string
@@ -45,6 +46,7 @@ func generateDefaultConfig() *Config {
 	return result
 }
 
+// Load loads config
 func Load() *Config {
 	configFile := getConfigPath()
 
@@ -66,6 +68,7 @@ func Load() *Config {
 	return result
 }
 
+// Save saves a new config
 func (c *Config) Save() error {
 	var err error
 	var data []byte
@@ -81,6 +84,7 @@ func (c *Config) Save() error {
 	return nil
 }
 
+// AddToRecentProjects adds a path to recent opened projects
 func (c *Config) AddToRecentProjects(filePath string) {
 	found := false
 	for idx := range c.RecentProjects {
@@ -113,6 +117,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 	}
 }
 
+// GetAuxMPQs returns paths to auxiliary mpq's
 func (c *Config) GetAuxMPQs() []string {
 	if len(c.AuxiliaryMpqPath) == 0 {
 		return []string{}
@@ -132,6 +137,7 @@ func (c *Config) GetAuxMPQs() []string {
 
 		return nil
 	})
+
 	if err != nil {
 		log.Printf("failed to walk path for aux MPQs %s: %s", c.AuxiliaryMpqPath, err)
 	}

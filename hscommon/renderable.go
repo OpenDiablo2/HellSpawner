@@ -1,5 +1,6 @@
 package hscommon
 
+// Renderable represents renderable objects
 type Renderable interface {
 	Build()
 	Render()

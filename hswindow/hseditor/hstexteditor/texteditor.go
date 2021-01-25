@@ -14,6 +14,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// TextEditor represents a text editor
 type TextEditor struct {
 	*hseditor.Editor
 
@@ -23,6 +24,7 @@ type TextEditor struct {
 	columns   int
 }
 
+// Create creates a new text editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
@@ -61,6 +63,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
+// Build builds an editor
 func (e *TextEditor) Build() {
 	if !e.tableView {
 		e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
@@ -75,6 +78,7 @@ func (e *TextEditor) Build() {
 	}
 }
 
+// UpdateMainMenuLayout updates mainMenu layout to it contains editor's options
 func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Text Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -91,6 +95,7 @@ func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *TextEditor) GenerateSaveData() []byte {
 	// TODO -- save real data for this editor
 	data, _ := e.Path.GetFileBytes()
@@ -98,10 +103,12 @@ func (e *TextEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves an editor
 func (e *TextEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides an editor
 func (e *TextEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

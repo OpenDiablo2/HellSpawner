@@ -6,6 +6,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 )
 
+// ToolWindow represents tool windows
 type ToolWindow interface {
 	Renderable
 
