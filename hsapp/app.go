@@ -286,7 +286,7 @@ func (a *App) toggleMPQExplorer() {
 }
 
 func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
-	a.project = &project
+	*a.project = project
 	if err := a.project.Save(); err != nil {
 		log.Fatal(err)
 	}
