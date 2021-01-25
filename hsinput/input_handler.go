@@ -1,4 +1,4 @@
-// hsinput handles keyboard inputs (e.g. for shortcuts) on a per-window basis.
+// Package hsinput handles keyboard inputs (e.g. for shortcuts) on a per-window basis.
 // Shortcuts are stored in a map. Every combination of keys can be assigned a function that is
 // executed when the key combo is detected.
 // The list of functions assigned to a key combo operates like a stack.
@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	ModNone = 0 // used when you want to specify a key combo without any modifier keys
+	// ModNone is used when you want to specify a key combo without any modifier keys
+	ModNone = 0
 )
 
 // InputCallbackFunc is the function signature for functions that are called on input events
@@ -43,6 +44,7 @@ func createKeyCombo(key giu.Key, modifier giu.Modifier) KeyCombo {
 	}
 }
 
+// RegisterShortcut registers a new shortcut
 func RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.Modifier, isGlobal bool) {
 	combo := createKeyCombo(key, modifier)
 	shortcut, alreadyRegistered := shortcuts[combo]
@@ -59,12 +61,14 @@ func RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.
 	shortcuts[combo] = shortcut
 }
 
+// UnregisterWindowShortcuts removes registered window's shortcuts
 func UnregisterWindowShortcuts() {
 	for _, callbackFuncs := range shortcuts {
 		callbackFuncs.Window = nil
 	}
 }
 
+// HandleInput handles input shortcut
 func HandleInput(key glfw.Key, mods glfw.ModifierKey, action glfw.Action) {
 	for keyCombo, callbackFuncs := range shortcuts {
 		if key == keyCombo.Key && mods == keyCombo.Modifier && action == glfw.Press {

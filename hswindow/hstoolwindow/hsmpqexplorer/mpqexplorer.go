@@ -21,8 +21,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
+// MPQExplorerFileSelectedCallback represents file selected callback
 type MPQExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
+// MPQExplorer represents a mpq explorer
 type MPQExplorer struct {
 	*hstoolwindow.ToolWindow
 	config               *hsconfig.Config
@@ -38,6 +40,7 @@ type fileToOverwrite struct {
 	Data []byte
 }
 
+// Create creates a new explorer
 func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconfig.Config, x, y float32) (*MPQExplorer, error) {
 	result := &MPQExplorer{
 		ToolWindow:           hstoolwindow.New("MPQ Explorer", hsstate.ToolWindowTypeMPQExplorer, x, y),
@@ -48,10 +51,12 @@ func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconf
 	return result, nil
 }
 
+// SetProject sets explorer's project
 func (m *MPQExplorer) SetProject(project *hsproject.Project) {
 	m.project = project
 }
 
+// Build builds an explorer
 func (m *MPQExplorer) Build() {
 	if m.project == nil {
 		return
@@ -183,6 +188,7 @@ func generatePathEntryId(pathEntry *hscommon.PathEntry) string {
 	return "##MPQExplorerNode_" + pathEntry.FullPath
 }
 
+// Reset resets the explorer
 func (m *MPQExplorer) Reset() {
 	m.nodeCache = nil
 }

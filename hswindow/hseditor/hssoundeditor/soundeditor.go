@@ -1,3 +1,4 @@
+// represents a soundEditor's window
 package hssoundeditor
 
 import (
@@ -21,6 +22,11 @@ import (
 	g "github.com/ianling/giu"
 )
 
+const (
+	mainWindowW, mainWindowH = 300, 100
+)
+
+// SoundEditor represents a sound editor
 type SoundEditor struct {
 	*hseditor.Editor
 
@@ -30,7 +36,9 @@ type SoundEditor struct {
 	file     string
 }
 
+// Create creates a new sound editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+	//func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
 	if err != nil {
@@ -57,11 +65,12 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
+// Build builds a sound editor
 func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / 22050
 	secondsTotal := s.streamer.Len() / 22050
 
-	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(300, 100).Layout(g.Layout{
+	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
 			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
 		g.Separator(),
@@ -72,10 +81,15 @@ func (s *SoundEditor) Build() {
 	})
 }
 
+// Cleanup closes an editor
 func (s *SoundEditor) Cleanup() {
 	speaker.Lock()
 	s.control.Paused = true
-	s.streamer.Close()
+
+	err := s.streamer.Close()
+	if err != nil {
+		log.Print(err)
+	}
 
 	if s.HasChanges(s) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
@@ -103,9 +117,11 @@ func (s *SoundEditor) stop() {
 		}
 	}
 	s.control.Paused = true
+
 	speaker.Unlock()
 }
 
+// UpdateMainMenuLayout updates mainMenu's layout to it contain soundEditor's options
 func (s *SoundEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Sound Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),

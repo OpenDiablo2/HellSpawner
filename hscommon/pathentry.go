@@ -55,7 +55,8 @@ type PathEntry struct {
 	MPQFile string `json:"mpq_file"`
 }
 
-func (p *PathEntry) GetUniqueId() string {
+// GetUniqueID returns path's ID
+func (p *PathEntry) GetUniqueID() string {
 	return fmt.Sprintf("%d_%s_%s", p.Source, p.MPQFile, p.FullPath)
 }
 

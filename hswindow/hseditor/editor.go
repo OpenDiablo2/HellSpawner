@@ -44,7 +44,7 @@ func (e *Editor) GetWindowTitle() string {
 }
 
 func (e *Editor) GetId() string {
-	return e.Path.GetUniqueId()
+	return e.Path.GetUniqueID()
 }
 
 func (e *Editor) Save(editor Saveable) {
@@ -105,5 +105,5 @@ func (e *Editor) Cleanup() {
 }
 
 func generateWindowTitle(path *hscommon.PathEntry) string {
-	return path.Name + "##" + path.GetUniqueId()
+	return path.Name + "##" + path.GetUniqueID()
 }

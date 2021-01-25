@@ -20,6 +20,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 )
 
+const (
+	projectExtension = ".hsp"
+)
+
 type Project struct {
 	ProjectName   string
 	Description   string
@@ -34,8 +38,8 @@ type Project struct {
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
-	if strings.ToLower(filepath.Ext(fileName)) != ".hsp" {
-		fileName += ".hsp"
+	if strings.ToLower(filepath.Ext(fileName)) != projectExtension {
+		fileName += projectExtension
 	}
 
 	result := &Project{
@@ -65,11 +69,13 @@ func (p *Project) GetProjectFilePath() string {
 
 func (p *Project) Save() error {
 	var err error
+
 	var file []byte
 
 	if file, err = json.MarshalIndent(p, "", "   "); err != nil {
 		return err
 	}
+
 	if err = ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
 		return err
 	}
@@ -95,7 +101,9 @@ func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
 
 func LoadFromFile(fileName string) (*Project, error) {
 	var err error
+
 	var file []byte
+
 	var result *Project
 
 	if file, err = ioutil.ReadFile(fileName); err != nil {
@@ -191,7 +199,9 @@ func (p *Project) RenameFile(path string) {
 	if pathEntry == nil {
 		return
 	}
+
 	pathEntry.OldName = pathEntry.Name
+
 	pathEntry.IsRenaming = true
 }
 
@@ -199,6 +209,7 @@ func (p *Project) FindPathEntry(path string) *hscommon.PathEntry {
 	if p.pathEntryCache == nil {
 		return nil
 	}
+
 	return p.searchPathEntries(p.pathEntryCache, path)
 }
 
@@ -224,23 +235,27 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
 	filePathFormat := filepath.Join(basePath, "untitled%d")
+
 	var fileName string
 
 	for i := 0; ; i++ {
 		possibleFileName := fmt.Sprintf(filePathFormat, i)
 		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
 			fileName = possibleFileName
+
 			break
 		}
 
 		if i > 100 {
 			dialog.Message("Could not create a new project folder!").Error()
+
 			return
 		}
 	}
 
 	if err := os.Mkdir(fileName, 0775); err != nil {
 		dialog.Message("Could not create a new project folder!").Error()
+
 		return
 	}
 
@@ -253,17 +268,20 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	basePath := path.FullPath
 
 	filePathFormat := filepath.Join(basePath, "untitled%d"+fileType.FileExtension())
+
 	var fileName string
 
 	for i := 0; ; i++ {
 		possibleFileName := fmt.Sprintf(filePathFormat, i)
 		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
 			fileName = possibleFileName
+
 			break
 		}
 
 		if i > 100 {
 			dialog.Message("Could not create a new project file!").Error()
+
 			return
 		}
 	}

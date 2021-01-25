@@ -1,7 +1,9 @@
 package hsstate
 
+// ToolWindowType represents type of tool window
 type ToolWindowType string
 
+// ToolWindows types
 const (
 	ToolWindowTypeMPQExplorer     = ToolWindowType("MPQ Explorer")
 	ToolWindowTypeProjectExplorer = ToolWindowType("Project Explorer")

@@ -3,6 +3,7 @@ package hsproject
 import (
 	"bufio"
 	"errors"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +37,9 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 
 	for idx := range files {
 		elements := strings.FieldsFunc(files[idx], func(r rune) bool { return r == '\\' || r == '/' })
+
 		path := ""
+
 		for elemIdx := range elements {
 			oldPath := path
 
@@ -74,7 +77,13 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 		if err != nil {
 			return files, errors.New("Couldn't open listfile")
 		}
-		defer file.Close()
+
+		defer func() {
+			err := file.Close()
+			if err != nil {
+				log.Print(err)
+			}
+		}()
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
@@ -83,6 +92,7 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 				files = append(files, fileName)
 			}
 		}
+
 		return files, scanner.Err()
 	}
 

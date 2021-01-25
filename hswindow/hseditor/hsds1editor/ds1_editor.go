@@ -40,7 +40,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.DS1Viewer(e.Path.GetUniqueId(), e.ds1),
+			hswidget.DS1Viewer(e.Path.GetUniqueID(), e.ds1),
 		})
 }
 

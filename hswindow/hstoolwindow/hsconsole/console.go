@@ -1,3 +1,4 @@
+// represents console's window
 package hsconsole
 
 import (
@@ -8,18 +9,19 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
+const (
+	mainWindowW, mainWindowH = 600, 200
+	lineW, lineH             = -1, -1
+)
+
+// Console represents a console
 type Console struct {
 	*hstoolwindow.ToolWindow
 	outputText string
 	fontFixed  imgui.Font
 }
 
-func (c *Console) Write(p []byte) (n int, err error) {
-	c.outputText = string(p) + c.outputText
-
-	return len(p), nil
-}
-
+// Create creates a new console
 func Create(fontFixed imgui.Font, x, y float32) *Console {
 	result := &Console{
 		fontFixed:  fontFixed,
@@ -29,18 +31,26 @@ func Create(fontFixed imgui.Font, x, y float32) *Console {
 	return result
 }
 
+// Build builds a console
 func (c *Console) Build() {
 	c.IsOpen(&c.Visible).
-		Size(600, 200).
+		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
 			g.Custom(func() {
 				g.PushFont(c.fontFixed)
 			}),
 			g.InputTextMultiline("", &c.outputText).
-				Size(-1, -1).
+				Size(lineW, lineH).
 				Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoUndoRedo),
 			g.Custom(func() {
 				g.PopFont()
 			}),
 		})
+}
+
+// Write writes input on console
+func (c *Console) Write(p []byte) (n int, err error) {
+	c.outputText = string(p) + c.outputText
+
+	return len(p), nil
 }
