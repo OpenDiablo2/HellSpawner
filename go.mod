@@ -13,7 +13,11 @@ require (
 	github.com/hajimehoshi/oto v0.7.1 // indirect
 	github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7
 	github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82
+	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/olekukonko/tablewriter v0.0.4 // indirect
+	github.com/russross/blackfriday v1.6.0
+	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	golang.org/x/exp v0.0.0-20201229011636-eab1b5eb1a03 // indirect
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6 // indirect
 	golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 // indirect
