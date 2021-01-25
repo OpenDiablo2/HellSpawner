@@ -39,7 +39,7 @@ const (
 	editorWindowDefaultX    = 320
 	editorWindowDefaultY    = 30
 	projectExplorerDefaultX = 0
-	projectExplorerDefaultY = 0
+	projectExplorerDefaultY = 25
 	mpqExplorerDefaultX     = 30
 	mpqExplorerDefaultY     = 30
 	consoleDefaultX         = 10
@@ -60,7 +60,7 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
@@ -73,7 +73,7 @@ type App struct {
 func Create() (*App, error) {
 	result := &App{
 		editors:            make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error)),
+		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)),
 		config:             hsconfig.Load(),
 	}
 
@@ -91,11 +91,12 @@ func (a *App) Run() {
 		log.Fatal(err)
 	}
 
+	dialog.Init()
+
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
 
-	dialog.Init()
 	hscommon.ProcessTextureLoadRequests()
 
 	defer a.Quit()
@@ -210,10 +211,10 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](path, &data, x, y)
+	editor, err := a.editorConstructors[fileType](path, &data, x, y, a.project)
 
 	if err != nil {
-		dialog.Message("Error creating editor!").Error()
+		dialog.Message("Error creating editor: %s", err).Error()
 		return
 	}
 
@@ -316,7 +317,8 @@ func (a *App) toggleProjectExplorer() {
 func (a *App) closeActiveEditor() {
 	for _, editor := range a.editors {
 		if editor.HasFocus() {
-			editor.Cleanup()
+			// don't call Cleanup here. the Render loop will call Cleanup when it notices that this editor isn't visible
+			editor.SetVisible(false)
 			return
 		}
 	}
@@ -350,6 +352,10 @@ func (a *App) Save() {
 	if err != nil {
 		log.Print("failed to save config: ", err)
 		return
+	}
+
+	if a.focusedEditor != nil {
+		a.focusedEditor.Save()
 	}
 }
 

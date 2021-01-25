@@ -1,7 +1,10 @@
 package hspaletteeditor
 
 import (
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
@@ -16,14 +19,14 @@ type PaletteEditor struct {
 	palette d2interface.Palette
 }
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &PaletteEditor{
-		Editor:  hseditor.New(pathEntry, x, y),
+		Editor:  hseditor.New(pathEntry, x, y, project),
 		palette: palette,
 	}
 
@@ -45,9 +48,31 @@ func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 		g.MenuItem("Export to file...").OnClick(func() {}),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
-			e.Visible = false
+			e.Cleanup()
 		}),
 	})
 
 	*l = append(*l, m)
+}
+
+func (e *PaletteEditor) GenerateSaveData() []byte {
+	// TODO -- save real data for this editor
+	data, _ := e.Path.GetFileBytes()
+
+	return data
+}
+
+func (e *PaletteEditor) Save() {
+	e.Editor.Save(e)
+}
+
+func (e *PaletteEditor) Cleanup() {
+	if e.HasChanges(e) {
+		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
+			e.Path.FullPath).YesNo(); shouldSave {
+			e.Save()
+		}
+	}
+
+	e.Editor.Cleanup()
 }

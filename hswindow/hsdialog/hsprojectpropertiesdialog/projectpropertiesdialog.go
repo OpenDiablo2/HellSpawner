@@ -80,13 +80,19 @@ func (p *ProjectPropertiesDialog) Build() {
 			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
-				p.mpqSelectDialogVisible = false
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
+				p.onProjectPropertiesChanged(p.project)
+				p.mpqSelectDialogVisible = false
 			}),
 		}),
 		g.Line(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
-				p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
+				// checks if aux MPQs list isn't empty
+				if len(p.auxMPQs) > 0 {
+					p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
+					p.onProjectPropertiesChanged(p.project)
+				}
+
 				p.mpqSelectDialogVisible = false
 			}),
 			g.Button("Cancel##ProjectPropertiesSelectAuxMPQDialogCancel").OnClick(func() {
