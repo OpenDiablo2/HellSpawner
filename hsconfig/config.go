@@ -28,6 +28,7 @@ func getConfigPath() string {
 	if err := configdir.MakePath(configPath); err != nil {
 		log.Fatal(err)
 	}
+
 	return filepath.Join(configPath, "environment.json")
 }
 
@@ -55,7 +56,9 @@ func Load() *Config {
 	}
 
 	var err error
+
 	var data []byte
+
 	if data, err = ioutil.ReadFile(configFile); err != nil {
 		return generateDefaultConfig()
 	}
@@ -71,6 +74,7 @@ func Load() *Config {
 // Save saves a new config
 func (c *Config) Save() error {
 	var err error
+
 	var data []byte
 
 	if data, err = json.MarshalIndent(c, "", "   "); err != nil {

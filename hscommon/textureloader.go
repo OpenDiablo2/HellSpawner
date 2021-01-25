@@ -42,6 +42,7 @@ func ProcessTextureLoadRequests() {
 			if err != nil {
 				break
 			}
+
 			for {
 				mutex.Lock()
 
@@ -50,10 +51,12 @@ func ProcessTextureLoadRequests() {
 					continue
 				}
 				mutex.Unlock()
+
 				break
 			}
 
 			loadRequest := item.(TextureLoadRequestItem)
+
 			var texture *g.Texture
 
 			if texture, err = g.NewTextureFromRgba(loadRequest.rgb); err != nil {
@@ -68,6 +71,7 @@ func ProcessTextureLoadRequests() {
 // CreateTextureFromFileAsync creates an texture
 func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 	var imageData *image.RGBA
+
 	var err error
 
 	if imageData, err = g.LoadImage(fileName); err != nil {

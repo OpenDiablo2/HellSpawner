@@ -37,7 +37,9 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 
 	for idx := range files {
 		elements := strings.FieldsFunc(files[idx], func(r rune) bool { return r == '\\' || r == '/' })
+
 		path := ""
+
 		for elemIdx := range elements {
 			oldPath := path
 
@@ -90,6 +92,7 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 				files = append(files, fileName)
 			}
 		}
+
 		return files, scanner.Err()
 	}
 
