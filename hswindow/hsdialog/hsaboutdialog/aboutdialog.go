@@ -69,7 +69,7 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 		return result, err
 	}
 
-	// set string's max lenght
+	// set string's max length
 	text = strings.Join(hsutil.SplitIntoLinesWithMaxWidth(text, 70), "\n")
 	result.readme = text
 

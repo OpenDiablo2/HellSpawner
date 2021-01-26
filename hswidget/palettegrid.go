@@ -16,7 +16,7 @@ const (
 	cellSize   = 12
 )
 
-// PaletteGridState represents pallete grid's state
+// PaletteGridState represents palette grid's state
 type PaletteGridState struct {
 	// nolint:unused,structcheck // will be used
 	loading bool
@@ -25,7 +25,7 @@ type PaletteGridState struct {
 	texture *giu.Texture
 }
 
-// Dispose cleans pallete grids state
+// Dispose cleans palette grids state
 func (p *PaletteGridState) Dispose() {
 	p.texture = nil
 }
@@ -36,7 +36,7 @@ type PaletteGridWidget struct {
 	colors *[256]d2interface.Color
 }
 
-// PaletteGrid creates a new pallete grid's widget
+// PaletteGrid creates a new palette grid's widget
 func PaletteGrid(id string, colors *[256]d2interface.Color) *PaletteGridWidget {
 	result := &PaletteGridWidget{
 		id:     id,

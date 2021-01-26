@@ -44,7 +44,7 @@ func (e *PaletteEditor) Build() {
 	})
 }
 
-// UpdateMainMenuLayout updates a main menu layout to it contain pallete editor's options
+// UpdateMainMenuLayout updates a main menu layout to it contain palette editor's options
 func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Palette Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),

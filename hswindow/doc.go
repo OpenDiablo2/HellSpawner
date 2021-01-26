@@ -1,2 +1,2 @@
-// Pakcage hswindow contains project's windows
+// Package hswindow contains project's windows
 package hswindow

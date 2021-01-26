@@ -32,7 +32,7 @@ type PaletteMapViewerWidget struct {
 	pl2 *d2pl2.PL2
 }
 
-// PaletteMapViewer creates a new pallete map viewer's widget
+// PaletteMapViewer creates a new palette map viewer's widget
 func PaletteMapViewer(id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
 	result := &PaletteMapViewerWidget{
 		id:  id,
