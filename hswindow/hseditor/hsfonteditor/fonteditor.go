@@ -14,6 +14,12 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	mainWindowW, mainWindowH = 400, 300
+	pathSize                 = 245
+	browseW, browseH         = 30, 0
+)
+
 // FontEditor represents a font editor
 type FontEditor struct {
 	*hseditor.Editor
@@ -37,23 +43,23 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 
 // Build builds an editor
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
+	e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 		g.Label("DC6 Path"),
 		g.Line(
-			g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(245).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorDC6Browse").Size(30, 0).OnClick(e.onBrowseDC6PathClicked),
+			g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
 		),
 		g.Separator(),
 		g.Label("TBL Path"),
 		g.Line(
-			g.InputText("##FontEditorTBLPath", &e.TableFile).Size(245).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorTBLBrowse").Size(30, 0).OnClick(e.onBrowseTBLPathClicked),
+			g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
 		),
 		g.Separator(),
 		g.Label("PL2 Path"),
 		g.Line(
-			g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(245).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorPL2Browse").Size(30, 0).OnClick(e.onBrowsePL2PathClicked),
+			g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+			g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
 		),
 	})
 }

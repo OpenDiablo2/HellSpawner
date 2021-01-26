@@ -46,6 +46,10 @@ const (
 	consoleDefaultY         = 500
 )
 
+const (
+	sampleRate = 22050
+)
+
 // App represents an app
 type App struct {
 	project      *hsproject.Project
@@ -89,7 +93,7 @@ func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
 
-	sampleRate := beep.SampleRate(22050)
+	sampleRate := beep.SampleRate(sampleRate)
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}
@@ -194,7 +198,7 @@ func (a *App) setupFonts() {
 	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
 	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
 	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
-	imgui.CurrentStyle().ScaleAllSizes(1.0)
+	imgui.CurrentStyle().ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)

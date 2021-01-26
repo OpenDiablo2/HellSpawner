@@ -23,7 +23,9 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 300, 100
+	mainWindowW, mainWindowH  = 300, 100
+	progressIndicatorModifier = 60
+	progressTimeModifier      = 22050
 )
 
 // SoundEditor represents a sound editor
@@ -66,12 +68,12 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 
 // Build builds a sound editor
 func (s *SoundEditor) Build() {
-	secondsCurrent := s.streamer.Position() / 22050
-	secondsTotal := s.streamer.Len() / 22050
+	secondsCurrent := s.streamer.Position() / progressTimeModifier
+	secondsTotal := s.streamer.Len() / progressTimeModifier
 
 	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
+			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/progressIndicatorModifier, secondsCurrent%progressIndicatorModifier, secondsTotal/progressIndicatorModifier, secondsTotal%progressIndicatorModifier)),
 		g.Separator(),
 		g.Line(
 			g.Button("Play").OnClick(s.play),

@@ -15,6 +15,11 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	mainWindowW, mainWindowH = 400, 300
+	tableViewModW            = 80
+)
+
 // TextEditor represents a text editor
 type TextEditor struct {
 	*hseditor.Editor
@@ -71,12 +76,12 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 // Build builds an editor
 func (e *TextEditor) Build() {
 	if !e.tableView {
-		e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
 		})
 	} else {
-		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(400, 300).Layout(g.Layout{
-			g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(mainWindowW, mainWindowH).Layout(g.Layout{
+			g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
 				g.FastTable("").Border(true).Rows(e.tableRows),
 			}),
 		})

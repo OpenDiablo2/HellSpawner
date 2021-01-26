@@ -9,6 +9,12 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
 
+const (
+	mainWindowW, mainWindowH = 300, 200
+	textboxSize              = 245
+	btnW, btnH               = 30, 0
+)
+
 // PreferencesDialog represents preferences dialog
 type PreferencesDialog struct {
 	*hsdialog.Dialog
@@ -31,23 +37,23 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 // Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
 	p.IsOpen(&p.Visible).Layout(g.Layout{
-		g.Child("PreferencesLayout").Size(300, 200).Layout(g.Layout{
+		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(245).Flags(g.InputTextFlagsReadOnly),
-				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(30, 0).OnClick(p.onBrowseAuxMpqPathClicked),
+				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAuxMpqPathClicked),
 			),
 			g.Separator(),
 			g.Label("External MPQ listfile Path"),
 			g.Line(
-				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(245).Flags(g.InputTextFlagsReadOnly),
-				g.Button("...##AppPreferencesListfilePathBrowse").Size(30, 0).OnClick(p.onBrowseExternalListfileClicked),
+				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##AppPreferencesListfilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseExternalListfileClicked),
 			),
 			g.Separator(),
 			g.Label("Abyss Engine Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(245).Flags(g.InputTextFlagsReadOnly),
-				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(30, 0).OnClick(p.onBrowseAbyssEngineClicked),
+				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAbyssEngineClicked),
 			),
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),

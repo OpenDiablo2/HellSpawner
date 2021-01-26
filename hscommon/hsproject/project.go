@@ -25,6 +25,12 @@ const (
 	projectExtension = ".hsp"
 )
 
+const (
+	newFileMode      = 0644
+	newDirMode       = 0755
+	maxProjectsCount = 100
+)
+
 // Project represents HellSpawner's project
 type Project struct {
 	ProjectName   string
@@ -82,7 +88,7 @@ func (p *Project) Save() error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(p.filePath, file, os.FileMode(newFileMode)); err != nil {
 		return err
 	}
 
@@ -139,7 +145,7 @@ func (p *Project) ensureProjectPaths() error {
 	contentPath := filepath.Join(basePath, "content")
 
 	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
-		if err := os.Mkdir(contentPath, os.FileMode(0755)); err != nil {
+		if err := os.Mkdir(contentPath, os.FileMode(newDirMode)); err != nil {
 			return err
 		}
 	}
@@ -260,7 +266,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 			break
 		}
 
-		if i > 100 {
+		if i > maxProjectsCount {
 			dialog.Message("Could not create a new project folder!").Error()
 
 			return
@@ -294,7 +300,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 			break
 		}
 
-		if i > 100 {
+		if i > maxProjectsCount {
 			dialog.Message("Could not create a new project file!").Error()
 
 			return

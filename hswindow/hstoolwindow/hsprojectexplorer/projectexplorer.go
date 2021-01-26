@@ -2,15 +2,10 @@
 package hsprojectexplorer
 
 import (
-	"image/color"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -19,8 +14,22 @@ import (
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
+)
+
+const (
+	mainWindowW, mainWindowH = 300, 400
+	btnW, btnH               = 16, 16
+	popStyle                 = 2
+	pushStyle                = 4
+)
+
+const (
+	blackHalfOpacity = 0xffffff20
 )
 
 const (
@@ -76,7 +85,7 @@ func (m *ProjectExplorer) Build() {
 		Layout(m.getProjectTreeNodes())
 
 	m.IsOpen(&m.Visible).
-		Size(300, 400).
+		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
 			header,
 			g.Separator(),
@@ -86,7 +95,7 @@ func (m *ProjectExplorer) Build() {
 
 func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	button := g.ImageButton(m.refreshIconTexture).
-		Size(16, 16).
+		Size(btnW, btnH).
 		OnClick(func() {
 			m.onRefreshProjectExplorerClicked()
 		})
@@ -94,14 +103,14 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	const tooltipText = "Refresh the view from the filesystem."
 
 	if m.project == nil {
-		button.TintColor(color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x20})
+		button.TintColor(hsutil.Color(blackHalfOpacity))
 	}
 
 	return g.Layout{
 		g.Custom(func() {
 			imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 			imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
-			imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: 4})
+			imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: pushStyle})
 			imgui.PushID("ProjectExplorerRefresh")
 		}),
 
@@ -112,7 +121,7 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 		g.Custom(func() {
 			imgui.PopID()
 			imgui.PopStyleVar()
-			imgui.PopStyleColorV(2)
+			imgui.PopStyleColorV(popStyle)
 		}),
 	}
 }
