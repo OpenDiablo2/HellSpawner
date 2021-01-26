@@ -13,6 +13,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	mainWindowW, mainWindowH = 400, 300
+)
+
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
@@ -77,7 +81,7 @@ func (e *StringTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(400, 300).
+		Size(mainWindowW, mainWindowH).
 		Layout(l)
 }
 

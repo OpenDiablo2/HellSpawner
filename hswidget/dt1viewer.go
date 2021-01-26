@@ -12,6 +12,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
 const (
@@ -217,6 +218,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 }
 
 func rangeByte(b byte, min, max float64) byte {
+	// nolint:gomnd // constant
 	return byte((float64(b)/255*(max-min) + min) * 255)
 }
 
@@ -239,8 +241,10 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 
 	decodeTileGfxData(tile.Blocks, &floor, &wall, tileYOffset, tile.Width)
 
+	// nolint:gomnd // constant
 	floorBuf = make([]byte, tw*th*4) // rgba, fake palette values
-	wallBuf = make([]byte, tw*th*4)  // rgba, fake palette values
+	// nolint:gomnd // constant
+	wallBuf = make([]byte, tw*th*4) // rgba, fake palette values
 
 	for idx := range floor {
 		var alpha byte
@@ -445,33 +449,33 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 
 func getTileTypeString(t int32) string {
 	switch t {
-	case 0:
+	case hsenum.TileFloor:
 		return "floor"
-	case 10, 11:
+	case hsenum.TileSpecialTile1, hsenum.TileSpecialTile2:
 		return "special"
-	case 13:
+	case hsenum.TileShadow:
 		return "shadow"
-	case 14:
+	case hsenum.TileTree:
 		return "wall/object"
-	case 15:
+	case hsenum.TileRoof:
 		return "roof"
-	case 1:
+	case hsenum.TileLeftWall:
 		return "Left Wall"
-	case 2:
+	case hsenum.TileRightWall:
 		return "Upper Wall"
-	case 3:
+	case hsenum.TileRightPartOfNorthCornerWall:
 		return "Upper part of an Upper-Left corner"
-	case 4:
+	case hsenum.TileLeftPartOfNorthCornerWall:
 		return "Left part of an Upper-Left corner"
-	case 5:
+	case hsenum.TileLeftEndWall:
 		return "Upper-Right corner"
-	case 6:
+	case hsenum.TileRightEndWall:
 		return "Lower-Left corner"
-	case 7:
+	case hsenum.TileSouthCornerWall:
 		return "Lower-Right corner"
-	case 8:
+	case hsenum.TileLeftWallWithDoor:
 		return "Left Wall with Door object, but not always"
-	case 9:
+	case hsenum.TileRightWallWithDoor:
 		return "Upper Wall with Door object, but not always"
 	default:
 		return "lower wall ?"
@@ -521,7 +525,7 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	if tileTypeImage != nil {
 		tileTypeInfo = giu.Layout{
 			giu.Label(fmt.Sprintf("Type: %d (%s)", int(tile.Type), strType)),
-			tileTypeImage.Size(32, 32),
+			tileTypeImage.Size(imageW, imageH),
 		}
 	}
 
@@ -817,7 +821,7 @@ func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, ti
 }
 
 func decodeFloorBlock(block *d2dt1.Block, floorPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	// 3D isometric decoding
+	// nolint:gomnd // 3D isometric decoding
 	xjump := []int32{14, 12, 10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10, 12, 14}
 	nbpix := []int32{4, 8, 12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4}
 	blockX := int32(block.X)

@@ -13,6 +13,11 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
+const (
+	leftLayoutSize       = 180
+	bigImageW, bigImageH = 208, 208
+)
+
 // PaletteMapViewerState creates a new palette map viewer's state
 type PaletteMapViewerState struct {
 	selection int32
@@ -108,11 +113,12 @@ func (p *PaletteMapViewerWidget) Build() {
 	right := giu.Layout{
 		giu.Label("Palette Map"),
 		giu.Layout{
-			giu.Combo("", selections[state.selection], selections, &state.selection).Size(180),
+			giu.Combo("", selections[state.selection], selections, &state.selection).Size(leftLayoutSize),
 			p.getTransformViewLayout(state.selection),
 		},
 	}
 
+	// nolint:gomnd // constant
 	w1, h1 := float32(256+32), float32(256+48)
 	w2, h2 := w1, h1
 
@@ -182,6 +188,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 }
 
 func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interface.Color) {
+	// nolint:gomnd // constant
 	pix := make([]byte, 256*4)
 
 	img := &image.RGBA{
@@ -238,6 +245,7 @@ func (p *PaletteMapViewerWidget) transformSingle(key string, transform *[256]byt
 	l := giu.Layout{}
 
 	if tex, found := state.textures[key]; found {
+		// nolint:gomnd // constant
 		l = append(l, giu.Image(tex).Size(255, 255))
 	} else {
 		p.makeTexture(key, p.getColors(transform))
@@ -265,7 +273,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections-1))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(208, 208))
+		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
 	} else {
 		p.makeTexture(textureID, p.getColors(&transforms[state.slider1].Indices))
 	}
@@ -306,7 +314,7 @@ func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(208, 208))
+		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
 	} else {
 		col := p.getColors(&groups[groupIdx][state.slider1].Indices)
 		p.makeTexture(textureID, col)
@@ -329,6 +337,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 
 	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
 	if tex, found := state.textures[textureID]; found {
+		// nolint:gomnd // const
 		l = append(l, giu.Image(tex).Size(float32(len(colors)*16), 16))
 	} else {
 		colorFaces := make([]d2interface.Color, len(colors))
@@ -343,6 +352,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 			colorFaces[idx] = cface
 		}
 
+		// nolint:gomnd // constant
 		pix := make([]byte, len(colors)*4)
 
 		img := &image.RGBA{
@@ -399,13 +409,16 @@ func (c colorFace) B() uint8 {
 }
 
 func (c colorFace) A() uint8 {
+	// nolint:gomnd // full-opacity (RGBA a=255)
 	return 0xff
 }
 
 func (c colorFace) RGBA() uint32 {
+	// nolint:gomnd // constants
 	return uint32(c.r)<<24 | uint32(c.g)<<16 | uint32(c.b)<<8 | uint32(0xff)
 }
 
+// nolint:gomnd // constants
 func (c colorFace) SetRGBA(u uint32) {
 	c.r = byte((u >> 24) & 0xff)
 	c.g = byte((u >> 16) & 0xff)
@@ -413,9 +426,11 @@ func (c colorFace) SetRGBA(u uint32) {
 }
 
 func (c colorFace) BGRA() uint32 {
+	// nolint:gomnd // constants
 	return uint32(c.b)<<8 | uint32(c.g)<<16 | uint32(c.r)<<24 | uint32(0xff)
 }
 
+// nolint:gomnd // constants
 func (c colorFace) SetBGRA(u uint32) {
 	c.b = byte((u >> 24) & 0xff)
 	c.g = byte((u >> 16) & 0xff)

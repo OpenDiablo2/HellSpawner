@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+const (
+	newFilePerms = 0644
+)
+
 // Font represents font
 type Font struct {
 	filePath    string
@@ -55,7 +59,7 @@ func (f *Font) SaveToFile() error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(f.filePath, data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(f.filePath, data, os.FileMode(newFilePerms)); err != nil {
 		return err
 	}
 

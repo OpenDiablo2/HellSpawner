@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	fps25 = 25
+	indicatorSize = 64
 )
 
 // COFViewerState represents cof viewer's state
@@ -71,12 +71,14 @@ func (p *COFViewerWidget) Build() {
 		l2 = fmt.Sprintf("Frames: %v", numFrames)
 	}
 
-	fps := fps25 * (float64(p.cof.Speed) / float64(256))
+	// nolint:gomnd // constant
+	fps := 25 * (float64(p.cof.Speed) / float64(256))
 	if fps == 0 {
-		fps = fps25
+		fps = 25
 	}
 
 	l3 = fmt.Sprintf("FPS: %.1f", fps)
+	// nolint:gomnd // constant
 	l4 = fmt.Sprintf("Duration: %.2fms", float64(numFrames)*(1/fps)*1000)
 
 	layerStrings := make([]string, 0)
@@ -85,7 +87,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	layerList := giu.Combo("##"+p.id+"layer", layerStrings[state.layerIndex], layerStrings, &state.layerIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	directionStrings := make([]string, 0)
 	for idx := range p.cof.Priority {
@@ -93,7 +95,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	directionList := giu.Combo("##"+p.id+"dir", directionStrings[state.directionIndex], directionStrings, &state.directionIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)
 	for idx := range p.cof.Priority[state.directionIndex] {
@@ -101,7 +103,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	frameList := giu.Combo("##"+p.id+"frame", frameStrings[state.frameIndex], frameStrings, &state.frameIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	const vspace = 4 //nolint:unused // will be used
 

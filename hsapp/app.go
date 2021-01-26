@@ -1,7 +1,6 @@
 package hsapp
 
 import (
-	"image/color"
 	"log"
 	"os"
 	"path/filepath"
@@ -26,6 +25,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
@@ -48,6 +48,10 @@ const (
 
 const (
 	sampleRate = 22050
+)
+
+const (
+	bgColor = 0x0a0a0aff
 )
 
 // App represents an app
@@ -102,9 +106,10 @@ func Create() (*App, error) {
 // Run runs an app instance
 func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
-	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
+	wnd.SetBgColor(hsutil.Color(bgColor))
 
 	sampleRate := beep.SampleRate(sampleRate)
+	// nolint:gomnd // this is 0.1 of second
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}

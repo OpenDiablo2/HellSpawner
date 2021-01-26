@@ -21,6 +21,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
+const (
+	mainWindowW, mainWindowH = 300, 400
+)
+
 // MPQExplorerFileSelectedCallback represents file selected callback
 type MPQExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
@@ -82,7 +86,7 @@ func (m *MPQExplorer) Build() {
 			})})
 	} else {
 		m.IsOpen(&m.Visible).
-			Size(300, 400).
+			Size(mainWindowW, mainWindowH).
 			Layout(g.Layout{
 				g.Child("MpqExplorerContent").
 					Border(false).

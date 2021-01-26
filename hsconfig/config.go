@@ -13,6 +13,14 @@ import (
 	"github.com/kirsle/configdir"
 )
 
+const (
+	newFileMode = 0644
+)
+
+const (
+	maxRecentOpenedProjectsCount = 5
+)
+
 // Config represents HellSpawner's config
 type Config struct {
 	RecentProjects          []string
@@ -81,7 +89,7 @@ func (c *Config) Save() error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(getConfigPath(), data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(getConfigPath(), data, os.FileMode(newFileMode)); err != nil {
 		return err
 	}
 
@@ -108,7 +116,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 		recent := []string{filePath}
 
 		for idx := range c.RecentProjects {
-			if idx == 5 {
+			if idx == maxRecentOpenedProjectsCount {
 				break
 			}
 

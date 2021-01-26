@@ -12,6 +12,10 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 )
 
+const (
+	imageW, imageH = 32, 32
+)
+
 // DCCViewerState represents dcc viewers state
 type DCCViewerState struct {
 	controls struct {
@@ -132,7 +136,7 @@ func (p *DCCViewerWidget) Build() {
 
 		var widget *giu.ImageWidget
 		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
-			widget = giu.Image(nil).Size(32, 32)
+			widget = giu.Image(nil).Size(imageW, imageH)
 		} else {
 			bw := p.dcc.Directions[dirIdx].Box.Width
 			bh := p.dcc.Directions[dirIdx].Box.Height

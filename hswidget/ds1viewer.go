@@ -147,7 +147,7 @@ func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 	} else {
 		line := giu.Line(
 			giu.Label("No objects."),
-			giu.ImageWithFile("hsassets/images/shrug.png").Size(32, 32),
+			giu.ImageWithFile("hsassets/images/shrug.png").Size(imageW, imageH),
 		)
 		l = append(l, line)
 	}

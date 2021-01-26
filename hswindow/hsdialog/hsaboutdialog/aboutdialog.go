@@ -2,7 +2,6 @@
 package hsaboutdialog
 
 import (
-	"image/color"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -19,6 +18,10 @@ import (
 const (
 	mainWindowW, mainWindowH = 256, 256
 	mainLayoutW, mainLayoutH = 500, -1
+)
+
+const (
+	white = 0xffffffff
 )
 
 // AboutDialog represents about dialog
@@ -78,13 +81,14 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 
 // Build build an about dialog
 func (a *AboutDialog) Build() {
+	colorWhite := hsutil.Color(white)
 	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
 			g.ImageWithFile("hsassets/images/d2logo.png").Size(mainWindowW, mainWindowH),
 			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(g.Layout{
-				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
-				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),
-				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),
+				g.Label("HellSpawner").Color(&colorWhite).Font(&a.titleFont),
+				g.Label("The OpenDiablo 2 Toolset").Color(&colorWhite).Font(&a.regularFont),
+				g.Label("Local Build").Color(&colorWhite).Font(&a.fixedFont),
 				g.Separator(),
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
 					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{
