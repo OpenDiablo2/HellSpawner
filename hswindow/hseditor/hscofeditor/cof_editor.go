@@ -62,7 +62,7 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *COFEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data

@@ -147,7 +147,7 @@ func (s *SoundEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (s *SoundEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := s.Path.GetFileBytes()
 
 	return data

@@ -146,7 +146,7 @@ func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *FontTableEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data
