@@ -13,7 +13,7 @@ const (
 	fps25 = 25
 )
 
-// COFViewer represents cof viewer's state
+// COFViewerState represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
@@ -21,7 +21,7 @@ type COFViewerState struct {
 	layer          *d2cof.CofLayer
 }
 
-// Dispse clears viewer's layers
+// Dispose clears viewer's layers
 func (s *COFViewerState) Dispose() {
 	s.layer = nil
 }
@@ -44,11 +44,11 @@ func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 
 // Build builds a cof viewer
 func (p *COFViewerWidget) Build() {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	s := giu.Context.GetState(stateId)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
 
 	if s == nil {
-		giu.Context.SetState(stateId, &COFViewerState{
+		giu.Context.SetState(stateID, &COFViewerState{
 			layer: &p.cof.CofLayers[0],
 		})
 
@@ -130,8 +130,8 @@ func (p *COFViewerWidget) Build() {
 }
 
 func (p *COFViewerWidget) onUpdate() {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	clone := p.cof.CofLayers[state.layerIndex]
 	state.layer = &clone
@@ -140,8 +140,8 @@ func (p *COFViewerWidget) onUpdate() {
 }
 
 func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	if state.layer == nil {
 		p.onUpdate()
@@ -277,8 +277,8 @@ func getLayerName(i interface{}) string {
 }
 
 func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	frames := p.cof.Priority[state.directionIndex]
 	layers := frames[int(state.frameIndex)%len(frames)]

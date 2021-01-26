@@ -38,7 +38,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
+		hswidget.PaletteGrid(e.GetID()+"_grid", e.palette.GetColors()),
 	})
 }
 

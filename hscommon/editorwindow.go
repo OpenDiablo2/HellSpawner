@@ -15,8 +15,8 @@ type EditorWindow interface {
 	IsVisible() bool
 	// SetVisible can be used to set Visible to false if the editor should be closed
 	SetVisible(bool)
-	// GetId returns a unique identifier for this editor window
-	GetId() string
+	// GetID returns a unique identifier for this editor window
+	GetID() string
 	// BringToFront brings this editor to the front of the application, giving it focus
 	BringToFront()
 	// State returns the current state of this editor, in a JSON-serializable struct

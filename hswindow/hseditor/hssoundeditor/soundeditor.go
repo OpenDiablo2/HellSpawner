@@ -1,4 +1,4 @@
-// represents a soundEditor's window
+// Package hssoundeditor represents a soundEditor's window
 package hssoundeditor
 
 import (
@@ -139,6 +139,7 @@ func (s *SoundEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (s *SoundEditor) GenerateSaveData() []byte {
 	// TODO -- save real data for this editor
 	data, _ := s.Path.GetFileBytes()
@@ -146,6 +147,7 @@ func (s *SoundEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves an editor
 func (s *SoundEditor) Save() {
 	s.Editor.Save(s)
 }

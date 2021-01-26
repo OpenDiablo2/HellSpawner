@@ -15,7 +15,6 @@ const (
 //subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
-//nolint:structcheck,unused // will be used
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
@@ -25,19 +24,23 @@ type ds1Controls struct {
 	}
 }
 
+// DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
 }
 
+// Dispose clears viewers state
 func (is *DS1ViewerState) Dispose() {
-
+	// noop
 }
 
+// DS1ViewerWidget represents ds1 viewers widget
 type DS1ViewerWidget struct {
 	id  string
 	ds1 *d2ds1.DS1
 }
 
+// DS1Viewer creates a new ds1 viewer
 func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1ViewerWidget {
 	result := &DS1ViewerWidget{
 		id:  id,
@@ -78,6 +81,7 @@ func (p *DS1ViewerWidget) initState() {
 	p.setState(state)
 }
 
+// Build builds a viewer
 func (p *DS1ViewerWidget) Build() {
 	state := p.getState()
 

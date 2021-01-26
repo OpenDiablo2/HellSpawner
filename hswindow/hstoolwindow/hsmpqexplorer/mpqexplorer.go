@@ -124,7 +124,7 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 
 func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	if !pathEntry.IsDirectory {
-		id := generatePathEntryId(pathEntry)
+		id := generatePathEntryID(pathEntry)
 
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id).
@@ -191,7 +191,7 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 	}
 }
 
-func generatePathEntryId(pathEntry *hscommon.PathEntry) string {
+func generatePathEntryID(pathEntry *hscommon.PathEntry) string {
 	return "##MPQExplorerNode_" + pathEntry.FullPath
 }
 

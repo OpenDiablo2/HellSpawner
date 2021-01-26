@@ -24,6 +24,7 @@ const (
 	projectExtension = ".hsp"
 )
 
+// Project represents HellSpawner's project
 type Project struct {
 	ProjectName   string
 	Description   string
@@ -35,6 +36,7 @@ type Project struct {
 	mpqs           []d2interface.Archive
 }
 
+// CreateNew creates new project
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
@@ -59,14 +61,17 @@ func CreateNew(fileName string) (*Project, error) {
 	return result, nil
 }
 
+// GetProjectFileContentPath returns path to project's content
 func (p *Project) GetProjectFileContentPath() string {
 	return filepath.Join(filepath.Dir(p.filePath), "content")
 }
 
+// GetProjectFilePath returns project's file path
 func (p *Project) GetProjectFilePath() string {
 	return p.filePath
 }
 
+// Save saves project
 func (p *Project) Save() error {
 	var err error
 
@@ -88,6 +93,7 @@ func (p *Project) Save() error {
 	return nil
 }
 
+// ValidateAuxiliaryMPQs creates auxiliary mpq's list
 func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
 	for idx := range p.AuxiliaryMPQs {
 		realPath := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
@@ -99,6 +105,7 @@ func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
 	return true
 }
 
+// LoadFromFile loads projects file
 func LoadFromFile(fileName string) (*Project, error) {
 	var err error
 
@@ -138,6 +145,7 @@ func (p *Project) ensureProjectPaths() error {
 	return nil
 }
 
+// GetFileStructure returns project's file structure
 func (p *Project) GetFileStructure() *hscommon.PathEntry {
 	if p.pathEntryCache != nil {
 		return p.pathEntryCache
@@ -190,10 +198,12 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 	}
 }
 
+// InvalidateFileStructure cleans project's files structure
 func (p *Project) InvalidateFileStructure() {
 	p.pathEntryCache = nil
 }
 
+// RenameFile renames project's file
 func (p *Project) RenameFile(path string) {
 	pathEntry := p.FindPathEntry(path)
 	if pathEntry == nil {
@@ -205,6 +215,7 @@ func (p *Project) RenameFile(path string) {
 	pathEntry.IsRenaming = true
 }
 
+// FindPathEntry search for path entry in project's cahe
 func (p *Project) FindPathEntry(path string) *hscommon.PathEntry {
 	if p.pathEntryCache == nil {
 		return nil
@@ -231,6 +242,7 @@ func (p *Project) searchPathEntries(pathEntry *hscommon.PathEntry, path string) 
 	return nil
 }
 
+// CreateNewFolder creates a new directory
 func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
@@ -264,6 +276,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 	p.RenameFile(fileName)
 }
 
+// CreateNewFile creates a new file
 func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
@@ -301,6 +314,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	p.RenameFile(fileName)
 }
 
+// ReloadAuxiliaryMPQs reloads auxiliary MPQs
 func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 	p.mpqs = make([]d2interface.Archive, len(p.AuxiliaryMPQs))
 

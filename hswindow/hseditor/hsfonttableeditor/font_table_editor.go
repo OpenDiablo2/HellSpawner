@@ -1,4 +1,4 @@
-// represents fontTableEditor's window
+// Package hsfonttableeditor represents fontTableEditor's window
 package hsfonttableeditor
 
 import (
@@ -144,6 +144,7 @@ func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *FontTableEditor) GenerateSaveData() []byte {
 	// TODO -- save real data for this editor
 	data, _ := e.Path.GetFileBytes()
@@ -151,10 +152,12 @@ func (e *FontTableEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves an editor
 func (e *FontTableEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides an editor
 func (e *FontTableEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

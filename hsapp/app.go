@@ -46,6 +46,7 @@ const (
 	consoleDefaultY         = 500
 )
 
+// App represents an app
 type App struct {
 	project      *hsproject.Project
 	config       *hsconfig.Config
@@ -70,6 +71,7 @@ type App struct {
 	diabloRegularFont imgui.Font
 }
 
+// Create creates new app instance
 func Create() (*App, error) {
 	result := &App{
 		editors:            make([]hscommon.EditorWindow, 0),
@@ -82,6 +84,7 @@ func Create() (*App, error) {
 	return result, nil
 }
 
+// Run runs an app instance
 func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
@@ -233,9 +236,9 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 func (a *App) openEditor(path *hscommon.PathEntry) {
 	a.editorManagerMutex.RLock()
 
-	uniqueId := path.GetUniqueID()
+	uniqueID := path.GetUniqueID()
 	for idx := range a.editors {
-		if a.editors[idx].GetId() == uniqueId {
+		if a.editors[idx].GetID() == uniqueID {
 			a.editors[idx].BringToFront()
 			a.editorManagerMutex.RUnlock()
 
@@ -343,6 +346,7 @@ func (a *App) toggleConsole() {
 	a.console.ToggleVisibility()
 }
 
+// CloseAllOpenWindows closes all opened windows
 func (a *App) CloseAllOpenWindows() {
 	a.closePopups()
 	a.projectExplorer.Cleanup()
@@ -353,6 +357,7 @@ func (a *App) CloseAllOpenWindows() {
 	}
 }
 
+// Save saves app state
 func (a *App) Save() {
 	if a.project != nil {
 		a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
@@ -369,6 +374,7 @@ func (a *App) Save() {
 	}
 }
 
+// Quit quits the app
 func (a *App) Quit() {
 	if a.abyssWrapper.IsRunning() {
 		_ = a.abyssWrapper.Kill()

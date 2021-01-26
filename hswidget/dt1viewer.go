@@ -19,7 +19,6 @@ const (
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
-//nolint:unused,structcheck // will be used
 type dt1Controls struct {
 	tileGroup    int32
 	tileVariant  int32
@@ -33,6 +32,7 @@ type dt1Controls struct {
 	scale        int32
 }
 
+// DT1ViewerState represents dt1 viewers state
 type DT1ViewerState struct {
 	*dt1Controls
 
@@ -42,6 +42,7 @@ type DT1ViewerState struct {
 	textures   [][]map[string]*giu.Texture
 }
 
+// Dispose clears viewers state
 func (is *DT1ViewerState) Dispose() {
 	is.textures = nil
 }
@@ -53,11 +54,13 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 	return tileIdentity(str)
 }
 
+// DT1ViewerWidget represents dt1 viewers widget
 type DT1ViewerWidget struct {
 	id  string
 	dt1 *d2dt1.DT1
 }
 
+// DT1Viewer creates a new dt1 viewers widget
 func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 	result := &DT1ViewerWidget{
 		id:  id,
@@ -70,7 +73,7 @@ func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 }
 
 func (p *DT1ViewerWidget) registerKeyboardShortcuts() {
-
+	// noop
 }
 
 func (p *DT1ViewerWidget) getStateID() string {
@@ -110,6 +113,7 @@ func (p *DT1ViewerWidget) initState() {
 	p.setState(state)
 }
 
+// Build builds a viewer
 func (p *DT1ViewerWidget) Build() {
 	state := p.getState()
 
@@ -137,17 +141,17 @@ func (p *DT1ViewerWidget) Build() {
 func (p *DT1ViewerWidget) groupTilesByIdentity() [][]*d2dt1.Tile {
 	result := make([][]*d2dt1.Tile, 0)
 
-	var tileId, groupId tileIdentity
+	var tileID, groupID tileIdentity
 
 OUTER:
 	for tileIdx := range p.dt1.Tiles {
 		tile := &p.dt1.Tiles[tileIdx]
-		tileId = tileId.fromTile(tile)
+		tileID = tileID.fromTile(tile)
 
 		for groupIdx := range result {
-			groupId = groupId.fromTile(result[groupIdx][0])
+			groupID = groupID.fromTile(result[groupIdx][0])
 
-			if tileId == groupId {
+			if tileID == groupID {
 				result[groupIdx] = append(result[groupIdx], tile)
 				continue OUTER
 			}
@@ -569,11 +573,13 @@ func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	}
 }
 
+// TileGroup returns current tile group
 func (p *DT1ViewerWidget) TileGroup() int32 {
 	state := p.getState()
 	return state.tileGroup
 }
 
+// SetTileGroup sets current tile group
 func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	state := p.getState()
 	if int(tileGroup) > len(state.tileGroups) {
@@ -623,6 +629,7 @@ func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
 	return f
 }
 
+// String returns current subtiles name
 func (f subtileFlag) String() string {
 	lookup := map[subtileFlag]string{
 		1 << 0: "block walk",
@@ -643,42 +650,34 @@ func (f subtileFlag) String() string {
 	return str
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) blockWalk() bool {
 	return ((f >> 0) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) blockLightAndLOS() bool {
 	return ((f >> 1) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) blockJumpAndTeleport() bool {
 	return ((f >> 2) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) blockPlayerAllowMercWalk() bool {
 	return ((f >> 3) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) unknown4() bool {
 	return ((f >> 4) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) blockLightOnly() bool {
 	return ((f >> 5) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) unknown6() bool {
 	return ((f >> 6) & 0b1) > 0
 }
 
-//nolint:unused // will be used
 func (f subtileFlag) unknown7() bool {
 	return ((f >> 7) & 0b1) > 0
 }

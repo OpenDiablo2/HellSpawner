@@ -50,7 +50,7 @@ func (t *Window) Render() {
 	t.WindowWidget.Build()
 }
 
-// RegisterKeyboardShortcut registers a keyboard shortcut
+// RegisterKeyboardShortcuts registers a keyboard shortcut
 func (t *Window) RegisterKeyboardShortcuts() {
 	// noop
 }

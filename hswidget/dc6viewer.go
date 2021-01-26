@@ -19,6 +19,7 @@ const (
 	maxAlpha = uint8(255)
 )
 
+// DC6ViewerState represents dc6 viewer's state
 type DC6ViewerState struct {
 	controls struct {
 		direction int32
@@ -33,15 +34,18 @@ type DC6ViewerState struct {
 	rgb                []*image2.RGBA
 }
 
+// Dispose cleans state content
 func (is *DC6ViewerState) Dispose() {
 	is.texture = nil
 }
 
+// DC6ViewerWidget represents dc6viewer's widget
 type DC6ViewerWidget struct {
 	id  string
 	dc6 *d2dc6.DC6
 }
 
+// DC6Viewer creates new DC6ViewerWidget
 func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 	result := &DC6ViewerWidget{
 		id:  id,
@@ -51,12 +55,13 @@ func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 	return result
 }
 
+// Build builds a widget
 func (p *DC6ViewerWidget) Build() {
 	var widget *giu.ImageWidget
 
-	stateId := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
+	stateID := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
 
-	state := giu.Context.GetState(stateId)
+	state := giu.Context.GetState(stateID)
 	if state == nil {
 		//Prevent multiple invocation to LoadImage.
 		newState := &DC6ViewerState{
@@ -91,7 +96,7 @@ func (p *DC6ViewerWidget) Build() {
 			}
 		}
 
-		giu.Context.SetState(stateId, newState)
+		giu.Context.SetState(stateID, newState)
 
 		widget.Build()
 	} else {
@@ -104,14 +109,14 @@ func (p *DC6ViewerWidget) Build() {
 			viewerState.loadingTexture = true
 			viewerState.texture = nil
 
-			giu.Context.SetState(stateId, viewerState)
+			giu.Context.SetState(stateID, viewerState)
 
 			hscommon.CreateTextureFromARGB(viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))], func(tex *g.Texture) {
-				newState := giu.Context.GetState(stateId).(*DC6ViewerState)
+				newState := giu.Context.GetState(stateID).(*DC6ViewerState)
 
 				newState.texture = tex
 				newState.loadingTexture = false
-				giu.Context.SetState(stateId, newState)
+				giu.Context.SetState(stateID, newState)
 			})
 		}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/ianling/imgui-go"
 )
 
+// DCCViewerState represents dcc viewers state
 type DCCViewerState struct {
 	controls struct {
 		direction int32
@@ -21,15 +22,18 @@ type DCCViewerState struct {
 	textures []*giu.Texture
 }
 
+// Dispose cleans viewers state
 func (is *DCCViewerState) Dispose() {
 	is.textures = nil
 }
 
+// DCCViewerWidget creates a new dcc widget
 type DCCViewerWidget struct {
 	id  string
 	dcc *d2dcc.DCC
 }
 
+// DCCViewer creates a new dcc viewers widget
 func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 	result := &DCCViewerWidget{
 		id:  id,
@@ -39,13 +43,14 @@ func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 	return result
 }
 
+// Build build a widget
 func (p *DCCViewerWidget) Build() {
-	stateId := fmt.Sprintf("DCCViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId)
+	stateID := fmt.Sprintf("DCCViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID)
 
 	if state == nil {
 		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &DCCViewerState{})
+		giu.Context.SetState(stateID, &DCCViewerState{})
 
 		totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
 		images := make([]*image2.RGBA, totalFrames)
@@ -96,7 +101,7 @@ func (p *DCCViewerWidget) Build() {
 					log.Fatal(err)
 				}
 			}
-			giu.Context.SetState(stateId, &DCCViewerState{textures: textures})
+			giu.Context.SetState(stateID, &DCCViewerState{textures: textures})
 		}()
 
 		// display a temporary dummy image until the real one ready

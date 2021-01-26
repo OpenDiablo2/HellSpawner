@@ -16,22 +16,25 @@ const (
 	cellSize   = 12
 )
 
-//nolint:structcheck,unused // will be used
+// PaletteGridState represents pallete grid's state
 type PaletteGridState struct {
 	loading bool
 	failure bool
 	texture *giu.Texture
 }
 
+// Dispose cleans pallete grids state
 func (p *PaletteGridState) Dispose() {
 	p.texture = nil
 }
 
+// PaletteGridWidget represents palette grids widget
 type PaletteGridWidget struct {
 	id     string
 	colors [256]d2interface.Color
 }
 
+// PaletteGrid creates a new pallete grid's widget
 func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
 	result := &PaletteGridWidget{
 		id:     id,
@@ -41,17 +44,18 @@ func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
 	return result
 }
 
+// Build build a new widget
 func (p *PaletteGridWidget) Build() {
 	var widget *giu.ImageWidget
 
-	stateId := fmt.Sprintf("PaletteGridWidget_%s", p.id)
+	stateID := fmt.Sprintf("PaletteGridWidget_%s", p.id)
 
-	state := giu.Context.GetState(stateId)
+	state := giu.Context.GetState(stateID)
 	if state == nil {
 		widget = giu.Image(nil).Size(gridWidth*cellSize, gridHeight*cellSize)
 
 		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &PaletteGridState{})
+		giu.Context.SetState(stateID, &PaletteGridState{})
 
 		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))
 
@@ -76,7 +80,7 @@ func (p *PaletteGridWidget) Build() {
 		go func() {
 			texture, err := giu.NewTextureFromRgba(rgb)
 			if err == nil {
-				giu.Context.SetState(stateId, &PaletteGridState{texture: texture})
+				giu.Context.SetState(stateID, &PaletteGridState{texture: texture})
 			}
 		}()
 	} else {

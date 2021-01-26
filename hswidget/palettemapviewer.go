@@ -12,6 +12,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
+// PaletteMapViewerState creates a new palette map viewer's state
 type PaletteMapViewerState struct {
 	selection int32
 	slider1   int32
@@ -19,15 +20,18 @@ type PaletteMapViewerState struct {
 	textures  map[string]*giu.Texture
 }
 
+// Dispose cleans viewer's state
 func (p *PaletteMapViewerState) Dispose() {
 	p.textures = make(map[string]*giu.Texture)
 }
 
+// PaletteMapViewerWidget represents a palette map viewer's widget
 type PaletteMapViewerWidget struct {
 	id  string
 	pl2 *d2pl2.PL2
 }
 
+// PaletteMapViewer creates a new pallete map viewer's widget
 func PaletteMapViewer(id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
 	result := &PaletteMapViewerWidget{
 		id:  id,
@@ -68,6 +72,7 @@ func (p *PaletteMapViewerWidget) setState(s *PaletteMapViewerState) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
+// Build builds a new widget
 func (p *PaletteMapViewerWidget) Build() {
 	state := p.getState()
 
@@ -269,7 +274,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 	return l
 }
 
-// groups of multiple transforms (m * n * 256 palette indices)
+// tranferMultiGroup - groups of multiple transforms (m * n * 256 palette indices)
 // example: alpha blend, there's 3 alpha levels (25%, 50%, 75% ?), and each do a blend against all 256 colors
 func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2PaletteTransform) giu.Layout {
 	state := p.getState()
