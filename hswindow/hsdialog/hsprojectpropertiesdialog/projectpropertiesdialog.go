@@ -135,31 +135,37 @@ func (p *ProjectPropertiesDialog) Build() {
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
 							imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{})
 							for idx := range p.project.AuxiliaryMPQs {
+								currentIdx := idx
+
 								if idx >= len(p.project.AuxiliaryMPQs) {
 									break
 								}
+
 								g.Line(
-									g.Custom(func() { imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", idx)) }),
+									g.Custom(func() {
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", currentIdx))
+									}),
+
 									g.ImageButton(p.removeIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
-										copy(p.project.AuxiliaryMPQs[idx:], p.project.AuxiliaryMPQs[idx+1:])
+										copy(p.project.AuxiliaryMPQs[currentIdx:], p.project.AuxiliaryMPQs[currentIdx+1:])
 										p.project.AuxiliaryMPQs = p.project.AuxiliaryMPQs[:len(p.project.AuxiliaryMPQs)-1]
 									}),
 									g.Custom(func() {
 										imgui.PopID()
-										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqDown_%d", idx))
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqDown_%d", currentIdx))
 									}),
 									g.ImageButton(p.downIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
-										if idx < len(p.project.AuxiliaryMPQs)-1 {
-											p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx+1] = p.project.AuxiliaryMPQs[idx+1], p.project.AuxiliaryMPQs[idx]
+										if currentIdx < len(p.project.AuxiliaryMPQs)-1 {
+											p.project.AuxiliaryMPQs[currentIdx], p.project.AuxiliaryMPQs[idx+1] = p.project.AuxiliaryMPQs[idx+1], p.project.AuxiliaryMPQs[idx]
 										}
 									}),
 									g.Custom(func() {
 										imgui.PopID()
-										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqUp_%d", idx))
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqUp_%d", currentIdx))
 									}),
 									g.ImageButton(p.upIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
-										if idx > 0 {
-											p.project.AuxiliaryMPQs[idx-1], p.project.AuxiliaryMPQs[idx] = p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx-1]
+										if currentIdx > 0 {
+											p.project.AuxiliaryMPQs[currentIdx-1], p.project.AuxiliaryMPQs[currentIdx] = p.project.AuxiliaryMPQs[currentIdx], p.project.AuxiliaryMPQs[currentIdx-1]
 										}
 									}),
 									g.Custom(func() { imgui.PopID() }),
