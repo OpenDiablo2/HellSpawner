@@ -141,7 +141,6 @@ func (p *DC6ViewerWidget) Build() {
 		if viewerState.texture == nil {
 			widget = g.Image(nil).Size(w, h)
 		} else {
-
 			widget = g.Image(viewerState.texture).Size(w, h)
 		}
 
