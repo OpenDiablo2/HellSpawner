@@ -1,13 +1,14 @@
 package hsdt1editor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"

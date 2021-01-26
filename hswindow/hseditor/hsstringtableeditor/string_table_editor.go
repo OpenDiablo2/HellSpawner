@@ -1,15 +1,14 @@
 package hsstringtableeditor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
-	"github.com/OpenDiablo2/dialog"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 

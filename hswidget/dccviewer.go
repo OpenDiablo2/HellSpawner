@@ -6,9 +6,10 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 )
 
 // DCCViewerState represents dcc viewers state

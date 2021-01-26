@@ -3,8 +3,9 @@ package hswidget
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
 
 const (

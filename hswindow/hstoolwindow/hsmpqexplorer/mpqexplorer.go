@@ -8,15 +8,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )

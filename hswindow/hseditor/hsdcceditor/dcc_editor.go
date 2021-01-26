@@ -1,9 +1,11 @@
 package hsdcceditor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 

@@ -1,9 +1,10 @@
 package hscofeditor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 

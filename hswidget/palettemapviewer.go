@@ -5,9 +5,10 @@ import (
 	"image"
 	"log"
 
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )

@@ -6,10 +6,12 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
-	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
 const (
