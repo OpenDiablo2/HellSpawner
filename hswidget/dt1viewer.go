@@ -304,6 +304,7 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	return layout
 }
 
+// nolint:funlen // no need to change
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 

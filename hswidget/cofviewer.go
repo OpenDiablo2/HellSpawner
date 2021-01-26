@@ -155,9 +155,28 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	strSelectable := fmt.Sprintf("Selectable: %t", state.layer.Selectable)
 	strTransparent := fmt.Sprintf("Transparent: %t", state.layer.Transparent)
 
+	effect := p.getDrawEffect(state.layer.DrawEffect)
+
+	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
+
+	weapon := p.getWeaponClass(state.layer.WeaponClass)
+
+	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.layer.WeaponClass, weapon)
+
+	return giu.Layout{
+		giu.Label(strType),
+		giu.Label(strShadow),
+		giu.Label(strSelectable),
+		giu.Label(strTransparent),
+		giu.Label(strEffect),
+		giu.Label(strWeaponClass),
+	}
+}
+
+func (p *COFViewerWidget) getDrawEffect(eff d2enum.DrawEffect) string {
 	var effect string
 
-	switch state.layer.DrawEffect {
+	switch eff {
 	case d2enum.DrawEffectPctTransparency25:
 		effect = "25% alpha"
 	case d2enum.DrawEffectPctTransparency50:
@@ -178,11 +197,13 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		effect = "None"
 	}
 
-	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
+	return effect
+}
 
+func (p *COFViewerWidget) getWeaponClass(cls d2enum.WeaponClass) string {
 	var weapon string
 
-	switch state.layer.WeaponClass {
+	switch cls {
 	case d2enum.WeaponClassNone:
 		weapon = "None"
 	case d2enum.WeaponClassHandToHand:
@@ -215,16 +236,7 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		weapon = "Two Hand To Hand"
 	}
 
-	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.layer.WeaponClass, weapon)
-
-	return giu.Layout{
-		giu.Label(strType),
-		giu.Label(strShadow),
-		giu.Label(strSelectable),
-		giu.Label(strTransparent),
-		giu.Label(strEffect),
-		giu.Label(strWeaponClass),
-	}
+	return weapon
 }
 
 func getLayerName(i interface{}) string {

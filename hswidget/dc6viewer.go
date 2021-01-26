@@ -55,6 +55,7 @@ func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 }
 
 // Build builds a widget
+// nolint:funlen // no need to change
 func (p *DC6ViewerWidget) Build() {
 	var widget *g.ImageWidget
 

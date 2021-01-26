@@ -87,6 +87,7 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 }
 
 // Build builds a dialog
+// nolint:funlen // no need to change
 func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 

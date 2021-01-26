@@ -45,6 +45,7 @@ func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 }
 
 // Build build a widget
+// nolint:funlen // no need to change
 func (p *DCCViewerWidget) Build() {
 	stateID := fmt.Sprintf("DCCViewerWidget_%s", p.id)
 	state := giu.Context.GetState(stateID)
