@@ -18,7 +18,9 @@ const (
 
 // PaletteGridState represents pallete grid's state
 type PaletteGridState struct {
+	// nolint:unused,structcheck // will be used
 	loading bool
+	// nolint:unused,structcheck // will be used
 	failure bool
 	texture *giu.Texture
 }

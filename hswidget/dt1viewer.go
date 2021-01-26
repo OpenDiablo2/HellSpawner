@@ -23,10 +23,13 @@ const (
 )
 
 type dt1Controls struct {
-	tileGroup    int32
-	tileVariant  int32
-	tileType     int32
-	tileStyle    int32
+	tileGroup   int32
+	tileVariant int32
+	// nolint:unused,structcheck // will be used
+	tileType int32
+	// nolint:unused,structcheck // will be used
+	tileStyle int32
+	// nolint:unused,structcheck // will be used
 	tileSequence int32
 	showGrid     bool
 	showFloor    bool
@@ -654,34 +657,42 @@ func (f subtileFlag) String() string {
 	return str
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) blockWalk() bool {
 	return ((f >> 0) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) blockLightAndLOS() bool {
 	return ((f >> 1) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) blockJumpAndTeleport() bool {
 	return ((f >> 2) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) blockPlayerAllowMercWalk() bool {
 	return ((f >> 3) & 0b1) > 0
 }
 
+// nolint:unused // I suppose, it will be used
 func (f subtileFlag) unknown4() bool {
 	return ((f >> 4) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) blockLightOnly() bool {
 	return ((f >> 5) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) unknown6() bool {
 	return ((f >> 6) & 0b1) > 0
 }
 
+// nolint:unused // will be used
 func (f subtileFlag) unknown7() bool {
 	return ((f >> 7) & 0b1) > 0
 }

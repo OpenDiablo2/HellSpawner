@@ -15,6 +15,7 @@ import (
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
+	// nolint:unused,structcheck // will be used
 	header g.RowWidget
 	rows   g.Rows
 	dict   d2tbl.TextDictionary
