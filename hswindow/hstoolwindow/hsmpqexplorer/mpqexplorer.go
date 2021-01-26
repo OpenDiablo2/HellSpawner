@@ -1,3 +1,4 @@
+// Package hsmpqexplorer contains mpq explorer's data
 package hsmpqexplorer
 
 import (

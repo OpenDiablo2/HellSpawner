@@ -1,3 +1,4 @@
+// Package hsfont contains data for font file types
 package hsfont
 
 import (

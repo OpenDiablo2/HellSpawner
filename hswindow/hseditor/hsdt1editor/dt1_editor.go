@@ -1,3 +1,4 @@
+// Package hsdt1editor contains dt1 editor's data
 package hsdt1editor
 
 import (

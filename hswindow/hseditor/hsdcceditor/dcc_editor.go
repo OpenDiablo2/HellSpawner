@@ -1,3 +1,4 @@
+// Package hsdcceditor contains dcc editor's data
 package hsdcceditor
 
 import (

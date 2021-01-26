@@ -1,3 +1,4 @@
+// Package hsprojectpropertiesdialog contains project properties dialog's data
 package hsprojectpropertiesdialog
 
 import (

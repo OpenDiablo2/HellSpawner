@@ -1,3 +1,4 @@
+// Pakcage hsnode contains game nodes
 package hsnode
 
 import "strings"

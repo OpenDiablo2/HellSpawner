@@ -1,3 +1,4 @@
+// Package hstexteditor contains text editor's data
 package hstexteditor
 
 import (

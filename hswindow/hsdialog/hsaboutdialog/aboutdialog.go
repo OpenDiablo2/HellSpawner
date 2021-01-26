@@ -1,3 +1,4 @@
+// Package hsaboutdialog contains about dialog's data
 package hsaboutdialog
 
 import (

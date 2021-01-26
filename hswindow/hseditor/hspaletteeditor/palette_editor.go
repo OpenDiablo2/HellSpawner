@@ -1,3 +1,4 @@
+// Package hspaletteeditor contains palette editor's data
 package hspaletteeditor
 
 import (

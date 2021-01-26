@@ -1,3 +1,4 @@
+// Package hsfonteditor contains font editor's data
 package hsfonteditor
 
 import (

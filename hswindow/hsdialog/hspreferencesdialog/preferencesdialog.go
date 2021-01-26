@@ -1,3 +1,4 @@
+// Package hspreferencesdialog contains preferences dialog data
 package hspreferencesdialog
 
 import (

@@ -1,3 +1,4 @@
+// Package hsprojectexplorer contains project explorer's data
 package hsprojectexplorer
 
 import (

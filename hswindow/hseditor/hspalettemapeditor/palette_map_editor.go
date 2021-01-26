@@ -1,3 +1,4 @@
+// Pakcage hspalettemapeditor contains palette map editor's data
 package hspalettemapeditor
 
 import (

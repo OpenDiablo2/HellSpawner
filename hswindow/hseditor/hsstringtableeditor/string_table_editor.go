@@ -1,3 +1,4 @@
+// Package hsstringtableeditor contains string tables editor's data
 package hsstringtableeditor
 
 import (

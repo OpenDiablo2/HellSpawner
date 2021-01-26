@@ -1,3 +1,4 @@
+// package hsdialog contains project's dialogs
 package hsdialog
 
 import (

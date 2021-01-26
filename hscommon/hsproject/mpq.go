@@ -76,7 +76,7 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 	if config.ExternalListFile != "" {
 		file, err := os.Open(config.ExternalListFile)
 		if err != nil {
-			return files, errors.New("Couldn't open listfile")
+			return files, errors.New("couldn't open listfile")
 		}
 
 		defer func() {

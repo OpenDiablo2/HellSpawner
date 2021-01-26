@@ -1,3 +1,4 @@
+// Package hscofeditor contains cof editor's data
 package hscofeditor
 
 import (
