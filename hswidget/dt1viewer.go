@@ -757,7 +757,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 						Y: p1.Y + oy,
 					}
 
-					c := color.RGBA{
+					col := color.RGBA{
 						R: 0,
 						G: 255,
 						B: 255,
@@ -769,7 +769,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
 
 					if hasFlag {
-						canvas.AddCircle(flagPoint, 3, c, 1, 0)
+						canvas.AddCircle(flagPoint, 3, col, 1, 0)
 					}
 				}
 

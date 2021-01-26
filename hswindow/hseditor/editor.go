@@ -59,7 +59,7 @@ func (e *Editor) Save(editor Saveable) {
 		return
 	}
 
-	if editor, isSaveable := editor.(Saveable); isSaveable {
+	if _, isSaveable := editor.(Saveable); isSaveable {
 		saveData := editor.GenerateSaveData()
 		if saveData == nil {
 			return
@@ -93,7 +93,7 @@ func (e *Editor) HasChanges(editor Saveable) bool {
 		return false
 	}
 
-	if editor, isSaveable := editor.(Saveable); isSaveable {
+	if _, isSaveable := editor.(Saveable); isSaveable {
 		newData := editor.GenerateSaveData()
 		if newData != nil {
 			oldData, err := e.Path.GetFileBytes()
