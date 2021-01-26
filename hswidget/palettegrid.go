@@ -75,6 +75,7 @@ func (p *PaletteGridWidget) Build() {
 
 				col := p.colors[idx]
 
+				// nolint:gomnd // const
 				rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
 			}
 		}

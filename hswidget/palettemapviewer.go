@@ -122,7 +122,7 @@ func (p *PaletteMapViewerWidget) Build() {
 	w1, h1 := float32(256+32), float32(256+48)
 	w2, h2 := w1, h1
 
-	// special case for alpha blend
+	// nolint:gomnd // special case for alpha blend
 	if state.selection == 3 {
 		h2 += 32
 	}
@@ -219,6 +219,7 @@ func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface
 	result := &[256]d2interface.Color{}
 
 	for idx := range indices {
+		// nolint:gomnd // const
 		if idx > 255 {
 			break
 		}

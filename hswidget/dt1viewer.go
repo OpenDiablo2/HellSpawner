@@ -252,6 +252,7 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 		floorVal := floor[idx]
 		wallVal := wall[idx]
 
+		// nolint:gomnd // constant
 		r, g, b, a := idx*4+0, idx*4+1, idx*4+2, idx*4+3
 
 		// the faux rgb color data here is just to make it look more interesting
@@ -378,8 +379,10 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
+				// nolint:gomnd // const
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
 				}
@@ -399,9 +402,11 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
+					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -484,25 +489,25 @@ func getTileTypeString(t int32) string {
 
 func getTileTypeImage(t int32) string {
 	switch t {
-	case 0:
+	case hsenum.TileFloor:
 		return "floor.png"
-	case 1:
+	case hsenum.TileLeftWall:
 		return "wall_west.png"
-	case 2:
+	case hsenum.TileRightWall:
 		return "wall_north.png"
-	case 3:
+	case hsenum.TileRightPartOfNorthCornerWall:
 		return "corner_upper_north.png"
-	case 4:
+	case hsenum.TileLeftPartOfNorthCornerWall:
 		return "corner_upper_west.png"
-	case 5:
+	case hsenum.TileLeftEndWall:
 		return "corner_upper_east.png"
-	case 6:
+	case hsenum.TileRightEndWall:
 		return "corner_lower_south.png"
-	case 7:
+	case hsenum.TileSouthCornerWall:
 		return "corner_lower_east.png"
-	case 8:
+	case hsenum.TileLeftWallWithDoor:
 		return "door_west.png"
-	case 9:
+	case hsenum.TileRightWallWithDoor:
 		return "door_north.png"
 	default:
 		return ""
@@ -615,26 +620,32 @@ func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
 	}
 
 	if flags.BlockJump {
+		// nolint:gomnd // const
 		f |= 1 << 2
 	}
 
 	if flags.BlockPlayerWalk {
+		// nolint:gomnd // const
 		f |= 1 << 3
 	}
 
 	if flags.Unknown1 {
+		// nolint:gomnd // const
 		f |= 1 << 4
 	}
 
 	if flags.BlockLight {
+		// nolint:gomnd // const
 		f |= 1 << 5
 	}
 
 	if flags.Unknown2 {
+		// nolint:gomnd // const
 		f |= 1 << 6
 	}
 
 	if flags.Unknown3 {
+		// nolint:gomnd // const
 		f |= 1 << 7
 	}
 
@@ -664,41 +675,49 @@ func (f subtileFlag) String() string {
 
 // nolint:unused // will be used
 func (f subtileFlag) blockWalk() bool {
+	// nolint:gomnd // const
 	return ((f >> 0) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) blockLightAndLOS() bool {
+	// nolint:gomnd // const
 	return ((f >> 1) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) blockJumpAndTeleport() bool {
+	// nolint:gomnd // const
 	return ((f >> 2) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) blockPlayerAllowMercWalk() bool {
+	// nolint:gomnd // const
 	return ((f >> 3) & 0b1) > 0
 }
 
 // nolint:unused // I suppose, it will be used
 func (f subtileFlag) unknown4() bool {
+	// nolint:gomnd // const
 	return ((f >> 4) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) blockLightOnly() bool {
+	// nolint:gomnd // const
 	return ((f >> 5) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) unknown6() bool {
+	// nolint:gomnd // const
 	return ((f >> 6) & 0b1) > 0
 }
 
 // nolint:unused // will be used
 func (f subtileFlag) unknown7() bool {
+	// nolint:gomnd // const
 	return ((f >> 7) & 0b1) > 0
 }
 
@@ -743,9 +762,11 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
+					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -762,6 +783,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 						Y: p1.Y + oy,
 					}
 
+					// nolint:gomnd // const
 					col := color.RGBA{
 						R: 0,
 						G: 255,
@@ -769,6 +791,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 						A: 255,
 					}
 
+					// nolint:gomnd // constant
 					flag := subtileFlag(0).from(tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)])
 
 					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
@@ -793,9 +816,11 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
+					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -820,8 +845,8 @@ func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, ti
 	}
 }
 
+// nolint:gomnd // 3D isometric decoding
 func decodeFloorBlock(block *d2dt1.Block, floorPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	// nolint:gomnd // 3D isometric decoding
 	xjump := []int32{14, 12, 10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10, 12, 14}
 	nbpix := []int32{4, 8, 12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4}
 	blockX := int32(block.X)
