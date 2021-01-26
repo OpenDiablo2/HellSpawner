@@ -317,8 +317,10 @@ func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 			}
 
 			p.mpqs[idx] = data
+
 			wg.Done()
 		}(mpqIdx)
 	}
+
 	wg.Wait()
 }

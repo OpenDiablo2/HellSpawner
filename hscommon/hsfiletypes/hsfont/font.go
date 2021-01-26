@@ -46,6 +46,7 @@ func (f *Font) JSON() ([]byte, error) {
 // SaveToFile saves font
 func (f *Font) SaveToFile() error {
 	var data []byte
+
 	var err error
 
 	data, err = f.JSON()

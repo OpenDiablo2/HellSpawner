@@ -107,6 +107,7 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 			if err != nil {
 				log.Fatal("failed to load mpq: ", err)
 			}
+
 			nodes := m.project.GetMPQFileNodes(mpq, m.config)
 			result[idx] = m.renderNodes(nodes)
 
@@ -117,12 +118,14 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	wg.Wait()
 
 	m.nodeCache = result
+
 	return result
 }
 
 func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	if !pathEntry.IsDirectory {
 		id := generatePathEntryId(pathEntry)
+
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id).
 				OnClick(func() {
@@ -144,6 +147,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	for childIdx := range pathEntry.Children {
 		go func(idx int) {
 			widgets[idx] = m.renderNodes(pathEntry.Children[idx])
+
 			wg.Done()
 		}(childIdx)
 	}
@@ -165,6 +169,7 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 		// strip "data" from the beginning of the path if it exists
 		pathToFile = pathToFile[4:]
 	}
+
 	pathToFile = path.Join(m.project.GetProjectFileContentPath(), pathToFile)
 	pathToFile = strings.ReplaceAll(pathToFile, "\\", "/")
 
@@ -174,7 +179,9 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 			Path: pathToFile,
 			Data: data,
 		}
+
 		m.filesToOverwrite = append(m.filesToOverwrite, fileInfo)
+
 		return
 	}
 

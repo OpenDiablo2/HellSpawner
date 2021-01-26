@@ -91,9 +91,11 @@ func (c *Config) Save() error {
 // AddToRecentProjects adds a path to recent opened projects
 func (c *Config) AddToRecentProjects(filePath string) {
 	found := false
+
 	for idx := range c.RecentProjects {
 		if c.RecentProjects[idx] == filePath {
 			found = true
+
 			if idx != 0 {
 				old := c.RecentProjects[0]
 				c.RecentProjects[0] = filePath
@@ -104,6 +106,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 
 	if !found {
 		recent := []string{filePath}
+
 		for idx := range c.RecentProjects {
 			if idx == 5 {
 				break

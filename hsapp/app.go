@@ -114,10 +114,13 @@ func (a *App) render() {
 		editor := a.editors[idx]
 		if !editor.IsVisible() {
 			editor.Cleanup()
+
 			if editor.HasFocus() {
 				a.focusedEditor = nil
 			}
+
 			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
+
 			continue
 		}
 
@@ -130,7 +133,9 @@ func (a *App) render() {
 		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
 		if !hadFocus && editor.HasFocus() {
 			hsinput.UnregisterWindowShortcuts()
+
 			editor.RegisterKeyboardShortcuts()
+
 			a.focusedEditor = editor
 		}
 
@@ -141,6 +146,7 @@ func (a *App) render() {
 		a.projectExplorer.Build()
 		a.projectExplorer.Render()
 	}
+
 	if a.mpqExplorer.IsVisible() {
 		a.mpqExplorer.Build()
 		a.mpqExplorer.Render()
@@ -180,7 +186,6 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-
 	imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
 	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
 	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
@@ -233,6 +238,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 		if a.editors[idx].GetId() == uniqueId {
 			a.editors[idx].BringToFront()
 			a.editorManagerMutex.RUnlock()
+
 			return
 		}
 	}
@@ -244,6 +250,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 func (a *App) loadProjectFromFile(file string) {
 	var project *hsproject.Project
+
 	var err error
 
 	if project, err = hsproject.LoadFromFile(file); err != nil {
@@ -278,6 +285,7 @@ func (a *App) updateWindowTitle() {
 		glfw.GetCurrentContext().SetTitle(baseWindowTitle)
 		return
 	}
+
 	glfw.GetCurrentContext().SetTitle(baseWindowTitle + " - " + a.project.ProjectName)
 }
 
@@ -290,6 +298,7 @@ func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
 	if err := a.project.Save(); err != nil {
 		log.Fatal(err)
 	}
+
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
 }
@@ -338,6 +347,7 @@ func (a *App) CloseAllOpenWindows() {
 	a.closePopups()
 	a.projectExplorer.Cleanup()
 	a.mpqExplorer.Cleanup()
+
 	for _, editor := range a.editors {
 		editor.Cleanup()
 	}

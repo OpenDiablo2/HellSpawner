@@ -52,10 +52,11 @@ func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 }
 
 func (p *DC6ViewerWidget) Build() {
-	stateId := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId)
 	var widget *giu.ImageWidget
 
+	stateId := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
+
+	state := giu.Context.GetState(stateId)
 	if state == nil {
 		//Prevent multiple invocation to LoadImage.
 		newState := &DC6ViewerState{
@@ -162,5 +163,4 @@ func (p *DC6ViewerWidget) Build() {
 			widget,
 		}.Build()
 	}
-
 }

@@ -82,14 +82,15 @@ func (p *DCCViewerWidget) Build() {
 						images[absoluteFrameIdx].Set(x, y, color)
 					}
 				}
-
 			}
 		}
 
 		go func() {
 			textures := make([]*giu.Texture, totalFrames)
+
 			for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 				var err error
+
 				textures[frameIndex], err = giu.NewTextureFromRgba(images[frameIndex])
 				if err != nil {
 					log.Fatal(err)
@@ -160,5 +161,4 @@ func (p *DCCViewerWidget) Build() {
 			widget,
 		}.Build()
 	}
-
 }

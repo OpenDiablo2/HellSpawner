@@ -11,9 +11,11 @@ import (
 )
 
 func (a *App) renderMainMenuBar() {
+	var runAbyssEngineLabel string
+
 	projectOpened := a.project != nil
 	enginePathSet := len(a.config.AbyssEnginePath) > 0
-	var runAbyssEngineLabel string
+
 	if a.abyssWrapper.IsRunning() {
 		runAbyssEngineLabel = "Stop Abyss Engine"
 	} else {
@@ -114,10 +116,13 @@ func (a *App) onNewProjectClicked() {
 	if err != nil || len(file) == 0 {
 		return
 	}
+
 	var project *hsproject.Project
+
 	if project, err = hsproject.CreateNew(file); err != nil {
 		return
 	}
+
 	a.loadProjectFromFile(project.GetProjectFilePath())
 }
 
@@ -126,6 +131,7 @@ func (a *App) onOpenProjectClicked() {
 	if err != nil || len(file) == 0 {
 		return
 	}
+
 	a.loadProjectFromFile(file)
 }
 
@@ -151,6 +157,7 @@ func (a *App) onProjectRunClicked() {
 	}
 
 	a.console.Show()
+
 	if err := a.abyssWrapper.Launch(a.config, a.console); err != nil {
 		dialog.Message(err.Error()).Error()
 	}

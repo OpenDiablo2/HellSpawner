@@ -155,6 +155,7 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	strTransparent := fmt.Sprintf("Transparent: %t", state.layer.Transparent)
 
 	var effect string
+
 	switch state.layer.DrawEffect {
 	case d2enum.DrawEffectPctTransparency25:
 		effect = "25% alpha"
@@ -179,6 +180,7 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
 
 	var weapon string
+
 	switch state.layer.WeaponClass {
 	case d2enum.WeaponClassNone:
 		weapon = "None"
@@ -235,6 +237,7 @@ func getLayerName(i interface{}) string {
 	}
 
 	var layerName string
+
 	switch t {
 	case d2enum.CompositeTypeHead:
 		layerName = "Head"

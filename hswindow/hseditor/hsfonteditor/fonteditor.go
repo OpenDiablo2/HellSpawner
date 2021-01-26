@@ -13,11 +13,13 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// FontEditor represents a font editor
 type FontEditor struct {
 	*hseditor.Editor
 	*hsfont.Font
 }
 
+// Create creates a new font editor
 func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	font, err := hsfont.LoadFromJSON(*data)
 	if err != nil {
@@ -32,6 +34,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
+// Build builds an editor
 func (e *FontEditor) Build() {
 	e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
 		g.Label("DC6 Path"),
@@ -63,6 +66,7 @@ func (e *FontEditor) onBrowseDC6PathClicked() {
 	if err != nil || len(filePath) == 0 {
 		return
 	}
+
 	e.SpriteFile = filePath
 }
 
@@ -75,6 +79,7 @@ func (e *FontEditor) onBrowseTBLPathClicked() {
 	if err != nil || len(filePath) == 0 {
 		return
 	}
+
 	e.TableFile = filePath
 }
 
@@ -87,9 +92,11 @@ func (e *FontEditor) onBrowsePL2PathClicked() {
 	if err != nil || len(filePath) == 0 {
 		return
 	}
+
 	e.PaletteFile = filePath
 }
 
+// UpdateMainMenuLayout updates main menu layout to it contains editors options
 func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Font Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -106,6 +113,7 @@ func (e *FontEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *FontEditor) GenerateSaveData() []byte {
 	data, err := e.JSON()
 	if err != nil {
@@ -116,10 +124,12 @@ func (e *FontEditor) GenerateSaveData() []byte {
 	return data
 }
 
+// Save saves an editor
 func (e *FontEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides an editor
 func (e *FontEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

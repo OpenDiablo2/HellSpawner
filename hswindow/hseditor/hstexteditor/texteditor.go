@@ -46,17 +46,21 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	columns := strings.Split(firstLine, "\t")
 	result.columns = len(columns)
 	columnWidgets := make([]g.Widget, len(columns))
+
 	for idx := range columns {
 		columnWidgets[idx] = g.Label(columns[idx])
 	}
+
 	result.tableRows[0] = g.Row(columnWidgets...)
 
 	for lineIdx := range lines[1:] {
 		columns := strings.Split(lines[lineIdx+1], "\t")
 		columnWidgets := make([]g.Widget, len(columns))
+
 		for idx := range columns {
 			columnWidgets[idx] = g.Label(columns[idx])
 		}
+
 		result.tableRows[lineIdx+1] = g.Row(columnWidgets...)
 	}
 

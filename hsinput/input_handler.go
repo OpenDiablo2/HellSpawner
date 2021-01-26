@@ -47,6 +47,7 @@ func createKeyCombo(key giu.Key, modifier giu.Modifier) KeyCombo {
 // RegisterShortcut registers a new shortcut
 func RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.Modifier, isGlobal bool) {
 	combo := createKeyCombo(key, modifier)
+
 	shortcut, alreadyRegistered := shortcuts[combo]
 	if !alreadyRegistered {
 		shortcut = &CallbackGroup{}

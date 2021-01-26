@@ -70,6 +70,7 @@ func (p *PreferencesDialog) onBrowseAuxMpqPathClicked() {
 	if err != nil || len(path) == 0 {
 		return
 	}
+
 	p.config.AuxiliaryMpqPath = path
 }
 

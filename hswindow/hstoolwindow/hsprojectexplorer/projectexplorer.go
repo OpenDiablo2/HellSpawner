@@ -257,6 +257,7 @@ func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry) {
 	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
 		return
 	}
+
 	if err := os.Remove(entry.FullPath); err != nil {
 		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
 
@@ -280,7 +281,9 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if len(entry.Name) == 0 {
 		dialog.Message("Cannot rename file:\nFiles cannot have a blank name.").Error()
+
 		entry.Name = entry.OldName
+
 		entry.OldName = ""
 
 		return
@@ -308,6 +311,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {
 		dialog.Message("Cannot rename file:\nAlready exists.").Error()
+
 		entry.Name = entry.OldName
 		entry.OldName = ""
 
@@ -316,6 +320,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if err := os.Rename(oldPath, newPath); err != nil {
 		dialog.Message("Could not rename file:\n" + err.Error()).Error()
+
 		entry.Name = entry.OldName
 		entry.OldName = ""
 

@@ -27,6 +27,7 @@ func (a *App) State() hsstate.AppState {
 func (a *App) RestoreAppState(state hsstate.AppState) {
 	for _, toolState := range state.ToolWindows {
 		var tool hscommon.ToolWindow
+
 		switch toolState.Type {
 		case hsstate.ToolWindowTypeConsole:
 			tool = a.console

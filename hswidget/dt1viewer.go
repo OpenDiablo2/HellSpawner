@@ -132,7 +132,6 @@ func (p *DT1ViewerWidget) Build() {
 			giu.TabItem("Subtile Flags").Layout(p.makeSubtileFlags(state, tile)),
 		}),
 	}.Build()
-
 }
 
 func (p *DT1ViewerWidget) groupTilesByIdentity() [][]*d2dt1.Tile {
@@ -495,9 +494,10 @@ func getTileTypeImage(t int32) string {
 }
 
 func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
+	var tileTypeImage *giu.ImageWithFileWidget
+
 	strType := getTileTypeString(tile.Type)
 
-	var tileTypeImage *giu.ImageWithFileWidget
 	tileImageFile := getTileTypeImage(tile.Type)
 
 	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
@@ -581,6 +581,7 @@ func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	} else if tileGroup < 0 {
 		tileGroup = 0
 	}
+
 	state.tileGroup = tileGroup
 }
 
@@ -797,7 +798,6 @@ func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, ti
 		case d2dt1.BlockFormatRLE:
 			decodeWallBlock(&block, wallPixBuf, tileYOffset, tileWidth)
 		}
-
 	}
 }
 

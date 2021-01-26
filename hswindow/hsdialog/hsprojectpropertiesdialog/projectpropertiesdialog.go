@@ -72,6 +72,7 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 	for idx := range p.auxMPQNames {
 		p.auxMPQNames[idx] = filepath.Base(p.auxMPQs[idx])
 	}
+
 	p.Dialog.Show()
 }
 

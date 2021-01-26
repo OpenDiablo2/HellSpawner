@@ -116,6 +116,7 @@ func (s *SoundEditor) stop() {
 			log.Fatal(err)
 		}
 	}
+
 	s.control.Paused = true
 
 	speaker.Unlock()
