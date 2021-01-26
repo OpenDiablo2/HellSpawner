@@ -101,7 +101,8 @@ func (p *DC6ViewerWidget) Build() {
 	} else {
 		viewerState := state.(*DC6ViewerState)
 
-		if !viewerState.loadingTexture && (viewerState.lastDirection != viewerState.controls.direction || viewerState.lastFrame != viewerState.controls.frame) {
+		vs := (viewerState.lastDirection != viewerState.controls.direction || viewerState.lastFrame != viewerState.controls.frame)
+		if !viewerState.loadingTexture && vs {
 			// Control values have changed, need to regenerate the texture
 			viewerState.lastDirection = viewerState.controls.direction
 			viewerState.lastFrame = viewerState.controls.frame
@@ -110,13 +111,16 @@ func (p *DC6ViewerWidget) Build() {
 
 			g.Context.SetState(stateID, viewerState)
 
-			hscommon.CreateTextureFromARGB(viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))], func(tex *g.Texture) {
-				newState := g.Context.GetState(stateID).(*DC6ViewerState)
+			hscommon.CreateTextureFromARGB(
+				viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))],
+				func(tex *g.Texture,
+				) {
+					newState := g.Context.GetState(stateID).(*DC6ViewerState)
 
-				newState.texture = tex
-				newState.loadingTexture = false
-				g.Context.SetState(stateID, newState)
-			})
+					newState.texture = tex
+					newState.loadingTexture = false
+					g.Context.SetState(stateID, newState)
+				})
 		}
 
 		imageScale := uint32(viewerState.controls.scale)

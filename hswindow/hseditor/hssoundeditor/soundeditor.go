@@ -73,7 +73,12 @@ func (s *SoundEditor) Build() {
 
 	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/progressIndicatorModifier, secondsCurrent%progressIndicatorModifier, secondsTotal/progressIndicatorModifier, secondsTotal%progressIndicatorModifier)),
+			Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
+				secondsCurrent/progressIndicatorModifier,
+				secondsCurrent%progressIndicatorModifier,
+				secondsTotal/progressIndicatorModifier,
+				secondsTotal%progressIndicatorModifier,
+			)),
 		g.Separator(),
 		g.Line(
 			g.Button("Play").OnClick(s.play),

@@ -65,7 +65,13 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]func(
+		pathEntry *hscommon.PathEntry,
+		data *[]byte,
+		x, y float32,
+		project *hsproject.Project,
+	) (hscommon.EditorWindow, error)
+
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
@@ -78,9 +84,14 @@ type App struct {
 // Create creates new app instance
 func Create() (*App, error) {
 	result := &App{
-		editors:            make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)),
-		config:             hsconfig.Load(),
+		editors: make([]hscommon.EditorWindow, 0),
+		editorConstructors: make(map[hsfiletypes.FileType]func(
+			pathEntry *hscommon.PathEntry,
+			data *[]byte,
+			x, y float32,
+			project *hsproject.Project) (hscommon.EditorWindow, error)),
+
+		config: hsconfig.Load(),
 	}
 
 	result.abyssWrapper = abysswrapper.Create()

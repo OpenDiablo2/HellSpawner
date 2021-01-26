@@ -60,10 +60,9 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	if data, err = ioutil.ReadFile("README.md"); err != nil {
 		log.Fatal(err)
 	}
-	output := []byte(data)
 
 	// convert output md to html
-	html := blackfriday.MarkdownBasic(output)
+	html := blackfriday.MarkdownBasic(data)
 	// convert html to text
 	text, err := html2text.FromString(string(html), html2text.Options{PrettyTables: true})
 	if err != nil {
