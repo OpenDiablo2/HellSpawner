@@ -12,12 +12,12 @@ import (
 type PreferencesDialog struct {
 	*hsdialog.Dialog
 
-	config          hsconfig.Config
-	onConfigChanged func(config hsconfig.Config)
+	config          *hsconfig.Config
+	onConfigChanged func(config *hsconfig.Config)
 }
 
 // Create creates a new preferences dialog
-func Create(onConfigChanged func(config hsconfig.Config)) *PreferencesDialog {
+func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 	result := &PreferencesDialog{
 		Dialog:          hsdialog.New("Preferences"),
 		onConfigChanged: onConfigChanged,
@@ -62,12 +62,12 @@ func (p *PreferencesDialog) Build() {
 func (p *PreferencesDialog) Show(config *hsconfig.Config) {
 	p.Dialog.Show()
 
-	p.config = *config
+	p.config = config
 }
 
 func (p *PreferencesDialog) onBrowseAuxMpqPathClicked() {
 	path, err := dialog.Directory().Browse()
-	if err != nil || len(path) == 0 {
+	if err != nil || path == "" {
 		return
 	}
 
@@ -79,7 +79,7 @@ func (p *PreferencesDialog) onBrowseExternalListfileClicked() {
 	path.Filter("Text file", "txt")
 	filePath, err := path.Load()
 
-	if err != nil || len(filePath) == 0 {
+	if err != nil || filePath == "" {
 		return
 	}
 
@@ -100,7 +100,7 @@ func (p *PreferencesDialog) onBrowseAbyssEngineClicked() {
 
 	filePath, err := path.Load()
 
-	if err != nil || len(filePath) == 0 {
+	if err != nil || filePath == "" {
 		return
 	}
 

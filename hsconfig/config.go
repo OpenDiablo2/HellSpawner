@@ -81,7 +81,7 @@ func (c *Config) Save() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(getConfigPath(), data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(getConfigPath(), data, os.FileMode(0644)); err != nil {
 		return err
 	}
 
@@ -126,7 +126,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 
 // GetAuxMPQs returns paths to auxiliary mpq's
 func (c *Config) GetAuxMPQs() []string {
-	if len(c.AuxiliaryMpqPath) == 0 {
+	if c.AuxiliaryMpqPath == "" {
 		return []string{}
 	}
 

@@ -121,10 +121,8 @@ func (p *PaletteMapViewerWidget) Build() {
 	}
 
 	layout := giu.Layout{
-		//giu.Line(
 		giu.Child("left").Size(w1, h1).Layout(left),
 		giu.Child("right").Size(w2, h2).Layout(right),
-		//),
 	}
 
 	layout.Build()
@@ -139,7 +137,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("InvColorVariations", p.pl2.InvColorVariations[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("SelectedUintShift", p.pl2.SelectedUintShift.Indices)
+			return p.transformSingle("SelectedUintShift", &p.pl2.SelectedUintShift.Indices)
 		},
 		func() giu.Layout {
 			return p.transformMultiGroup("AlphaBlend", p.pl2.AlphaBlend[:]...)
@@ -154,13 +152,13 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("HueVariations", p.pl2.HueVariations[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("RedTones", p.pl2.RedTones.Indices)
+			return p.transformSingle("RedTones", &p.pl2.RedTones.Indices)
 		},
 		func() giu.Layout {
-			return p.transformSingle("GreenTones", p.pl2.GreenTones.Indices)
+			return p.transformSingle("GreenTones", &p.pl2.GreenTones.Indices)
 		},
 		func() giu.Layout {
-			return p.transformSingle("BlueTones", p.pl2.BlueTones.Indices)
+			return p.transformSingle("BlueTones", &p.pl2.BlueTones.Indices)
 		},
 		func() giu.Layout {
 			return p.transformMulti("UnknownVariations", p.pl2.UnknownVariations[:])
@@ -169,7 +167,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("MaxComponentBlend", p.pl2.MaxComponentBlend[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("DarkendColorShift", p.pl2.DarkendColorShift.Indices)
+			return p.transformSingle("DarkendColorShift", &p.pl2.DarkendColorShift.Indices)
 		},
 		func() giu.Layout {
 			return p.textColors("TextColors", p.pl2.TextColors[:])
@@ -182,7 +180,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 	return buildLayout[transformIdx]()
 }
 
-func (p *PaletteMapViewerWidget) makeTexture(key string, colors [256]d2interface.Color) {
+func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interface.Color) {
 	pix := make([]byte, 256*4)
 
 	img := &image.RGBA{
@@ -209,8 +207,8 @@ func (p *PaletteMapViewerWidget) makeTexture(key string, colors [256]d2interface
 	hscommon.CreateTextureFromARGB(img, makeTexture)
 }
 
-func (p *PaletteMapViewerWidget) getColors(indices [256]byte) [256]d2interface.Color {
-	result := [256]d2interface.Color{}
+func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface.Color {
+	result := &[256]d2interface.Color{}
 
 	for idx := range indices {
 		if idx > 255 {
@@ -233,7 +231,7 @@ func (p *PaletteMapViewerWidget) getColors(indices [256]byte) [256]d2interface.C
 
 // single transform (256 palette indices)
 // example: selected unit
-func (p *PaletteMapViewerWidget) transformSingle(key string, transform [256]byte) giu.Layout {
+func (p *PaletteMapViewerWidget) transformSingle(key string, transform *[256]byte) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -268,7 +266,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, giu.Image(tex).Size(208, 208))
 	} else {
-		p.makeTexture(textureID, p.getColors(transforms[state.slider1].Indices))
+		p.makeTexture(textureID, p.getColors(&transforms[state.slider1].Indices))
 	}
 
 	return l
@@ -309,7 +307,8 @@ func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, giu.Image(tex).Size(208, 208))
 	} else {
-		p.makeTexture(textureID, p.getColors(groups[groupIdx][state.slider1].Indices))
+		col := p.getColors(&groups[groupIdx][state.slider1].Indices)
+		p.makeTexture(textureID, col)
 	}
 
 	return l
@@ -379,7 +378,7 @@ func (p *PaletteMapViewerWidget) paletteView() giu.Layout {
 		baseTransform[idx] = byte(idx)
 	}
 
-	return p.transformSingle("base_palette", baseTransform)
+	return p.transformSingle("base_palette", &baseTransform)
 }
 
 type colorFace struct {

@@ -49,7 +49,7 @@ func (p *DCCViewerWidget) Build() {
 	state := giu.Context.GetState(stateID)
 
 	if state == nil {
-		//Prevent multiple invocation to LoadImage.
+		// Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateID, &DCCViewerState{})
 
 		totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
@@ -82,9 +82,9 @@ func (p *DCCViewerWidget) Build() {
 							alpha = 0
 						}
 
-						color := color.RGBA{R: val, G: val, B: val, A: alpha}
+						RGBAcolor := color.RGBA{R: val, G: val, B: val, A: alpha}
 
-						images[absoluteFrameIdx].Set(x, y, color)
+						images[absoluteFrameIdx].Set(x, y, RGBAcolor)
 					}
 				}
 			}

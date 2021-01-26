@@ -11,8 +11,6 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
-
-	"github.com/ianling/giu"
 )
 
 const (
@@ -30,7 +28,7 @@ type DC6ViewerState struct {
 	lastFrame          int32
 	lastDirection      int32
 	framesPerDirection uint32
-	texture            *giu.Texture
+	texture            *g.Texture
 	rgb                []*image2.RGBA
 }
 
@@ -57,13 +55,13 @@ func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 
 // Build builds a widget
 func (p *DC6ViewerWidget) Build() {
-	var widget *giu.ImageWidget
+	var widget *g.ImageWidget
 
 	stateID := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
 
-	state := giu.Context.GetState(stateID)
+	state := g.Context.GetState(stateID)
 	if state == nil {
-		//Prevent multiple invocation to LoadImage.
+		// Prevent multiple invocation to LoadImage.
 		newState := &DC6ViewerState{
 			lastFrame:          -1,
 			lastDirection:      -1,
@@ -72,7 +70,7 @@ func (p *DC6ViewerWidget) Build() {
 
 		sw := float32(p.dc6.Frames[0].Width)
 		sh := float32(p.dc6.Frames[0].Height)
-		widget = giu.Image(nil).Size(sw, sh)
+		widget = g.Image(nil).Size(sw, sh)
 
 		newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
 
@@ -96,7 +94,7 @@ func (p *DC6ViewerWidget) Build() {
 			}
 		}
 
-		giu.Context.SetState(stateID, newState)
+		g.Context.SetState(stateID, newState)
 
 		widget.Build()
 	} else {
@@ -109,14 +107,14 @@ func (p *DC6ViewerWidget) Build() {
 			viewerState.loadingTexture = true
 			viewerState.texture = nil
 
-			giu.Context.SetState(stateID, viewerState)
+			g.Context.SetState(stateID, viewerState)
 
 			hscommon.CreateTextureFromARGB(viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))], func(tex *g.Texture) {
-				newState := giu.Context.GetState(stateID).(*DC6ViewerState)
+				newState := g.Context.GetState(stateID).(*DC6ViewerState)
 
 				newState.texture = tex
 				newState.loadingTexture = false
-				giu.Context.SetState(stateID, newState)
+				g.Context.SetState(stateID, newState)
 			})
 		}
 
@@ -127,30 +125,30 @@ func (p *DC6ViewerWidget) Build() {
 			imageScale = 1
 		}
 
-		err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+		err := g.Context.GetRenderer().SetTextureMagFilter(g.TextureFilterNearest)
 		if err != nil {
 			log.Print(err)
 		}
 
-		var widget *giu.ImageWidget
+		var widget *g.ImageWidget
 		w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
 		h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
 		if viewerState.texture == nil {
-			widget = giu.Image(nil).Size(w, h)
+			widget = g.Image(nil).Size(w, h)
 		} else {
 
-			widget = giu.Image(viewerState.texture).Size(w, h)
+			widget = g.Image(viewerState.texture).Size(w, h)
 		}
 
-		giu.Layout{
-			giu.Label(fmt.Sprintf(
+		g.Layout{
+			g.Label(fmt.Sprintf(
 				"Version: %v\t Flags: %b\t Encoding: %v\t",
 				p.dc6.Version,
 				int64(p.dc6.Flags),
 				p.dc6.Encoding,
 			)),
-			giu.Label(fmt.Sprintf("Directions: %v\tFrames per Direction: %v", p.dc6.Directions, p.dc6.FramesPerDirection)),
-			giu.Custom(func() {
+			g.Label(fmt.Sprintf("Directions: %v\tFrames per Direction: %v", p.dc6.Directions, p.dc6.FramesPerDirection)),
+			g.Custom(func() {
 				imgui.BeginGroup()
 				if p.dc6.Directions > 1 {
 					imgui.SliderInt("Direction", &viewerState.controls.direction, 0, int32(p.dc6.Directions-1))
@@ -164,7 +162,7 @@ func (p *DC6ViewerWidget) Build() {
 
 				imgui.EndGroup()
 			}),
-			giu.Separator(),
+			g.Separator(),
 			widget,
 		}.Build()
 	}

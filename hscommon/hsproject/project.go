@@ -40,7 +40,7 @@ type Project struct {
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
-	if strings.ToLower(filepath.Ext(fileName)) != projectExtension {
+	if strings.EqualFold(filepath.Ext(fileName), projectExtension) {
 		fileName += projectExtension
 	}
 
@@ -81,10 +81,11 @@ func (p *Project) Save() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
 		return err
 	}
-	if err = p.ensureProjectPaths(); err != nil {
+
+	if err := p.ensureProjectPaths(); err != nil {
 		return err
 	}
 
@@ -117,13 +118,13 @@ func LoadFromFile(fileName string) (*Project, error) {
 		return nil, err
 	}
 
-	if err = json.Unmarshal(file, &result); err != nil {
+	if err := json.Unmarshal(file, &result); err != nil {
 		return nil, err
 	}
 
 	result.filePath = fileName
 
-	if err = result.ensureProjectPaths(); err != nil {
+	if err := result.ensureProjectPaths(); err != nil {
 		return nil, err
 	}
 
@@ -299,8 +300,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 		}
 	}
 
-	switch fileType {
-	case hsfiletypes.FileTypeFont:
+	if fileType == hsfiletypes.FileTypeFont {
 		_, err := hsfont.NewFile(fileName)
 		if err != nil {
 			log.Fatalf("failed to save font: %s", err)

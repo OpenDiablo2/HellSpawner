@@ -32,7 +32,7 @@ type ProjectPropertiesDialog struct {
 	downIconTexture            *g.Texture
 	project                    hsproject.Project
 	config                     *hsconfig.Config
-	onProjectPropertiesChanged func(project hsproject.Project)
+	onProjectPropertiesChanged func(project *hsproject.Project)
 	auxMPQs, auxMPQNames       []string
 
 	mpqSelectDlgIndex      int
@@ -40,7 +40,7 @@ type ProjectPropertiesDialog struct {
 }
 
 // Create creates a new project properties' dialog
-func Create(onProjectPropertiesChanged func(project hsproject.Project)) *ProjectPropertiesDialog {
+func Create(onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
@@ -86,7 +86,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
-				p.onProjectPropertiesChanged(p.project)
+				p.onProjectPropertiesChanged(&p.project)
 				p.mpqSelectDialogVisible = false
 			}),
 		}),
@@ -95,7 +95,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				// checks if aux MPQs list isn't empty
 				if len(p.auxMPQs) > 0 {
 					p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
-					p.onProjectPropertiesChanged(p.project)
+					p.onProjectPropertiesChanged(&p.project)
 				}
 
 				p.mpqSelectDialogVisible = false
@@ -184,11 +184,11 @@ func (p *ProjectPropertiesDialog) Build() {
 }
 
 func (p *ProjectPropertiesDialog) onSaveClicked() {
-	if len(strings.TrimSpace(p.project.ProjectName)) == 0 {
+	if strings.TrimSpace(p.project.ProjectName) == "" {
 		return
 	}
 
-	p.onProjectPropertiesChanged(p.project)
+	p.onProjectPropertiesChanged(&p.project)
 	p.Visible = false
 }
 

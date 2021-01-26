@@ -63,7 +63,7 @@ func (e *FontEditor) onBrowseDC6PathClicked() {
 
 	filePath, err := path.Load()
 
-	if err != nil || len(filePath) == 0 {
+	if err != nil || filePath == "" {
 		return
 	}
 
@@ -76,7 +76,7 @@ func (e *FontEditor) onBrowseTBLPathClicked() {
 
 	filePath, err := path.Load()
 
-	if err != nil || len(filePath) == 0 {
+	if err != nil || filePath == "" {
 		return
 	}
 
@@ -89,7 +89,7 @@ func (e *FontEditor) onBrowsePL2PathClicked() {
 
 	filePath, err := path.Load()
 
-	if err != nil || len(filePath) == 0 {
+	if err != nil || filePath == "" {
 		return
 	}
 

@@ -8,11 +8,11 @@ import (
 )
 
 const (
-//gridMaxWidth    = 160
-//gridMaxHeight   = 80
-//gridDivisionsXY = 5
-//subtileHeight   = gridMaxHeight / gridDivisionsXY
-//subtileWidth    = gridMaxWidth / gridDivisionsXY
+// gridMaxWidth    = 160
+// gridMaxHeight   = 80
+// gridDivisionsXY = 5
+// subtileHeight   = gridMaxHeight / gridDivisionsXY
+// subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
 type ds1Controls struct {
@@ -173,8 +173,7 @@ func (p *DS1ViewerWidget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
 	}
 
 	if len(obj.Paths) > 0 {
-		l = append(l, giu.Dummy(1, 16))
-		l = append(l, p.makePathLayout(&obj))
+		l = append(l, giu.Dummy(1, 16), p.makePathLayout(&obj))
 	}
 
 	return l
@@ -239,9 +238,11 @@ func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 
 	tx, ty = int(state.tileX), int(state.tileY)
 
-	l = append(l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1))
-	l = append(l, giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1))
-	l = append(l, p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]))
+	l = append(
+		l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
+		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
+		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
+	)
 
 	return l
 }

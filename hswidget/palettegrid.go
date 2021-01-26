@@ -31,11 +31,11 @@ func (p *PaletteGridState) Dispose() {
 // PaletteGridWidget represents palette grids widget
 type PaletteGridWidget struct {
 	id     string
-	colors [256]d2interface.Color
+	colors *[256]d2interface.Color
 }
 
 // PaletteGrid creates a new pallete grid's widget
-func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
+func PaletteGrid(id string, colors *[256]d2interface.Color) *PaletteGridWidget {
 	result := &PaletteGridWidget{
 		id:     id,
 		colors: colors,
@@ -54,7 +54,7 @@ func (p *PaletteGridWidget) Build() {
 	if state == nil {
 		widget = giu.Image(nil).Size(gridWidth*cellSize, gridHeight*cellSize)
 
-		//Prevent multiple invocation to LoadImage.
+		// Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateID, &PaletteGridState{})
 
 		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))

@@ -2,13 +2,14 @@ package hswidget
 
 import (
 	"fmt"
+	"image"
+	"image/color"
+	"log"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 	"github.com/ianling/giu"
-	"image"
-	"image/color"
-	"log"
 )
 
 const (
@@ -301,7 +302,8 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
-	//curFrameIndex := int(state.dt1Controls.frame) + (int(state.dt1Controls.direction) * int(p.dt1.FramesPerDirection))
+	// nolint:gocritic // could be useful
+	// curFrameIndex := int(state.dt1Controls.frame) + (int(state.dt1Controls.direction) * int(p.dt1.FramesPerDirection))
 
 	if uint32(state.dt1Controls.scale) < 1 {
 		state.dt1Controls.scale = 1
@@ -542,12 +544,12 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		giu.Dummy(1, 4),
 
 		giu.Label(fmt.Sprintf("RarityFrameIndex: %d", int(tile.RarityFrameIndex))),
-		//giu.Line(
+		// giu.Line(
 		//	giu.Label(fmt.Sprintf("SubTileFlags: %v", tile.SubTileFlags)),
-		//),
-		//giu.Line(
+		// ),
+		// giu.Line(
 		//	giu.Label(fmt.Sprintf("Blocks: %v", tile.Blocks)),
-		//),
+		// ),
 	}
 }
 

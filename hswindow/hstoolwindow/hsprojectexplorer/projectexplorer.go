@@ -279,7 +279,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 		return
 	}
 
-	if len(entry.Name) == 0 {
+	if entry.Name == "" {
 		dialog.Message("Cannot rename file:\nFiles cannot have a blank name.").Error()
 
 		entry.Name = entry.OldName
@@ -289,7 +289,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 		return
 	}
 
-	if len(filepath.Ext(entry.Name)) == 0 {
+	if filepath.Ext(entry.Name) == "" {
 		entry.Name += filepath.Ext(entry.OldName)
 	}
 

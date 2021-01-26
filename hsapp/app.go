@@ -296,8 +296,8 @@ func (a *App) toggleMPQExplorer() {
 	a.mpqExplorer.ToggleVisibility()
 }
 
-func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
-	*a.project = project
+func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
+	a.project = project
 	if err := a.project.Save(); err != nil {
 		log.Fatal(err)
 	}
@@ -306,8 +306,8 @@ func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
 	a.reloadAuxiliaryMPQs()
 }
 
-func (a *App) onPreferencesChanged(config hsconfig.Config) {
-	*a.config = config
+func (a *App) onPreferencesChanged(config *hsconfig.Config) {
+	a.config = config
 	if err := a.config.Save(); err != nil {
 		log.Fatal(err)
 	}

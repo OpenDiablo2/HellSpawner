@@ -54,7 +54,7 @@ func (f *Font) SaveToFile() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(f.filePath, data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(f.filePath, data, os.FileMode(0644)); err != nil {
 		return err
 	}
 

@@ -113,7 +113,7 @@ func (a *App) buildViewMenu() g.Layout {
 
 func (a *App) onNewProjectClicked() {
 	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Save()
-	if err != nil || len(file) == 0 {
+	if err != nil || file == "" {
 		return
 	}
 
@@ -128,7 +128,7 @@ func (a *App) onNewProjectClicked() {
 
 func (a *App) onOpenProjectClicked() {
 	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Load()
-	if err != nil || len(file) == 0 {
+	if err != nil || file == "" {
 		return
 	}
 
