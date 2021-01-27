@@ -55,7 +55,7 @@ func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 	mutex.Lock()
 
 	a.output = output
-	a.cmd = exec.Command(config.AbyssEnginePath)
+	a.cmd = exec.Command(config.AbyssEnginePath) // nolint:gosec // is ok
 	a.cmd.Stdout = a
 	a.cmd.Stderr = a
 	a.cmd.Stdin = a

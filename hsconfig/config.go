@@ -67,7 +67,7 @@ func Load() *Config {
 
 	var data []byte
 
-	if data, err = ioutil.ReadFile(configFile); err != nil {
+	if data, err = ioutil.ReadFile(filepath.Clean(configFile)); err != nil {
 		return generateDefaultConfig()
 	}
 

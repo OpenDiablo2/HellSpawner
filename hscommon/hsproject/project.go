@@ -121,7 +121,7 @@ func LoadFromFile(fileName string) (*Project, error) {
 
 	var result *Project
 
-	if file, err = ioutil.ReadFile(fileName); err != nil {
+	if file, err = ioutil.ReadFile(filepath.Clean(fileName)); err != nil {
 		return nil, err
 	}
 

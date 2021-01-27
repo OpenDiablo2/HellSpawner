@@ -838,12 +838,12 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 // this is copied from `OpenDiablo2/d2common/d2fileformats/d2dt1`,
 // we want to render the isometric (floor) and rle (wall) pixel buffers separately
 func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	for _, block := range blocks {
-		switch block.Format {
+	for i := range blocks {
+		switch blocks[i].Format {
 		case d2dt1.BlockFormatIsometric:
-			decodeFloorBlock(&block, floorPixBuf, tileYOffset, tileWidth)
+			decodeFloorBlock(&blocks[i], floorPixBuf, tileYOffset, tileWidth)
 		case d2dt1.BlockFormatRLE:
-			decodeWallBlock(&block, wallPixBuf, tileYOffset, tileWidth)
+			decodeWallBlock(&blocks[i], wallPixBuf, tileYOffset, tileWidth)
 		}
 	}
 }
