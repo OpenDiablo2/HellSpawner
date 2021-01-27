@@ -74,7 +74,7 @@ func (p *PaletteMapViewerWidget) getState() *PaletteMapViewerState {
 	return state
 }
 
-func (p *PaletteMapViewerWidget) setState(s *PaletteMapViewerState) {
+func (p *PaletteMapViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 

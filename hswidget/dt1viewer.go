@@ -103,7 +103,7 @@ func (p *DT1ViewerWidget) getState() *DT1ViewerState {
 	return state
 }
 
-func (p *DT1ViewerWidget) setState(s *DT1ViewerState) {
+func (p *DT1ViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
@@ -309,7 +309,7 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	return layout
 }
 
-// nolint:funlen // no need to change
+// nolint:funlen,gocognit,gocyclo // no need to change
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
@@ -453,6 +453,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 	return &layout
 }
 
+// nolint:gocyclo // can't reduce
 func getTileTypeString(t int32) string {
 	switch t {
 	case hsenum.TileFloor:

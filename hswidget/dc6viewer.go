@@ -56,50 +56,12 @@ func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 }
 
 // Build builds a widget
-// nolint:funlen // no need to change
 func (p *DC6ViewerWidget) Build() {
-	var widget *g.ImageWidget
-
 	stateID := fmt.Sprintf("DC6ViewerWidget_%s", p.id)
 
 	state := g.Context.GetState(stateID)
 	if state == nil {
-		// Prevent multiple invocation to LoadImage.
-		newState := &DC6ViewerState{
-			lastFrame:          -1,
-			lastDirection:      -1,
-			framesPerDirection: p.dc6.FramesPerDirection,
-		}
-
-		sw := float32(p.dc6.Frames[0].Width)
-		sh := float32(p.dc6.Frames[0].Height)
-		widget = g.Image(nil).Size(sw, sh)
-
-		newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
-
-		for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-			newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
-			decodedFrame := p.dc6.DecodeFrame(frameIndex)
-
-			for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
-				for x := 0; x < int(p.dc6.Frames[frameIndex].Width); x++ {
-					idx := x + (y * int(p.dc6.Frames[frameIndex].Width))
-					val := decodedFrame[idx]
-
-					alpha := maxAlpha
-
-					if val == 0 {
-						alpha = 0
-					}
-
-					newState.rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
-				}
-			}
-		}
-
-		g.Context.SetState(stateID, newState)
-
-		widget.Build()
+		p.buildNew(stateID)
 	} else {
 		viewerState := state.(*DC6ViewerState)
 
@@ -172,4 +134,45 @@ func (p *DC6ViewerWidget) Build() {
 			widget,
 		}.Build()
 	}
+}
+
+func (p *DC6ViewerWidget) buildNew(stateID string) {
+	var widget *g.ImageWidget
+
+	// Prevent multiple invocation to LoadImage.
+	newState := &DC6ViewerState{
+		lastFrame:          -1,
+		lastDirection:      -1,
+		framesPerDirection: p.dc6.FramesPerDirection,
+	}
+
+	sw := float32(p.dc6.Frames[0].Width)
+	sh := float32(p.dc6.Frames[0].Height)
+	widget = g.Image(nil).Size(sw, sh)
+
+	newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
+
+	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
+		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		decodedFrame := p.dc6.DecodeFrame(frameIndex)
+
+		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
+			for x := 0; x < int(p.dc6.Frames[frameIndex].Width); x++ {
+				idx := x + (y * int(p.dc6.Frames[frameIndex].Width))
+				val := decodedFrame[idx]
+
+				alpha := maxAlpha
+
+				if val == 0 {
+					alpha = 0
+				}
+
+				newState.rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
+			}
+		}
+	}
+
+	g.Context.SetState(stateID, newState)
+
+	widget.Build()
 }

@@ -72,7 +72,7 @@ func (p *DS1ViewerWidget) getState() *DS1ViewerState {
 	return state
 }
 
-func (p *DS1ViewerWidget) setState(s *DS1ViewerState) {
+func (p *DS1ViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 

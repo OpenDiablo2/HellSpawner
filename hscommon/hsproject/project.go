@@ -273,7 +273,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 		}
 	}
 
-	if err := os.Mkdir(fileName, 0775); err != nil {
+	if err := os.Mkdir(fileName, 0755); err != nil {
 		dialog.Message("Could not create a new project folder!").Error()
 
 		return

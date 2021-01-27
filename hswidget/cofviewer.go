@@ -196,17 +196,20 @@ func (p *COFViewerWidget) getDrawEffect(eff d2enum.DrawEffect) string {
 	case d2enum.DrawEffectMod2X:
 		effect = "Mod2X"
 	case d2enum.DrawEffectNone:
+		// nolint:goconst // that's not a constant
 		effect = "None"
 	}
 
 	return effect
 }
 
+// nolint:gocyclo // can't reduce
 func (p *COFViewerWidget) getWeaponClass(cls d2enum.WeaponClass) string {
 	var weapon string
 
 	switch cls {
 	case d2enum.WeaponClassNone:
+		// nolint:goconst // that's not a constant
 		weapon = "None"
 	case d2enum.WeaponClassHandToHand:
 		weapon = "Hand To Hand"
@@ -241,6 +244,7 @@ func (p *COFViewerWidget) getWeaponClass(cls d2enum.WeaponClass) string {
 	return weapon
 }
 
+// nolint:gocyclo // can't reduce
 func getLayerName(i interface{}) string {
 	var t d2enum.CompositeType
 
