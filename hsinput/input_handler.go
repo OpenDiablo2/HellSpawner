@@ -20,6 +20,20 @@ const (
 	ModNone = 0
 )
 
+type InputManager struct {
+	shortcuts map[KeyCombo]*CallbackGroup
+}
+
+func NewInputManager() *InputManager {
+	result := &InputManager{}
+
+	shortcuts := make(map[KeyCombo]*CallbackGroup)
+
+	result.shortcuts = shortcuts
+
+	return result
+}
+
 // InputCallbackFunc is the function signature for functions that are called on input events
 type InputCallbackFunc func()
 
@@ -35,8 +49,6 @@ type KeyCombo struct {
 	Modifier glfw.ModifierKey
 }
 
-var shortcuts = make(map[KeyCombo]*CallbackGroup)
-
 func createKeyCombo(key giu.Key, modifier giu.Modifier) KeyCombo {
 	return KeyCombo{
 		Key:      glfw.Key(key),
@@ -45,10 +57,10 @@ func createKeyCombo(key giu.Key, modifier giu.Modifier) KeyCombo {
 }
 
 // RegisterShortcut registers a new shortcut
-func RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.Modifier, isGlobal bool) {
+func (im *InputManager) RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.Modifier, isGlobal bool) {
 	combo := createKeyCombo(key, modifier)
 
-	shortcut, alreadyRegistered := shortcuts[combo]
+	shortcut, alreadyRegistered := im.shortcuts[combo]
 	if !alreadyRegistered {
 		shortcut = &CallbackGroup{}
 	}
@@ -59,19 +71,19 @@ func RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.
 		shortcut.Window = callbackFunc
 	}
 
-	shortcuts[combo] = shortcut
+	im.shortcuts[combo] = shortcut
 }
 
 // UnregisterWindowShortcuts removes registered window's shortcuts
-func UnregisterWindowShortcuts() {
-	for _, callbackFuncs := range shortcuts {
+func (im *InputManager) UnregisterWindowShortcuts() {
+	for _, callbackFuncs := range im.shortcuts {
 		callbackFuncs.Window = nil
 	}
 }
 
 // HandleInput handles input shortcut
-func HandleInput(key glfw.Key, mods glfw.ModifierKey, action glfw.Action) {
-	for keyCombo, callbackFuncs := range shortcuts {
+func (im *InputManager) HandleInput(key glfw.Key, mods glfw.ModifierKey, action glfw.Action) {
+	for keyCombo, callbackFuncs := range im.shortcuts {
 		if key == keyCombo.Key && mods == keyCombo.Modifier && action == glfw.Press {
 			if callbackFuncs.Window != nil {
 				callbackFuncs.Window()

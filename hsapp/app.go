@@ -83,6 +83,8 @@ type App struct {
 	fontFixedSmall    imgui.Font
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
+
+	InputManager *hsinput.InputManager
 }
 
 // Create creates new app instance
@@ -97,6 +99,9 @@ func Create() (*App, error) {
 
 		config: hsconfig.Load(),
 	}
+
+	im := hsinput.NewInputManager()
+	result.InputManager = im
 
 	result.abyssWrapper = abysswrapper.Create()
 
@@ -124,7 +129,7 @@ func (a *App) Run() {
 
 	defer a.Quit()
 
-	wnd.SetInputCallback(hsinput.HandleInput)
+	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
 }
 
@@ -155,7 +160,7 @@ func (a *App) render() {
 		// if this window didn't have focus before, but it does now,
 		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
 		if !hadFocus && editor.HasFocus() {
-			hsinput.UnregisterWindowShortcuts()
+			a.InputManager.UnregisterWindowShortcuts()
 
 			editor.RegisterKeyboardShortcuts()
 

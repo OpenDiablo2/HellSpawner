@@ -10,7 +10,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	//"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -67,14 +67,15 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 // RegisterKeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) RegisterKeyboardShortcuts() {
 	// right arrow goes to the next tile group
-	hsinput.RegisterShortcut(func() {
+	// TODO --- add local shocrcuts
+	/*e.inputManager.RegisterShortcut(func() {
 		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)
-	}, g.KeyRight, g.ModNone, false)
+	}, g.KeyRight, g.ModNone, false)*/
 
 	// left arrow goes to the previous tile group
-	hsinput.RegisterShortcut(func() {
+	/*e.inputManager.RegisterShortcut(func() {
 		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
-	}, g.KeyLeft, g.ModNone, false)
+	}, g.KeyLeft, g.ModNone, false)*/
 }
 
 // GenerateSaveData generates data to be saved
