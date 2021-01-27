@@ -71,8 +71,9 @@ type DT1ViewerWidget struct {
 // DT1Viewer creates a new dt1 viewers widget
 func DT1Viewer(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 	result := &DT1ViewerWidget{
-		id:  id,
-		dt1: dt1,
+		id:            id,
+		dt1:           dt1,
+		textureLoader: textureLoader,
 	}
 
 	result.registerKeyboardShortcuts()
