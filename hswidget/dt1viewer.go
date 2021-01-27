@@ -368,6 +368,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
 
 			// make TL to BR lines
+			// nolint:dupl // could be changed
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -391,6 +392,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			}
 
 			// make TR to BL lines
+			// nolint:dupl // is ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -406,7 +408,6 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
-					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -805,6 +806,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 			}
 
 			// make TR to BL lines
+			// nolint:dupl // also ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{ // bottom left point
 					X: left.X + (idx * halfTileW),

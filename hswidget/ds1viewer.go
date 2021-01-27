@@ -274,6 +274,7 @@ func (p *DS1ViewerWidget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRec
 	}
 }
 
+// nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
 func (p *DS1ViewerWidget) makeTileFloorsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -317,6 +318,7 @@ func (p *DS1ViewerWidget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) g
 	}
 }
 
+// nolint:dupl // could be changed
 func (p *DS1ViewerWidget) makeTileWallsLayout(state *DS1ViewerState, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -360,6 +362,7 @@ func (p *DS1ViewerWidget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layou
 	}
 }
 
+// nolint:dupl // no need to change
 func (p *DS1ViewerWidget) makeTileShadowsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -403,6 +406,7 @@ func (p *DS1ViewerWidget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) 
 	}
 }
 
+// nolint:dupl // it is ok
 func (p *DS1ViewerWidget) makeTileSubsLayout(state *DS1ViewerState, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
