@@ -1,3 +1,4 @@
+// Package hsmpqexplorer contains mpq explorer's data
 package hsmpqexplorer
 
 import (
@@ -8,17 +9,20 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
-	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
+)
+
+const (
+	mainWindowW, mainWindowH = 300, 400
 )
 
 // MPQExplorerFileSelectedCallback represents file selected callback
@@ -82,7 +86,7 @@ func (m *MPQExplorer) Build() {
 			})})
 	} else {
 		m.IsOpen(&m.Visible).
-			Size(300, 400).
+			Size(mainWindowW, mainWindowH).
 			Layout(g.Layout{
 				g.Child("MpqExplorerContent").
 					Border(false).
@@ -107,6 +111,7 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 			if err != nil {
 				log.Fatal("failed to load mpq: ", err)
 			}
+
 			nodes := m.project.GetMPQFileNodes(mpq, m.config)
 			result[idx] = m.renderNodes(nodes)
 
@@ -117,12 +122,14 @@ func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
 	wg.Wait()
 
 	m.nodeCache = result
+
 	return result
 }
 
 func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	if !pathEntry.IsDirectory {
-		id := generatePathEntryId(pathEntry)
+		id := generatePathEntryID(pathEntry)
+
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id).
 				OnClick(func() {
@@ -144,6 +151,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 	for childIdx := range pathEntry.Children {
 		go func(idx int) {
 			widgets[idx] = m.renderNodes(pathEntry.Children[idx])
+
 			wg.Done()
 		}(childIdx)
 	}
@@ -165,6 +173,7 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 		// strip "data" from the beginning of the path if it exists
 		pathToFile = pathToFile[4:]
 	}
+
 	pathToFile = path.Join(m.project.GetProjectFileContentPath(), pathToFile)
 	pathToFile = strings.ReplaceAll(pathToFile, "\\", "/")
 
@@ -174,7 +183,9 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 			Path: pathToFile,
 			Data: data,
 		}
+
 		m.filesToOverwrite = append(m.filesToOverwrite, fileInfo)
+
 		return
 	}
 
@@ -184,7 +195,7 @@ func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
 	}
 }
 
-func generatePathEntryId(pathEntry *hscommon.PathEntry) string {
+func generatePathEntryID(pathEntry *hscommon.PathEntry) string {
 	return "##MPQExplorerNode_" + pathEntry.FullPath
 }
 

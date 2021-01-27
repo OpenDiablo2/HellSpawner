@@ -10,9 +10,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
@@ -24,6 +25,13 @@ const (
 	projectExtension = ".hsp"
 )
 
+const (
+	newFileMode      = 0644
+	newDirMode       = 0755
+	maxProjectsCount = 100
+)
+
+// Project represents HellSpawner's project
 type Project struct {
 	ProjectName   string
 	Description   string
@@ -35,10 +43,11 @@ type Project struct {
 	mpqs           []d2interface.Archive
 }
 
+// CreateNew creates new project
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
-	if strings.ToLower(filepath.Ext(fileName)) != projectExtension {
+	if strings.EqualFold(filepath.Ext(fileName), projectExtension) {
 		fileName += projectExtension
 	}
 
@@ -59,14 +68,17 @@ func CreateNew(fileName string) (*Project, error) {
 	return result, nil
 }
 
+// GetProjectFileContentPath returns path to project's content
 func (p *Project) GetProjectFileContentPath() string {
 	return filepath.Join(filepath.Dir(p.filePath), "content")
 }
 
+// GetProjectFilePath returns project's file path
 func (p *Project) GetProjectFilePath() string {
 	return p.filePath
 }
 
+// Save saves project
 func (p *Project) Save() error {
 	var err error
 
@@ -76,10 +88,11 @@ func (p *Project) Save() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(p.filePath, file, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(p.filePath, file, os.FileMode(newFileMode)); err != nil {
 		return err
 	}
-	if err = p.ensureProjectPaths(); err != nil {
+
+	if err := p.ensureProjectPaths(); err != nil {
 		return err
 	}
 
@@ -88,6 +101,7 @@ func (p *Project) Save() error {
 	return nil
 }
 
+// ValidateAuxiliaryMPQs creates auxiliary mpq's list
 func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
 	for idx := range p.AuxiliaryMPQs {
 		realPath := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
@@ -99,6 +113,7 @@ func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
 	return true
 }
 
+// LoadFromFile loads projects file
 func LoadFromFile(fileName string) (*Project, error) {
 	var err error
 
@@ -106,17 +121,17 @@ func LoadFromFile(fileName string) (*Project, error) {
 
 	var result *Project
 
-	if file, err = ioutil.ReadFile(fileName); err != nil {
+	if file, err = ioutil.ReadFile(filepath.Clean(fileName)); err != nil {
 		return nil, err
 	}
 
-	if err = json.Unmarshal(file, &result); err != nil {
+	if err := json.Unmarshal(file, &result); err != nil {
 		return nil, err
 	}
 
 	result.filePath = fileName
 
-	if err = result.ensureProjectPaths(); err != nil {
+	if err := result.ensureProjectPaths(); err != nil {
 		return nil, err
 	}
 
@@ -130,7 +145,7 @@ func (p *Project) ensureProjectPaths() error {
 	contentPath := filepath.Join(basePath, "content")
 
 	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
-		if err := os.Mkdir(contentPath, os.FileMode(0755)); err != nil {
+		if err := os.Mkdir(contentPath, os.FileMode(newDirMode)); err != nil {
 			return err
 		}
 	}
@@ -138,6 +153,7 @@ func (p *Project) ensureProjectPaths() error {
 	return nil
 }
 
+// GetFileStructure returns project's file structure
 func (p *Project) GetFileStructure() *hscommon.PathEntry {
 	if p.pathEntryCache != nil {
 		return p.pathEntryCache
@@ -190,10 +206,12 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 	}
 }
 
+// InvalidateFileStructure cleans project's files structure
 func (p *Project) InvalidateFileStructure() {
 	p.pathEntryCache = nil
 }
 
+// RenameFile renames project's file
 func (p *Project) RenameFile(path string) {
 	pathEntry := p.FindPathEntry(path)
 	if pathEntry == nil {
@@ -205,6 +223,7 @@ func (p *Project) RenameFile(path string) {
 	pathEntry.IsRenaming = true
 }
 
+// FindPathEntry search for path entry in project's cahe
 func (p *Project) FindPathEntry(path string) *hscommon.PathEntry {
 	if p.pathEntryCache == nil {
 		return nil
@@ -231,6 +250,7 @@ func (p *Project) searchPathEntries(pathEntry *hscommon.PathEntry, path string) 
 	return nil
 }
 
+// CreateNewFolder creates a new directory
 func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
@@ -246,14 +266,14 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 			break
 		}
 
-		if i > 100 {
+		if i > maxProjectsCount {
 			dialog.Message("Could not create a new project folder!").Error()
 
 			return
 		}
 	}
 
-	if err := os.Mkdir(fileName, 0775); err != nil {
+	if err := os.Mkdir(fileName, 0644); err != nil {
 		dialog.Message("Could not create a new project folder!").Error()
 
 		return
@@ -264,6 +284,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 	p.RenameFile(fileName)
 }
 
+// CreateNewFile creates a new file
 func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
@@ -279,15 +300,14 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 			break
 		}
 
-		if i > 100 {
+		if i > maxProjectsCount {
 			dialog.Message("Could not create a new project file!").Error()
 
 			return
 		}
 	}
 
-	switch fileType {
-	case hsfiletypes.FileTypeFont:
+	if fileType == hsfiletypes.FileTypeFont {
 		_, err := hsfont.NewFile(fileName)
 		if err != nil {
 			log.Fatalf("failed to save font: %s", err)
@@ -301,6 +321,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	p.RenameFile(fileName)
 }
 
+// ReloadAuxiliaryMPQs reloads auxiliary MPQs
 func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 	p.mpqs = make([]d2interface.Archive, len(p.AuxiliaryMPQs))
 
@@ -317,8 +338,10 @@ func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 			}
 
 			p.mpqs[idx] = data
+
 			wg.Done()
 		}(mpqIdx)
 	}
+
 	wg.Wait()
 }

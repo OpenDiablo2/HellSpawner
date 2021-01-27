@@ -1,9 +1,14 @@
+// Package hsfont contains data for font file types
 package hsfont
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+)
+
+const (
+	newFilePerms = 0644
 )
 
 // Font represents font
@@ -46,6 +51,7 @@ func (f *Font) JSON() ([]byte, error) {
 // SaveToFile saves font
 func (f *Font) SaveToFile() error {
 	var data []byte
+
 	var err error
 
 	data, err = f.JSON()
@@ -53,7 +59,7 @@ func (f *Font) SaveToFile() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(f.filePath, data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(f.filePath, data, os.FileMode(newFilePerms)); err != nil {
 		return err
 	}
 

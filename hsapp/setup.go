@@ -9,7 +9,6 @@ import (
 
 	g "github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
@@ -52,18 +51,20 @@ func (a *App) setup() error {
 		return err
 	}
 
-	if a.projectExplorer, err = hsprojectexplorer.Create(a.openEditor, projectExplorerDefaultX, projectExplorerDefaultY); err != nil {
+	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader,
+		a.openEditor, projectExplorerDefaultX,
+		projectExplorerDefaultY); err != nil {
 		return err
 	}
 
 	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
 
 	// Register the dialogs
-	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
+	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
 		log.Fatal(err)
 	}
 
-	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.onProjectPropertiesChanged)
+	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
 	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged)
 
 	// Set up keyboard shortcuts
@@ -73,17 +74,17 @@ func (a *App) setup() error {
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
-	hsinput.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
-	hsinput.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
-	hsinput.RegisterShortcut(a.Save, g.KeyS, g.ModControl, true)
-	hsinput.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
-	hsinput.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
-	hsinput.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
+	a.InputManager.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
+	a.InputManager.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
+	a.InputManager.RegisterShortcut(a.Save, g.KeyS, g.ModControl, true)
+	a.InputManager.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
+	a.InputManager.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
+	a.InputManager.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
 
-	hsinput.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)
-	hsinput.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, g.ModNone, true)
+	a.InputManager.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)
+	a.InputManager.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, g.ModNone, true)
 
-	hsinput.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, g.ModControl+g.ModShift, true)
-	hsinput.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, g.ModControl+g.ModShift, true)
-	hsinput.RegisterShortcut(a.toggleConsole, g.KeyC, g.ModControl+g.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, g.ModControl+g.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, g.ModControl+g.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleConsole, g.KeyC, g.ModControl+g.ModShift, true)
 }

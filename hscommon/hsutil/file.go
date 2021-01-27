@@ -29,9 +29,9 @@ func CreateFileAtPath(pathToFile string, data []byte) bool {
 	}
 
 	defer func() {
-		err := newFile.Close()
-		if err != nil {
-			log.Print(err)
+		errCb := newFile.Close()
+		if errCb != nil {
+			log.Print(errCb)
 		}
 	}()
 

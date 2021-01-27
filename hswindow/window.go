@@ -4,6 +4,7 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 )
 
 // Window represents project's window
@@ -50,8 +51,8 @@ func (t *Window) Render() {
 	t.WindowWidget.Build()
 }
 
-// RegisterKeyboardShortcut registers a keyboard shortcut
-func (t *Window) RegisterKeyboardShortcuts() {
+// RegisterKeyboardShortcuts registers a keyboard shortcut
+func (t *Window) RegisterKeyboardShortcuts(_ *hsinput.InputManager) {
 	// noop
 }
 

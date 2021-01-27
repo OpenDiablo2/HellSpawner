@@ -1,28 +1,35 @@
+// Package hsstringtableeditor contains string tables editor's data
 package hsstringtableeditor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
-	"github.com/OpenDiablo2/dialog"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+)
+
+const (
+	mainWindowW, mainWindowH = 400, 300
 )
 
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
+	// nolint:unused,structcheck // will be used
 	header g.RowWidget
 	rows   g.Rows
 	dict   d2tbl.TextDictionary
 }
 
 // Create creates a new string table editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {
 		return nil, err
@@ -76,7 +83,7 @@ func (e *StringTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(400, 300).
+		Size(mainWindowW, mainWindowH).
 		Layout(l)
 }
 
@@ -99,7 +106,7 @@ func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *StringTableEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data

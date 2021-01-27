@@ -8,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 )
 
+// State creates a new app state
 func (a *App) State() hsstate.AppState {
 	appState := hsstate.AppState{
 		ProjectPath:   a.project.GetProjectFilePath(),
@@ -24,9 +25,11 @@ func (a *App) State() hsstate.AppState {
 	return appState
 }
 
+// RestoreAppState restores an app state
 func (a *App) RestoreAppState(state hsstate.AppState) {
 	for _, toolState := range state.ToolWindows {
 		var tool hscommon.ToolWindow
+
 		switch toolState.Type {
 		case hsstate.ToolWindowTypeConsole:
 			tool = a.console

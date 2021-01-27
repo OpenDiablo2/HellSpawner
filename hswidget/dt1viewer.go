@@ -2,13 +2,17 @@ package hswidget
 
 import (
 	"fmt"
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
-	"github.com/ianling/giu"
 	"image"
 	"image/color"
 	"log"
+
+	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
 const (
@@ -19,12 +23,14 @@ const (
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
-//nolint:unused,structcheck // will be used
 type dt1Controls struct {
-	tileGroup    int32
-	tileVariant  int32
-	tileType     int32
-	tileStyle    int32
+	tileGroup   int32
+	tileVariant int32
+	// nolint:unused,structcheck // will be used
+	tileType int32
+	// nolint:unused,structcheck // will be used
+	tileStyle int32
+	// nolint:unused,structcheck // will be used
 	tileSequence int32
 	showGrid     bool
 	showFloor    bool
@@ -33,6 +39,7 @@ type dt1Controls struct {
 	scale        int32
 }
 
+// DT1ViewerState represents dt1 viewers state
 type DT1ViewerState struct {
 	*dt1Controls
 
@@ -42,6 +49,7 @@ type DT1ViewerState struct {
 	textures   [][]map[string]*giu.Texture
 }
 
+// Dispose clears viewers state
 func (is *DT1ViewerState) Dispose() {
 	is.textures = nil
 }
@@ -53,12 +61,15 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 	return tileIdentity(str)
 }
 
+// DT1ViewerWidget represents dt1 viewers widget
 type DT1ViewerWidget struct {
-	id  string
-	dt1 *d2dt1.DT1
+	id            string
+	dt1           *d2dt1.DT1
+	textureLoader *hscommon.TextureLoader
 }
 
-func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
+// DT1Viewer creates a new dt1 viewers widget
+func DT1Viewer(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 	result := &DT1ViewerWidget{
 		id:  id,
 		dt1: dt1,
@@ -70,7 +81,7 @@ func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 }
 
 func (p *DT1ViewerWidget) registerKeyboardShortcuts() {
-
+	// noop
 }
 
 func (p *DT1ViewerWidget) getStateID() string {
@@ -93,7 +104,7 @@ func (p *DT1ViewerWidget) getState() *DT1ViewerState {
 	return state
 }
 
-func (p *DT1ViewerWidget) setState(s *DT1ViewerState) {
+func (p *DT1ViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
@@ -110,6 +121,7 @@ func (p *DT1ViewerWidget) initState() {
 	p.setState(state)
 }
 
+// Build builds a viewer
 func (p *DT1ViewerWidget) Build() {
 	state := p.getState()
 
@@ -132,23 +144,22 @@ func (p *DT1ViewerWidget) Build() {
 			giu.TabItem("Subtile Flags").Layout(p.makeSubtileFlags(state, tile)),
 		}),
 	}.Build()
-
 }
 
 func (p *DT1ViewerWidget) groupTilesByIdentity() [][]*d2dt1.Tile {
 	result := make([][]*d2dt1.Tile, 0)
 
-	var tileId, groupId tileIdentity
+	var tileID, groupID tileIdentity
 
 OUTER:
 	for tileIdx := range p.dt1.Tiles {
 		tile := &p.dt1.Tiles[tileIdx]
-		tileId = tileId.fromTile(tile)
+		tileID = tileID.fromTile(tile)
 
 		for groupIdx := range result {
-			groupId = groupId.fromTile(result[groupIdx][0])
+			groupID = groupID.fromTile(result[groupIdx][0])
 
-			if tileId == groupId {
+			if tileID == groupID {
 				result[groupIdx] = append(result[groupIdx], tile)
 				continue OUTER
 			}
@@ -182,7 +193,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 			imgFloor, imgWall := image.NewRGBA(rect), image.NewRGBA(rect)
 			imgFloor.Pix, imgWall.Pix = floorPix, wallPix
 
-			hscommon.CreateTextureFromARGB(imgFloor, func(tex *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(imgFloor, func(tex *giu.Texture) {
 				if group[variantIdx] == nil {
 					group[variantIdx] = make(map[string]*giu.Texture)
 				}
@@ -190,7 +201,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 				group[variantIdx]["floor"] = tex
 			})
 
-			hscommon.CreateTextureFromARGB(imgWall, func(tex *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(imgWall, func(tex *giu.Texture) {
 				if group[variantIdx] == nil {
 					group[variantIdx] = make(map[string]*giu.Texture)
 				}
@@ -208,6 +219,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 }
 
 func rangeByte(b byte, min, max float64) byte {
+	// nolint:gomnd // constant
 	return byte((float64(b)/255*(max-min) + min) * 255)
 }
 
@@ -230,8 +242,10 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 
 	decodeTileGfxData(tile.Blocks, &floor, &wall, tileYOffset, tile.Width)
 
+	// nolint:gomnd // constant
 	floorBuf = make([]byte, tw*th*4) // rgba, fake palette values
-	wallBuf = make([]byte, tw*th*4)  // rgba, fake palette values
+	// nolint:gomnd // constant
+	wallBuf = make([]byte, tw*th*4) // rgba, fake palette values
 
 	for idx := range floor {
 		var alpha byte
@@ -239,6 +253,7 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 		floorVal := floor[idx]
 		wallVal := wall[idx]
 
+		// nolint:gomnd // constant
 		r, g, b, a := idx*4+0, idx*4+1, idx*4+2, idx*4+3
 
 		// the faux rgb color data here is just to make it look more interesting
@@ -295,10 +310,12 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 	return layout
 }
 
+// nolint:funlen,gocognit,gocyclo // no need to change
 func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
-	//curFrameIndex := int(state.dt1Controls.frame) + (int(state.dt1Controls.direction) * int(p.dt1.FramesPerDirection))
+	// nolint:gocritic // could be useful
+	// curFrameIndex := int(state.dt1Controls.frame) + (int(state.dt1Controls.direction) * int(p.dt1.FramesPerDirection))
 
 	if uint32(state.dt1Controls.scale) < 1 {
 		state.dt1Controls.scale = 1
@@ -352,6 +369,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
 
 			// make TL to BR lines
+			// nolint:dupl // could be changed
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -363,8 +381,10 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
+				// nolint:gomnd // const
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
 				}
@@ -373,6 +393,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 			}
 
 			// make TR to BL lines
+			// nolint:dupl // is ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -384,6 +405,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
@@ -432,35 +454,36 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 	return &layout
 }
 
+// nolint:gocyclo // can't reduce
 func getTileTypeString(t int32) string {
 	switch t {
-	case 0:
+	case hsenum.TileFloor:
 		return "floor"
-	case 10, 11:
+	case hsenum.TileSpecialTile1, hsenum.TileSpecialTile2:
 		return "special"
-	case 13:
+	case hsenum.TileShadow:
 		return "shadow"
-	case 14:
+	case hsenum.TileTree:
 		return "wall/object"
-	case 15:
+	case hsenum.TileRoof:
 		return "roof"
-	case 1:
+	case hsenum.TileLeftWall:
 		return "Left Wall"
-	case 2:
+	case hsenum.TileRightWall:
 		return "Upper Wall"
-	case 3:
+	case hsenum.TileRightPartOfNorthCornerWall:
 		return "Upper part of an Upper-Left corner"
-	case 4:
+	case hsenum.TileLeftPartOfNorthCornerWall:
 		return "Left part of an Upper-Left corner"
-	case 5:
+	case hsenum.TileLeftEndWall:
 		return "Upper-Right corner"
-	case 6:
+	case hsenum.TileRightEndWall:
 		return "Lower-Left corner"
-	case 7:
+	case hsenum.TileSouthCornerWall:
 		return "Lower-Right corner"
-	case 8:
+	case hsenum.TileLeftWallWithDoor:
 		return "Left Wall with Door object, but not always"
-	case 9:
+	case hsenum.TileRightWallWithDoor:
 		return "Upper Wall with Door object, but not always"
 	default:
 		return "lower wall ?"
@@ -469,25 +492,25 @@ func getTileTypeString(t int32) string {
 
 func getTileTypeImage(t int32) string {
 	switch t {
-	case 0:
+	case hsenum.TileFloor:
 		return "floor.png"
-	case 1:
+	case hsenum.TileLeftWall:
 		return "wall_west.png"
-	case 2:
+	case hsenum.TileRightWall:
 		return "wall_north.png"
-	case 3:
+	case hsenum.TileRightPartOfNorthCornerWall:
 		return "corner_upper_north.png"
-	case 4:
+	case hsenum.TileLeftPartOfNorthCornerWall:
 		return "corner_upper_west.png"
-	case 5:
+	case hsenum.TileLeftEndWall:
 		return "corner_upper_east.png"
-	case 6:
+	case hsenum.TileRightEndWall:
 		return "corner_lower_south.png"
-	case 7:
+	case hsenum.TileSouthCornerWall:
 		return "corner_lower_east.png"
-	case 8:
+	case hsenum.TileLeftWallWithDoor:
 		return "door_west.png"
-	case 9:
+	case hsenum.TileRightWallWithDoor:
 		return "door_north.png"
 	default:
 		return ""
@@ -495,9 +518,10 @@ func getTileTypeImage(t int32) string {
 }
 
 func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
+	var tileTypeImage *giu.ImageWithFileWidget
+
 	strType := getTileTypeString(tile.Type)
 
-	var tileTypeImage *giu.ImageWithFileWidget
 	tileImageFile := getTileTypeImage(tile.Type)
 
 	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
@@ -509,7 +533,7 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	if tileTypeImage != nil {
 		tileTypeInfo = giu.Layout{
 			giu.Label(fmt.Sprintf("Type: %d (%s)", int(tile.Type), strType)),
-			tileTypeImage.Size(32, 32),
+			tileTypeImage.Size(imageW, imageH),
 		}
 	}
 
@@ -538,12 +562,12 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		giu.Dummy(1, 4),
 
 		giu.Label(fmt.Sprintf("RarityFrameIndex: %d", int(tile.RarityFrameIndex))),
-		//giu.Line(
+		// giu.Line(
 		//	giu.Label(fmt.Sprintf("SubTileFlags: %v", tile.SubTileFlags)),
-		//),
-		//giu.Line(
+		// ),
+		// giu.Line(
 		//	giu.Label(fmt.Sprintf("Blocks: %v", tile.Blocks)),
-		//),
+		// ),
 	}
 }
 
@@ -569,11 +593,13 @@ func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	}
 }
 
+// TileGroup returns current tile group
 func (p *DT1ViewerWidget) TileGroup() int32 {
 	state := p.getState()
 	return state.tileGroup
 }
 
+// SetTileGroup sets current tile group
 func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	state := p.getState()
 	if int(tileGroup) > len(state.tileGroups) {
@@ -581,6 +607,7 @@ func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	} else if tileGroup < 0 {
 		tileGroup = 0
 	}
+
 	state.tileGroup = tileGroup
 }
 
@@ -596,32 +623,39 @@ func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
 	}
 
 	if flags.BlockJump {
+		// nolint:gomnd // const
 		f |= 1 << 2
 	}
 
 	if flags.BlockPlayerWalk {
+		// nolint:gomnd // const
 		f |= 1 << 3
 	}
 
 	if flags.Unknown1 {
+		// nolint:gomnd // const
 		f |= 1 << 4
 	}
 
 	if flags.BlockLight {
+		// nolint:gomnd // const
 		f |= 1 << 5
 	}
 
 	if flags.Unknown2 {
+		// nolint:gomnd // const
 		f |= 1 << 6
 	}
 
 	if flags.Unknown3 {
+		// nolint:gomnd // const
 		f |= 1 << 7
 	}
 
 	return f
 }
 
+// String returns current subtiles name
 func (f subtileFlag) String() string {
 	lookup := map[subtileFlag]string{
 		1 << 0: "block walk",
@@ -642,43 +676,51 @@ func (f subtileFlag) String() string {
 	return str
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) blockWalk() bool {
+	// nolint:gomnd // const
 	return ((f >> 0) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) blockLightAndLOS() bool {
+	// nolint:gomnd // const
 	return ((f >> 1) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) blockJumpAndTeleport() bool {
+	// nolint:gomnd // const
 	return ((f >> 2) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) blockPlayerAllowMercWalk() bool {
+	// nolint:gomnd // const
 	return ((f >> 3) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // I suppose, it will be used
 func (f subtileFlag) unknown4() bool {
+	// nolint:gomnd // const
 	return ((f >> 4) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) blockLightOnly() bool {
+	// nolint:gomnd // const
 	return ((f >> 5) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) unknown6() bool {
+	// nolint:gomnd // const
 	return ((f >> 6) & 0b1) > 0
 }
 
-//nolint:unused // will be used
+// nolint:unused // will be used
 func (f subtileFlag) unknown7() bool {
+	// nolint:gomnd // const
 	return ((f >> 7) & 0b1) > 0
 }
 
@@ -723,9 +765,11 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
+					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -742,19 +786,21 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 						Y: p1.Y + oy,
 					}
 
-					c := color.RGBA{
+					// nolint:gomnd // const
+					col := color.RGBA{
 						R: 0,
 						G: 255,
 						B: 255,
 						A: 255,
 					}
 
+					// nolint:gomnd // constant
 					flag := subtileFlag(0).from(tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)])
 
 					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
 
 					if hasFlag {
-						canvas.AddCircle(flagPoint, 3, c, 1, 0)
+						canvas.AddCircle(flagPoint, 3, col, 1, 0)
 					}
 				}
 
@@ -762,6 +808,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 			}
 
 			// make TR to BL lines
+			// nolint:dupl // also ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{ // bottom left point
 					X: left.X + (idx * halfTileW),
@@ -773,9 +820,11 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
+				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
+					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -790,19 +839,18 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 // this is copied from `OpenDiablo2/d2common/d2fileformats/d2dt1`,
 // we want to render the isometric (floor) and rle (wall) pixel buffers separately
 func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	for _, block := range blocks {
-		switch block.Format {
+	for i := range blocks {
+		switch blocks[i].Format {
 		case d2dt1.BlockFormatIsometric:
-			decodeFloorBlock(&block, floorPixBuf, tileYOffset, tileWidth)
+			decodeFloorBlock(&blocks[i], floorPixBuf, tileYOffset, tileWidth)
 		case d2dt1.BlockFormatRLE:
-			decodeWallBlock(&block, wallPixBuf, tileYOffset, tileWidth)
+			decodeWallBlock(&blocks[i], wallPixBuf, tileYOffset, tileWidth)
 		}
-
 	}
 }
 
+// nolint:gomnd // 3D isometric decoding
 func decodeFloorBlock(block *d2dt1.Block, floorPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	// 3D isometric decoding
 	xjump := []int32{14, 12, 10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10, 12, 14}
 	nbpix := []int32{4, 8, 12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4}
 	blockX := int32(block.X)

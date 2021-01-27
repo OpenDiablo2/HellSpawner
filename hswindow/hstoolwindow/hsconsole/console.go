@@ -1,4 +1,4 @@
-// represents console's window
+// Package hsconsole contains project's console
 package hsconsole
 
 import (

@@ -1,3 +1,4 @@
+// Package hsprojectpropertiesdialog contains project properties dialog's data
 package hsprojectpropertiesdialog
 
 import (
@@ -18,6 +19,15 @@ import (
 )
 
 const (
+	mainWindowW, mainWindowH = 300, 200
+	mpqSelectW, mpqSelectH   = 300, 250
+	mpqGroupW, mpqGroupH     = 0, 180
+	imgBtnW, imgBtnH         = 16, 16
+	dummyW, dummyH           = 8, 0
+	inputTextSize            = 250
+)
+
+const (
 	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
 	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
 	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
@@ -32,7 +42,7 @@ type ProjectPropertiesDialog struct {
 	downIconTexture            *g.Texture
 	project                    hsproject.Project
 	config                     *hsconfig.Config
-	onProjectPropertiesChanged func(project hsproject.Project)
+	onProjectPropertiesChanged func(project *hsproject.Project)
 	auxMPQs, auxMPQNames       []string
 
 	mpqSelectDlgIndex      int
@@ -40,22 +50,22 @@ type ProjectPropertiesDialog struct {
 }
 
 // Create creates a new project properties' dialog
-func Create(onProjectPropertiesChanged func(project hsproject.Project)) *ProjectPropertiesDialog {
+func Create(textureLoader *hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
 		mpqSelectDialogVisible:     false,
 	}
 
-	hscommon.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
 		result.removeIconTexture = texture
 	})
 
-	hscommon.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
 		result.upIconTexture = texture
 	})
 
-	hscommon.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
 		result.downIconTexture = texture
 	})
 
@@ -72,20 +82,22 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 	for idx := range p.auxMPQNames {
 		p.auxMPQNames[idx] = filepath.Base(p.auxMPQs[idx])
 	}
+
 	p.Dialog.Show()
 }
 
 // Build builds a dialog
+// nolint:funlen // no need to change
 func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
 	p.IsOpen(&p.mpqSelectDialogVisible).Layout(g.Layout{
-		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(300, 200).Layout(g.Layout{
+		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
 				p.addAuxMpq(p.auxMPQs[selectedIndex])
-				p.onProjectPropertiesChanged(p.project)
+				p.onProjectPropertiesChanged(&p.project)
 				p.mpqSelectDialogVisible = false
 			}),
 		}),
@@ -94,7 +106,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				// checks if aux MPQs list isn't empty
 				if len(p.auxMPQs) > 0 {
 					p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
-					p.onProjectPropertiesChanged(p.project)
+					p.onProjectPropertiesChanged(&p.project)
 				}
 
 				p.mpqSelectDialogVisible = false
@@ -108,55 +120,64 @@ func (p *ProjectPropertiesDialog) Build() {
 	if !p.mpqSelectDialogVisible {
 		p.IsOpen(&p.Visible).Layout(g.Layout{
 			g.Line(
-				g.Child("ProjectPropertiesLayout").Size(300, 250).Layout(g.Layout{
+				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(g.Layout{
 					g.Label("Project Name:"),
-					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(250),
+					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(inputTextSize),
 					g.Label("Description:"),
-					g.InputText("##ProjectPropertiesDialogDescription", &p.project.Description).Size(250),
+					g.InputText("##ProjectPropertiesDialogDescription", &p.project.Description).Size(inputTextSize),
 					g.Label("Author:"),
-					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(250),
+					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(inputTextSize),
 				}),
-				g.Child("ProjectPropertiesLayout2").Size(300, 250).Layout(g.Layout{
+				g.Child("ProjectPropertiesLayout2").Size(mpqSelectW, mpqSelectH).Layout(g.Layout{
 					g.Label("Auxiliary MPQs:"),
-					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(0, 180).Layout(g.Layout{
+					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(mpqGroupW, mpqGroupH).Layout(g.Layout{
 						g.Custom(func() {
 							imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
 							imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{})
 							for idx := range p.project.AuxiliaryMPQs {
+								currentIdx := idx
+
 								if idx >= len(p.project.AuxiliaryMPQs) {
 									break
 								}
+
 								g.Line(
-									g.Custom(func() { imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", idx)) }),
-									g.ImageButton(p.removeIconTexture).Size(16, 16).OnClick(func() {
-										copy(p.project.AuxiliaryMPQs[idx:], p.project.AuxiliaryMPQs[idx+1:])
+									g.Custom(func() {
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", currentIdx))
+									}),
+
+									g.ImageButton(p.removeIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
+										copy(p.project.AuxiliaryMPQs[currentIdx:], p.project.AuxiliaryMPQs[currentIdx+1:])
 										p.project.AuxiliaryMPQs = p.project.AuxiliaryMPQs[:len(p.project.AuxiliaryMPQs)-1]
 									}),
 									g.Custom(func() {
 										imgui.PopID()
-										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqDown_%d", idx))
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqDown_%d", currentIdx))
 									}),
-									g.ImageButton(p.downIconTexture).Size(16, 16).OnClick(func() {
-										if idx < len(p.project.AuxiliaryMPQs)-1 {
-											p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx+1] = p.project.AuxiliaryMPQs[idx+1], p.project.AuxiliaryMPQs[idx]
+									g.ImageButton(p.downIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
+										if currentIdx < len(p.project.AuxiliaryMPQs)-1 {
+											p.project.AuxiliaryMPQs[currentIdx] = p.project.AuxiliaryMPQs[currentIdx+1]
+											p.project.AuxiliaryMPQs[currentIdx+1] = p.project.AuxiliaryMPQs[currentIdx]
 										}
 									}),
 									g.Custom(func() {
 										imgui.PopID()
-										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqUp_%d", idx))
+										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqUp_%d", currentIdx))
 									}),
-									g.ImageButton(p.upIconTexture).Size(16, 16).OnClick(func() {
-										if idx > 0 {
-											p.project.AuxiliaryMPQs[idx-1], p.project.AuxiliaryMPQs[idx] = p.project.AuxiliaryMPQs[idx], p.project.AuxiliaryMPQs[idx-1]
+									g.ImageButton(p.upIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
+										if currentIdx > 0 {
+											p.project.AuxiliaryMPQs[currentIdx-1] = p.project.AuxiliaryMPQs[currentIdx]
+											p.project.AuxiliaryMPQs[currentIdx] = p.project.AuxiliaryMPQs[currentIdx-1]
 										}
 									}),
 									g.Custom(func() { imgui.PopID() }),
-									g.Dummy(8, 0),
+									g.Dummy(dummyW, dummyH),
 									g.Label(p.project.AuxiliaryMPQs[idx]),
 								).Build()
 							}
 							imgui.PopStyleVar()
+							// nolint:gomnd // const
 							imgui.PopStyleColorV(2)
 						}),
 					}),
@@ -183,11 +204,11 @@ func (p *ProjectPropertiesDialog) Build() {
 }
 
 func (p *ProjectPropertiesDialog) onSaveClicked() {
-	if len(strings.TrimSpace(p.project.ProjectName)) == 0 {
+	if strings.TrimSpace(p.project.ProjectName) == "" {
 		return
 	}
 
-	p.onProjectPropertiesChanged(p.project)
+	p.onProjectPropertiesChanged(&p.project)
 	p.Visible = false
 }
 

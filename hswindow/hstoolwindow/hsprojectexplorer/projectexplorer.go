@@ -1,15 +1,11 @@
+// Package hsprojectexplorer contains project explorer's data
 package hsprojectexplorer
 
 import (
-	"image/color"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -18,8 +14,22 @@ import (
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
+)
+
+const (
+	mainWindowW, mainWindowH = 300, 400
+	btnW, btnH               = 16, 16
+	popStyle                 = 2
+	pushStyle                = 4
+)
+
+const (
+	blackHalfOpacity = 0xffffff20
 )
 
 const (
@@ -40,7 +50,9 @@ type ProjectExplorer struct {
 }
 
 // Create creates a new project explorer
-func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
+func Create(textureLoader *hscommon.TextureLoader,
+	fileSelectedCallback ProjectExplorerFileSelectedCallback,
+	x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
 		ToolWindow:           hstoolwindow.New("Project Explorer", hsstate.ToolWindowTypeProjectExplorer, x, y),
 		nodeCache:            make(map[string][]g.Widget),
@@ -48,7 +60,7 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float
 	}
 	result.Visible = false
 
-	hscommon.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
 		result.refreshIconTexture = texture
 	})
 
@@ -75,7 +87,7 @@ func (m *ProjectExplorer) Build() {
 		Layout(m.getProjectTreeNodes())
 
 	m.IsOpen(&m.Visible).
-		Size(300, 400).
+		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
 			header,
 			g.Separator(),
@@ -85,7 +97,7 @@ func (m *ProjectExplorer) Build() {
 
 func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	button := g.ImageButton(m.refreshIconTexture).
-		Size(16, 16).
+		Size(btnW, btnH).
 		OnClick(func() {
 			m.onRefreshProjectExplorerClicked()
 		})
@@ -93,14 +105,14 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	const tooltipText = "Refresh the view from the filesystem."
 
 	if m.project == nil {
-		button.TintColor(color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0x20})
+		button.TintColor(hsutil.Color(blackHalfOpacity))
 	}
 
 	return g.Layout{
 		g.Custom(func() {
 			imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 			imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
-			imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: 4})
+			imgui.PushStyleVarVec2(imgui.StyleVarItemSpacing, imgui.Vec2{Y: pushStyle})
 			imgui.PushID("ProjectExplorerRefresh")
 		}),
 
@@ -111,7 +123,7 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 		g.Custom(func() {
 			imgui.PopID()
 			imgui.PopStyleVar()
-			imgui.PopStyleColorV(2)
+			imgui.PopStyleColorV(popStyle)
 		}),
 	}
 }
@@ -257,6 +269,7 @@ func (m *ProjectExplorer) onDeleteFileClicked(entry *hscommon.PathEntry) {
 	if !dialog.Message("Are you sure you want to delete:\n%s", entry.FullPath).YesNo() {
 		return
 	}
+
 	if err := os.Remove(entry.FullPath); err != nil {
 		dialog.Message("Could not delete:\n%s", entry.FullPath).Error()
 
@@ -278,15 +291,17 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 		return
 	}
 
-	if len(entry.Name) == 0 {
+	if entry.Name == "" {
 		dialog.Message("Cannot rename file:\nFiles cannot have a blank name.").Error()
+
 		entry.Name = entry.OldName
+
 		entry.OldName = ""
 
 		return
 	}
 
-	if len(filepath.Ext(entry.Name)) == 0 {
+	if filepath.Ext(entry.Name) == "" {
 		entry.Name += filepath.Ext(entry.OldName)
 	}
 
@@ -308,6 +323,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if _, err := os.Stat(newPath); !os.IsNotExist(err) {
 		dialog.Message("Cannot rename file:\nAlready exists.").Error()
+
 		entry.Name = entry.OldName
 		entry.OldName = ""
 
@@ -316,6 +332,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 	if err := os.Rename(oldPath, newPath); err != nil {
 		dialog.Message("Could not rename file:\n" + err.Error()).Error()
+
 		entry.Name = entry.OldName
 		entry.OldName = ""
 

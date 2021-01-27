@@ -1,16 +1,17 @@
+// Package hspaletteeditor contains palette editor's data
 package hspaletteeditor
 
 import (
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -21,7 +22,9 @@ type PaletteEditor struct {
 }
 
 // Create creates a new palette editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
 		return nil, err
@@ -37,12 +40,13 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
+	col := e.palette.GetColors()
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteGrid(e.GetId()+"_grid", e.palette.GetColors()),
+		hswidget.PaletteGrid(e.GetID()+"_grid", &col),
 	})
 }
 
-// UpdateMainMenuLayout updates a main menu layout to it contain pallete editor's options
+// UpdateMainMenuLayout updates a main menu layout to it contain palette editor's options
 func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Palette Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -61,7 +65,7 @@ func (e *PaletteEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *PaletteEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data

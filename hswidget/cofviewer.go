@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
-	"github.com/ianling/giu"
 )
 
 const (
-	fps25 = 25
+	indicatorSize = 64
 )
 
-// COFViewer represents cof viewer's state
+// COFViewerState represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
@@ -21,7 +22,7 @@ type COFViewerState struct {
 	layer          *d2cof.CofLayer
 }
 
-// Dispse clears viewer's layers
+// Dispose clears viewer's layers
 func (s *COFViewerState) Dispose() {
 	s.layer = nil
 }
@@ -44,11 +45,11 @@ func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 
 // Build builds a cof viewer
 func (p *COFViewerWidget) Build() {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	s := giu.Context.GetState(stateId)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
 
 	if s == nil {
-		giu.Context.SetState(stateId, &COFViewerState{
+		giu.Context.SetState(stateID, &COFViewerState{
 			layer: &p.cof.CofLayers[0],
 		})
 
@@ -70,12 +71,14 @@ func (p *COFViewerWidget) Build() {
 		l2 = fmt.Sprintf("Frames: %v", numFrames)
 	}
 
-	fps := fps25 * (float64(p.cof.Speed) / float64(256))
+	// nolint:gomnd // constant
+	fps := 25 * (float64(p.cof.Speed) / float64(256))
 	if fps == 0 {
-		fps = fps25
+		fps = 25
 	}
 
 	l3 = fmt.Sprintf("FPS: %.1f", fps)
+	// nolint:gomnd // constant
 	l4 = fmt.Sprintf("Duration: %.2fms", float64(numFrames)*(1/fps)*1000)
 
 	layerStrings := make([]string, 0)
@@ -84,7 +87,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	layerList := giu.Combo("##"+p.id+"layer", layerStrings[state.layerIndex], layerStrings, &state.layerIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	directionStrings := make([]string, 0)
 	for idx := range p.cof.Priority {
@@ -92,7 +95,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	directionList := giu.Combo("##"+p.id+"dir", directionStrings[state.directionIndex], directionStrings, &state.directionIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)
 	for idx := range p.cof.Priority[state.directionIndex] {
@@ -100,7 +103,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	frameList := giu.Combo("##"+p.id+"frame", frameStrings[state.frameIndex], frameStrings, &state.frameIndex).
-		Size(64).OnChange(p.onUpdate)
+		Size(indicatorSize).OnChange(p.onUpdate)
 
 	const vspace = 4 //nolint:unused // will be used
 
@@ -130,8 +133,8 @@ func (p *COFViewerWidget) Build() {
 }
 
 func (p *COFViewerWidget) onUpdate() {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	clone := p.cof.CofLayers[state.layerIndex]
 	state.layer = &clone
@@ -140,8 +143,8 @@ func (p *COFViewerWidget) onUpdate() {
 }
 
 func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	if state.layer == nil {
 		p.onUpdate()
@@ -154,8 +157,28 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	strSelectable := fmt.Sprintf("Selectable: %t", state.layer.Selectable)
 	strTransparent := fmt.Sprintf("Transparent: %t", state.layer.Transparent)
 
+	effect := p.getDrawEffect(state.layer.DrawEffect)
+
+	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
+
+	weapon := p.getWeaponClass(state.layer.WeaponClass)
+
+	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.layer.WeaponClass, weapon)
+
+	return giu.Layout{
+		giu.Label(strType),
+		giu.Label(strShadow),
+		giu.Label(strSelectable),
+		giu.Label(strTransparent),
+		giu.Label(strEffect),
+		giu.Label(strWeaponClass),
+	}
+}
+
+func (p *COFViewerWidget) getDrawEffect(eff d2enum.DrawEffect) string {
 	var effect string
-	switch state.layer.DrawEffect {
+
+	switch eff {
 	case d2enum.DrawEffectPctTransparency25:
 		effect = "25% alpha"
 	case d2enum.DrawEffectPctTransparency50:
@@ -173,14 +196,20 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	case d2enum.DrawEffectMod2X:
 		effect = "Mod2X"
 	case d2enum.DrawEffectNone:
+		// nolint:goconst // that's not a constant
 		effect = "None"
 	}
 
-	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
+	return effect
+}
 
+// nolint:gocyclo // can't reduce
+func (p *COFViewerWidget) getWeaponClass(cls d2enum.WeaponClass) string {
 	var weapon string
-	switch state.layer.WeaponClass {
+
+	switch cls {
 	case d2enum.WeaponClassNone:
+		// nolint:goconst // that's not a constant
 		weapon = "None"
 	case d2enum.WeaponClassHandToHand:
 		weapon = "Hand To Hand"
@@ -212,18 +241,10 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		weapon = "Two Hand To Hand"
 	}
 
-	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.layer.WeaponClass, weapon)
-
-	return giu.Layout{
-		giu.Label(strType),
-		giu.Label(strShadow),
-		giu.Label(strSelectable),
-		giu.Label(strTransparent),
-		giu.Label(strEffect),
-		giu.Label(strWeaponClass),
-	}
+	return weapon
 }
 
+// nolint:gocyclo // can't reduce
 func getLayerName(i interface{}) string {
 	var t d2enum.CompositeType
 
@@ -235,6 +256,7 @@ func getLayerName(i interface{}) string {
 	}
 
 	var layerName string
+
 	switch t {
 	case d2enum.CompositeTypeHead:
 		layerName = "Head"
@@ -274,8 +296,8 @@ func getLayerName(i interface{}) string {
 }
 
 func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
-	stateId := fmt.Sprintf("COFViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId).(*COFViewerState)
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	frames := p.cof.Priority[state.directionIndex]
 	layers := frames[int(state.frameIndex)%len(frames)]

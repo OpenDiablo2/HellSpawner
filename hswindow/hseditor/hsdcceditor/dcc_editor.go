@@ -1,9 +1,12 @@
+// Package hsdcceditor contains dcc editor's data
 package hsdcceditor
 
 import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
@@ -20,7 +23,9 @@ type DCCEditor struct {
 }
 
 // Create creates a new dcc editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dcc, err := d2dcc.Load(*data)
 	if err != nil {
 		return nil, err
@@ -60,7 +65,7 @@ func (e *DCCEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to save
 func (e *DCCEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data

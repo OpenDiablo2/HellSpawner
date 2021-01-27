@@ -1,10 +1,14 @@
 package hscommon
 
+import (
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
+)
+
 // Renderable represents renderable objects
 type Renderable interface {
 	Build()
 	Render()
 	Cleanup()
 	HasFocus() (hasFocus bool)
-	RegisterKeyboardShortcuts()
+	RegisterKeyboardShortcuts(inputManager *hsinput.InputManager)
 }

@@ -1,3 +1,4 @@
+// Package hsds1editor contains ds1 editor's data
 package hsds1editor
 
 import (
@@ -13,9 +14,19 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check if DS1Editor implemented hscommon.EditorWindow
 var _ hscommon.EditorWindow = &DS1Editor{}
 
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+// DS1Editor represents ds1 editor
+type DS1Editor struct {
+	*hseditor.Editor
+	ds1 *d2ds1.DS1
+}
+
+// Create creates a new ds1 editor
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {
 		return nil, err
@@ -31,11 +42,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	return result, nil
 }
 
-type DS1Editor struct {
-	*hseditor.Editor
-	ds1 *d2ds1.DS1
-}
-
+// Build builds an editor
 func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
@@ -44,6 +51,7 @@ func (e *DS1Editor) Build() {
 		})
 }
 
+// UpdateMainMenuLayout updates main menu layout to it contains editors options
 func (e *DS1Editor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DS1 Editor").Layout(g.Layout{
 		g.MenuItem("Add to project").OnClick(func() {}),
@@ -60,17 +68,20 @@ func (e *DS1Editor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *DS1Editor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data
 }
 
+// Save saves editors data
 func (e *DS1Editor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides editor
 func (e *DS1Editor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

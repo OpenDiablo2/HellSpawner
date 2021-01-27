@@ -3,41 +3,47 @@ package hswidget
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
 
 const (
-//gridMaxWidth    = 160
-//gridMaxHeight   = 80
-//gridDivisionsXY = 5
-//subtileHeight   = gridMaxHeight / gridDivisionsXY
-//subtileWidth    = gridMaxWidth / gridDivisionsXY
+// gridMaxWidth    = 160
+// gridMaxHeight   = 80
+// gridDivisionsXY = 5
+// subtileHeight   = gridMaxHeight / gridDivisionsXY
+// subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
-//nolint:structcheck,unused // will be used
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
-	subgroup     int32
-	tile         struct {
+	// nolint:unused,structcheck // will be used
+	subgroup int32
+	// nolint:unused,structcheck // will be used
+	tile struct {
 		floor, wall, shadow, sub int32
 	}
 }
 
+// DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
 }
 
+// Dispose clears viewers state
 func (is *DS1ViewerState) Dispose() {
-
+	// noop
 }
 
+// DS1ViewerWidget represents ds1 viewers widget
 type DS1ViewerWidget struct {
 	id  string
 	ds1 *d2ds1.DS1
 }
 
+// DS1Viewer creates a new ds1 viewer
 func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1ViewerWidget {
 	result := &DS1ViewerWidget{
 		id:  id,
@@ -66,7 +72,7 @@ func (p *DS1ViewerWidget) getState() *DS1ViewerState {
 	return state
 }
 
-func (p *DS1ViewerWidget) setState(s *DS1ViewerState) {
+func (p *DS1ViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
@@ -78,6 +84,7 @@ func (p *DS1ViewerWidget) initState() {
 	p.setState(state)
 }
 
+// Build builds a viewer
 func (p *DS1ViewerWidget) Build() {
 	state := p.getState()
 
@@ -140,7 +147,7 @@ func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 	} else {
 		line := giu.Line(
 			giu.Label("No objects."),
-			giu.ImageWithFile("hsassets/images/shrug.png").Size(32, 32),
+			giu.ImageWithFile("hsassets/images/shrug.png").Size(imageW, imageH),
 		)
 		l = append(l, line)
 	}
@@ -169,8 +176,7 @@ func (p *DS1ViewerWidget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
 	}
 
 	if len(obj.Paths) > 0 {
-		l = append(l, giu.Dummy(1, 16))
-		l = append(l, p.makePathLayout(&obj))
+		l = append(l, giu.Dummy(1, 16), p.makePathLayout(&obj))
 	}
 
 	return l
@@ -235,9 +241,11 @@ func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 
 	tx, ty = int(state.tileX), int(state.tileY)
 
-	l = append(l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1))
-	l = append(l, giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1))
-	l = append(l, p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]))
+	l = append(
+		l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
+		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
+		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
+	)
 
 	return l
 }
@@ -266,6 +274,7 @@ func (p *DS1ViewerWidget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRec
 	}
 }
 
+// nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
 func (p *DS1ViewerWidget) makeTileFloorsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -309,6 +318,7 @@ func (p *DS1ViewerWidget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) g
 	}
 }
 
+// nolint:dupl // could be changed
 func (p *DS1ViewerWidget) makeTileWallsLayout(state *DS1ViewerState, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -352,6 +362,7 @@ func (p *DS1ViewerWidget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layou
 	}
 }
 
+// nolint:dupl // no need to change
 func (p *DS1ViewerWidget) makeTileShadowsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
@@ -395,6 +406,7 @@ func (p *DS1ViewerWidget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) 
 	}
 }
 
+// nolint:dupl // it is ok
 func (p *DS1ViewerWidget) makeTileSubsLayout(state *DS1ViewerState, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 

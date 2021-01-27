@@ -5,13 +5,20 @@ import (
 	"image"
 	"log"
 
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
+const (
+	leftLayoutSize       = 180
+	bigImageW, bigImageH = 208, 208
+)
+
+// PaletteMapViewerState creates a new palette map viewer's state
 type PaletteMapViewerState struct {
 	selection int32
 	slider1   int32
@@ -19,19 +26,24 @@ type PaletteMapViewerState struct {
 	textures  map[string]*giu.Texture
 }
 
+// Dispose cleans viewer's state
 func (p *PaletteMapViewerState) Dispose() {
 	p.textures = make(map[string]*giu.Texture)
 }
 
+// PaletteMapViewerWidget represents a palette map viewer's widget
 type PaletteMapViewerWidget struct {
-	id  string
-	pl2 *d2pl2.PL2
+	id            string
+	pl2           *d2pl2.PL2
+	textureLoader *hscommon.TextureLoader
 }
 
-func PaletteMapViewer(id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
+// PaletteMapViewer creates a new palette map viewer's widget
+func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
 	result := &PaletteMapViewerWidget{
-		id:  id,
-		pl2: pl2,
+		id:            id,
+		pl2:           pl2,
+		textureLoader: textureLoader,
 	}
 
 	return result
@@ -64,10 +76,11 @@ func (p *PaletteMapViewerWidget) getState() *PaletteMapViewerState {
 	return state
 }
 
-func (p *PaletteMapViewerWidget) setState(s *PaletteMapViewerState) {
+func (p *PaletteMapViewerWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
+// Build builds a new widget
 func (p *PaletteMapViewerWidget) Build() {
 	state := p.getState()
 
@@ -102,24 +115,23 @@ func (p *PaletteMapViewerWidget) Build() {
 	right := giu.Layout{
 		giu.Label("Palette Map"),
 		giu.Layout{
-			giu.Combo("", selections[state.selection], selections, &state.selection).Size(180),
+			giu.Combo("", selections[state.selection], selections, &state.selection).Size(leftLayoutSize),
 			p.getTransformViewLayout(state.selection),
 		},
 	}
 
+	// nolint:gomnd // constant
 	w1, h1 := float32(256+32), float32(256+48)
 	w2, h2 := w1, h1
 
-	// special case for alpha blend
+	// nolint:gomnd // special case for alpha blend
 	if state.selection == 3 {
 		h2 += 32
 	}
 
 	layout := giu.Layout{
-		//giu.Line(
 		giu.Child("left").Size(w1, h1).Layout(left),
 		giu.Child("right").Size(w2, h2).Layout(right),
-		//),
 	}
 
 	layout.Build()
@@ -134,7 +146,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("InvColorVariations", p.pl2.InvColorVariations[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("SelectedUintShift", p.pl2.SelectedUintShift.Indices)
+			return p.transformSingle("SelectedUintShift", &p.pl2.SelectedUintShift.Indices)
 		},
 		func() giu.Layout {
 			return p.transformMultiGroup("AlphaBlend", p.pl2.AlphaBlend[:]...)
@@ -149,13 +161,13 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("HueVariations", p.pl2.HueVariations[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("RedTones", p.pl2.RedTones.Indices)
+			return p.transformSingle("RedTones", &p.pl2.RedTones.Indices)
 		},
 		func() giu.Layout {
-			return p.transformSingle("GreenTones", p.pl2.GreenTones.Indices)
+			return p.transformSingle("GreenTones", &p.pl2.GreenTones.Indices)
 		},
 		func() giu.Layout {
-			return p.transformSingle("BlueTones", p.pl2.BlueTones.Indices)
+			return p.transformSingle("BlueTones", &p.pl2.BlueTones.Indices)
 		},
 		func() giu.Layout {
 			return p.transformMulti("UnknownVariations", p.pl2.UnknownVariations[:])
@@ -164,7 +176,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 			return p.transformMulti("MaxComponentBlend", p.pl2.MaxComponentBlend[:])
 		},
 		func() giu.Layout {
-			return p.transformSingle("DarkendColorShift", p.pl2.DarkendColorShift.Indices)
+			return p.transformSingle("DarkendColorShift", &p.pl2.DarkendColorShift.Indices)
 		},
 		func() giu.Layout {
 			return p.textColors("TextColors", p.pl2.TextColors[:])
@@ -177,7 +189,8 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 	return buildLayout[transformIdx]()
 }
 
-func (p *PaletteMapViewerWidget) makeTexture(key string, colors [256]d2interface.Color) {
+func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interface.Color) {
+	// nolint:gomnd // constant
 	pix := make([]byte, 256*4)
 
 	img := &image.RGBA{
@@ -201,13 +214,14 @@ func (p *PaletteMapViewerWidget) makeTexture(key string, colors [256]d2interface
 		state.textures[key] = tex
 	}
 
-	hscommon.CreateTextureFromARGB(img, makeTexture)
+	p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 }
 
-func (p *PaletteMapViewerWidget) getColors(indices [256]byte) [256]d2interface.Color {
-	result := [256]d2interface.Color{}
+func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface.Color {
+	result := &[256]d2interface.Color{}
 
 	for idx := range indices {
+		// nolint:gomnd // const
 		if idx > 255 {
 			break
 		}
@@ -228,12 +242,13 @@ func (p *PaletteMapViewerWidget) getColors(indices [256]byte) [256]d2interface.C
 
 // single transform (256 palette indices)
 // example: selected unit
-func (p *PaletteMapViewerWidget) transformSingle(key string, transform [256]byte) giu.Layout {
+func (p *PaletteMapViewerWidget) transformSingle(key string, transform *[256]byte) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
 
 	if tex, found := state.textures[key]; found {
+		// nolint:gomnd // constant
 		l = append(l, giu.Image(tex).Size(255, 255))
 	} else {
 		p.makeTexture(key, p.getColors(transform))
@@ -261,15 +276,15 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections-1))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(208, 208))
+		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
 	} else {
-		p.makeTexture(textureID, p.getColors(transforms[state.slider1].Indices))
+		p.makeTexture(textureID, p.getColors(&transforms[state.slider1].Indices))
 	}
 
 	return l
 }
 
-// groups of multiple transforms (m * n * 256 palette indices)
+// tranferMultiGroup - groups of multiple transforms (m * n * 256 palette indices)
 // example: alpha blend, there's 3 alpha levels (25%, 50%, 75% ?), and each do a blend against all 256 colors
 func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2PaletteTransform) giu.Layout {
 	state := p.getState()
@@ -302,9 +317,10 @@ func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(208, 208))
+		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
 	} else {
-		p.makeTexture(textureID, p.getColors(groups[groupIdx][state.slider1].Indices))
+		col := p.getColors(&groups[groupIdx][state.slider1].Indices)
+		p.makeTexture(textureID, col)
 	}
 
 	return l
@@ -324,6 +340,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 
 	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
 	if tex, found := state.textures[textureID]; found {
+		// nolint:gomnd // const
 		l = append(l, giu.Image(tex).Size(float32(len(colors)*16), 16))
 	} else {
 		colorFaces := make([]d2interface.Color, len(colors))
@@ -338,6 +355,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 			colorFaces[idx] = cface
 		}
 
+		// nolint:gomnd // constant
 		pix := make([]byte, len(colors)*4)
 
 		img := &image.RGBA{
@@ -361,7 +379,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 			state.textures[textureID] = tex
 		}
 
-		hscommon.CreateTextureFromARGB(img, makeTexture)
+		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 	}
 
 	return l
@@ -374,7 +392,7 @@ func (p *PaletteMapViewerWidget) paletteView() giu.Layout {
 		baseTransform[idx] = byte(idx)
 	}
 
-	return p.transformSingle("base_palette", baseTransform)
+	return p.transformSingle("base_palette", &baseTransform)
 }
 
 type colorFace struct {
@@ -394,13 +412,16 @@ func (c colorFace) B() uint8 {
 }
 
 func (c colorFace) A() uint8 {
+	// nolint:gomnd // full-opacity (RGBA a=255)
 	return 0xff
 }
 
 func (c colorFace) RGBA() uint32 {
+	// nolint:gomnd // constants
 	return uint32(c.r)<<24 | uint32(c.g)<<16 | uint32(c.b)<<8 | uint32(0xff)
 }
 
+// nolint:gomnd // constants
 func (c colorFace) SetRGBA(u uint32) {
 	c.r = byte((u >> 24) & 0xff)
 	c.g = byte((u >> 16) & 0xff)
@@ -408,9 +429,11 @@ func (c colorFace) SetRGBA(u uint32) {
 }
 
 func (c colorFace) BGRA() uint32 {
+	// nolint:gomnd // constants
 	return uint32(c.b)<<8 | uint32(c.g)<<16 | uint32(c.r)<<24 | uint32(0xff)
 }
 
+// nolint:gomnd // constants
 func (c colorFace) SetBGRA(u uint32) {
 	c.b = byte((u >> 24) & 0xff)
 	c.g = byte((u >> 16) & 0xff)

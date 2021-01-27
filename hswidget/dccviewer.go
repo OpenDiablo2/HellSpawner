@@ -6,11 +6,17 @@ import (
 	"image/color"
 	"log"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 )
 
+const (
+	imageW, imageH = 32, 32
+)
+
+// DCCViewerState represents dcc viewers state
 type DCCViewerState struct {
 	controls struct {
 		direction int32
@@ -21,15 +27,18 @@ type DCCViewerState struct {
 	textures []*giu.Texture
 }
 
+// Dispose cleans viewers state
 func (is *DCCViewerState) Dispose() {
 	is.textures = nil
 }
 
+// DCCViewerWidget creates a new dcc widget
 type DCCViewerWidget struct {
 	id  string
 	dcc *d2dcc.DCC
 }
 
+// DCCViewer creates a new dcc viewers widget
 func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 	result := &DCCViewerWidget{
 		id:  id,
@@ -39,71 +48,14 @@ func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 	return result
 }
 
+// Build build a widget
+// nolint:funlen // no need to change
 func (p *DCCViewerWidget) Build() {
-	stateId := fmt.Sprintf("DCCViewerWidget_%s", p.id)
-	state := giu.Context.GetState(stateId)
+	stateID := fmt.Sprintf("DCCViewerWidget_%s", p.id)
+	state := giu.Context.GetState(stateID)
 
 	if state == nil {
-		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &DCCViewerState{})
-
-		totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
-		images := make([]*image2.RGBA, totalFrames)
-
-		for dirIdx := range p.dcc.Directions {
-			fw := p.dcc.Directions[dirIdx].Box.Width
-			fh := p.dcc.Directions[dirIdx].Box.Height
-
-			for frameIdx := range p.dcc.Directions[dirIdx].Frames {
-				absoluteFrameIdx := (dirIdx * p.dcc.FramesPerDirection) + frameIdx
-
-				frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
-				pixels := frame.PixelData
-
-				images[absoluteFrameIdx] = image2.NewRGBA(image2.Rect(0, 0, fw, fh))
-
-				for y := 0; y < fh; y++ {
-					for x := 0; x < fw; x++ {
-						idx := x + (y * fw)
-						if idx >= len(pixels) {
-							continue
-						}
-
-						val := pixels[idx]
-
-						alpha := maxAlpha
-
-						if val == 0 {
-							alpha = 0
-						}
-
-						color := color.RGBA{R: val, G: val, B: val, A: alpha}
-
-						images[absoluteFrameIdx].Set(x, y, color)
-					}
-				}
-
-			}
-		}
-
-		go func() {
-			textures := make([]*giu.Texture, totalFrames)
-			for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
-				var err error
-				textures[frameIndex], err = giu.NewTextureFromRgba(images[frameIndex])
-				if err != nil {
-					log.Fatal(err)
-				}
-			}
-			giu.Context.SetState(stateId, &DCCViewerState{textures: textures})
-		}()
-
-		// display a temporary dummy image until the real one ready
-		firstFrame := p.dcc.Directions[0].Frames[0]
-		sw := float32(firstFrame.Width)
-		sh := float32(firstFrame.Height)
-		widget := giu.Image(nil).Size(sw, sh)
-		widget.Build()
+		p.buildNew(stateID)
 	} else {
 		viewerState := state.(*DCCViewerState)
 
@@ -124,7 +76,7 @@ func (p *DCCViewerWidget) Build() {
 
 		var widget *giu.ImageWidget
 		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
-			widget = giu.Image(nil).Size(32, 32)
+			widget = giu.Image(nil).Size(imageW, imageH)
 		} else {
 			bw := p.dcc.Directions[dirIdx].Box.Width
 			bh := p.dcc.Directions[dirIdx].Box.Height
@@ -160,5 +112,68 @@ func (p *DCCViewerWidget) Build() {
 			widget,
 		}.Build()
 	}
+}
 
+func (p *DCCViewerWidget) buildNew(stateID string) {
+	// Prevent multiple invocation to LoadImage.
+	giu.Context.SetState(stateID, &DCCViewerState{})
+
+	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
+	images := make([]*image2.RGBA, totalFrames)
+
+	for dirIdx := range p.dcc.Directions {
+		fw := p.dcc.Directions[dirIdx].Box.Width
+		fh := p.dcc.Directions[dirIdx].Box.Height
+
+		for frameIdx := range p.dcc.Directions[dirIdx].Frames {
+			absoluteFrameIdx := (dirIdx * p.dcc.FramesPerDirection) + frameIdx
+
+			frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
+			pixels := frame.PixelData
+
+			images[absoluteFrameIdx] = image2.NewRGBA(image2.Rect(0, 0, fw, fh))
+
+			for y := 0; y < fh; y++ {
+				for x := 0; x < fw; x++ {
+					idx := x + (y * fw)
+					if idx >= len(pixels) {
+						continue
+					}
+
+					val := pixels[idx]
+
+					alpha := maxAlpha
+
+					if val == 0 {
+						alpha = 0
+					}
+
+					RGBAcolor := color.RGBA{R: val, G: val, B: val, A: alpha}
+
+					images[absoluteFrameIdx].Set(x, y, RGBAcolor)
+				}
+			}
+		}
+	}
+
+	go func() {
+		textures := make([]*giu.Texture, totalFrames)
+
+		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
+			var err error
+
+			textures[frameIndex], err = giu.NewTextureFromRgba(images[frameIndex])
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		giu.Context.SetState(stateID, &DCCViewerState{textures: textures})
+	}()
+
+	// display a temporary dummy image until the real one ready
+	firstFrame := p.dcc.Directions[0].Frames[0]
+	sw := float32(firstFrame.Width)
+	sh := float32(firstFrame.Height)
+	widget := giu.Image(nil).Size(sw, sh)
+	widget.Build()
 }

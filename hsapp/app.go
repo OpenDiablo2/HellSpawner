@@ -1,7 +1,6 @@
 package hsapp
 
 import (
-	"image/color"
 	"log"
 	"os"
 	"path/filepath"
@@ -26,6 +25,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
@@ -46,6 +46,15 @@ const (
 	consoleDefaultY         = 500
 )
 
+const (
+	sampleRate = 22050
+)
+
+const (
+	bgColor = 0x0a0a0aff
+)
+
+// App represents an app
 type App struct {
 	project      *hsproject.Project
 	config       *hsconfig.Config
@@ -60,7 +69,14 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]func(
+		textureLoader *hscommon.TextureLoader,
+		pathEntry *hscommon.PathEntry,
+		data *[]byte,
+		x, y float32,
+		project *hsproject.Project,
+	) (hscommon.EditorWindow, error)
+
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
@@ -68,25 +84,42 @@ type App struct {
 	fontFixedSmall    imgui.Font
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
+
+	InputManager  *hsinput.InputManager
+	TextureLoader *hscommon.TextureLoader
 }
 
+// Create creates new app instance
 func Create() (*App, error) {
+	tl := hscommon.NewTextureLoader()
 	result := &App{
-		editors:            make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error)),
-		config:             hsconfig.Load(),
+		editors: make([]hscommon.EditorWindow, 0),
+		editorConstructors: make(map[hsfiletypes.FileType]func(
+			textureLoader *hscommon.TextureLoader,
+			pathEntry *hscommon.PathEntry,
+			data *[]byte,
+			x, y float32,
+			project *hsproject.Project) (hscommon.EditorWindow, error)),
+
+		config:        hsconfig.Load(),
+		TextureLoader: tl,
 	}
+
+	im := hsinput.NewInputManager()
+	result.InputManager = im
 
 	result.abyssWrapper = abysswrapper.Create()
 
 	return result, nil
 }
 
+// Run runs an app instance
 func (a *App) Run() {
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
-	wnd.SetBgColor(color.RGBA{R: 10, G: 10, B: 10, A: 255})
+	wnd.SetBgColor(hsutil.Color(bgColor))
 
-	sampleRate := beep.SampleRate(22050)
+	sampleRate := beep.SampleRate(sampleRate)
+	// nolint:gomnd // this is 0.1 of second
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}
@@ -97,16 +130,16 @@ func (a *App) Run() {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
 
-	hscommon.ProcessTextureLoadRequests()
+	a.TextureLoader.ProcessTextureLoadRequests()
 
 	defer a.Quit()
 
-	wnd.SetInputCallback(hsinput.HandleInput)
+	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
 }
 
 func (a *App) render() {
-	hscommon.StopLoadingTextures()
+	a.TextureLoader.StopLoadingTextures()
 	a.renderMainMenuBar()
 
 	idx := 0
@@ -114,10 +147,13 @@ func (a *App) render() {
 		editor := a.editors[idx]
 		if !editor.IsVisible() {
 			editor.Cleanup()
+
 			if editor.HasFocus() {
 				a.focusedEditor = nil
 			}
+
 			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
+
 			continue
 		}
 
@@ -129,8 +165,10 @@ func (a *App) render() {
 		// if this window didn't have focus before, but it does now,
 		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
 		if !hadFocus && editor.HasFocus() {
-			hsinput.UnregisterWindowShortcuts()
-			editor.RegisterKeyboardShortcuts()
+			a.InputManager.UnregisterWindowShortcuts()
+
+			editor.RegisterKeyboardShortcuts(a.InputManager)
+
 			a.focusedEditor = editor
 		}
 
@@ -141,6 +179,7 @@ func (a *App) render() {
 		a.projectExplorer.Build()
 		a.projectExplorer.Render()
 	}
+
 	if a.mpqExplorer.IsVisible() {
 		a.mpqExplorer.Build()
 		a.mpqExplorer.Render()
@@ -167,7 +206,7 @@ func (a *App) render() {
 	}
 
 	g.Update()
-	hscommon.ResumeLoadingTextures()
+	a.TextureLoader.ResumeLoadingTextures()
 }
 
 func (a *App) setupFonts() {
@@ -180,13 +219,12 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-
 	imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
 	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
 	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
 	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
 	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
-	imgui.CurrentStyle().ScaleAllSizes(1.0)
+	imgui.CurrentStyle().ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
@@ -211,7 +249,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](path, &data, x, y, a.project)
+	editor, err := a.editorConstructors[fileType](a.TextureLoader, path, &data, x, y, a.project)
 
 	if err != nil {
 		dialog.Message("Error creating editor: %s", err).Error()
@@ -228,11 +266,12 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 func (a *App) openEditor(path *hscommon.PathEntry) {
 	a.editorManagerMutex.RLock()
 
-	uniqueId := path.GetUniqueID()
+	uniqueID := path.GetUniqueID()
 	for idx := range a.editors {
-		if a.editors[idx].GetId() == uniqueId {
+		if a.editors[idx].GetID() == uniqueID {
 			a.editors[idx].BringToFront()
 			a.editorManagerMutex.RUnlock()
+
 			return
 		}
 	}
@@ -244,6 +283,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 func (a *App) loadProjectFromFile(file string) {
 	var project *hsproject.Project
+
 	var err error
 
 	if project, err = hsproject.LoadFromFile(file); err != nil {
@@ -278,6 +318,7 @@ func (a *App) updateWindowTitle() {
 		glfw.GetCurrentContext().SetTitle(baseWindowTitle)
 		return
 	}
+
 	glfw.GetCurrentContext().SetTitle(baseWindowTitle + " - " + a.project.ProjectName)
 }
 
@@ -285,17 +326,18 @@ func (a *App) toggleMPQExplorer() {
 	a.mpqExplorer.ToggleVisibility()
 }
 
-func (a *App) onProjectPropertiesChanged(project hsproject.Project) {
-	*a.project = project
+func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
+	a.project = project
 	if err := a.project.Save(); err != nil {
 		log.Fatal(err)
 	}
+
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
 }
 
-func (a *App) onPreferencesChanged(config hsconfig.Config) {
-	*a.config = config
+func (a *App) onPreferencesChanged(config *hsconfig.Config) {
+	a.config = config
 	if err := a.config.Save(); err != nil {
 		log.Fatal(err)
 	}
@@ -334,15 +376,18 @@ func (a *App) toggleConsole() {
 	a.console.ToggleVisibility()
 }
 
+// CloseAllOpenWindows closes all opened windows
 func (a *App) CloseAllOpenWindows() {
 	a.closePopups()
 	a.projectExplorer.Cleanup()
 	a.mpqExplorer.Cleanup()
+
 	for _, editor := range a.editors {
 		editor.Cleanup()
 	}
 }
 
+// Save saves app state
 func (a *App) Save() {
 	if a.project != nil {
 		a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
@@ -359,6 +404,7 @@ func (a *App) Save() {
 	}
 }
 
+// Quit quits the app
 func (a *App) Quit() {
 	if a.abyssWrapper.IsRunning() {
 		_ = a.abyssWrapper.Kill()

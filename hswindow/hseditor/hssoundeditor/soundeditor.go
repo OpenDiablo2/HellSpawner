@@ -1,4 +1,4 @@
-// represents a soundEditor's window
+// Package hssoundeditor represents a soundEditor's window
 package hssoundeditor
 
 import (
@@ -23,7 +23,9 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 300, 100
+	mainWindowW, mainWindowH  = 300, 100
+	progressIndicatorModifier = 60
+	progressTimeModifier      = 22050
 )
 
 // SoundEditor represents a sound editor
@@ -37,8 +39,9 @@ type SoundEditor struct {
 }
 
 // Create creates a new sound editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
-	//func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
 	if err != nil {
@@ -67,12 +70,17 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 
 // Build builds a sound editor
 func (s *SoundEditor) Build() {
-	secondsCurrent := s.streamer.Position() / 22050
-	secondsTotal := s.streamer.Len() / 22050
+	secondsCurrent := s.streamer.Position() / progressTimeModifier
+	secondsTotal := s.streamer.Len() / progressTimeModifier
 
 	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-			Overlay(fmt.Sprintf("%d:%02d / %d:%02d", secondsCurrent/60, secondsCurrent%60, secondsTotal/60, secondsTotal%60)),
+			Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
+				secondsCurrent/progressIndicatorModifier,
+				secondsCurrent%progressIndicatorModifier,
+				secondsTotal/progressIndicatorModifier,
+				secondsTotal%progressIndicatorModifier,
+			)),
 		g.Separator(),
 		g.Line(
 			g.Button("Play").OnClick(s.play),
@@ -116,6 +124,7 @@ func (s *SoundEditor) stop() {
 			log.Fatal(err)
 		}
 	}
+
 	s.control.Paused = true
 
 	speaker.Unlock()
@@ -138,13 +147,15 @@ func (s *SoundEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (s *SoundEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := s.Path.GetFileBytes()
 
 	return data
 }
 
+// Save saves an editor
 func (s *SoundEditor) Save() {
 	s.Editor.Save(s)
 }

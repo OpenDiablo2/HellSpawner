@@ -1,7 +1,7 @@
+// Package hsaboutdialog contains about dialog's data
 package hsaboutdialog
 
 import (
-	"image/color"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -11,6 +11,7 @@ import (
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
@@ -18,6 +19,10 @@ import (
 const (
 	mainWindowW, mainWindowH = 256, 256
 	mainLayoutW, mainLayoutH = 500, -1
+)
+
+const (
+	white = 0xffffffff
 )
 
 // AboutDialog represents about dialog
@@ -32,7 +37,7 @@ type AboutDialog struct {
 }
 
 // Create creates a new AboutDialog
-func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
+func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
 		Dialog:      hsdialog.New("About HellSpawner"),
 		titleFont:   titleFont,
@@ -59,17 +64,16 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 	if data, err = ioutil.ReadFile("README.md"); err != nil {
 		log.Fatal(err)
 	}
-	output := []byte(data)
 
 	// convert output md to html
-	html := blackfriday.MarkdownBasic(output)
+	html := blackfriday.MarkdownBasic(data)
 	// convert html to text
 	text, err := html2text.FromString(string(html), html2text.Options{PrettyTables: true})
 	if err != nil {
 		return result, err
 	}
 
-	// set string's max lenght
+	// set string's max length
 	text = strings.Join(hsutil.SplitIntoLinesWithMaxWidth(text, 70), "\n")
 	result.readme = text
 
@@ -78,13 +82,14 @@ func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) 
 
 // Build build an about dialog
 func (a *AboutDialog) Build() {
+	colorWhite := hsutil.Color(white)
 	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
 			g.ImageWithFile("hsassets/images/d2logo.png").Size(mainWindowW, mainWindowH),
 			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(g.Layout{
-				g.Label("HellSpawner").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.titleFont),
-				g.Label("The OpenDiablo 2 Toolset").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.regularFont),
-				g.Label("Local Build").Color(&color.RGBA{R: 255, G: 255, B: 255, A: 255}).Font(&a.fixedFont),
+				g.Label("HellSpawner").Color(&colorWhite).Font(&a.titleFont),
+				g.Label("The OpenDiablo 2 Toolset").Color(&colorWhite).Font(&a.regularFont),
+				g.Label("Local Build").Color(&colorWhite).Font(&a.fixedFont),
 				g.Separator(),
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
 					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{

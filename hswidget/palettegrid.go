@@ -16,23 +16,28 @@ const (
 	cellSize   = 12
 )
 
-//nolint:structcheck,unused // will be used
+// PaletteGridState represents palette grid's state
 type PaletteGridState struct {
+	// nolint:unused,structcheck // will be used
 	loading bool
+	// nolint:unused,structcheck // will be used
 	failure bool
 	texture *giu.Texture
 }
 
+// Dispose cleans palette grids state
 func (p *PaletteGridState) Dispose() {
 	p.texture = nil
 }
 
+// PaletteGridWidget represents palette grids widget
 type PaletteGridWidget struct {
 	id     string
-	colors [256]d2interface.Color
+	colors *[256]d2interface.Color
 }
 
-func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
+// PaletteGrid creates a new palette grid's widget
+func PaletteGrid(id string, colors *[256]d2interface.Color) *PaletteGridWidget {
 	result := &PaletteGridWidget{
 		id:     id,
 		colors: colors,
@@ -41,16 +46,18 @@ func PaletteGrid(id string, colors [256]d2interface.Color) *PaletteGridWidget {
 	return result
 }
 
+// Build build a new widget
 func (p *PaletteGridWidget) Build() {
-	stateId := fmt.Sprintf("PaletteGridWidget_%s", p.id)
-	state := giu.Context.GetState(stateId)
 	var widget *giu.ImageWidget
 
+	stateID := fmt.Sprintf("PaletteGridWidget_%s", p.id)
+
+	state := giu.Context.GetState(stateID)
 	if state == nil {
 		widget = giu.Image(nil).Size(gridWidth*cellSize, gridHeight*cellSize)
 
-		//Prevent multiple invocation to LoadImage.
-		giu.Context.SetState(stateId, &PaletteGridState{})
+		// Prevent multiple invocation to LoadImage.
+		giu.Context.SetState(stateID, &PaletteGridState{})
 
 		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))
 
@@ -58,12 +65,17 @@ func (p *PaletteGridWidget) Build() {
 			if y%cellSize == 0 {
 				continue
 			}
+
 			for x := 0; x < gridWidth*cellSize; x++ {
 				if x%cellSize == 0 {
 					continue
 				}
+
 				idx := (x / cellSize) + ((y / cellSize) * gridWidth)
+
 				col := p.colors[idx]
+
+				// nolint:gomnd // const
 				rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
 			}
 		}
@@ -71,7 +83,7 @@ func (p *PaletteGridWidget) Build() {
 		go func() {
 			texture, err := giu.NewTextureFromRgba(rgb)
 			if err == nil {
-				giu.Context.SetState(stateId, &PaletteGridState{texture: texture})
+				giu.Context.SetState(stateID, &PaletteGridState{texture: texture})
 			}
 		}()
 	} else {
@@ -80,5 +92,4 @@ func (p *PaletteGridWidget) Build() {
 	}
 
 	widget.Build()
-
 }

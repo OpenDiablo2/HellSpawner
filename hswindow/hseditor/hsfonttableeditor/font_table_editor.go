@@ -1,4 +1,4 @@
-// represents fontTableEditor's window
+// Package hsfonttableeditor represents fontTableEditor's window
 package hsfonttableeditor
 
 import (
@@ -36,7 +36,9 @@ type FontTableEditor struct {
 }
 
 // Create creates a new font table editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	glyphs := make(fontTable)
 
 	table := *data
@@ -144,17 +146,20 @@ func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
+// GenerateSaveData generates data to be saved
 func (e *FontTableEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data
 }
 
+// Save saves an editor
 func (e *FontTableEditor) Save() {
 	e.Editor.Save(e)
 }
 
+// Cleanup hides an editor
 func (e *FontTableEditor) Cleanup() {
 	if e.HasChanges(e) {
 		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",

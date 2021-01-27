@@ -13,6 +13,14 @@ import (
 	"github.com/kirsle/configdir"
 )
 
+const (
+	newFileMode = 0644
+)
+
+const (
+	maxRecentOpenedProjectsCount = 5
+)
+
 // Config represents HellSpawner's config
 type Config struct {
 	RecentProjects          []string
@@ -59,7 +67,7 @@ func Load() *Config {
 
 	var data []byte
 
-	if data, err = ioutil.ReadFile(configFile); err != nil {
+	if data, err = ioutil.ReadFile(filepath.Clean(configFile)); err != nil {
 		return generateDefaultConfig()
 	}
 
@@ -81,7 +89,7 @@ func (c *Config) Save() error {
 		return err
 	}
 
-	if err = ioutil.WriteFile(getConfigPath(), data, os.FileMode(0644)); err != nil {
+	if err := ioutil.WriteFile(getConfigPath(), data, os.FileMode(newFileMode)); err != nil {
 		return err
 	}
 
@@ -91,9 +99,11 @@ func (c *Config) Save() error {
 // AddToRecentProjects adds a path to recent opened projects
 func (c *Config) AddToRecentProjects(filePath string) {
 	found := false
+
 	for idx := range c.RecentProjects {
 		if c.RecentProjects[idx] == filePath {
 			found = true
+
 			if idx != 0 {
 				old := c.RecentProjects[0]
 				c.RecentProjects[0] = filePath
@@ -104,8 +114,9 @@ func (c *Config) AddToRecentProjects(filePath string) {
 
 	if !found {
 		recent := []string{filePath}
+
 		for idx := range c.RecentProjects {
-			if idx == 5 {
+			if idx == maxRecentOpenedProjectsCount {
 				break
 			}
 
@@ -123,7 +134,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 
 // GetAuxMPQs returns paths to auxiliary mpq's
 func (c *Config) GetAuxMPQs() []string {
-	if len(c.AuxiliaryMpqPath) == 0 {
+	if c.AuxiliaryMpqPath == "" {
 		return []string{}
 	}
 

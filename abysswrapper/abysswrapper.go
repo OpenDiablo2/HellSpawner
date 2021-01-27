@@ -13,20 +13,19 @@ const (
 	waitTime = 3
 )
 
-var (
-	mutex sync.RWMutex = sync.RWMutex{}
-)
-
 // AbyssWrapper represents abyss wrapper
 type AbyssWrapper struct {
 	running bool
 	output  io.Writer
 	cmd     *exec.Cmd
+	mutex   sync.RWMutex
 }
 
 // Create creates new Abyss Wrapper
 func Create() *AbyssWrapper {
 	result := &AbyssWrapper{}
+	result.mutex = sync.RWMutex{}
+
 	return result
 }
 
@@ -45,36 +44,36 @@ func (a *AbyssWrapper) Write(p []byte) (n int, err error) {
 
 // Launch launchs abyss wrapper
 func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
-	mutex.RLock()
+	a.mutex.RLock()
 	if a.running {
-		mutex.RUnlock()
+		a.mutex.RUnlock()
 
 		return nil
 	}
-	mutex.RUnlock()
-	mutex.Lock()
+	a.mutex.RUnlock()
+	a.mutex.Lock()
 
 	a.output = output
-	a.cmd = exec.Command(config.AbyssEnginePath)
+	a.cmd = exec.Command(config.AbyssEnginePath) // nolint:gosec // is ok
 	a.cmd.Stdout = a
 	a.cmd.Stderr = a
 	a.cmd.Stdin = a
 
 	if err := a.cmd.Start(); err != nil {
-		mutex.Unlock()
+		a.mutex.Unlock()
 		return err
 	}
 
 	a.running = true
 
-	mutex.Unlock()
+	a.mutex.Unlock()
 
 	go func() {
 		_ = a.cmd.Wait()
 
-		mutex.Lock()
+		a.mutex.Lock()
 		a.running = false
-		mutex.Unlock()
+		a.mutex.Unlock()
 	}()
 
 	return nil
@@ -82,8 +81,8 @@ func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 
 // Kill stops abyss wrapper
 func (a *AbyssWrapper) Kill() error {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
 
 	if !a.running {
 		return nil
@@ -94,8 +93,8 @@ func (a *AbyssWrapper) Kill() error {
 
 // IsRunning returns true, if AbyssWrapper is running
 func (a *AbyssWrapper) IsRunning() bool {
-	mutex.RLock()
-	defer mutex.RUnlock()
+	a.mutex.RLock()
+	defer a.mutex.RUnlock()
 
 	return a.running
 }

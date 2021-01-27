@@ -15,6 +15,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
+// GetMPQFileNodes returns mpq's node
 func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Config) *hscommon.PathEntry {
 	result := &hscommon.PathEntry{
 		Name:        filepath.Base(mpq.Path()),
@@ -68,14 +69,14 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 	return result
 }
 
-// Search for files in MPQ's without listfiles using a list of known filenames
+// searchForMpqFiles searches for files in MPQ's without listfiles using a list of known filenames
 func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Config) ([]string, error) {
 	var files []string
 
 	if config.ExternalListFile != "" {
 		file, err := os.Open(config.ExternalListFile)
 		if err != nil {
-			return files, errors.New("Couldn't open listfile")
+			return files, errors.New("couldn't open listfile")
 		}
 
 		defer func() {

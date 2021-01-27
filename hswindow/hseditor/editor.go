@@ -13,12 +13,14 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow"
 )
 
+// Editor represents an editor
 type Editor struct {
 	*hswindow.Window
 	Path    *hscommon.PathEntry
 	Project *hsproject.Project
 }
 
+// New creates a new editor
 func New(path *hscommon.PathEntry, x, y float32, project *hsproject.Project) *Editor {
 	return &Editor{
 		Window:  hswindow.New(generateWindowTitle(path), x, y),
@@ -27,6 +29,7 @@ func New(path *hscommon.PathEntry, x, y float32, project *hsproject.Project) *Ed
 	}
 }
 
+// State returns editors state
 func (e *Editor) State() hsstate.EditorState {
 	path, err := json.Marshal(e.Path)
 	if err != nil {
@@ -39,21 +42,24 @@ func (e *Editor) State() hsstate.EditorState {
 	}
 }
 
+// GetWindowTitle returns window title
 func (e *Editor) GetWindowTitle() string {
 	return generateWindowTitle(e.Path)
 }
 
-func (e *Editor) GetId() string {
+// GetID returns editors ID
+func (e *Editor) GetID() string {
 	return e.Path.GetUniqueID()
 }
 
+// Save saves an editor
 func (e *Editor) Save(editor Saveable) {
 	if e.Path.Source != hscommon.PathEntrySourceProject {
 		// saving to MPQ not yet supported
 		return
 	}
 
-	if editor, isSaveable := editor.(Saveable); isSaveable {
+	if _, isSaveable := editor.(Saveable); isSaveable {
 		saveData := editor.GenerateSaveData()
 		if saveData == nil {
 			return
@@ -80,13 +86,14 @@ func (e *Editor) Save(editor Saveable) {
 	}
 }
 
+// HasChanges returns true if editor has changed data
 func (e *Editor) HasChanges(editor Saveable) bool {
 	if e.Path.Source != hscommon.PathEntrySourceProject {
 		// saving to MPQ not yet supported
 		return false
 	}
 
-	if editor, isSaveable := editor.(Saveable); isSaveable {
+	if _, isSaveable := editor.(Saveable); isSaveable {
 		newData := editor.GenerateSaveData()
 		if newData != nil {
 			oldData, err := e.Path.GetFileBytes()
@@ -100,6 +107,7 @@ func (e *Editor) HasChanges(editor Saveable) bool {
 	return false
 }
 
+// Cleanup cides an editor
 func (e *Editor) Cleanup() {
 	e.Window.Cleanup()
 }

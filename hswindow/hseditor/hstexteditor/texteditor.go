@@ -1,3 +1,4 @@
+// Package hstexteditor contains text editor's data
 package hstexteditor
 
 import (
@@ -14,6 +15,11 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	mainWindowW, mainWindowH = 400, 300
+	tableViewModW            = 80
+)
+
 // TextEditor represents a text editor
 type TextEditor struct {
 	*hseditor.Editor
@@ -25,7 +31,9 @@ type TextEditor struct {
 }
 
 // Create creates a new text editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
 		text:   string(*data),
@@ -46,17 +54,21 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	columns := strings.Split(firstLine, "\t")
 	result.columns = len(columns)
 	columnWidgets := make([]g.Widget, len(columns))
+
 	for idx := range columns {
 		columnWidgets[idx] = g.Label(columns[idx])
 	}
+
 	result.tableRows[0] = g.Row(columnWidgets...)
 
 	for lineIdx := range lines[1:] {
 		columns := strings.Split(lines[lineIdx+1], "\t")
 		columnWidgets := make([]g.Widget, len(columns))
+
 		for idx := range columns {
 			columnWidgets[idx] = g.Label(columns[idx])
 		}
+
 		result.tableRows[lineIdx+1] = g.Row(columnWidgets...)
 	}
 
@@ -66,12 +78,12 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 // Build builds an editor
 func (e *TextEditor) Build() {
 	if !e.tableView {
-		e.IsOpen(&e.Visible).Size(400, 300).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
 		})
 	} else {
-		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(400, 300).Layout(g.Layout{
-			g.Child("").Border(false).Size(float32(e.columns*80), 0).Layout(g.Layout{
+		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(mainWindowW, mainWindowH).Layout(g.Layout{
+			g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
 				g.FastTable("").Border(true).Rows(e.tableRows),
 			}),
 		})
@@ -97,7 +109,7 @@ func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *TextEditor) GenerateSaveData() []byte {
-	// TODO -- save real data for this editor
+	// https://github.com/OpenDiablo2/HellSpawner/issues/181
 	data, _ := e.Path.GetFileBytes()
 
 	return data
