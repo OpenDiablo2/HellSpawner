@@ -167,7 +167,7 @@ func (a *App) render() {
 		if !hadFocus && editor.HasFocus() {
 			a.InputManager.UnregisterWindowShortcuts()
 
-			editor.RegisterKeyboardShortcuts()
+			editor.RegisterKeyboardShortcuts(a.InputManager)
 
 			a.focusedEditor = editor
 		}
