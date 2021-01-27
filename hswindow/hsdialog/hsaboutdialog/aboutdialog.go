@@ -28,13 +28,12 @@ const (
 // AboutDialog represents about dialog
 type AboutDialog struct {
 	*hsdialog.Dialog
-	titleFont    imgui.Font
-	regularFont  imgui.Font
-	fixedFont    imgui.Font
-	credits      string
-	license      string
-	readme       string
-	textureLoade *hscommon.TextureLoader
+	titleFont   imgui.Font
+	regularFont imgui.Font
+	fixedFont   imgui.Font
+	credits     string
+	license     string
+	readme      string
 }
 
 // Create creates a new AboutDialog

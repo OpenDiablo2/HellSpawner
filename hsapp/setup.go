@@ -51,7 +51,9 @@ func (a *App) setup() error {
 		return err
 	}
 
-	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader, a.openEditor, projectExplorerDefaultX, projectExplorerDefaultY); err != nil {
+	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader,
+		a.openEditor, projectExplorerDefaultX,
+		projectExplorerDefaultY); err != nil {
 		return err
 	}
 

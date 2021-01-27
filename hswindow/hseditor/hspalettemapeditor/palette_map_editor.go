@@ -22,7 +22,9 @@ type PaletteMapEditor struct {
 }
 
 // Create creates a new palette map editor
-func Create(textureLoader *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(textureLoader *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	pl2, err := d2pl2.Load(*data)
 	if err != nil {
 		return nil, err

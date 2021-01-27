@@ -50,7 +50,9 @@ type ProjectExplorer struct {
 }
 
 // Create creates a new project explorer
-func Create(textureLoader *hscommon.TextureLoader, fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
+func Create(textureLoader *hscommon.TextureLoader,
+	fileSelectedCallback ProjectExplorerFileSelectedCallback,
+	x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
 		ToolWindow:           hstoolwindow.New("Project Explorer", hsstate.ToolWindowTypeProjectExplorer, x, y),
 		nodeCache:            make(map[string][]g.Widget),

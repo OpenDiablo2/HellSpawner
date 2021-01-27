@@ -23,7 +23,9 @@ type DC6Editor struct {
 }
 
 // Create creates a new dc6 editor
-func Create(textureLoader *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(textureLoader *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
 		return nil, err

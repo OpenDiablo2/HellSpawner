@@ -22,7 +22,9 @@ type DT1Editor struct {
 }
 
 // Create creates new dt1 editor
-func Create(textureLoader *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(textureLoader *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {
 		return nil, err
@@ -66,7 +68,7 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 // RegisterKeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) RegisterKeyboardShortcuts() {
 	// right arrow goes to the next tile group
-	// TODO --- add local shocrcuts
+	// https://github.com/OpenDiablo2/HellSpawner/issues/183
 	// nolint:gocritic // todo
 	/*e.inputManager.RegisterShortcut(func() {
 		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)

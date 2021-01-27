@@ -16,12 +16,14 @@ type TextureLoadRequestItem struct {
 	callback func(*g.Texture)
 }
 
+// TextureLoader represents a texture loader
 type TextureLoader struct {
 	canLoadTextures bool
 	mutex           *sync.Mutex
 	loadQueue       *goconcurrentqueue.FIFO
 }
 
+// NewTextureLoader creates a new texture loader
 func NewTextureLoader() *TextureLoader {
 	result := &TextureLoader{}
 	result.canLoadTextures = false

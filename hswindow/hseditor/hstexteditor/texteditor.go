@@ -31,7 +31,9 @@ type TextEditor struct {
 }
 
 // Create creates a new text editor
-func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
 		text:   string(*data),
