@@ -13,8 +13,6 @@ const (
 	waitTime = 3
 )
 
-var ()
-
 // AbyssWrapper represents abyss wrapper
 type AbyssWrapper struct {
 	running bool
@@ -27,6 +25,7 @@ type AbyssWrapper struct {
 func Create() *AbyssWrapper {
 	result := &AbyssWrapper{}
 	result.mutex = sync.RWMutex{}
+
 	return result
 }
 

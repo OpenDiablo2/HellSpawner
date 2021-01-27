@@ -25,6 +25,7 @@ type InputManager struct {
 	shortcuts map[KeyCombo]*CallbackGroup
 }
 
+// NewInputManager creates a new input manager
 func NewInputManager() *InputManager {
 	result := &InputManager{}
 

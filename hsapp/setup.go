@@ -9,7 +9,6 @@ import (
 
 	g "github.com/ianling/giu"
 
-	//"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
