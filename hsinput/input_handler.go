@@ -20,6 +20,7 @@ const (
 	ModNone = 0
 )
 
+// InputManager represents registered game shortcuts
 type InputManager struct {
 	shortcuts map[KeyCombo]*CallbackGroup
 }
