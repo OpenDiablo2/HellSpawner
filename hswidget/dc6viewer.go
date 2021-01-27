@@ -41,12 +41,13 @@ func (is *DC6ViewerState) Dispose() {
 
 // DC6ViewerWidget represents dc6viewer's widget
 type DC6ViewerWidget struct {
-	id  string
-	dc6 *d2dc6.DC6
+	id            string
+	dc6           *d2dc6.DC6
+	textureLoader *hscommon.TextureLoader
 }
 
 // DC6Viewer creates new DC6ViewerWidget
-func DC6Viewer(id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
+func DC6Viewer(textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 	result := &DC6ViewerWidget{
 		id:  id,
 		dc6: dc6,
@@ -75,7 +76,7 @@ func (p *DC6ViewerWidget) Build() {
 
 			g.Context.SetState(stateID, viewerState)
 
-			hscommon.CreateTextureFromARGB(
+			p.textureLoader.CreateTextureFromARGB(
 				viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))],
 				func(tex *g.Texture,
 				) {

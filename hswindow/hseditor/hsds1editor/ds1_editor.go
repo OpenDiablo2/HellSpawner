@@ -24,7 +24,7 @@ type DS1Editor struct {
 }
 
 // Create creates a new ds1 editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {
 		return nil, err

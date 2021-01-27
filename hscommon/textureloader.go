@@ -16,41 +16,52 @@ type TextureLoadRequestItem struct {
 	callback func(*g.Texture)
 }
 
-var canLoadTextures = false
-var mutex = &sync.Mutex{}
-var loadQueue = goconcurrentqueue.NewFIFO()
+type TextureLoader struct {
+	canLoadTextures bool
+	mutex           *sync.Mutex
+	loadQueue       *goconcurrentqueue.FIFO
+}
+
+func NewTextureLoader() *TextureLoader {
+	result := &TextureLoader{}
+	result.canLoadTextures = false
+	result.mutex = &sync.Mutex{}
+	result.loadQueue = goconcurrentqueue.NewFIFO()
+
+	return result
+}
 
 // StopLoadingTextures stops loading a texture
-func StopLoadingTextures() {
-	mutex.Lock()
-	canLoadTextures = false
-	mutex.Unlock()
+func (t *TextureLoader) StopLoadingTextures() {
+	t.mutex.Lock()
+	t.canLoadTextures = false
+	t.mutex.Unlock()
 }
 
 // ResumeLoadingTextures resumes loading textures
-func ResumeLoadingTextures() {
-	mutex.Lock()
-	canLoadTextures = true
-	mutex.Unlock()
+func (t *TextureLoader) ResumeLoadingTextures() {
+	t.mutex.Lock()
+	t.canLoadTextures = true
+	t.mutex.Unlock()
 }
 
 // ProcessTextureLoadRequests proceses texture loading request
-func ProcessTextureLoadRequests() {
+func (t *TextureLoader) ProcessTextureLoadRequests() {
 	go func() {
 		for {
-			item, err := loadQueue.DequeueOrWaitForNextElement()
+			item, err := t.loadQueue.DequeueOrWaitForNextElement()
 			if err != nil {
 				break
 			}
 
 			for {
-				mutex.Lock()
+				t.mutex.Lock()
 
-				if !canLoadTextures {
-					mutex.Unlock()
+				if !t.canLoadTextures {
+					t.mutex.Unlock()
 					continue
 				}
-				mutex.Unlock()
+				t.mutex.Unlock()
 
 				break
 			}
@@ -69,7 +80,7 @@ func ProcessTextureLoadRequests() {
 }
 
 // CreateTextureFromFileAsync creates an texture
-func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
+func (t *TextureLoader) CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 	var imageData *image.RGBA
 
 	var err error
@@ -78,16 +89,16 @@ func CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
 		log.Fatal(err)
 	}
 
-	addTextureToLoadQueue(imageData, callback)
+	t.addTextureToLoadQueue(imageData, callback)
 }
 
 // CreateTextureFromARGB creates a texture fromo color given
-func CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
-	addTextureToLoadQueue(rgb, callback)
+func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
+	t.addTextureToLoadQueue(rgb, callback)
 }
 
-func addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.Texture)) {
-	err := loadQueue.Enqueue(TextureLoadRequestItem{
+func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.Texture)) {
+	err := t.loadQueue.Enqueue(TextureLoadRequestItem{
 		rgb:      rgb,
 		callback: callback,
 	})

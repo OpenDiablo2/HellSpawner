@@ -36,7 +36,7 @@ type FontTableEditor struct {
 }
 
 // Create creates a new font table editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	glyphs := make(fontTable)
 
 	table := *data

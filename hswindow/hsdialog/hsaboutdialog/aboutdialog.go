@@ -11,6 +11,7 @@ import (
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
@@ -27,16 +28,17 @@ const (
 // AboutDialog represents about dialog
 type AboutDialog struct {
 	*hsdialog.Dialog
-	titleFont   imgui.Font
-	regularFont imgui.Font
-	fixedFont   imgui.Font
-	credits     string
-	license     string
-	readme      string
+	titleFont    imgui.Font
+	regularFont  imgui.Font
+	fixedFont    imgui.Font
+	credits      string
+	license      string
+	readme       string
+	textureLoade *hscommon.TextureLoader
 }
 
 // Create creates a new AboutDialog
-func Create(regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
+func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
 		Dialog:      hsdialog.New("About HellSpawner"),
 		titleFont:   titleFont,

@@ -50,7 +50,7 @@ type ProjectExplorer struct {
 }
 
 // Create creates a new project explorer
-func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
+func Create(textureLoader *hscommon.TextureLoader, fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
 		ToolWindow:           hstoolwindow.New("Project Explorer", hsstate.ToolWindowTypeProjectExplorer, x, y),
 		nodeCache:            make(map[string][]g.Widget),
@@ -58,7 +58,7 @@ func Create(fileSelectedCallback ProjectExplorerFileSelectedCallback, x, y float
 	}
 	result.Visible = false
 
-	hscommon.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
 		result.refreshIconTexture = texture
 	})
 

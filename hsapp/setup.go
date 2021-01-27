@@ -51,18 +51,18 @@ func (a *App) setup() error {
 		return err
 	}
 
-	if a.projectExplorer, err = hsprojectexplorer.Create(a.openEditor, projectExplorerDefaultX, projectExplorerDefaultY); err != nil {
+	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader, a.openEditor, projectExplorerDefaultX, projectExplorerDefaultY); err != nil {
 		return err
 	}
 
 	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
 
 	// Register the dialogs
-	if a.aboutDialog, err = hsaboutdialog.Create(a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
+	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
 		log.Fatal(err)
 	}
 
-	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.onProjectPropertiesChanged)
+	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
 	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged)
 
 	// Set up keyboard shortcuts

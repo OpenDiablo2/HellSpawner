@@ -18,19 +18,21 @@ import (
 // DC6Editor represents a dc6 editor
 type DC6Editor struct {
 	*hseditor.Editor
-	dc6 *d2dc6.DC6
+	dc6           *d2dc6.DC6
+	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new dc6 editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(textureLoader *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
 		return nil, err
 	}
 
 	result := &DC6Editor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		dc6:    dc6,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		dc6:           dc6,
+		textureLoader: textureLoader,
 	}
 
 	return result, nil
@@ -39,7 +41,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 // Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.DC6Viewer(e.Path.GetUniqueID(), e.dc6),
+		hswidget.DC6Viewer(e.textureLoader, e.Path.GetUniqueID(), e.dc6),
 	})
 }
 

@@ -70,6 +70,7 @@ type App struct {
 
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(
+		textureLoader *hscommon.TextureLoader,
 		pathEntry *hscommon.PathEntry,
 		data *[]byte,
 		x, y float32,
@@ -84,20 +85,24 @@ type App struct {
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
 
-	InputManager *hsinput.InputManager
+	InputManager  *hsinput.InputManager
+	TextureLoader *hscommon.TextureLoader
 }
 
 // Create creates new app instance
 func Create() (*App, error) {
+	tl := hscommon.NewTextureLoader()
 	result := &App{
 		editors: make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]func(
+			textureLoader *hscommon.TextureLoader,
 			pathEntry *hscommon.PathEntry,
 			data *[]byte,
 			x, y float32,
 			project *hsproject.Project) (hscommon.EditorWindow, error)),
 
-		config: hsconfig.Load(),
+		config:        hsconfig.Load(),
+		TextureLoader: tl,
 	}
 
 	im := hsinput.NewInputManager()
@@ -125,7 +130,7 @@ func (a *App) Run() {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
 
-	hscommon.ProcessTextureLoadRequests()
+	a.TextureLoader.ProcessTextureLoadRequests()
 
 	defer a.Quit()
 
@@ -134,7 +139,7 @@ func (a *App) Run() {
 }
 
 func (a *App) render() {
-	hscommon.StopLoadingTextures()
+	a.TextureLoader.StopLoadingTextures()
 	a.renderMainMenuBar()
 
 	idx := 0
@@ -201,7 +206,7 @@ func (a *App) render() {
 	}
 
 	g.Update()
-	hscommon.ResumeLoadingTextures()
+	a.TextureLoader.ResumeLoadingTextures()
 }
 
 func (a *App) setupFonts() {
@@ -244,7 +249,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](path, &data, x, y, a.project)
+	editor, err := a.editorConstructors[fileType](a.TextureLoader, path, &data, x, y, a.project)
 
 	if err != nil {
 		dialog.Message("Error creating editor: %s", err).Error()

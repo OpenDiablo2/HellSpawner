@@ -22,7 +22,7 @@ type DT1Editor struct {
 }
 
 // Create creates new dt1 editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(textureLoader *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *
 	result := &DT1Editor{
 		Editor:    hseditor.New(pathEntry, x, y, project),
 		dt1:       dt1,
-		dt1Viewer: hswidget.DT1Viewer(pathEntry.GetUniqueID(), dt1),
+		dt1Viewer: hswidget.DT1Viewer(textureLoader, pathEntry.GetUniqueID(), dt1),
 	}
 
 	return result, nil

@@ -22,7 +22,7 @@ type PaletteEditor struct {
 }
 
 // Create creates a new palette editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
 		return nil, err

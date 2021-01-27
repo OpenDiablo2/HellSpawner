@@ -39,7 +39,7 @@ type SoundEditor struct {
 }
 
 // Create creates a new sound editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 
 	if err != nil {

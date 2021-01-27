@@ -63,12 +63,13 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 
 // DT1ViewerWidget represents dt1 viewers widget
 type DT1ViewerWidget struct {
-	id  string
-	dt1 *d2dt1.DT1
+	id            string
+	dt1           *d2dt1.DT1
+	textureLoader *hscommon.TextureLoader
 }
 
 // DT1Viewer creates a new dt1 viewers widget
-func DT1Viewer(id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
+func DT1Viewer(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
 	result := &DT1ViewerWidget{
 		id:  id,
 		dt1: dt1,
@@ -192,7 +193,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 			imgFloor, imgWall := image.NewRGBA(rect), image.NewRGBA(rect)
 			imgFloor.Pix, imgWall.Pix = floorPix, wallPix
 
-			hscommon.CreateTextureFromARGB(imgFloor, func(tex *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(imgFloor, func(tex *giu.Texture) {
 				if group[variantIdx] == nil {
 					group[variantIdx] = make(map[string]*giu.Texture)
 				}
@@ -200,7 +201,7 @@ func (p *DT1ViewerWidget) makeTileTextures() {
 				group[variantIdx]["floor"] = tex
 			})
 
-			hscommon.CreateTextureFromARGB(imgWall, func(tex *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(imgWall, func(tex *giu.Texture) {
 				if group[variantIdx] == nil {
 					group[variantIdx] = make(map[string]*giu.Texture)
 				}

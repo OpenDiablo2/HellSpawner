@@ -50,22 +50,22 @@ type ProjectPropertiesDialog struct {
 }
 
 // Create creates a new project properties' dialog
-func Create(onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
+func Create(textureLoader *hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
 		mpqSelectDialogVisible:     false,
 	}
 
-	hscommon.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
 		result.removeIconTexture = texture
 	})
 
-	hscommon.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
 		result.upIconTexture = texture
 	})
 
-	hscommon.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
 		result.downIconTexture = texture
 	})
 

@@ -33,15 +33,17 @@ func (p *PaletteMapViewerState) Dispose() {
 
 // PaletteMapViewerWidget represents a palette map viewer's widget
 type PaletteMapViewerWidget struct {
-	id  string
-	pl2 *d2pl2.PL2
+	id            string
+	pl2           *d2pl2.PL2
+	textureLoader *hscommon.TextureLoader
 }
 
 // PaletteMapViewer creates a new palette map viewer's widget
-func PaletteMapViewer(id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
+func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
 	result := &PaletteMapViewerWidget{
-		id:  id,
-		pl2: pl2,
+		id:            id,
+		pl2:           pl2,
+		textureLoader: textureLoader,
 	}
 
 	return result
@@ -212,7 +214,7 @@ func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interfac
 		state.textures[key] = tex
 	}
 
-	hscommon.CreateTextureFromARGB(img, makeTexture)
+	p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 }
 
 func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface.Color {
@@ -377,7 +379,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 			state.textures[textureID] = tex
 		}
 
-		hscommon.CreateTextureFromARGB(img, makeTexture)
+		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 	}
 
 	return l

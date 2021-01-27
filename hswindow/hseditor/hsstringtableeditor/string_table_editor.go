@@ -27,7 +27,7 @@ type StringTableEditor struct {
 }
 
 // Create creates a new string table editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {
 		return nil, err

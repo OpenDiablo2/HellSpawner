@@ -27,7 +27,7 @@ type FontEditor struct {
 }
 
 // Create creates a new font editor
-func Create(pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
+func Create(_ *hscommon.TextureLoader, pathEntry *hscommon.PathEntry, data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	font, err := hsfont.LoadFromJSON(*data)
 	if err != nil {
 		return nil, err
