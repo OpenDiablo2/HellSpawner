@@ -841,7 +841,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 // we want to render the isometric (floor) and rle (wall) pixel buffers separately
 func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
 	for i := range blocks {
-		switch blocks[i].Format {
+		switch blocks[i].Format() {
 		case d2dt1.BlockFormatIsometric:
 			decodeFloorBlock(&blocks[i], floorPixBuf, tileYOffset, tileWidth)
 		case d2dt1.BlockFormatRLE:

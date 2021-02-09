@@ -20,6 +20,9 @@ const (
 	browseW, browseH         = 30, 0
 )
 
+// static check, to ensure, if font editor implemented editoWindow
+var _ hscommon.EditorWindow = &FontEditor{}
+
 // FontEditor represents a font editor
 type FontEditor struct {
 	*hseditor.Editor

@@ -15,6 +15,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check, to ensure, if dc6 editor implemented editoWindow
+var _ hscommon.EditorWindow = &DC6Editor{}
+
 // DC6Editor represents a dc6 editor
 type DC6Editor struct {
 	*hseditor.Editor
@@ -66,8 +69,7 @@ func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates save data
 func (e *DC6Editor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.dc6.Marshal()
 
 	return data
 }

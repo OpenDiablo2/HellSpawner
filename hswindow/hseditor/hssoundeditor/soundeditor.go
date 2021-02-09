@@ -28,6 +28,9 @@ const (
 	progressTimeModifier      = 22050
 )
 
+// static check, to ensure, if sound editor implemented editoWindow
+var _ hscommon.EditorWindow = &SoundEditor{}
+
 // SoundEditor represents a sound editor
 type SoundEditor struct {
 	*hseditor.Editor

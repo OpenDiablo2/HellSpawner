@@ -17,13 +17,16 @@ const (
 	mainWindowW, mainWindowH = 400, 300
 )
 
+// static check, to ensure, if string table editor implemented editoWindow
+var _ hscommon.EditorWindow = &StringTableEditor{}
+
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
 	// nolint:unused,structcheck // will be used
 	header g.RowWidget
 	rows   g.Rows
-	dict   d2tbl.TextDictionary
+	dict   *d2tbl.TextDictionary
 }
 
 // Create creates a new string table editor
@@ -42,7 +45,7 @@ func Create(_ *hscommon.TextureLoader,
 
 	result.Path = pathEntry
 
-	numEntries := len(result.dict)
+	numEntries := len(result.dict.Entries)
 
 	if !(numEntries > 0) {
 		return result, nil
@@ -61,10 +64,10 @@ func Create(_ *hscommon.TextureLoader,
 
 	keyIdx := 0
 
-	for key := range result.dict {
+	for key := range result.dict.Entries {
 		result.rows[keyIdx+1] = g.Row(
 			g.Label(key),
-			g.Label(result.dict[key]),
+			g.Label(result.dict.Entries[key]),
 		)
 
 		keyIdx++
@@ -106,8 +109,7 @@ func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *StringTableEditor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.dict.Marshal()
 
 	return data
 }
