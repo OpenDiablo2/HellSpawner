@@ -28,6 +28,9 @@ type fontGlyph struct {
 	width      int
 }
 
+// static check, to ensure, if font table editor implemented editoWindow
+var _ hscommon.EditorWindow = &FontTableEditor{}
+
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor

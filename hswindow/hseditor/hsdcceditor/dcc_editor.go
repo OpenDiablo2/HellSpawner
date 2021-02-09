@@ -16,6 +16,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check, to ensure, if dc6 editor implemented editoWindow
+var _ hscommon.EditorWindow = &DCCEditor{}
+
 // DCCEditor represents a new dcc editor
 type DCCEditor struct {
 	*hseditor.Editor

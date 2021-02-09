@@ -15,6 +15,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check, to ensure, if dt1 editor implemented editoWindow
+var _ hscommon.EditorWindow = &DT1Editor{}
+
 // DT1Editor represents a dt1 editor
 type DT1Editor struct {
 	*hseditor.Editor

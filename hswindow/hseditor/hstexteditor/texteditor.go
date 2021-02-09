@@ -20,6 +20,9 @@ const (
 	tableViewModW            = 80
 )
 
+// static check, to ensure, if text editor implemented editoWindow
+var _ hscommon.EditorWindow = &TextEditor{}
+
 // TextEditor represents a text editor
 type TextEditor struct {
 	*hseditor.Editor

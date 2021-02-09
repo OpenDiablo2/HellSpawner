@@ -15,6 +15,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check, to ensure, if cof editor implemented editoWindow
+var _ hscommon.EditorWindow = &COFEditor{}
+
 // COFEditor represents a cof editor
 type COFEditor struct {
 	*hseditor.Editor
@@ -25,7 +28,7 @@ type COFEditor struct {
 func Create(_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
-	cof, err := d2cof.Load(*data)
+	cof, err := d2cof.Unmarshal(*data)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +67,7 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *COFEditor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.cof.Marshal()
 
 	return data
 }

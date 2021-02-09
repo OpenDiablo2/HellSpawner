@@ -14,6 +14,9 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+// static check, to ensure, if palette map editor implemented editoWindow
+var _ hscommon.EditorWindow = &PaletteMapEditor{}
+
 // PaletteMapEditor represents a palette map editor
 type PaletteMapEditor struct {
 	*hseditor.Editor
