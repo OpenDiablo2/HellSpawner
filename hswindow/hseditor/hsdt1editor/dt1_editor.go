@@ -84,8 +84,7 @@ func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager
 
 // GenerateSaveData generates data to be saved
 func (e *DT1Editor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.dt1.Marshal()
 
 	return data
 }

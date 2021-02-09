@@ -69,8 +69,7 @@ func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates save data
 func (e *DC6Editor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.dc6.Marshal()
 
 	return data
 }
