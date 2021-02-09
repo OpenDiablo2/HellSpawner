@@ -78,7 +78,7 @@ func (p *COFViewerWidget) Build() {
 	}
 
 	l3 = fmt.Sprintf("FPS: %.1f", fps)
-	// nolint:gomnd // constant
+	// nolint:gomnd // miliseconds
 	l4 = fmt.Sprintf("Duration: %.2fms", float64(numFrames)*(1/fps)*1000)
 
 	layerStrings := make([]string, 0)
@@ -119,6 +119,8 @@ func (p *COFViewerWidget) Build() {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
+				giu.Button("Add layer...##"+p.id+"AddLayer").Size(200, 30),
+				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() { p.deleteCurrentLayer(state.layerIndex) }),
 			},
 		}),
 		giu.TabItem("Priority").Layout(giu.Layout{
@@ -130,6 +132,19 @@ func (p *COFViewerWidget) Build() {
 			p.makeDirectionLayout(),
 		}),
 	}).Build()
+}
+
+func (p *COFViewerWidget) deleteCurrentLayer(index int32) {
+	p.cof.NumberOfLayers--
+
+	newLayers := make([]d2cof.CofLayer, 0)
+	for n, i := range p.cof.CofLayers {
+		if int32(n) != index {
+			newLayers = append(newLayers, i)
+		}
+	}
+
+	p.cof.CofLayers = newLayers
 }
 
 func (p *COFViewerWidget) onUpdate() {
