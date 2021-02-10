@@ -8,6 +8,8 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
 const (
@@ -19,6 +21,7 @@ type COFEditorState int
 const (
 	COFEditorStateViewer COFEditorState = iota
 	COFEditorStateAddLayer
+	COFEditorStateAddDirection
 	COFEditorStateConfirm
 )
 
@@ -29,26 +32,7 @@ type COFViewerState struct {
 	frameIndex     int32
 	state          COFEditorState
 	layer          *d2cof.CofLayer
-	newCofLayer    *d2cof.CofLayer
-	confirmDialog  confirmDialog
-}
-
-type confirmDialog struct {
-	confirmHeader  string
-	confirmMessage string
-	confirmed      bool
-	cb             func()
-}
-
-func newCofLayer() *d2cof.CofLayer {
-	return &d2cof.CofLayer{
-		Type:        d2enum.CompositeTypeHead,
-		Shadow:      1,
-		Selectable:  true,
-		Transparent: false,
-		DrawEffect:  d2enum.DrawEffectNone,
-		WeaponClass: d2enum.WeaponClassNone,
-	}
+	confirmDialog  *PopUpConfirmDialog
 }
 
 // Dispose clears viewer's layers
@@ -58,15 +42,21 @@ func (s *COFViewerState) Dispose() {
 
 // COFViewerWidget represents cof viewer's widget
 type COFViewerWidget struct {
-	id  string
-	cof *d2cof.COF
+	id     string
+	editor *COFEditor
+	cof    *d2cof.COF
 }
 
 // COFViewer creates a cof viewer widget
 func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 	result := &COFViewerWidget{
 		id:  id,
-		cof: cof}
+		cof: cof,
+		editor: &COFEditor{
+			cof: cof,
+			id:  id,
+		},
+	}
 
 	return result
 }
@@ -80,7 +70,7 @@ func (p *COFViewerWidget) Build() {
 		giu.Context.SetState(stateID, &COFViewerState{
 			layer:         &p.cof.CofLayers[0],
 			state:         COFEditorStateViewer,
-			confirmDialog: confirmDialog{},
+			confirmDialog: &PopUpConfirmDialog{},
 		})
 
 		return
@@ -92,131 +82,13 @@ func (p *COFViewerWidget) Build() {
 	case COFEditorStateViewer:
 		p.buildViewer(stateID, state)
 	case COFEditorStateAddLayer:
-		p.buildAddLayer(state)
+		p.editor.makeAddLayerLayout(state).Build()
+	case COFEditorStateAddDirection:
+		//p.buildAddDirection(state)
+		state.state = COFEditorStateViewer
 	case COFEditorStateConfirm:
-		p.buildPopUpConfirm(state)
+		state.confirmDialog.Build()
 	}
-}
-
-func (p *COFViewerWidget) buildPopUpConfirm(state *COFViewerState) {
-	open := true
-	giu.Layout{
-		giu.Label("Please confirm"),
-		giu.PopupModal(state.confirmDialog.confirmHeader).IsOpen(&open).Layout(giu.Layout{
-			giu.Label(state.confirmDialog.confirmMessage),
-			giu.Separator(),
-			giu.Line(
-				giu.Button("YES##"+p.id+"confirmDialog").Size(40, 25).OnClick(func() {
-					state.confirmDialog.cb()
-					state.state = COFEditorStateViewer
-				}),
-				giu.Button("NO##"+p.id+"confirmDialog").Size(40, 25).OnClick(func() {
-					state.state = COFEditorStateViewer
-				}),
-			),
-		}),
-	}.Build()
-}
-
-func (p *COFViewerWidget) buildAddLayer(state *COFViewerState) {
-	var selectable int32 = boolToInt(state.newCofLayer.Selectable)
-	var transparent int32 = boolToInt(state.newCofLayer.Transparent)
-	var weaponClass int32 = int32(state.newCofLayer.WeaponClass)
-
-	trueFalse := []string{"false", "true"}
-
-	weaponClassList := make([]string, int(d2enum.WeaponClassTwoHandToHand)+1)
-	for i := d2enum.WeaponClassNone; d2enum.WeaponClass(i) <= d2enum.WeaponClassTwoHandToHand; i++ {
-		weaponClassList[int(i)] = i.String() + " (" + p.getWeaponClass(i) + ")"
-	}
-
-	//compositeTypeList := make([]string, int(d2enum.CompositeTypeMax))
-	compositeTypeList := make([]string, 0)
-	first := d2enum.CompositeTypeHead
-	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
-		contains := false
-		for _, j := range p.cof.CofLayers {
-			if j.Type == i {
-				contains = true
-				if first == j.Type {
-					first++
-				}
-
-				break
-			}
-		}
-
-		if !contains {
-			compositeTypeList = append(compositeTypeList, i.String()+" ("+getLayerName(i)+")")
-		}
-	}
-
-	state.newCofLayer.Type = d2enum.CompositeType(first)
-
-	var compositeType int32 = int32(state.newCofLayer.Type)
-
-	giu.Layout{
-		giu.Label("Select new COF's Layer parameters:"),
-		giu.Separator(),
-		giu.Line(
-			giu.Label("Type: "),
-			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[compositeType], compositeTypeList, &compositeType).Size(200).OnChange(func() {
-				state.newCofLayer.Type = d2enum.CompositeType(compositeType)
-			}),
-		),
-		giu.Line(
-			giu.Label("Selectable: "),
-			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[selectable], trueFalse, &selectable).Size(60).OnChange(func() {
-				state.newCofLayer.Selectable = intToBool(selectable)
-			}),
-		),
-		giu.Line(
-			giu.Label("Transparent: "),
-			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[transparent], trueFalse, &transparent).Size(60).OnChange(func() {
-				state.newCofLayer.Selectable = intToBool(selectable)
-			}),
-		),
-		giu.Line(
-			giu.Label("WeaponClass: "),
-			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[weaponClass], weaponClassList, &weaponClass).Size(200).OnChange(func() {
-				state.newCofLayer.WeaponClass = d2enum.WeaponClass(weaponClass)
-			}),
-		),
-		giu.Separator(),
-		giu.Line(
-			giu.Button("Save##AddLayer").Size(80, 30).OnClick(func() {
-				p.cof.CofLayers = append(p.cof.CofLayers, *state.newCofLayer)
-				p.cof.NumberOfLayers++
-
-				for i := range p.cof.Priority {
-					for j := range p.cof.Priority[i] {
-						p.cof.Priority[i][j] = append(p.cof.Priority[i][j], state.newCofLayer.Type)
-					}
-				}
-
-				state.state = COFEditorStateViewer
-			}),
-			giu.Button("Close##AddLayer").Size(80, 30).OnClick(func() { state.state = COFEditorStateViewer }),
-		),
-	}.Build()
-}
-
-func intToBool(i int32) bool {
-	if i == 1 {
-		return true
-	} else {
-		return false
-	}
-
-	return false
-}
-
-func boolToInt(b bool) int32 {
-	if b {
-		return 1
-	}
-
-	return 0
 }
 
 func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
@@ -281,13 +153,20 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
-				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.newCofLayer = newCofLayer(); state.state = COFEditorStateAddLayer }),
+				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = COFEditorStateAddLayer }),
 				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
-					state.confirmDialog = confirmDialog{
-						confirmHeader:  "Do you raly want to remove this layer?",
-						confirmMessage: "If you'll click YES, all data from this layer will be lost. Continue?",
-						cb:             func() { p.deleteCurrentLayer(state.layerIndex) },
-					}
+					state.confirmDialog = NewPopUpConfirmDialog(
+						"##"+p.id+"DeleteLayerConfirm",
+						"Do you raly want to remove this layer?",
+						"If you'll click YES, all data from this layer will be lost. Continue?",
+						func() {
+							p.deleteCurrentLayer(state.layerIndex)
+							state.state = COFEditorStateViewer
+						},
+						func() {
+							state.state = COFEditorStateViewer
+						},
+					)
 
 					state.state = COFEditorStateConfirm
 				}),
@@ -300,6 +179,22 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 			),
 			giu.Separator(),
 			p.makeDirectionLayout(),
+			giu.Button("Add a new direction...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = COFEditorStateAddDirection }),
+			giu.Button("Delete current direction...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
+				NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
+					"Do you raly want to remove this direction?",
+					"If you'll click YES, all data from this direction will be lost. Continue?",
+					func() {
+						p.deleteCurrentDirection(state.directionIndex)
+						state.state = COFEditorStateViewer
+					},
+					func() {
+						state.state = COFEditorStateViewer
+					},
+				)
+
+				state.state = COFEditorStateConfirm
+			}),
 		}),
 	}).Build()
 }
@@ -315,6 +210,19 @@ func (p *COFViewerWidget) deleteCurrentLayer(index int32) {
 	}
 
 	p.cof.CofLayers = newLayers
+}
+
+func (p *COFViewerWidget) deleteCurrentDirection(index int32) {
+	p.cof.NumberOfDirections--
+
+	newPriority := make([][][]d2enum.CompositeType, 0)
+	for n, i := range p.cof.Priority {
+		if int32(n) != index {
+			newPriority = append(newPriority, i)
+		}
+	}
+
+	p.cof.Priority = newPriority
 }
 
 func (p *COFViewerWidget) onUpdate() {
@@ -342,11 +250,11 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	strSelectable := fmt.Sprintf("Selectable: %t", state.layer.Selectable)
 	strTransparent := fmt.Sprintf("Transparent: %t", state.layer.Transparent)
 
-	effect := p.getDrawEffect(state.layer.DrawEffect)
+	effect := hsenum.GetDrawEffectName(state.layer.DrawEffect)
 
 	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
 
-	weapon := p.getWeaponClass(state.layer.WeaponClass)
+	weapon := hsenum.GetWeaponClassString(state.layer.WeaponClass)
 
 	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.layer.WeaponClass, weapon)
 
@@ -358,75 +266,6 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		giu.Label(strEffect),
 		giu.Label(strWeaponClass),
 	}
-}
-
-func (p *COFViewerWidget) getDrawEffect(eff d2enum.DrawEffect) string {
-	var effect string
-
-	switch eff {
-	case d2enum.DrawEffectPctTransparency25:
-		effect = "25% alpha"
-	case d2enum.DrawEffectPctTransparency50:
-		effect = "50% alpha"
-	case d2enum.DrawEffectPctTransparency75:
-		effect = "75% alpha"
-	case d2enum.DrawEffectModulate:
-		effect = "Modulate"
-	case d2enum.DrawEffectBurn:
-		effect = "Burn"
-	case d2enum.DrawEffectNormal:
-		effect = "Normal"
-	case d2enum.DrawEffectMod2XTrans:
-		effect = "Mod2XTrans"
-	case d2enum.DrawEffectMod2X:
-		effect = "Mod2X"
-	case d2enum.DrawEffectNone:
-		// nolint:goconst // that's not a constant
-		effect = "None"
-	}
-
-	return effect
-}
-
-// nolint:gocyclo // can't reduce
-func (p *COFViewerWidget) getWeaponClass(cls d2enum.WeaponClass) string {
-	var weapon string
-
-	switch cls {
-	case d2enum.WeaponClassNone:
-		// nolint:goconst // that's not a constant
-		weapon = "None"
-	case d2enum.WeaponClassHandToHand:
-		weapon = "Hand To Hand"
-	case d2enum.WeaponClassBow:
-		weapon = "Bow"
-	case d2enum.WeaponClassOneHandSwing:
-		weapon = "One Hand Swing"
-	case d2enum.WeaponClassOneHandThrust:
-		weapon = "One Hand Thrust"
-	case d2enum.WeaponClassStaff:
-		weapon = "Staff"
-	case d2enum.WeaponClassTwoHandSwing:
-		weapon = "Two Hand Swing"
-	case d2enum.WeaponClassTwoHandThrust:
-		weapon = "Two Hand Thrust"
-	case d2enum.WeaponClassCrossbow:
-		weapon = "Crossbow"
-	case d2enum.WeaponClassLeftJabRightSwing:
-		weapon = "Left Jab Right Swing"
-	case d2enum.WeaponClassLeftJabRightThrust:
-		weapon = "Left Jab Right Thrust"
-	case d2enum.WeaponClassLeftSwingRightSwing:
-		weapon = "Left Swing Right Swing"
-	case d2enum.WeaponClassLeftSwingRightThrust:
-		weapon = "Left Swing Right Thrust"
-	case d2enum.WeaponClassOneHandToHand:
-		weapon = "One Hand To Hand"
-	case d2enum.WeaponClassTwoHandToHand:
-		weapon = "Two Hand To Hand"
-	}
-
-	return weapon
 }
 
 // nolint:gocyclo // can't reduce
