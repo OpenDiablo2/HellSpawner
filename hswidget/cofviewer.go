@@ -87,7 +87,10 @@ func (p *COFViewerWidget) Build() {
 		//p.buildAddDirection(state)
 		state.state = COFEditorStateViewer
 	case COFEditorStateConfirm:
-		state.confirmDialog.Build()
+		giu.Layout{
+			giu.Label("Please confirm your decision"),
+			state.confirmDialog,
+		}.Build()
 	}
 }
 
@@ -160,7 +163,7 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 						"Do you raly want to remove this layer?",
 						"If you'll click YES, all data from this layer will be lost. Continue?",
 						func() {
-							p.deleteCurrentLayer(state.layerIndex)
+							p.editor.deleteCurrentLayer(state.layerIndex)
 							state.state = COFEditorStateViewer
 						},
 						func() {
@@ -185,7 +188,7 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 					"Do you raly want to remove this direction?",
 					"If you'll click YES, all data from this direction will be lost. Continue?",
 					func() {
-						p.deleteCurrentDirection(state.directionIndex)
+						p.editor.deleteCurrentDirection(state.directionIndex)
 						state.state = COFEditorStateViewer
 					},
 					func() {
@@ -197,32 +200,6 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 			}),
 		}),
 	}).Build()
-}
-
-func (p *COFViewerWidget) deleteCurrentLayer(index int32) {
-	p.cof.NumberOfLayers--
-
-	newLayers := make([]d2cof.CofLayer, 0)
-	for n, i := range p.cof.CofLayers {
-		if int32(n) != index {
-			newLayers = append(newLayers, i)
-		}
-	}
-
-	p.cof.CofLayers = newLayers
-}
-
-func (p *COFViewerWidget) deleteCurrentDirection(index int32) {
-	p.cof.NumberOfDirections--
-
-	newPriority := make([][][]d2enum.CompositeType, 0)
-	for n, i := range p.cof.Priority {
-		if int32(n) != index {
-			newPriority = append(newPriority, i)
-		}
-	}
-
-	p.cof.Priority = newPriority
 }
 
 func (p *COFViewerWidget) onUpdate() {

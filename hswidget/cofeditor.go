@@ -126,3 +126,29 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 		),
 	}
 }
+
+func (p *COFEditor) deleteCurrentLayer(index int32) {
+	p.cof.NumberOfLayers--
+
+	newLayers := make([]d2cof.CofLayer, 0)
+	for n, i := range p.cof.CofLayers {
+		if int32(n) != index {
+			newLayers = append(newLayers, i)
+		}
+	}
+
+	p.cof.CofLayers = newLayers
+}
+
+func (p *COFEditor) deleteCurrentDirection(index int32) {
+	p.cof.NumberOfDirections--
+
+	newPriority := make([][][]d2enum.CompositeType, 0)
+	for n, i := range p.cof.Priority {
+		if int32(n) != index {
+			newPriority = append(newPriority, i)
+		}
+	}
+
+	p.cof.Priority = newPriority
+}
