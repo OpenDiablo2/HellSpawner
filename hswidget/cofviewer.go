@@ -48,15 +48,14 @@ type COFViewerWidget struct {
 }
 
 // COFViewer creates a cof viewer widget
-func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
+func COFViewer(id string, cof *d2cof.COF, editor *COFEditor) *COFViewerWidget {
 	result := &COFViewerWidget{
-		id:  id,
-		cof: cof,
-		editor: &COFEditor{
-			cof: cof,
-			id:  id,
-		},
+		id:     id,
+		cof:    cof,
+		editor: editor,
 	}
+
+	result.editor.cof = result.cof
 
 	return result
 }

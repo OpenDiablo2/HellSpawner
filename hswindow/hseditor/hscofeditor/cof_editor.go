@@ -28,8 +28,9 @@ const (
 // COFEditor represents a cof editor
 type COFEditor struct {
 	*hseditor.Editor
-	cof   *d2cof.COF
-	state COFEditorState
+	cof    *d2cof.COF
+	state  COFEditorState
+	editor *hswidget.COFEditor
 }
 
 // Create creates a new cof editor
@@ -45,6 +46,7 @@ func Create(_ *hscommon.TextureLoader,
 		Editor: hseditor.New(pathEntry, x, y, project),
 		cof:    cof,
 		state:  COFEditorStateView,
+		editor: hswidget.NewCofEditor(pathEntry.GetUniqueID()),
 	}
 
 	return result, nil
@@ -53,7 +55,7 @@ func Create(_ *hscommon.TextureLoader,
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.COFViewer(e.Path.GetUniqueID(), e.cof),
+		hswidget.COFViewer(e.Path.GetUniqueID(), e.cof, e.editor),
 	})
 }
 

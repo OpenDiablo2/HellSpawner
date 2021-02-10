@@ -18,6 +18,15 @@ type COFEditor struct {
 	id          string
 }
 
+func NewCofEditor(id string) *COFEditor {
+	result := &COFEditor{
+		id:          id,
+		newCofLayer: newCofLayer(),
+	}
+
+	return result
+}
+
 func newCofLayer() *d2cof.CofLayer {
 	return &d2cof.CofLayer{
 		Type:        d2enum.CompositeTypeHead,
@@ -32,6 +41,8 @@ func newCofLayer() *d2cof.CofLayer {
 func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 	if p.newCofLayer == nil {
 		p.newCofLayer = newCofLayer()
+
+		return nil
 	}
 
 	var selectable int32 = hsutil.BoolToInt(p.newCofLayer.Selectable)
@@ -61,9 +72,10 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 		}
 	}
 
-	p.newCofLayer.Type = d2enum.CompositeType(first)
+	/*p.newCofLayer.Type = d2enum.CompositeType(first)
 
-	var compositeType int32 = int32(p.newCofLayer.Type)
+	var compositeType int32 = int32(p.newCofLayer.Type)*/
+	var compositeType int32
 
 	drawEffectList := make([]string, int(d2enum.DrawEffectNone)+1)
 	for i := d2enum.DrawEffectPctTransparency25; d2enum.DrawEffect(i) <= d2enum.DrawEffectNone; i++ {
@@ -93,13 +105,13 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 		giu.Line(
 			giu.Label("Transparent: "),
 			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[transparent], trueFalse, &transparent).Size(60).OnChange(func() {
-				p.newCofLayer.Selectable = hsutil.IntToBool(selectable)
+				p.newCofLayer.Transparent = hsutil.IntToBool(transparent)
 			}),
 		),
 		giu.Line(
 			giu.Label("Draw effect: "),
 			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[drawEffect], drawEffectList, &drawEffect).Size(200).OnChange(func() {
-				p.newCofLayer.WeaponClass = d2enum.WeaponClass(weaponClass)
+				p.newCofLayer.DrawEffect = d2enum.DrawEffect(drawEffect)
 			}),
 		),
 		giu.Line(
