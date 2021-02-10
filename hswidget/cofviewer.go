@@ -14,12 +14,41 @@ const (
 	indicatorSize = 64
 )
 
+type COFEditorState int
+
+const (
+	COFEditorStateViewer COFEditorState = iota
+	COFEditorStateAddLayer
+	COFEditorStateConfirm
+)
+
 // COFViewerState represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
 	frameIndex     int32
+	state          COFEditorState
 	layer          *d2cof.CofLayer
+	newCofLayer    *d2cof.CofLayer
+	confirmDialog  confirmDialog
+}
+
+type confirmDialog struct {
+	confirmHeader  string
+	confirmMessage string
+	confirmed      bool
+	cb             func()
+}
+
+func newCofLayer() *d2cof.CofLayer {
+	return &d2cof.CofLayer{
+		Type:        d2enum.CompositeTypeHead,
+		Shadow:      1,
+		Selectable:  true,
+		Transparent: false,
+		DrawEffect:  d2enum.DrawEffectNone,
+		WeaponClass: d2enum.WeaponClassNone,
+	}
 }
 
 // Dispose clears viewer's layers
@@ -37,8 +66,7 @@ type COFViewerWidget struct {
 func COFViewer(id string, cof *d2cof.COF) *COFViewerWidget {
 	result := &COFViewerWidget{
 		id:  id,
-		cof: cof,
-	}
+		cof: cof}
 
 	return result
 }
@@ -50,7 +78,9 @@ func (p *COFViewerWidget) Build() {
 
 	if s == nil {
 		giu.Context.SetState(stateID, &COFViewerState{
-			layer: &p.cof.CofLayers[0],
+			layer:         &p.cof.CofLayers[0],
+			state:         COFEditorStateViewer,
+			confirmDialog: confirmDialog{},
 		})
 
 		return
@@ -58,6 +88,138 @@ func (p *COFViewerWidget) Build() {
 
 	state := s.(*COFViewerState)
 
+	switch state.state {
+	case COFEditorStateViewer:
+		p.buildViewer(stateID, state)
+	case COFEditorStateAddLayer:
+		p.buildAddLayer(state)
+	case COFEditorStateConfirm:
+		p.buildPopUpConfirm(state)
+	}
+}
+
+func (p *COFViewerWidget) buildPopUpConfirm(state *COFViewerState) {
+	open := true
+	giu.Layout{
+		giu.Label("Please confirm"),
+		giu.PopupModal(state.confirmDialog.confirmHeader).IsOpen(&open).Layout(giu.Layout{
+			giu.Label(state.confirmDialog.confirmMessage),
+			giu.Separator(),
+			giu.Line(
+				giu.Button("YES##"+p.id+"confirmDialog").Size(40, 25).OnClick(func() {
+					state.confirmDialog.cb()
+					state.state = COFEditorStateViewer
+				}),
+				giu.Button("NO##"+p.id+"confirmDialog").Size(40, 25).OnClick(func() {
+					state.state = COFEditorStateViewer
+				}),
+			),
+		}),
+	}.Build()
+}
+
+func (p *COFViewerWidget) buildAddLayer(state *COFViewerState) {
+	var selectable int32 = boolToInt(state.newCofLayer.Selectable)
+	var transparent int32 = boolToInt(state.newCofLayer.Transparent)
+	var weaponClass int32 = int32(state.newCofLayer.WeaponClass)
+
+	trueFalse := []string{"false", "true"}
+
+	weaponClassList := make([]string, int(d2enum.WeaponClassTwoHandToHand)+1)
+	for i := d2enum.WeaponClassNone; d2enum.WeaponClass(i) <= d2enum.WeaponClassTwoHandToHand; i++ {
+		weaponClassList[int(i)] = i.String() + " (" + p.getWeaponClass(i) + ")"
+	}
+
+	//compositeTypeList := make([]string, int(d2enum.CompositeTypeMax))
+	compositeTypeList := make([]string, 0)
+	first := d2enum.CompositeTypeHead
+	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
+		contains := false
+		for _, j := range p.cof.CofLayers {
+			if j.Type == i {
+				contains = true
+				if first == j.Type {
+					first++
+				}
+
+				break
+			}
+		}
+
+		if !contains {
+			compositeTypeList = append(compositeTypeList, i.String()+" ("+getLayerName(i)+")")
+		}
+	}
+
+	state.newCofLayer.Type = d2enum.CompositeType(first)
+
+	var compositeType int32 = int32(state.newCofLayer.Type)
+
+	giu.Layout{
+		giu.Label("Select new COF's Layer parameters:"),
+		giu.Separator(),
+		giu.Line(
+			giu.Label("Type: "),
+			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[compositeType], compositeTypeList, &compositeType).Size(200).OnChange(func() {
+				state.newCofLayer.Type = d2enum.CompositeType(compositeType)
+			}),
+		),
+		giu.Line(
+			giu.Label("Selectable: "),
+			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[selectable], trueFalse, &selectable).Size(60).OnChange(func() {
+				state.newCofLayer.Selectable = intToBool(selectable)
+			}),
+		),
+		giu.Line(
+			giu.Label("Transparent: "),
+			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[transparent], trueFalse, &transparent).Size(60).OnChange(func() {
+				state.newCofLayer.Selectable = intToBool(selectable)
+			}),
+		),
+		giu.Line(
+			giu.Label("WeaponClass: "),
+			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[weaponClass], weaponClassList, &weaponClass).Size(200).OnChange(func() {
+				state.newCofLayer.WeaponClass = d2enum.WeaponClass(weaponClass)
+			}),
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##AddLayer").Size(80, 30).OnClick(func() {
+				p.cof.CofLayers = append(p.cof.CofLayers, *state.newCofLayer)
+				p.cof.NumberOfLayers++
+
+				for i := range p.cof.Priority {
+					for j := range p.cof.Priority[i] {
+						p.cof.Priority[i][j] = append(p.cof.Priority[i][j], state.newCofLayer.Type)
+					}
+				}
+
+				state.state = COFEditorStateViewer
+			}),
+			giu.Button("Close##AddLayer").Size(80, 30).OnClick(func() { state.state = COFEditorStateViewer }),
+		),
+	}.Build()
+}
+
+func intToBool(i int32) bool {
+	if i == 1 {
+		return true
+	} else {
+		return false
+	}
+
+	return false
+}
+
+func boolToInt(b bool) int32 {
+	if b {
+		return 1
+	}
+
+	return 0
+}
+
+func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 	var l1, l2, l3, l4 string
 
 	numDirs := p.cof.NumberOfDirections
@@ -119,8 +281,16 @@ func (p *COFViewerWidget) Build() {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
-				giu.Button("Add layer...##"+p.id+"AddLayer").Size(200, 30),
-				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() { p.deleteCurrentLayer(state.layerIndex) }),
+				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.newCofLayer = newCofLayer(); state.state = COFEditorStateAddLayer }),
+				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
+					state.confirmDialog = confirmDialog{
+						confirmHeader:  "Do you raly want to remove this layer?",
+						confirmMessage: "If you'll click YES, all data from this layer will be lost. Continue?",
+						cb:             func() { p.deleteCurrentLayer(state.layerIndex) },
+					}
+
+					state.state = COFEditorStateConfirm
+				}),
 			},
 		}),
 		giu.TabItem("Priority").Layout(giu.Layout{
