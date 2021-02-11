@@ -4,6 +4,10 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 )
 
+const (
+	stringNone = "None"
+)
+
 // GetDrawEffectName returns name of draw effect given
 func GetDrawEffectName(eff d2enum.DrawEffect) string {
 	var effect string
@@ -26,7 +30,7 @@ func GetDrawEffectName(eff d2enum.DrawEffect) string {
 	case d2enum.DrawEffectMod2X:
 		effect = "Mod2X"
 	case d2enum.DrawEffectNone:
-		effect = "None"
+		effect = stringNone
 	}
 
 	return effect

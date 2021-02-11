@@ -17,6 +17,17 @@ const (
 	indicatorSize = 64
 )
 
+const (
+	upDownArrowW, upDownArrowH       = 15, 15
+	leftRightArrowW, leftRightArrowH = 15, 15
+	actionButtonW, actionButtonH     = 200, 30
+	speedInputW                      = 40
+)
+
+const (
+	maxSpeed = 100
+)
+
 // COFViewerState represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
@@ -71,7 +82,7 @@ func (p *COFViewerWidget) Build() {
 
 	switch state.state {
 	case hsenum.COFEditorStateViewer:
-		p.buildViewer(stateID, state)
+		p.buildViewer(state)
 	case hsenum.COFEditorStateAddLayer:
 		p.editor.makeAddLayerLayout(state).Build()
 	case hsenum.COFEditorStateConfirm:
@@ -82,7 +93,8 @@ func (p *COFViewerWidget) Build() {
 	}
 }
 
-func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
+// nolint:funlen // no need to reduce
+func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 	var l1, l2, l3, l4 string
 
 	numDirs := p.cof.NumberOfDirections
@@ -91,9 +103,9 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 	l1 = fmt.Sprintf("Directions: %v", numDirs)
 
 	if numDirs > 1 {
-		l2 = fmt.Sprintf("Frames (x%v): %v", numDirs, numFrames)
+		l2 = fmt.Sprintf("Frames (x%v):", numDirs)
 	} else {
-		l2 = fmt.Sprintf("Frames: %v", numFrames)
+		l2 = "Frames:"
 	}
 
 	// nolint:gomnd // constant
@@ -138,18 +150,33 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 			giu.Label(l1),
 			giu.Line(
 				giu.Label(l2),
-				giu.ImageButton(p.editor.leftArrowTexture).Size(15, 15).OnClick(func() {
+				giu.ImageButton(p.editor.leftArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
 					if p.cof.FramesPerDirection > 0 {
 						p.cof.FramesPerDirection--
 					}
 				}),
-				giu.ImageButton(p.editor.rightArrowTexture).Size(15, 15).OnClick(func() {
+				giu.Label(strconv.Itoa(numFrames)),
+				giu.Custom(func() {
+					imgui.PopID()
+					imgui.PushID("##" + p.id + "IncreaseFramesPerDirection")
+				}),
+				giu.ImageButton(p.editor.rightArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
 					p.cof.FramesPerDirection++
+				}),
+				giu.Custom(func() {
+					imgui.PopID()
+					imgui.PushID("##" + p.id + "DecreaseFramesPerDirection")
 				}),
 			),
 			giu.Line(
 				giu.Label("Speed: "),
-				giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed).Size(40).OnChange(func() { p.cof.Speed = int(speed) }),
+				giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed).Size(speedInputW).OnChange(func() {
+					if speed <= maxSpeed {
+						p.cof.Speed = int(speed)
+					} else {
+						p.cof.Speed = maxSpeed
+					}
+				}),
 			),
 			giu.Label(l3),
 			giu.Label(l4),
@@ -159,8 +186,10 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
-				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = hsenum.COFEditorStateAddLayer }),
-				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
+				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
+					state.state = hsenum.COFEditorStateAddLayer
+				}),
+				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.confirmDialog = NewPopUpConfirmDialog(
 						"##"+p.id+"DeleteLayerConfirm",
 						"Do you raly want to remove this layer?",
@@ -185,8 +214,10 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 			),
 			giu.Separator(),
 			p.makeDirectionLayout(),
-			giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(200, 30).OnClick(func() { p.editor.duplicateDirection(state) }),
-			giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(200, 30).OnClick(func() {
+			giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
+				p.editor.duplicateDirection(state)
+			}),
+			giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
 				NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
 					"Do you raly want to remove this direction?",
 					"If you'll click YES, all data from this direction will be lost. Continue?",
@@ -312,31 +343,31 @@ func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
 			for idx := range layers {
 				currentIdx := idx
 				giu.Line(
-					giu.Label(fmt.Sprintf("\t%d: %s", idx, getLayerName(layers[idx]))),
-					giu.ImageButton(p.editor.upArrowTexture).Size(20, 20).OnClick(func() {
+					giu.ImageButton(p.editor.upArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
 						if currentIdx > 0 {
-							prev := p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1]
-							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1] = p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx]
-							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] = prev
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1],
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] =
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx],
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1]
 						}
-
 					}),
 					giu.Custom(func() {
 						imgui.PopID()
 						imgui.PushID(fmt.Sprintf("LayerPriorityUp_%d", currentIdx))
 					}),
-					giu.ImageButton(p.editor.downArrowTexture).Size(20, 20).OnClick(func() {
+					giu.ImageButton(p.editor.downArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
 						if currentIdx < len(layers)-1 {
-							next := p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1]
-							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1] = p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx]
-							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] = next
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx],
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1] =
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1],
+								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx]
 						}
-
 					}),
 					giu.Custom(func() {
 						imgui.PopID()
 						imgui.PushID(fmt.Sprintf("LayerPriorityDown_%d", currentIdx))
 					}),
+					giu.Label(fmt.Sprintf("%d: %s", idx, getLayerName(layers[idx]))),
 				).Build()
 			}
 		}),

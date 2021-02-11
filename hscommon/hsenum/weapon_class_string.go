@@ -11,8 +11,7 @@ func GetWeaponClassString(cls d2enum.WeaponClass) string {
 
 	switch cls {
 	case d2enum.WeaponClassNone:
-		// nolint:goconst // that's not a constant
-		weapon = "None"
+		weapon = stringNone
 	case d2enum.WeaponClassHandToHand:
 		weapon = "Hand To Hand"
 	case d2enum.WeaponClassBow:

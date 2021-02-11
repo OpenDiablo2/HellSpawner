@@ -4,6 +4,11 @@ import (
 	"github.com/ianling/giu"
 )
 
+const (
+	yesNoButtonW, yesNoButtonH = 40, 25
+)
+
+// PopUpConfirmDialog represents a pop up dialog
 type PopUpConfirmDialog struct {
 	header  string
 	message string
@@ -12,7 +17,8 @@ type PopUpConfirmDialog struct {
 	nCB     func()
 }
 
-func NewPopUpConfirmDialog(id, header, message string, yCB func(), nCB func()) *PopUpConfirmDialog {
+// NewPopUpConfirmDialog creates a new pop up dialog (with yes-no options)
+func NewPopUpConfirmDialog(id, header, message string, yCB, nCB func()) *PopUpConfirmDialog {
 	result := &PopUpConfirmDialog{
 		header:  header,
 		message: message,
@@ -24,6 +30,7 @@ func NewPopUpConfirmDialog(id, header, message string, yCB func(), nCB func()) *
 	return result
 }
 
+// Build builds a pop up dialog
 func (p *PopUpConfirmDialog) Build() {
 	open := true
 	giu.Layout{
@@ -31,8 +38,8 @@ func (p *PopUpConfirmDialog) Build() {
 			giu.Label(p.message),
 			giu.Separator(),
 			giu.Line(
-				giu.Button("YES##"+p.id+"ConfirmDialog").Size(40, 25).OnClick(p.yCB),
-				giu.Button("NO##"+p.id+"confirmDialog").Size(40, 25).OnClick(p.nCB),
+				giu.Button("YES##"+p.id+"ConfirmDialog").Size(yesNoButtonW, yesNoButtonH).OnClick(p.yCB),
+				giu.Button("NO##"+p.id+"confirmDialog").Size(yesNoButtonW, yesNoButtonH).OnClick(p.nCB),
 			),
 		}),
 	}.Build()
