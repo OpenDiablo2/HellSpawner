@@ -157,8 +157,9 @@ func (p *ProjectPropertiesDialog) Build() {
 									}),
 									g.ImageButton(p.downIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
 										if currentIdx < len(p.project.AuxiliaryMPQs)-1 {
-											p.project.AuxiliaryMPQs[currentIdx] = p.project.AuxiliaryMPQs[currentIdx+1]
+											next := p.project.AuxiliaryMPQs[currentIdx+1]
 											p.project.AuxiliaryMPQs[currentIdx+1] = p.project.AuxiliaryMPQs[currentIdx]
+											p.project.AuxiliaryMPQs[currentIdx] = next
 										}
 									}),
 									g.Custom(func() {
@@ -167,8 +168,9 @@ func (p *ProjectPropertiesDialog) Build() {
 									}),
 									g.ImageButton(p.upIconTexture).Size(imgBtnW, imgBtnH).OnClick(func() {
 										if currentIdx > 0 {
+											prev := p.project.AuxiliaryMPQs[currentIdx-1]
 											p.project.AuxiliaryMPQs[currentIdx-1] = p.project.AuxiliaryMPQs[currentIdx]
-											p.project.AuxiliaryMPQs[currentIdx] = p.project.AuxiliaryMPQs[currentIdx-1]
+											p.project.AuxiliaryMPQs[currentIdx] = prev
 										}
 									}),
 									g.Custom(func() { imgui.PopID() }),
