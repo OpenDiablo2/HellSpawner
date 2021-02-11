@@ -8,21 +8,37 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
+const (
+	upItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
+	downItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
+)
+
 type COFEditor struct {
-	newCofLayer *d2cof.CofLayer
-	cof         *d2cof.COF
-	id          string
+	newCofLayer      *d2cof.CofLayer
+	cof              *d2cof.COF
+	id               string
+	upArrowTexture   *giu.Texture
+	downArrowTexture *giu.Texture
 }
 
-func NewCofEditor(id string) *COFEditor {
+func NewCofEditor(textureLoader *hscommon.TextureLoader, id string) *COFEditor {
 	result := &COFEditor{
 		id:          id,
 		newCofLayer: newCofLayer(),
 	}
+
+	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *giu.Texture) {
+		result.upArrowTexture = texture
+	})
+
+	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *giu.Texture) {
+		result.downArrowTexture = texture
+	})
 
 	return result
 }

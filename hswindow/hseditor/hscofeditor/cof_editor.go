@@ -34,7 +34,7 @@ type COFEditor struct {
 }
 
 // Create creates a new cof editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	cof, err := d2cof.Unmarshal(*data)
@@ -46,7 +46,7 @@ func Create(_ *hscommon.TextureLoader,
 		Editor: hseditor.New(pathEntry, x, y, project),
 		cof:    cof,
 		state:  COFEditorStateView,
-		editor: hswidget.NewCofEditor(pathEntry.GetUniqueID()),
+		editor: hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
 	}
 
 	return result, nil

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
@@ -306,7 +307,34 @@ func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
 		giu.Label("Render Order (first to last):"),
 		giu.Custom(func() {
 			for idx := range layers {
-				giu.Label(fmt.Sprintf("\t%d: %s", idx, getLayerName(layers[idx]))).Build()
+				currentIdx := idx
+				giu.Line(
+					giu.Label(fmt.Sprintf("\t%d: %s", idx, getLayerName(layers[idx]))),
+					giu.ImageButton(p.editor.upArrowTexture).Size(20, 20).OnClick(func() {
+						if currentIdx > 0 {
+							prev := p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1]
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1] = p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx]
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] = prev
+						}
+
+					}),
+					giu.Custom(func() {
+						imgui.PopID()
+						imgui.PushID(fmt.Sprintf("LayerPriorityUp_%d", currentIdx))
+					}),
+					giu.ImageButton(p.editor.downArrowTexture).Size(20, 20).OnClick(func() {
+						if currentIdx < len(layers)-1 {
+							next := p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1]
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1] = p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx]
+							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] = next
+						}
+
+					}),
+					giu.Custom(func() {
+						imgui.PopID()
+						imgui.PushID(fmt.Sprintf("LayerPriorityDown_%d", currentIdx))
+					}),
+				).Build()
 			}
 		}),
 	}
