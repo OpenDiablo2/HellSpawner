@@ -17,21 +17,12 @@ const (
 	indicatorSize = 64
 )
 
-type COFEditorState int
-
-const (
-	COFEditorStateViewer COFEditorState = iota
-	COFEditorStateAddLayer
-	COFEditorStateAddDirection
-	COFEditorStateConfirm
-)
-
 // COFViewerState represents cof viewer's state
 type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
 	frameIndex     int32
-	state          COFEditorState
+	state          hsenum.COFEditorState
 	layer          *d2cof.CofLayer
 	confirmDialog  *PopUpConfirmDialog
 }
@@ -69,7 +60,7 @@ func (p *COFViewerWidget) Build() {
 	if s == nil {
 		giu.Context.SetState(stateID, &COFViewerState{
 			layer:         &p.cof.CofLayers[0],
-			state:         COFEditorStateViewer,
+			state:         hsenum.COFEditorStateViewer,
 			confirmDialog: &PopUpConfirmDialog{},
 		})
 
@@ -79,14 +70,11 @@ func (p *COFViewerWidget) Build() {
 	state := s.(*COFViewerState)
 
 	switch state.state {
-	case COFEditorStateViewer:
+	case hsenum.COFEditorStateViewer:
 		p.buildViewer(stateID, state)
-	case COFEditorStateAddLayer:
+	case hsenum.COFEditorStateAddLayer:
 		p.editor.makeAddLayerLayout(state).Build()
-	case COFEditorStateAddDirection:
-		//p.buildAddDirection(state)
-		state.state = COFEditorStateViewer
-	case COFEditorStateConfirm:
+	case hsenum.COFEditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
 			state.confirmDialog,
@@ -144,10 +132,25 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 
 	const vspace = 4 //nolint:unused // will be used
 
+	speed := int32(p.cof.Speed)
 	giu.TabBar("COFViewerTabs").Layout(giu.Layout{
 		giu.TabItem("Animation").Layout(giu.Layout{
 			giu.Label(l1),
-			giu.Label(l2),
+			giu.Line(
+				giu.Label(l2),
+				giu.ImageButton(p.editor.leftArrowTexture).Size(15, 15).OnClick(func() {
+					if p.cof.FramesPerDirection > 0 {
+						p.cof.FramesPerDirection--
+					}
+				}),
+				giu.ImageButton(p.editor.rightArrowTexture).Size(15, 15).OnClick(func() {
+					p.cof.FramesPerDirection++
+				}),
+			),
+			giu.Line(
+				giu.Label("Speed: "),
+				giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed).Size(40).OnChange(func() { p.cof.Speed = int(speed) }),
+			),
 			giu.Label(l3),
 			giu.Label(l4),
 		}),
@@ -156,7 +159,7 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
-				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = COFEditorStateAddLayer }),
+				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = hsenum.COFEditorStateAddLayer }),
 				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
 					state.confirmDialog = NewPopUpConfirmDialog(
 						"##"+p.id+"DeleteLayerConfirm",
@@ -164,14 +167,14 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 						"If you'll click YES, all data from this layer will be lost. Continue?",
 						func() {
 							p.editor.deleteCurrentLayer(state.layerIndex)
-							state.state = COFEditorStateViewer
+							state.state = hsenum.COFEditorStateViewer
 						},
 						func() {
-							state.state = COFEditorStateViewer
+							state.state = hsenum.COFEditorStateViewer
 						},
 					)
 
-					state.state = COFEditorStateConfirm
+					state.state = hsenum.COFEditorStateConfirm
 				}),
 			},
 		}),
@@ -182,21 +185,21 @@ func (p *COFViewerWidget) buildViewer(stateID string, state *COFViewerState) {
 			),
 			giu.Separator(),
 			p.makeDirectionLayout(),
-			giu.Button("Add a new direction...##"+p.id+"AddLayer").Size(200, 30).OnClick(func() { state.state = COFEditorStateAddDirection }),
-			giu.Button("Delete current direction...##"+p.id+"DeleteLayer").Size(200, 30).OnClick(func() {
+			giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(200, 30).OnClick(func() { p.editor.duplicateDirection(state) }),
+			giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(200, 30).OnClick(func() {
 				NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
 					"Do you raly want to remove this direction?",
 					"If you'll click YES, all data from this direction will be lost. Continue?",
 					func() {
 						p.editor.deleteCurrentDirection(state.directionIndex)
-						state.state = COFEditorStateViewer
+						state.state = hsenum.COFEditorStateViewer
 					},
 					func() {
-						state.state = COFEditorStateViewer
+						state.state = hsenum.COFEditorStateViewer
 					},
 				)
 
-				state.state = COFEditorStateConfirm
+				state.state = hsenum.COFEditorStateConfirm
 			}),
 		}),
 	}).Build()

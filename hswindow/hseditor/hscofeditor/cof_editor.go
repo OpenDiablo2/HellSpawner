@@ -18,19 +18,11 @@ import (
 // static check, to ensure, if cof editor implemented editoWindow
 var _ hscommon.EditorWindow = &COFEditor{}
 
-type COFEditorState int
-
-const (
-	COFEditorStateView COFEditorState = iota
-	COFEditorStateAddLayer
-)
-
 // COFEditor represents a cof editor
 type COFEditor struct {
 	*hseditor.Editor
-	cof    *d2cof.COF
-	state  COFEditorState
-	editor *hswidget.COFEditor
+	cof       *d2cof.COF
+	cofEditor *hswidget.COFEditor
 }
 
 // Create creates a new cof editor
@@ -43,10 +35,9 @@ func Create(tl *hscommon.TextureLoader,
 	}
 
 	result := &COFEditor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		cof:    cof,
-		state:  COFEditorStateView,
-		editor: hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
+		Editor:    hseditor.New(pathEntry, x, y, project),
+		cof:       cof,
+		cofEditor: hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
 	}
 
 	return result, nil
@@ -55,7 +46,7 @@ func Create(tl *hscommon.TextureLoader,
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.COFViewer(e.Path.GetUniqueID(), e.cof, e.editor),
+		hswidget.COFViewer(e.Path.GetUniqueID(), e.cof, e.cofEditor),
 	})
 }
 
@@ -68,7 +59,7 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 		g.MenuItem("Import from file...").OnClick(func() {}),
 		g.MenuItem("Export to file...").OnClick(func() {}),
 		g.Separator(),
-		g.MenuItem("Create a new layer...").OnClick(func() { e.state = COFEditorStateView }),
+		g.MenuItem("Create a new layer...").OnClick(func() {}),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
 			e.Cleanup()

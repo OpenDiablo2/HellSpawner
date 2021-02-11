@@ -14,16 +14,20 @@ import (
 )
 
 const (
-	upItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
+	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
+	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
+	leftArrowButtonPath  = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png"
+	rightArrowButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png"
 )
 
 type COFEditor struct {
-	newCofLayer      *d2cof.CofLayer
-	cof              *d2cof.COF
-	id               string
-	upArrowTexture   *giu.Texture
-	downArrowTexture *giu.Texture
+	newCofLayer       *d2cof.CofLayer
+	cof               *d2cof.COF
+	id                string
+	upArrowTexture    *giu.Texture
+	downArrowTexture  *giu.Texture
+	leftArrowTexture  *giu.Texture
+	rightArrowTexture *giu.Texture
 }
 
 func NewCofEditor(textureLoader *hscommon.TextureLoader, id string) *COFEditor {
@@ -38,6 +42,14 @@ func NewCofEditor(textureLoader *hscommon.TextureLoader, id string) *COFEditor {
 
 	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *giu.Texture) {
 		result.downArrowTexture = texture
+	})
+
+	textureLoader.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *giu.Texture) {
+		result.leftArrowTexture = texture
+	})
+
+	textureLoader.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *giu.Texture) {
+		result.rightArrowTexture = texture
 	})
 
 	return result
@@ -148,9 +160,9 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 					}
 				}
 
-				state.state = COFEditorStateViewer
+				state.state = hsenum.COFEditorStateViewer
 			}),
-			giu.Button("Close##AddLayer").Size(80, 30).OnClick(func() { state.state = COFEditorStateViewer }),
+			giu.Button("Close##AddLayer").Size(80, 30).OnClick(func() { state.state = hsenum.COFEditorStateViewer }),
 		),
 	}
 }
@@ -166,6 +178,17 @@ func (p *COFEditor) deleteCurrentLayer(index int32) {
 	}
 
 	p.cof.CofLayers = newLayers
+}
+
+func (p *COFEditor) duplicateDirection(state *COFViewerState) {
+	idx := state.directionIndex
+
+	p.cof.NumberOfDirections++
+
+	p.cof.Priority = append(p.cof.Priority, p.cof.Priority[idx])
+
+	// nolint:gomnd // directionIndex starts from 0, but len from 1
+	state.directionIndex = int32(len(p.cof.Priority) - 1)
 }
 
 func (p *COFEditor) deleteCurrentDirection(index int32) {
