@@ -49,6 +49,7 @@ func (s *COFViewerState) Dispose() {
 	s.layer = nil
 }
 
+// COFEditorState represents state of cof editor
 type COFEditorState struct {
 	newLayerType        int32
 	newLayerSelectable  int32
@@ -57,17 +58,19 @@ type COFEditorState struct {
 	newLayerWeaponClass int32
 }
 
-// Dispose clears viewer's layers
+// Dispose disposes editor's state
 func (s *COFEditorState) Dispose() {
 	// noop
 }
 
+// COFState represents cof editor's and viewer's state
 type COFState struct {
 	*COFViewerState
 	*COFEditorState
 	state cofEditorState
 }
 
+// Dispose clear widget's state
 func (s *COFState) Dispose() {
 	s.COFViewerState.Dispose()
 	s.COFEditorState.Dispose()
@@ -168,7 +171,8 @@ func (p *COFWidget) buildViewer() {
 		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
 	}
 
-	directionList := giu.Combo("##"+p.id+"dir", directionStrings[state.COFViewerState.directionIndex], directionStrings, &state.directionIndex).
+	directionList := giu.Combo("##"+p.id+"dir", directionStrings[state.COFViewerState.directionIndex],
+		directionStrings, &state.directionIndex).
 		Size(indicatorSize).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)

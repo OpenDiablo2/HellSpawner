@@ -109,23 +109,28 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 		giu.Separator(),
 		giu.Line(
 			giu.Label("Type: "),
-			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.COFEditorState.newLayerType], compositeTypeList, &state.COFEditorState.newLayerType).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.COFEditorState.newLayerType],
+				compositeTypeList, &state.COFEditorState.newLayerType).Size(bigListW),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),
-			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.COFEditorState.newLayerSelectable], trueFalse, &state.COFEditorState.newLayerSelectable).Size(trueFalseListW),
+			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.COFEditorState.newLayerSelectable],
+				trueFalse, &state.COFEditorState.newLayerSelectable).Size(trueFalseListW),
 		),
 		giu.Line(
 			giu.Label("Transparent: "),
-			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[state.COFEditorState.newLayerTransparent], trueFalse, &state.COFEditorState.newLayerTransparent).Size(trueFalseListW),
+			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[state.COFEditorState.newLayerTransparent],
+				trueFalse, &state.COFEditorState.newLayerTransparent).Size(trueFalseListW),
 		),
 		giu.Line(
 			giu.Label("Draw effect: "),
-			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.COFEditorState.newLayerDrawEffect], drawEffectList, &state.COFEditorState.newLayerDrawEffect).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.COFEditorState.newLayerDrawEffect],
+				drawEffectList, &state.COFEditorState.newLayerDrawEffect).Size(bigListW),
 		),
 		giu.Line(
 			giu.Label("Weapon class: "),
-			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.COFEditorState.newLayerWeaponClass], weaponClassList, &state.COFEditorState.newLayerWeaponClass).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.COFEditorState.newLayerWeaponClass],
+				weaponClassList, &state.COFEditorState.newLayerWeaponClass).Size(bigListW),
 		),
 		giu.Separator(),
 		giu.Line(
