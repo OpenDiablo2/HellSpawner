@@ -204,6 +204,7 @@ func (p *COFEditor) deleteCurrentDirection(index int32) {
 	p.cof.Priority = newPriority
 }
 
+// CreateNewLayer starts add-cof-layer dialog
 func (p *COFEditor) CreateNewLayer() {
 	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
