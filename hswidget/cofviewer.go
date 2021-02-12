@@ -7,7 +7,6 @@ import (
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
@@ -262,7 +261,7 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		p.onUpdate()
 	}
 
-	layerName := getLayerName(state.layer.Type)
+	layerName := hsenum.GetLayerName(state.layer.Type)
 
 	strType := fmt.Sprintf("Type: %s (%s)", state.layer.Type, layerName)
 	strShadow := fmt.Sprintf("Shadow: %t", state.layer.Shadow > 0)
@@ -285,57 +284,6 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 		giu.Label(strEffect),
 		giu.Label(strWeaponClass),
 	}
-}
-
-// nolint:gocyclo // can't reduce
-func getLayerName(i interface{}) string {
-	var t d2enum.CompositeType
-
-	switch j := i.(type) {
-	case int:
-		t = d2enum.CompositeType(j)
-	case d2enum.CompositeType:
-		t = j
-	}
-
-	var layerName string
-
-	switch t {
-	case d2enum.CompositeTypeHead:
-		layerName = "Head"
-	case d2enum.CompositeTypeTorso:
-		layerName = "Torso"
-	case d2enum.CompositeTypeLegs:
-		layerName = "Legs"
-	case d2enum.CompositeTypeRightArm:
-		layerName = "Right Arm"
-	case d2enum.CompositeTypeLeftArm:
-		layerName = "Left Arm"
-	case d2enum.CompositeTypeRightHand:
-		layerName = "Right Hand"
-	case d2enum.CompositeTypeLeftHand:
-		layerName = "Left Hand"
-	case d2enum.CompositeTypeShield:
-		layerName = "Shield"
-	case d2enum.CompositeTypeSpecial1:
-		layerName = "Special 1"
-	case d2enum.CompositeTypeSpecial2:
-		layerName = "Special 2"
-	case d2enum.CompositeTypeSpecial3:
-		layerName = "Special 3"
-	case d2enum.CompositeTypeSpecial4:
-		layerName = "Special 4"
-	case d2enum.CompositeTypeSpecial5:
-		layerName = "Special 5"
-	case d2enum.CompositeTypeSpecial6:
-		layerName = "Special 6"
-	case d2enum.CompositeTypeSpecial7:
-		layerName = "Special 7"
-	case d2enum.CompositeTypeSpecial8:
-		layerName = "Special 8"
-	}
-
-	return layerName
 }
 
 func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
@@ -375,7 +323,7 @@ func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
 						imgui.PopID()
 						imgui.PushID(fmt.Sprintf("LayerPriorityDown_%d", currentIdx))
 					}),
-					giu.Label(fmt.Sprintf("%d: %s", idx, getLayerName(layers[idx]))),
+					giu.Label(fmt.Sprintf("%d: %s", idx, hsenum.GetLayerName(layers[idx]))),
 				).Build()
 			}
 		}),

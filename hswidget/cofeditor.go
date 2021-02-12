@@ -96,7 +96,7 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 
 	compositeTypeList := make([]string, 0)
 	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
-		compositeTypeList = append(compositeTypeList, i.String()+" ("+getLayerName(i)+")")
+		compositeTypeList = append(compositeTypeList, i.String()+" ("+hsenum.GetLayerName(i)+")")
 	}
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
