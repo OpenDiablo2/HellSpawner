@@ -129,7 +129,7 @@ func (p *COFWidget) Build() {
 
 	switch state.state {
 	case cofEditorStateViewer:
-		p.buildViewer()
+		p.makeViewerLayout().Build()
 	case cofEditorStateAddLayer:
 		p.makeAddLayerLayout().Build()
 	case cofEditorStateConfirm:
@@ -140,8 +140,8 @@ func (p *COFWidget) Build() {
 	}
 }
 
-// nolint:funlen // no need to reduce
-func (p *COFWidget) buildViewer() {
+//nolint:funlen // can't reduce
+func (p *COFWidget) makeViewerLayout() giu.Layout {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 	state := s.(*COFState)
@@ -197,58 +197,87 @@ func (p *COFWidget) buildViewer() {
 	const vspace = 4 //nolint:unused // will be used
 
 	speed := int32(p.cof.Speed)
-	giu.TabBar("COFViewerTabs").Layout(giu.Layout{
-		giu.TabItem("Animation").Layout(giu.Layout{
-			giu.Label(l1),
-			giu.Line(
-				giu.Label(l2),
-				giu.ImageButton(p.leftArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
-					if p.cof.FramesPerDirection > 0 {
-						p.cof.FramesPerDirection--
-					}
-				}),
-				giu.Label(strconv.Itoa(numFrames)),
-				giu.Custom(func() {
-					imgui.PopID()
-					imgui.PushID("##" + p.id + "IncreaseFramesPerDirection")
-				}),
-				giu.ImageButton(p.rightArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
-					p.cof.FramesPerDirection++
-				}),
-				giu.Custom(func() {
-					imgui.PopID()
-					imgui.PushID("##" + p.id + "DecreaseFramesPerDirection")
-				}),
-			),
-			giu.Line(
-				giu.Label("Speed: "),
-				giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed).Size(speedInputW).OnChange(func() {
-					if speed <= maxSpeed {
-						p.cof.Speed = int(speed)
-					} else {
-						p.cof.Speed = maxSpeed
-					}
-				}),
-			),
-			giu.Label(l3),
-			giu.Label(l4),
-		}),
-		giu.TabItem("Layer").Layout(giu.Layout{
-			giu.Layout{
-				giu.Line(giu.Label("Selected Layer: "), layerList),
+
+	return giu.Layout{
+		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
+			giu.TabItem("Animation").Layout(giu.Layout{
+				giu.Label(l1),
+				giu.Line(
+					giu.Label(l2),
+					giu.ImageButton(p.leftArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
+						if p.cof.FramesPerDirection > 0 {
+							p.cof.FramesPerDirection--
+						}
+					}),
+					giu.Label(strconv.Itoa(numFrames)),
+					giu.Custom(func() {
+						imgui.PopID()
+						imgui.PushID("##" + p.id + "IncreaseFramesPerDirection")
+					}),
+					giu.ImageButton(p.rightArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
+						p.cof.FramesPerDirection++
+					}),
+					giu.Custom(func() {
+						imgui.PopID()
+						imgui.PushID("##" + p.id + "DecreaseFramesPerDirection")
+					}),
+				),
+				giu.Line(
+					giu.Label("Speed: "),
+					giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed).Size(speedInputW).OnChange(func() {
+						if speed <= maxSpeed {
+							p.cof.Speed = int(speed)
+						} else {
+							p.cof.Speed = maxSpeed
+						}
+					}),
+				),
+				giu.Label(l3),
+				giu.Label(l4),
+			}),
+			giu.TabItem("Layer").Layout(giu.Layout{
+				giu.Layout{
+					giu.Line(giu.Label("Selected Layer: "), layerList),
+					giu.Separator(),
+					p.makeLayerLayout(),
+					giu.Separator(),
+					giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
+						p.CreateNewLayer()
+					}),
+					giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
+						state.COFViewerState.confirmDialog = NewPopUpConfirmDialog(
+							"##"+p.id+"DeleteLayerConfirm",
+							"Do you raly want to remove this layer?",
+							"If you'll click YES, all data from this layer will be lost. Continue?",
+							func() {
+								p.deleteCurrentLayer(state.COFViewerState.layerIndex)
+								state.state = cofEditorStateViewer
+							},
+							func() {
+								state.state = cofEditorStateViewer
+							},
+						)
+
+						state.state = cofEditorStateConfirm
+					}),
+				},
+			}),
+			giu.TabItem("Priority").Layout(giu.Layout{
+				giu.Line(
+					giu.Label("Direction: "), directionList,
+					giu.Label("Frame: "), frameList,
+				),
 				giu.Separator(),
-				p.makeLayerLayout(),
-				giu.Separator(),
-				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
-					p.CreateNewLayer()
+				p.makeDirectionLayout(),
+				giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
+					p.duplicateDirection()
 				}),
-				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
-					state.COFViewerState.confirmDialog = NewPopUpConfirmDialog(
-						"##"+p.id+"DeleteLayerConfirm",
-						"Do you raly want to remove this layer?",
-						"If you'll click YES, all data from this layer will be lost. Continue?",
+				giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
+					NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
+						"Do you raly want to remove this direction?",
+						"If you'll click YES, all data from this direction will be lost. Continue?",
 						func() {
-							p.deleteCurrentLayer(state.COFViewerState.layerIndex)
+							p.deleteCurrentDirection()
 							state.state = cofEditorStateViewer
 						},
 						func() {
@@ -258,35 +287,9 @@ func (p *COFWidget) buildViewer() {
 
 					state.state = cofEditorStateConfirm
 				}),
-			},
-		}),
-		giu.TabItem("Priority").Layout(giu.Layout{
-			giu.Line(
-				giu.Label("Direction: "), directionList,
-				giu.Label("Frame: "), frameList,
-			),
-			giu.Separator(),
-			p.makeDirectionLayout(),
-			giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.duplicateDirection()
-			}),
-			giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
-				NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
-					"Do you raly want to remove this direction?",
-					"If you'll click YES, all data from this direction will be lost. Continue?",
-					func() {
-						p.deleteCurrentDirection()
-						state.state = cofEditorStateViewer
-					},
-					func() {
-						state.state = cofEditorStateViewer
-					},
-				)
-
-				state.state = cofEditorStateConfirm
 			}),
 		}),
-	}).Build()
+	}
 }
 
 func (p *COFWidget) onUpdate() {
@@ -399,6 +402,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 	for i := d2enum.WeaponClassNone; i <= d2enum.WeaponClassTwoHandToHand; i++ {
 		weaponClassList[int(i)] = i.String() + " (" + hsenum.GetWeaponClassString(i) + ")"
 	}
+
 	return giu.Layout{
 		giu.Label("Select new COF's Layer parameters:"),
 		giu.Separator(),
