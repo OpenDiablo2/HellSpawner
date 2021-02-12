@@ -11,7 +11,6 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const (
@@ -88,16 +87,6 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 		return nil
 	}
 
-	var selectable int32 = hsutil.BoolToInt(p.newCofLayer.Selectable)
-
-	var transparent int32 = hsutil.BoolToInt(p.newCofLayer.Transparent)
-
-	var drawEffect int32 = int32(p.newCofLayer.DrawEffect)
-
-	var weaponClass int32 = int32(p.newCofLayer.WeaponClass)
-
-	var compositeType int32 = int32(p.newCofLayer.Type)
-
 	trueFalse := []string{"false", "true"}
 
 	compositeTypeList := make([]string, 0)
@@ -120,38 +109,37 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 		giu.Separator(),
 		giu.Line(
 			giu.Label("Type: "),
-			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[compositeType], compositeTypeList, &compositeType).Size(bigListW).OnChange(func() {
-				p.newCofLayer.Type = d2enum.CompositeType(compositeType)
-			}),
+			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.COFEditorState.newLayerType], compositeTypeList, &state.COFEditorState.newLayerType).Size(bigListW),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),
-			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[selectable], trueFalse, &selectable).Size(trueFalseListW).OnChange(func() {
-				p.newCofLayer.Selectable = (selectable >= 1)
-			}),
+			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.COFEditorState.newLayerSelectable], trueFalse, &state.COFEditorState.newLayerSelectable).Size(trueFalseListW),
 		),
 		giu.Line(
 			giu.Label("Transparent: "),
-			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[transparent], trueFalse, &transparent).Size(trueFalseListW).OnChange(func() {
-				p.newCofLayer.Transparent = (transparent >= 1)
-			}),
+			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[state.COFEditorState.newLayerTransparent], trueFalse, &state.COFEditorState.newLayerTransparent).Size(trueFalseListW),
 		),
 		giu.Line(
 			giu.Label("Draw effect: "),
-			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[drawEffect], drawEffectList, &drawEffect).Size(bigListW).OnChange(func() {
-				p.newCofLayer.DrawEffect = d2enum.DrawEffect(drawEffect)
-			}),
+			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.COFEditorState.newLayerDrawEffect], drawEffectList, &state.COFEditorState.newLayerDrawEffect).Size(bigListW),
 		),
 		giu.Line(
 			giu.Label("Weapon class: "),
-			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[weaponClass], weaponClassList, &weaponClass).Size(bigListW).OnChange(func() {
-				p.newCofLayer.WeaponClass = d2enum.WeaponClass(weaponClass)
-			}),
+			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.COFEditorState.newLayerWeaponClass], weaponClassList, &state.COFEditorState.newLayerWeaponClass).Size(bigListW),
 		),
 		giu.Separator(),
 		giu.Line(
 			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				p.cof.CofLayers = append(p.cof.CofLayers, *p.newCofLayer)
+				newCofLayer := &d2cof.CofLayer{
+					Type:        d2enum.CompositeType(state.COFEditorState.newLayerType),
+					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
+					Transparent: (state.COFEditorState.newLayerTransparent == 1),
+					DrawEffect:  d2enum.DrawEffect(state.COFEditorState.newLayerDrawEffect),
+					WeaponClass: d2enum.WeaponClass(state.COFEditorState.newLayerWeaponClass),
+				}
+
+				p.cof.CofLayers = append(p.cof.CofLayers, *newCofLayer)
+
 				p.cof.NumberOfLayers++
 
 				for i := range p.cof.Priority {
@@ -160,7 +148,6 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 					}
 				}
 
-				p.newCofLayer = nil
 				state.state = cofEditorStateViewer
 			}),
 			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {

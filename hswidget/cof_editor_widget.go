@@ -51,8 +51,8 @@ func (s *COFViewerState) Dispose() {
 
 type COFEditorState struct {
 	newLayerType        int32
-	newLayerTransparent int32
 	newLayerSelectable  int32
+	newLayerTransparent int32
 	newLayerDrawEffect  int32
 	newLayerWeaponClass int32
 }
