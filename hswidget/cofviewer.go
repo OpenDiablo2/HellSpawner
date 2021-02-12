@@ -18,7 +18,6 @@ type cofEditorState int
 const (
 	cofEditorStateViewer cofEditorState = iota
 	cofEditorStateAddLayer
-	cofEditorStateAddDirection
 	cofEditorStateConfirm
 )
 
