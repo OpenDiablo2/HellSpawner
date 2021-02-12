@@ -1,6 +1,7 @@
 package hswidget
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -201,4 +202,13 @@ func (p *COFEditor) deleteCurrentDirection(index int32) {
 	}
 
 	p.cof.Priority = newPriority
+}
+
+func (p *COFEditor) CreateNewLayer() {
+	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFViewerState)
+
+	state.state = cofEditorStateAddLayer
 }

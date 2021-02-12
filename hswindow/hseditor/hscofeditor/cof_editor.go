@@ -59,7 +59,7 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 		g.MenuItem("Import from file...").OnClick(func() {}),
 		g.MenuItem("Export to file...").OnClick(func() {}),
 		g.Separator(),
-		g.MenuItem("Create a new layer...").OnClick(func() {}),
+		g.MenuItem("Create a new layer...").OnClick(e.cofEditor.CreateNewLayer),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
 			e.Cleanup()

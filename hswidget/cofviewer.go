@@ -193,8 +193,9 @@ func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 				giu.Line(giu.Label("Selected Layer: "), layerList),
 				giu.Separator(),
 				p.makeLayerLayout(),
+				giu.Separator(),
 				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
-					state.state = cofEditorStateAddLayer
+					p.editor.CreateNewLayer()
 				}),
 				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.confirmDialog = NewPopUpConfirmDialog(
