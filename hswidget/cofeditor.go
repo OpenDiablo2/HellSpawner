@@ -76,7 +76,12 @@ func newCofLayer() *d2cof.CofLayer {
 }
 
 // nolint:funlen // can't reduce
-func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
+func (p *COFEditor) makeAddLayerLayout() giu.Layout {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
 	if p.newCofLayer == nil {
 		p.newCofLayer = newCofLayer()
 
@@ -179,8 +184,13 @@ func (p *COFEditor) deleteCurrentLayer(index int32) {
 	p.cof.CofLayers = newLayers
 }
 
-func (p *COFEditor) duplicateDirection(state *COFViewerState) {
-	idx := state.directionIndex
+func (p *COFEditor) duplicateDirection() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	idx := state.COFViewerState.directionIndex
 
 	p.cof.NumberOfDirections++
 
@@ -190,7 +200,13 @@ func (p *COFEditor) duplicateDirection(state *COFViewerState) {
 	state.directionIndex = int32(len(p.cof.Priority) - 1)
 }
 
-func (p *COFEditor) deleteCurrentDirection(index int32) {
+func (p *COFEditor) deleteCurrentDirection() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+	index := state.COFViewerState.directionIndex
+
 	p.cof.NumberOfDirections--
 
 	newPriority := make([][][]d2enum.CompositeType, 0)
@@ -206,10 +222,10 @@ func (p *COFEditor) deleteCurrentDirection(index int32) {
 
 // CreateNewLayer starts add-cof-layer dialog
 func (p *COFEditor) CreateNewLayer() {
-	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
-	state := s.(*COFViewerState)
+	state := s.(*COFState)
 
 	state.state = cofEditorStateAddLayer
 }
