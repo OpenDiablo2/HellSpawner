@@ -57,6 +57,7 @@ func (s *COFViewerState) Dispose() {
 // COFEditorState represents state of cof editor
 type COFEditorState struct {
 	newLayerType        int32
+	newLayerShadow      int32
 	newLayerSelectable  int32
 	newLayerTransparent int32
 	newLayerDrawEffect  int32
@@ -412,6 +413,11 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 				compositeTypeList, &state.COFEditorState.newLayerType).Size(bigListW),
 		),
 		giu.Line(
+			giu.Label("Shadow: "),
+			giu.Combo("##"+p.id+"AddLayerShadow", trueFalse[state.COFEditorState.newLayerShadow],
+				trueFalse, &state.COFEditorState.newLayerShadow).Size(trueFalseListW),
+		),
+		giu.Line(
 			giu.Label("Selectable: "),
 			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.COFEditorState.newLayerSelectable],
 				trueFalse, &state.COFEditorState.newLayerSelectable).Size(trueFalseListW),
@@ -436,6 +442,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newCofLayer := &d2cof.CofLayer{
 					Type:        d2enum.CompositeType(state.COFEditorState.newLayerType),
+					Shadow:      byte(state.COFEditorState.newLayerSelectable),
 					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
 					Transparent: (state.COFEditorState.newLayerTransparent == 1),
 					DrawEffect:  d2enum.DrawEffect(state.COFEditorState.newLayerDrawEffect),
