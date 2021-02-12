@@ -50,16 +50,16 @@ func (s *COFViewerState) Dispose() {
 	s.layer = nil
 }
 
-// COFViewerWidget represents cof viewer's widget
-type COFViewerWidget struct {
+// COFWidget represents cof viewer's widget
+type COFWidget struct {
 	id     string
 	editor *COFEditor
 	cof    *d2cof.COF
 }
 
 // COFViewer creates a cof viewer widget
-func COFViewer(id string, cof *d2cof.COF, editor *COFEditor) *COFViewerWidget {
-	result := &COFViewerWidget{
+func COFViewer(id string, cof *d2cof.COF, editor *COFEditor) *COFWidget {
+	result := &COFWidget{
 		id:     id,
 		cof:    cof,
 		editor: editor,
@@ -71,8 +71,8 @@ func COFViewer(id string, cof *d2cof.COF, editor *COFEditor) *COFViewerWidget {
 }
 
 // Build builds a cof viewer
-func (p *COFViewerWidget) Build() {
-	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+func (p *COFWidget) Build() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
 	if s == nil {
@@ -101,7 +101,7 @@ func (p *COFViewerWidget) Build() {
 }
 
 // nolint:funlen // no need to reduce
-func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
+func (p *COFWidget) buildViewer(state *COFViewerState) {
 	var l1, l2, l3, l4 string
 
 	numDirs := p.cof.NumberOfDirections
@@ -244,8 +244,8 @@ func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 	}).Build()
 }
 
-func (p *COFViewerWidget) onUpdate() {
-	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+func (p *COFWidget) onUpdate() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	clone := p.cof.CofLayers[state.layerIndex]
@@ -254,8 +254,8 @@ func (p *COFViewerWidget) onUpdate() {
 	giu.Context.SetState(p.id, state)
 }
 
-func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
-	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+func (p *COFWidget) makeLayerLayout() giu.Layout {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	if state.layer == nil {
@@ -287,8 +287,8 @@ func (p *COFViewerWidget) makeLayerLayout() giu.Layout {
 	}
 }
 
-func (p *COFViewerWidget) makeDirectionLayout() giu.Layout {
-	stateID := fmt.Sprintf("COFViewerWidget_%s", p.id)
+func (p *COFWidget) makeDirectionLayout() giu.Layout {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	state := giu.Context.GetState(stateID).(*COFViewerState)
 
 	frames := p.cof.Priority[state.directionIndex]
