@@ -13,6 +13,15 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
+type cofEditorState int
+
+const (
+	cofEditorStateViewer cofEditorState = iota
+	cofEditorStateAddLayer
+	cofEditorStateAddDirection
+	cofEditorStateConfirm
+)
+
 const (
 	indicatorSize = 64
 )
@@ -33,7 +42,7 @@ type COFViewerState struct {
 	layerIndex     int32
 	directionIndex int32
 	frameIndex     int32
-	state          hsenum.COFEditorState
+	state          cofEditorState
 	layer          *d2cof.CofLayer
 	confirmDialog  *PopUpConfirmDialog
 }
@@ -71,7 +80,7 @@ func (p *COFViewerWidget) Build() {
 	if s == nil {
 		giu.Context.SetState(stateID, &COFViewerState{
 			layer:         &p.cof.CofLayers[0],
-			state:         hsenum.COFEditorStateViewer,
+			state:         cofEditorStateViewer,
 			confirmDialog: &PopUpConfirmDialog{},
 		})
 
@@ -81,11 +90,11 @@ func (p *COFViewerWidget) Build() {
 	state := s.(*COFViewerState)
 
 	switch state.state {
-	case hsenum.COFEditorStateViewer:
+	case cofEditorStateViewer:
 		p.buildViewer(state)
-	case hsenum.COFEditorStateAddLayer:
+	case cofEditorStateAddLayer:
 		p.editor.makeAddLayerLayout(state).Build()
-	case hsenum.COFEditorStateConfirm:
+	case cofEditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
 			state.confirmDialog,
@@ -187,7 +196,7 @@ func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 				giu.Separator(),
 				p.makeLayerLayout(),
 				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
-					state.state = hsenum.COFEditorStateAddLayer
+					state.state = cofEditorStateAddLayer
 				}),
 				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.confirmDialog = NewPopUpConfirmDialog(
@@ -196,14 +205,14 @@ func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 						"If you'll click YES, all data from this layer will be lost. Continue?",
 						func() {
 							p.editor.deleteCurrentLayer(state.layerIndex)
-							state.state = hsenum.COFEditorStateViewer
+							state.state = cofEditorStateViewer
 						},
 						func() {
-							state.state = hsenum.COFEditorStateViewer
+							state.state = cofEditorStateViewer
 						},
 					)
 
-					state.state = hsenum.COFEditorStateConfirm
+					state.state = cofEditorStateConfirm
 				}),
 			},
 		}),
@@ -223,14 +232,14 @@ func (p *COFViewerWidget) buildViewer(state *COFViewerState) {
 					"If you'll click YES, all data from this direction will be lost. Continue?",
 					func() {
 						p.editor.deleteCurrentDirection(state.directionIndex)
-						state.state = hsenum.COFEditorStateViewer
+						state.state = cofEditorStateViewer
 					},
 					func() {
-						state.state = hsenum.COFEditorStateViewer
+						state.state = cofEditorStateViewer
 					},
 				)
 
-				state.state = hsenum.COFEditorStateConfirm
+				state.state = cofEditorStateConfirm
 			}),
 		}),
 	}).Build()

@@ -65,7 +65,7 @@ func NewCofEditor(textureLoader *hscommon.TextureLoader, id string) *COFEditor {
 
 func newCofLayer() *d2cof.CofLayer {
 	return &d2cof.CofLayer{
-		Type:        d2enum.CompositeTypeMax,
+		Type:        d2enum.CompositeTypeHead,
 		Shadow:      1,
 		Selectable:  true,
 		Transparent: false,
@@ -90,37 +90,14 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 
 	var weaponClass int32 = int32(p.newCofLayer.WeaponClass)
 
+	var compositeType int32 = int32(p.newCofLayer.Type)
+
 	trueFalse := []string{"false", "true"}
 
 	compositeTypeList := make([]string, 0)
-
-	first := d2enum.CompositeTypeHead
-
 	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
-		contains := false
-
-		for _, j := range p.cof.CofLayers {
-			if j.Type == i {
-				contains = true
-
-				break
-			}
-		}
-
-		if !contains {
-			compositeTypeList = append(compositeTypeList, i.String()+" ("+getLayerName(i)+")")
-
-			if len(compositeTypeList) == 1 {
-				first = i
-			}
-		}
+		compositeTypeList = append(compositeTypeList, i.String()+" ("+getLayerName(i)+")")
 	}
-
-	if p.newCofLayer.Type == d2enum.CompositeTypeMax {
-		p.newCofLayer.Type = first
-	}
-
-	var compositeType int32 = int32(p.newCofLayer.Type)
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
 	for i := d2enum.DrawEffectPctTransparency25; i <= d2enum.DrawEffectNone; i++ {
@@ -177,9 +154,12 @@ func (p *COFEditor) makeAddLayerLayout(state *COFViewerState) giu.Layout {
 					}
 				}
 
-				state.state = hsenum.COFEditorStateViewer
+				p.newCofLayer = nil
+				state.state = cofEditorStateViewer
 			}),
-			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() { state.state = hsenum.COFEditorStateViewer }),
+			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.state = cofEditorStateViewer
+			}),
 		),
 	}
 }
