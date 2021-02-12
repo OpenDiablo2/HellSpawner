@@ -14,13 +14,6 @@ import (
 )
 
 const (
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
-	leftArrowButtonPath  = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png"
-	rightArrowButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png"
-)
-
-const (
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
 	trueFalseListW                       = 60
@@ -28,50 +21,17 @@ const (
 
 // COFEditor contains data necessary do edit cof file
 type COFEditor struct {
-	newCofLayer       *d2cof.CofLayer
-	cof               *d2cof.COF
-	id                string
-	upArrowTexture    *giu.Texture
-	downArrowTexture  *giu.Texture
-	leftArrowTexture  *giu.Texture
-	rightArrowTexture *giu.Texture
+	cof *d2cof.COF
+	id  string
 }
 
 // NewCofEditor creates a new cof editor
 func NewCofEditor(textureLoader *hscommon.TextureLoader, id string) *COFEditor {
 	result := &COFEditor{
-		id:          id,
-		newCofLayer: newCofLayer(),
+		id: id,
 	}
-
-	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *giu.Texture) {
-		result.upArrowTexture = texture
-	})
-
-	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *giu.Texture) {
-		result.downArrowTexture = texture
-	})
-
-	textureLoader.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *giu.Texture) {
-		result.leftArrowTexture = texture
-	})
-
-	textureLoader.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *giu.Texture) {
-		result.rightArrowTexture = texture
-	})
 
 	return result
-}
-
-func newCofLayer() *d2cof.CofLayer {
-	return &d2cof.CofLayer{
-		Type:        d2enum.CompositeTypeHead,
-		Shadow:      1,
-		Selectable:  true,
-		Transparent: false,
-		DrawEffect:  d2enum.DrawEffectNone,
-		WeaponClass: d2enum.WeaponClassNone,
-	}
 }
 
 // nolint:funlen // can't reduce
@@ -80,12 +40,6 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 	s := giu.Context.GetState(stateID)
 
 	state := s.(*COFState)
-
-	if p.newCofLayer == nil {
-		p.newCofLayer = newCofLayer()
-
-		return nil
-	}
 
 	trueFalse := []string{"false", "true"}
 
@@ -149,7 +103,7 @@ func (p *COFEditor) makeAddLayerLayout() giu.Layout {
 
 				for i := range p.cof.Priority {
 					for j := range p.cof.Priority[i] {
-						p.cof.Priority[i][j] = append(p.cof.Priority[i][j], p.newCofLayer.Type)
+						p.cof.Priority[i][j] = append(p.cof.Priority[i][j], newCofLayer.Type)
 					}
 				}
 

@@ -9,6 +9,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
@@ -78,17 +79,27 @@ func (s *COFState) Dispose() {
 
 // COFWidget represents cof viewer's widget
 type COFWidget struct {
-	id     string
-	editor *COFEditor
-	cof    *d2cof.COF
+	id                string
+	editor            *COFEditor
+	cof               *d2cof.COF
+	upArrowTexture    *giu.Texture
+	downArrowTexture  *giu.Texture
+	leftArrowTexture  *giu.Texture
+	rightArrowTexture *giu.Texture
 }
 
 // COFViewer creates a cof viewer widget
-func COFViewer(id string, cof *d2cof.COF, editor *COFEditor) *COFWidget {
+func COFViewer(textureLoader *hscommon.TextureLoader,
+	upArrowTexture, downArrowTexture, rightArrowTexture, leftArrowTexture *giu.Texture,
+	id string, cof *d2cof.COF, editor *COFEditor) *COFWidget {
 	result := &COFWidget{
-		id:     id,
-		cof:    cof,
-		editor: editor,
+		id:                id,
+		cof:               cof,
+		editor:            editor,
+		upArrowTexture:    upArrowTexture,
+		downArrowTexture:  downArrowTexture,
+		rightArrowTexture: rightArrowTexture,
+		leftArrowTexture:  leftArrowTexture,
 	}
 
 	result.editor.cof = result.cof
@@ -191,7 +202,7 @@ func (p *COFWidget) buildViewer() {
 			giu.Label(l1),
 			giu.Line(
 				giu.Label(l2),
-				giu.ImageButton(p.editor.leftArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
+				giu.ImageButton(p.leftArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
 					if p.cof.FramesPerDirection > 0 {
 						p.cof.FramesPerDirection--
 					}
@@ -201,7 +212,7 @@ func (p *COFWidget) buildViewer() {
 					imgui.PopID()
 					imgui.PushID("##" + p.id + "IncreaseFramesPerDirection")
 				}),
-				giu.ImageButton(p.editor.rightArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
+				giu.ImageButton(p.rightArrowTexture).Size(leftRightArrowW, leftRightArrowH).OnClick(func() {
 					p.cof.FramesPerDirection++
 				}),
 				giu.Custom(func() {
@@ -334,7 +345,7 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 			for idx := range layers {
 				currentIdx := idx
 				giu.Line(
-					giu.ImageButton(p.editor.upArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
+					giu.ImageButton(p.upArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
 						if currentIdx > 0 {
 							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx-1],
 								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx] =
@@ -346,7 +357,7 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 						imgui.PopID()
 						imgui.PushID(fmt.Sprintf("LayerPriorityUp_%d", currentIdx))
 					}),
-					giu.ImageButton(p.editor.downArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
+					giu.ImageButton(p.downArrowTexture).Size(upDownArrowW, upDownArrowH).OnClick(func() {
 						if currentIdx < len(layers)-1 {
 							p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx],
 								p.cof.Priority[state.directionIndex][state.frameIndex][currentIdx+1] =

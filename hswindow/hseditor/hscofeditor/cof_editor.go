@@ -15,14 +15,26 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
+	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
+	leftArrowButtonPath  = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png"
+	rightArrowButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png"
+)
+
 // static check, to ensure, if cof editor implemented editoWindow
 var _ hscommon.EditorWindow = &COFEditor{}
 
 // COFEditor represents a cof editor
 type COFEditor struct {
 	*hseditor.Editor
-	cof       *d2cof.COF
-	cofEditor *hswidget.COFEditor
+	cof               *d2cof.COF
+	cofEditor         *hswidget.COFEditor
+	textureLoader     *hscommon.TextureLoader
+	upArrowTexture    *g.Texture
+	downArrowTexture  *g.Texture
+	rightArrowTexture *g.Texture
+	leftArrowTexture  *g.Texture
 }
 
 // Create creates a new cof editor
@@ -35,10 +47,27 @@ func Create(tl *hscommon.TextureLoader,
 	}
 
 	result := &COFEditor{
-		Editor:    hseditor.New(pathEntry, x, y, project),
-		cof:       cof,
-		cofEditor: hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		cof:           cof,
+		cofEditor:     hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
+		textureLoader: tl,
 	}
+
+	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+		result.upArrowTexture = texture
+	})
+
+	tl.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+		result.downArrowTexture = texture
+	})
+
+	tl.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *g.Texture) {
+		result.leftArrowTexture = texture
+	})
+
+	tl.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *g.Texture) {
+		result.rightArrowTexture = texture
+	})
 
 	return result, nil
 }
@@ -46,7 +75,9 @@ func Create(tl *hscommon.TextureLoader,
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.COFViewer(e.Path.GetUniqueID(), e.cof, e.cofEditor),
+		hswidget.COFViewer(e.textureLoader,
+			e.upArrowTexture, e.downArrowTexture, e.rightArrowTexture, e.leftArrowTexture,
+			e.Path.GetUniqueID(), e.cof, e.cofEditor),
 	})
 }
 
