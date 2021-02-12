@@ -7,6 +7,7 @@ import (
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -26,10 +27,13 @@ const (
 )
 
 const (
-	upDownArrowW, upDownArrowH       = 15, 15
-	leftRightArrowW, leftRightArrowH = 15, 15
-	actionButtonW, actionButtonH     = 200, 30
-	speedInputW                      = 40
+	upDownArrowW, upDownArrowH           = 15, 15
+	leftRightArrowW, leftRightArrowH     = 15, 15
+	actionButtonW, actionButtonH         = 200, 30
+	saveCancelButtonW, saveCancelButtonH = 80, 30
+	bigListW                             = 200
+	trueFalseListW                       = 60
+	speedInputW                          = 40
 )
 
 const (
@@ -80,7 +84,6 @@ func (s *COFState) Dispose() {
 // COFWidget represents cof viewer's widget
 type COFWidget struct {
 	id                string
-	editor            *COFEditor
 	cof               *d2cof.COF
 	upArrowTexture    *giu.Texture
 	downArrowTexture  *giu.Texture
@@ -91,18 +94,15 @@ type COFWidget struct {
 // COFViewer creates a cof viewer widget
 func COFViewer(textureLoader *hscommon.TextureLoader,
 	upArrowTexture, downArrowTexture, rightArrowTexture, leftArrowTexture *giu.Texture,
-	id string, cof *d2cof.COF, editor *COFEditor) *COFWidget {
+	id string, cof *d2cof.COF) *COFWidget {
 	result := &COFWidget{
 		id:                id,
 		cof:               cof,
-		editor:            editor,
 		upArrowTexture:    upArrowTexture,
 		downArrowTexture:  downArrowTexture,
 		rightArrowTexture: rightArrowTexture,
 		leftArrowTexture:  leftArrowTexture,
 	}
-
-	result.editor.cof = result.cof
 
 	return result
 }
@@ -131,7 +131,7 @@ func (p *COFWidget) Build() {
 	case cofEditorStateViewer:
 		p.buildViewer()
 	case cofEditorStateAddLayer:
-		p.editor.makeAddLayerLayout().Build()
+		p.makeAddLayerLayout().Build()
 	case cofEditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -240,7 +240,7 @@ func (p *COFWidget) buildViewer() {
 				p.makeLayerLayout(),
 				giu.Separator(),
 				giu.Button("Add a new layer...##"+p.id+"AddLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
-					p.editor.CreateNewLayer()
+					p.CreateNewLayer()
 				}),
 				giu.Button("Delete current layer...##"+p.id+"DeleteLayer").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.COFViewerState.confirmDialog = NewPopUpConfirmDialog(
@@ -248,7 +248,7 @@ func (p *COFWidget) buildViewer() {
 						"Do you raly want to remove this layer?",
 						"If you'll click YES, all data from this layer will be lost. Continue?",
 						func() {
-							p.editor.deleteCurrentLayer(state.COFViewerState.layerIndex)
+							p.deleteCurrentLayer(state.COFViewerState.layerIndex)
 							state.state = cofEditorStateViewer
 						},
 						func() {
@@ -268,14 +268,14 @@ func (p *COFWidget) buildViewer() {
 			giu.Separator(),
 			p.makeDirectionLayout(),
 			giu.Button("Duplicate current direction...##"+p.id+"DuplicateDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.editor.duplicateDirection()
+				p.duplicateDirection()
 			}),
 			giu.Button("Delete current direction...##"+p.id+"DeleteDirection").Size(actionButtonW, actionButtonH).OnClick(func() {
 				NewPopUpConfirmDialog("##"+p.id+"DeleteLayerConfirm",
 					"Do you raly want to remove this direction?",
 					"If you'll click YES, all data from this direction will be lost. Continue?",
 					func() {
-						p.editor.deleteCurrentDirection()
+						p.deleteCurrentDirection()
 						state.state = cofEditorStateViewer
 					},
 					func() {
@@ -374,4 +374,145 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 			}
 		}),
 	}
+}
+
+// nolint:funlen // can't reduce
+func (p *COFWidget) makeAddLayerLayout() giu.Layout {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	trueFalse := []string{"false", "true"}
+
+	compositeTypeList := make([]string, 0)
+	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
+		compositeTypeList = append(compositeTypeList, i.String()+" ("+hsenum.GetLayerName(i)+")")
+	}
+
+	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
+	for i := d2enum.DrawEffectPctTransparency25; i <= d2enum.DrawEffectNone; i++ {
+		drawEffectList[int(i)] = strconv.Itoa(int(i)) + " (" + hsenum.GetDrawEffectName(i) + ")"
+	}
+
+	weaponClassList := make([]string, d2enum.WeaponClassTwoHandToHand+1)
+	for i := d2enum.WeaponClassNone; i <= d2enum.WeaponClassTwoHandToHand; i++ {
+		weaponClassList[int(i)] = i.String() + " (" + hsenum.GetWeaponClassString(i) + ")"
+	}
+	return giu.Layout{
+		giu.Label("Select new COF's Layer parameters:"),
+		giu.Separator(),
+		giu.Line(
+			giu.Label("Type: "),
+			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.COFEditorState.newLayerType],
+				compositeTypeList, &state.COFEditorState.newLayerType).Size(bigListW),
+		),
+		giu.Line(
+			giu.Label("Selectable: "),
+			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.COFEditorState.newLayerSelectable],
+				trueFalse, &state.COFEditorState.newLayerSelectable).Size(trueFalseListW),
+		),
+		giu.Line(
+			giu.Label("Transparent: "),
+			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[state.COFEditorState.newLayerTransparent],
+				trueFalse, &state.COFEditorState.newLayerTransparent).Size(trueFalseListW),
+		),
+		giu.Line(
+			giu.Label("Draw effect: "),
+			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.COFEditorState.newLayerDrawEffect],
+				drawEffectList, &state.COFEditorState.newLayerDrawEffect).Size(bigListW),
+		),
+		giu.Line(
+			giu.Label("Weapon class: "),
+			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.COFEditorState.newLayerWeaponClass],
+				weaponClassList, &state.COFEditorState.newLayerWeaponClass).Size(bigListW),
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				newCofLayer := &d2cof.CofLayer{
+					Type:        d2enum.CompositeType(state.COFEditorState.newLayerType),
+					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
+					Transparent: (state.COFEditorState.newLayerTransparent == 1),
+					DrawEffect:  d2enum.DrawEffect(state.COFEditorState.newLayerDrawEffect),
+					WeaponClass: d2enum.WeaponClass(state.COFEditorState.newLayerWeaponClass),
+				}
+
+				p.cof.CofLayers = append(p.cof.CofLayers, *newCofLayer)
+
+				p.cof.NumberOfLayers++
+
+				for i := range p.cof.Priority {
+					for j := range p.cof.Priority[i] {
+						p.cof.Priority[i][j] = append(p.cof.Priority[i][j], newCofLayer.Type)
+					}
+				}
+
+				state.state = cofEditorStateViewer
+			}),
+			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.state = cofEditorStateViewer
+			}),
+		),
+	}
+}
+
+func (p *COFWidget) deleteCurrentLayer(index int32) {
+	p.cof.NumberOfLayers--
+
+	newLayers := make([]d2cof.CofLayer, 0)
+
+	for n, i := range p.cof.CofLayers {
+		if int32(n) != index {
+			newLayers = append(newLayers, i)
+		}
+	}
+
+	p.cof.CofLayers = newLayers
+}
+
+func (p *COFWidget) duplicateDirection() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	idx := state.COFViewerState.directionIndex
+
+	p.cof.NumberOfDirections++
+
+	p.cof.Priority = append(p.cof.Priority, p.cof.Priority[idx])
+
+	// nolint:gomnd // directionIndex starts from 0, but len from 1
+	state.directionIndex = int32(len(p.cof.Priority) - 1)
+}
+
+func (p *COFWidget) deleteCurrentDirection() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+	index := state.COFViewerState.directionIndex
+
+	p.cof.NumberOfDirections--
+
+	newPriority := make([][][]d2enum.CompositeType, 0)
+
+	for n, i := range p.cof.Priority {
+		if int32(n) != index {
+			newPriority = append(newPriority, i)
+		}
+	}
+
+	p.cof.Priority = newPriority
+}
+
+// CreateNewLayer starts add-cof-layer dialog
+func (p *COFWidget) CreateNewLayer() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	state.state = cofEditorStateAddLayer
 }

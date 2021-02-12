@@ -29,7 +29,6 @@ var _ hscommon.EditorWindow = &COFEditor{}
 type COFEditor struct {
 	*hseditor.Editor
 	cof               *d2cof.COF
-	cofEditor         *hswidget.COFEditor
 	textureLoader     *hscommon.TextureLoader
 	upArrowTexture    *g.Texture
 	downArrowTexture  *g.Texture
@@ -49,7 +48,6 @@ func Create(tl *hscommon.TextureLoader,
 	result := &COFEditor{
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		cof:           cof,
-		cofEditor:     hswidget.NewCofEditor(tl, pathEntry.GetUniqueID()),
 		textureLoader: tl,
 	}
 
@@ -77,7 +75,8 @@ func (e *COFEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		hswidget.COFViewer(e.textureLoader,
 			e.upArrowTexture, e.downArrowTexture, e.rightArrowTexture, e.leftArrowTexture,
-			e.Path.GetUniqueID(), e.cof, e.cofEditor),
+			e.Path.GetUniqueID(), e.cof,
+		),
 	})
 }
 
@@ -89,8 +88,6 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 		g.Separator(),
 		g.MenuItem("Import from file...").OnClick(func() {}),
 		g.MenuItem("Export to file...").OnClick(func() {}),
-		g.Separator(),
-		g.MenuItem("Create a new layer...").OnClick(e.cofEditor.CreateNewLayer),
 		g.Separator(),
 		g.MenuItem("Close").OnClick(func() {
 			e.Cleanup()
