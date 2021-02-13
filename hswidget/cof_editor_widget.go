@@ -66,7 +66,9 @@ type COFEditorState struct {
 
 // Dispose disposes editor's state
 func (s *COFEditorState) Dispose() {
-	// noop
+	s.newLayerType = 0
+	s.newLayerDrawEffect = 0
+	s.newLayerWeaponClass = 0
 }
 
 // COFState represents cof editor's and viewer's state
@@ -120,7 +122,10 @@ func (p *COFWidget) Build() {
 				layer:         &p.cof.CofLayers[0],
 				confirmDialog: &PopUpConfirmDialog{},
 			},
-			COFEditorState: &COFEditorState{},
+			COFEditorState: &COFEditorState{
+				newLayerSelectable: 1,
+				newLayerDrawEffect: int32(d2enum.DrawEffectNone),
+			},
 		})
 
 		return
@@ -128,6 +133,7 @@ func (p *COFWidget) Build() {
 
 	state := s.(*COFState)
 
+	// builds appropriate menu (depends on state)
 	switch state.state {
 	case cofEditorStateViewer:
 		p.makeViewerLayout().Build()
@@ -389,9 +395,28 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 
 	trueFalse := []string{"false", "true"}
 
-	compositeTypeList := make([]string, 0)
+	// available is a list of available (not currently used) composite types
+	available := make([]d2enum.CompositeType, 0)
+
 	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
-		compositeTypeList = append(compositeTypeList, i.String()+" ("+hsenum.GetLayerName(i)+")")
+		contains := false
+
+		for _, j := range p.cof.CofLayers {
+			if i == j.Type {
+				contains = true
+
+				break
+			}
+		}
+
+		if !contains {
+			available = append(available, i)
+		}
+	}
+
+	compositeTypeList := make([]string, len(available))
+	for n, i := range available {
+		compositeTypeList[n] = i.String() + " (" + hsenum.GetLayerName(i) + ")"
 	}
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
@@ -441,7 +466,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newCofLayer := &d2cof.CofLayer{
-					Type:        d2enum.CompositeType(state.COFEditorState.newLayerType),
+					Type:        available[state.COFEditorState.newLayerType],
 					Shadow:      byte(state.COFEditorState.newLayerSelectable),
 					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
 					Transparent: (state.COFEditorState.newLayerTransparent == 1),
@@ -459,6 +484,10 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 					}
 				}
 
+				// this sets layer index to just added layer
+				// nolint:gomnd // cof viewer's layer index starts from 0, but NumberOfLayers from 1
+				state.COFViewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+
 				state.state = cofEditorStateViewer
 			}),
 			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
@@ -471,6 +500,23 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 func (p *COFWidget) deleteCurrentLayer(index int32) {
 	p.cof.NumberOfLayers--
 
+	newPriority := make([][][]d2enum.CompositeType, p.cof.NumberOfDirections)
+
+	for dn := range p.cof.Priority {
+		newPriority[dn] = make([][]d2enum.CompositeType, p.cof.FramesPerDirection)
+		for fn := range p.cof.Priority[dn] {
+			newPriority[dn][fn] = make([]d2enum.CompositeType, p.cof.NumberOfLayers)
+
+			for ln := range p.cof.Priority[dn][fn] {
+				if p.cof.CofLayers[index].Type != p.cof.Priority[dn][fn][ln] {
+					newPriority[dn][fn] = append(newPriority[dn][fn], p.cof.Priority[dn][fn][ln])
+				}
+			}
+		}
+	}
+
+	p.cof.Priority = newPriority
+
 	newLayers := make([]d2cof.CofLayer, 0)
 
 	for n, i := range p.cof.CofLayers {
@@ -480,6 +526,15 @@ func (p *COFWidget) deleteCurrentLayer(index int32) {
 	}
 
 	p.cof.CofLayers = newLayers
+
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	if state.COFViewerState.layerIndex != 0 {
+		state.COFViewerState.layerIndex--
+	}
 }
 
 func (p *COFWidget) duplicateDirection() {
