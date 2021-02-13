@@ -459,6 +459,10 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 					}
 				}
 
+				// this sets layer index to just added layer
+				// nolint:gomnd // cof viewer's layer index starts from 0, but NumberOfLayers from 1
+				state.COFViewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+
 				state.state = cofEditorStateViewer
 			}),
 			giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
@@ -471,6 +475,23 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 func (p *COFWidget) deleteCurrentLayer(index int32) {
 	p.cof.NumberOfLayers--
 
+	newPriority := make([][][]d2enum.CompositeType, p.cof.NumberOfDirections)
+
+	for dn := range p.cof.Priority {
+		newPriority[dn] = make([][]d2enum.CompositeType, p.cof.FramesPerDirection)
+		for fn := range p.cof.Priority[dn] {
+			newPriority[dn][fn] = make([]d2enum.CompositeType, p.cof.NumberOfLayers)
+
+			for ln := range p.cof.Priority[dn][fn] {
+				if p.cof.CofLayers[index].Type != p.cof.Priority[dn][fn][ln] {
+					newPriority[dn][fn] = append(newPriority[dn][fn], p.cof.Priority[dn][fn][ln])
+				}
+			}
+		}
+	}
+
+	p.cof.Priority = newPriority
+
 	newLayers := make([]d2cof.CofLayer, 0)
 
 	for n, i := range p.cof.CofLayers {
@@ -480,6 +501,15 @@ func (p *COFWidget) deleteCurrentLayer(index int32) {
 	}
 
 	p.cof.CofLayers = newLayers
+
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*COFState)
+
+	if state.COFViewerState.layerIndex != 0 {
+		state.COFViewerState.layerIndex--
+	}
 }
 
 func (p *COFWidget) duplicateDirection() {
