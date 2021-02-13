@@ -2,6 +2,7 @@ package hswidget
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ianling/giu"
 
@@ -12,6 +13,7 @@ type ds1EditorState int
 
 const (
 	ds1EditorStateViewer ds1EditorState = iota
+	ds1EditorStateAddFile
 	ds1EditorStateConfirm
 )
 
@@ -43,6 +45,7 @@ type DS1ViewerState struct {
 	*ds1Controls
 	state         ds1EditorState
 	confirmDialog *PopUpConfirmDialog
+	newFilePath   string
 }
 
 // Dispose clears viewers state
@@ -104,6 +107,8 @@ func (p *DS1Widget) Build() {
 	switch state.state {
 	case ds1EditorStateViewer:
 		p.makeViewerLayout().Build()
+	case ds1EditorStateAddFile:
+		p.makeAddFileLayout().Build()
 	case ds1EditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -168,15 +173,27 @@ func (p *DS1Widget) makeDataLayout() giu.Layout {
 }
 
 func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
+	state := p.getState()
+
 	l := giu.Layout{}
 
 	// iterating using the value should not be a big deal as
 	// we only expect a handful of strings in this slice.
-	for _, str := range p.ds1.Files {
-		l = append(l, giu.Label(str))
+	for n, str := range p.ds1.Files {
+		l = append(l, giu.Layout{
+			giu.Line(
+				giu.Button("Delete##"+p.id+"DeleteFile"+strconv.Itoa(n)).Size(45, 30).OnClick(func() { p.deleteFile(n) }),
+				giu.Label(str),
+			),
+		})
 	}
 
-	return l
+	return giu.Layout{
+		l,
+		giu.Button("Add File##"+p.id+"AddFile").Size(100, 30).OnClick(func() {
+			state.state = ds1EditorStateAddFile
+		}),
+	}
 }
 
 func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
@@ -524,4 +541,35 @@ func (p *DS1Widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.L
 	}
 
 	return l
+}
+
+func (p *DS1Widget) makeAddFileLayout() giu.Layout {
+	state := p.getState()
+
+	return giu.Layout{
+		giu.Label("File path:"),
+		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(200),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Add##"+p.id+"addFileAdd").Size(50, 30).OnClick(func() {
+				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
+				state.state = ds1EditorStateViewer
+			}),
+			giu.Button("Cancel##"+p.id+"addFileCancel").Size(50, 30).OnClick(func() {
+				state.state = ds1EditorStateViewer
+			}),
+		),
+	}
+}
+
+func (p *DS1Widget) deleteFile(idx int) {
+	newFiles := make([]string, 0)
+
+	for n, i := range p.ds1.Files {
+		if n != idx {
+			newFiles = append(newFiles, i)
+		}
+	}
+
+	p.ds1.Files = newFiles
 }
