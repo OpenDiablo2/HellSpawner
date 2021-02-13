@@ -41,15 +41,15 @@ func (is *DS1ViewerState) Dispose() {
 	// noop
 }
 
-// DS1ViewerWidget represents ds1 viewers widget
-type DS1ViewerWidget struct {
+// DS1Widget represents ds1 viewers widget
+type DS1Widget struct {
 	id  string
 	ds1 *d2ds1.DS1
 }
 
 // DS1Viewer creates a new ds1 viewer
-func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1ViewerWidget {
-	result := &DS1ViewerWidget{
+func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1Widget {
+	result := &DS1Widget{
 		id:  id,
 		ds1: ds1,
 	}
@@ -57,11 +57,11 @@ func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1ViewerWidget {
 	return result
 }
 
-func (p *DS1ViewerWidget) getStateID() string {
-	return fmt.Sprintf("DS1ViewerWidget_%s", p.id)
+func (p *DS1Widget) getStateID() string {
+	return fmt.Sprintf("DS1Widget_%s", p.id)
 }
 
-func (p *DS1ViewerWidget) getState() *DS1ViewerState {
+func (p *DS1Widget) getState() *DS1ViewerState {
 	var state *DS1ViewerState
 
 	s := giu.Context.GetState(p.getStateID())
@@ -76,11 +76,11 @@ func (p *DS1ViewerWidget) getState() *DS1ViewerState {
 	return state
 }
 
-func (p *DS1ViewerWidget) setState(s giu.Disposable) {
+func (p *DS1Widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *DS1ViewerWidget) initState() {
+func (p *DS1Widget) initState() {
 	state := &DS1ViewerState{
 		ds1Controls: &ds1Controls{},
 	}
@@ -89,7 +89,7 @@ func (p *DS1ViewerWidget) initState() {
 }
 
 // Build builds a viewer
-func (p *DS1ViewerWidget) Build() {
+func (p *DS1Widget) Build() {
 	state := p.getState()
 
 	tabs := giu.Layout{
@@ -109,7 +109,7 @@ func (p *DS1ViewerWidget) Build() {
 	}.Build()
 }
 
-func (p *DS1ViewerWidget) makeDataLayout() giu.Layout {
+func (p *DS1Widget) makeDataLayout() giu.Layout {
 	l := giu.Layout{
 		giu.Label(fmt.Sprintf("Version: %d", p.ds1.Version)),
 		giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
@@ -125,7 +125,7 @@ func (p *DS1ViewerWidget) makeDataLayout() giu.Layout {
 	return l
 }
 
-func (p *DS1ViewerWidget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
+func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 	l := giu.Layout{}
 
 	// iterating using the value should not be a big deal as
@@ -137,7 +137,7 @@ func (p *DS1ViewerWidget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 	return l
 }
 
-func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
+func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
 	l := giu.Layout{}
@@ -159,8 +159,10 @@ func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 	return l
 }
 
-func (p *DS1ViewerWidget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
-	if objIdx := int(state.object); objIdx >= len(p.ds1.Objects) {
+func (p *DS1Widget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
+	objIdx := int(state.object)
+
+	if objIdx >= len(p.ds1.Objects) {
 		state.ds1Controls.object = int32(len(p.ds1.Objects) - 1)
 		p.setState(state)
 	} else if objIdx < 0 {
@@ -184,7 +186,7 @@ func (p *DS1ViewerWidget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
 	return l
 }
 
-func (p *DS1ViewerWidget) makePathLayout(obj *d2ds1.Object) giu.Layout {
+func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	rowWidgets := make([]*giu.RowWidget, 0)
 
 	rowWidgets = append(rowWidgets, giu.Row(
@@ -208,7 +210,7 @@ func (p *DS1ViewerWidget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	}
 }
 
-func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
+func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 	l := giu.Layout{}
 
 	tx, ty := int(state.tileX), int(state.tileY)
@@ -249,7 +251,7 @@ func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 	return l
 }
 
-func (p *DS1ViewerWidget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) giu.Layout {
+func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 
 	if len(t.Floors) > 0 {
@@ -274,7 +276,7 @@ func (p *DS1ViewerWidget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRec
 }
 
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *DS1ViewerWidget) makeTileFloorsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileFloorsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -303,7 +305,7 @@ func (p *DS1ViewerWidget) makeTileFloorsLayout(state *DS1ViewerState, records []
 	return l
 }
 
-func (p *DS1ViewerWidget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
 		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
 		giu.Label(fmt.Sprintf("Sequence: %v", record.Sequence)),
@@ -318,7 +320,7 @@ func (p *DS1ViewerWidget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) g
 }
 
 // nolint:dupl // could be changed
-func (p *DS1ViewerWidget) makeTileWallsLayout(state *DS1ViewerState, records []d2ds1.WallRecord) giu.Layout {
+func (p *DS1Widget) makeTileWallsLayout(state *DS1ViewerState, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -347,7 +349,7 @@ func (p *DS1ViewerWidget) makeTileWallsLayout(state *DS1ViewerState, records []d
 	return l
 }
 
-func (p *DS1ViewerWidget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
+func (p *DS1Widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 	return giu.Layout{
 		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
 		giu.Label(fmt.Sprintf("Zero: %v", record.Zero)),
@@ -362,7 +364,7 @@ func (p *DS1ViewerWidget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layou
 }
 
 // nolint:dupl // no need to change
-func (p *DS1ViewerWidget) makeTileShadowsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileShadowsLayout(state *DS1ViewerState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -391,7 +393,7 @@ func (p *DS1ViewerWidget) makeTileShadowsLayout(state *DS1ViewerState, records [
 	return l
 }
 
-func (p *DS1ViewerWidget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
 		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
 		giu.Label(fmt.Sprintf("Sequence: %v", record.Sequence)),
@@ -406,7 +408,7 @@ func (p *DS1ViewerWidget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) 
 }
 
 // nolint:dupl // it is ok
-func (p *DS1ViewerWidget) makeTileSubsLayout(state *DS1ViewerState, records []d2ds1.SubstitutionRecord) giu.Layout {
+func (p *DS1Widget) makeTileSubsLayout(state *DS1ViewerState, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -435,13 +437,13 @@ func (p *DS1ViewerWidget) makeTileSubsLayout(state *DS1ViewerState, records []d2
 	return l
 }
 
-func (p *DS1ViewerWidget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
+func (p *DS1Widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
 	return giu.Layout{
 		giu.Label(fmt.Sprintf("Unknown: %v", record.Unknown)),
 	}
 }
 
-func (p *DS1ViewerWidget) makeSubstitutionsLayout(state *DS1ViewerState) giu.Layout {
+func (p *DS1Widget) makeSubstitutionsLayout(state *DS1ViewerState) giu.Layout {
 	l := giu.Layout{}
 
 	recordIdx := int(state.subgroup)
@@ -470,7 +472,7 @@ func (p *DS1ViewerWidget) makeSubstitutionsLayout(state *DS1ViewerState) giu.Lay
 	return l
 }
 
-func (p *DS1ViewerWidget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
+func (p *DS1Widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
 	l := giu.Layout{
 		giu.Label(fmt.Sprintf("TileX: %d", group.TileX)),
 		giu.Label(fmt.Sprintf("TileY: %d", group.TileY)),
