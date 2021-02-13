@@ -124,7 +124,7 @@ func (p *COFWidget) Build() {
 			},
 			COFEditorState: &COFEditorState{
 				newLayerSelectable: 1,
-				newLayerDrawEffect: 8,
+				newLayerDrawEffect: int32(d2enum.DrawEffectNone),
 			},
 		})
 
@@ -133,6 +133,7 @@ func (p *COFWidget) Build() {
 
 	state := s.(*COFState)
 
+	// builds appropriate menu (depends on state)
 	switch state.state {
 	case cofEditorStateViewer:
 		p.makeViewerLayout().Build()
@@ -394,17 +395,17 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 
 	trueFalse := []string{"false", "true"}
 
-	/*compositeTypeList := make([]string, 0)
-	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
-		compositeTypeList = append(compositeTypeList, i.String()+" ("+hsenum.GetLayerName(i)+")")
-	}*/
-
+	// available is a list of available (not currently used) composite types
 	available := make([]d2enum.CompositeType, 0)
+
 	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
 		contains := false
+
 		for _, j := range p.cof.CofLayers {
 			if i == j.Type {
 				contains = true
+
+				break
 			}
 		}
 
@@ -465,7 +466,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newCofLayer := &d2cof.CofLayer{
-					Type:        d2enum.CompositeType(available[state.COFEditorState.newLayerType]),
+					Type:        available[state.COFEditorState.newLayerType],
 					Shadow:      byte(state.COFEditorState.newLayerSelectable),
 					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
 					Transparent: (state.COFEditorState.newLayerTransparent == 1),
