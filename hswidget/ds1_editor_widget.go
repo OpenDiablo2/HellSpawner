@@ -8,6 +8,13 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
 
+type ds1EditorState int
+
+const (
+	ds1EditorStateViewer ds1EditorState = iota
+	ds1EditorStateConfirm
+)
+
 const (
 // gridMaxWidth    = 160
 // gridMaxHeight   = 80
@@ -34,6 +41,8 @@ type ds1Controls struct {
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
+	state         ds1EditorState
+	confirmDialog *PopUpConfirmDialog
 }
 
 // Dispose clears viewers state
@@ -92,6 +101,20 @@ func (p *DS1Widget) initState() {
 func (p *DS1Widget) Build() {
 	state := p.getState()
 
+	switch state.state {
+	case ds1EditorStateViewer:
+		p.makeViewerLayout().Build()
+	case ds1EditorStateConfirm:
+		giu.Layout{
+			giu.Label("Please confirm your decision"),
+			state.confirmDialog,
+		}.Build()
+	}
+}
+
+func (p *DS1Widget) makeViewerLayout() giu.Layout {
+	state := p.getState()
+
 	tabs := giu.Layout{
 		giu.TabItem("Files").Layout(p.makeFilesLayout(state)),
 		giu.TabItem("Objects").Layout(p.makeObjectsLayout(state)),
@@ -102,16 +125,35 @@ func (p *DS1Widget) Build() {
 		tabs = append(tabs, giu.TabItem("Substitutions").Layout(p.makeSubstitutionsLayout(state)))
 	}
 
-	giu.Layout{
+	return giu.Layout{
 		p.makeDataLayout(),
 		giu.Separator(),
 		giu.TabBar("##TabBar_ds1_" + p.id).Layout(tabs),
-	}.Build()
+	}
 }
 
 func (p *DS1Widget) makeDataLayout() giu.Layout {
+	state := p.getState()
+	var version int32 = int32(p.ds1.Version)
 	l := giu.Layout{
-		giu.Label(fmt.Sprintf("Version: %d", p.ds1.Version)),
+		giu.Line(
+			giu.Label("Version: "),
+			giu.InputInt("##"+p.id+"version", &version).Size(30).OnChange(func() {
+				state.confirmDialog = NewPopUpConfirmDialog(
+					"##"+p.id+"confirmVersionChange",
+					"Are you sure, you want to change DS1 Version?",
+					"This value is used while decoding and encoding ds1 file\nPlease see github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1/ds1.go\nto get more informations.\ncontinue",
+					func() {
+						p.ds1.Version = version
+						state.state = ds1EditorStateViewer
+					},
+					func() {
+						state.state = ds1EditorStateViewer
+					},
+				)
+				state.state = ds1EditorStateConfirm
+			}),
+		),
 		giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
 		giu.Label(fmt.Sprintf("Substitution Type: %d", p.ds1.SubstitutionType)),
 		giu.Separator(),
