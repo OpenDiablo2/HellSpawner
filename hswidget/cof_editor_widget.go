@@ -66,7 +66,9 @@ type COFEditorState struct {
 
 // Dispose disposes editor's state
 func (s *COFEditorState) Dispose() {
-	// noop
+	s.newLayerType = 0
+	s.newLayerDrawEffect = 0
+	s.newLayerWeaponClass = 0
 }
 
 // COFState represents cof editor's and viewer's state
@@ -120,7 +122,10 @@ func (p *COFWidget) Build() {
 				layer:         &p.cof.CofLayers[0],
 				confirmDialog: &PopUpConfirmDialog{},
 			},
-			COFEditorState: &COFEditorState{},
+			COFEditorState: &COFEditorState{
+				newLayerSelectable: 1,
+				newLayerDrawEffect: 8,
+			},
 		})
 
 		return
@@ -389,9 +394,28 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 
 	trueFalse := []string{"false", "true"}
 
-	compositeTypeList := make([]string, 0)
+	/*compositeTypeList := make([]string, 0)
 	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
 		compositeTypeList = append(compositeTypeList, i.String()+" ("+hsenum.GetLayerName(i)+")")
+	}*/
+
+	available := make([]d2enum.CompositeType, 0)
+	for i := d2enum.CompositeTypeHead; i < d2enum.CompositeTypeMax; i++ {
+		contains := false
+		for _, j := range p.cof.CofLayers {
+			if i == j.Type {
+				contains = true
+			}
+		}
+
+		if !contains {
+			available = append(available, i)
+		}
+	}
+
+	compositeTypeList := make([]string, len(available))
+	for n, i := range available {
+		compositeTypeList[n] = i.String() + " (" + hsenum.GetLayerName(i) + ")"
 	}
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
@@ -441,7 +465,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newCofLayer := &d2cof.CofLayer{
-					Type:        d2enum.CompositeType(state.COFEditorState.newLayerType),
+					Type:        d2enum.CompositeType(available[state.COFEditorState.newLayerType]),
 					Shadow:      byte(state.COFEditorState.newLayerSelectable),
 					Selectable:  (state.COFEditorState.newLayerSelectable == 1),
 					Transparent: (state.COFEditorState.newLayerTransparent == 1),
