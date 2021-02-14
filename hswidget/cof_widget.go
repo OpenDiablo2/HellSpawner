@@ -55,17 +55,20 @@ func COFViewer(
 	return result
 }
 
-// Build builds a cof viewer
-func (p *COFWidget) Build() {
+func (p *COFWidget) getState() *COFState {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
+	currentState := giu.Context.GetState(stateID)
 
-	if s == nil {
-		p.setDefaultState(stateID)
-		return
+	if currentState == nil {
+		currentState = p.setupDefaultState(stateID)
 	}
 
-	state := s.(*COFState)
+	return currentState.(*COFState)
+}
+
+// Build builds a cof viewer
+func (p *COFWidget) Build() {
+	state := p.getState()
 
 	// builds appropriate menu (depends on state)
 	switch state.mode {
@@ -81,7 +84,7 @@ func (p *COFWidget) Build() {
 	}
 }
 
-func (p *COFWidget) setDefaultState(id string) {
+func (p *COFWidget) setupDefaultState(id string) *COFState {
 	defaultState := &COFState{
 		mode: cofEditorModeViewer,
 		viewerState: &viewerState{
@@ -95,6 +98,8 @@ func (p *COFWidget) setDefaultState(id string) {
 	}
 
 	giu.Context.SetState(id, defaultState)
+
+	return defaultState
 }
 
 // this likely needs to be a method of d2cof.COF
