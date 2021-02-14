@@ -55,15 +55,41 @@ func COFViewer(
 	return result
 }
 
-func (p *COFWidget) getState() *COFState {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	currentState := giu.Context.GetState(stateID)
+func (p *COFWidget) getStateID() string {
+	return fmt.Sprintf("COFWidget_%s", p.id)
+}
 
-	if currentState == nil {
-		currentState = p.setupDefaultState(stateID)
+func (p *COFWidget) getState() *COFState {
+	var state *COFState
+
+	s := giu.Context.GetState(p.getStateID())
+
+	if s != nil {
+		state = s.(*COFState)
+	} else {
+		p.initState()
+		state = p.getState()
 	}
 
-	return currentState.(*COFState)
+	return state
+}
+
+func (p *COFWidget) setState(s giu.Disposable) {
+	giu.Context.SetState(p.getStateID(), s)
+}
+
+func (p *COFWidget) initState() {
+	p.setState(&COFState{
+		mode: cofEditorModeViewer,
+		viewerState: &viewerState{
+			layer:         &p.cof.CofLayers[0],
+			confirmDialog: &PopUpConfirmDialog{},
+		},
+		newLayerFields: &newLayerFields{
+			selectable: 1,
+			drawEffect: int32(d2enum.DrawEffectNone),
+		},
+	})
 }
 
 // Build builds a cof viewer
@@ -82,24 +108,6 @@ func (p *COFWidget) Build() {
 			state.confirmDialog,
 		}.Build()
 	}
-}
-
-func (p *COFWidget) setupDefaultState(id string) *COFState {
-	defaultState := &COFState{
-		mode: cofEditorModeViewer,
-		viewerState: &viewerState{
-			layer:         &p.cof.CofLayers[0],
-			confirmDialog: &PopUpConfirmDialog{},
-		},
-		newLayerFields: &newLayerFields{
-			selectable: 1,
-			drawEffect: int32(d2enum.DrawEffectNone),
-		},
-	}
-
-	giu.Context.SetState(id, defaultState)
-
-	return defaultState
 }
 
 // this likely needs to be a method of d2cof.COF
