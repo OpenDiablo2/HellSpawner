@@ -5,6 +5,10 @@ import (
 	"strconv"
 
 	"github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
@@ -20,6 +24,7 @@ const (
 	ds1EditorStateViewer ds1EditorState = iota
 	ds1EditorStateAddFile
 	ds1EditorStateAddObject
+	ds1EditorStateAddPath
 	ds1EditorStateConfirm
 )
 
@@ -60,6 +65,17 @@ func (t *DS1AddObjectState) Dispose() {
 	// noop
 }
 
+type DS1AddPathState struct {
+	pathAction int32
+	pathX      int32
+	pathY      int32
+}
+
+// Dispose clears state
+func (t *DS1AddPathState) Dispose() {
+	// noop
+}
+
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
@@ -67,24 +83,28 @@ type DS1ViewerState struct {
 	confirmDialog  *PopUpConfirmDialog
 	newFilePath    string
 	addObjectState DS1AddObjectState
+	addPathState   DS1AddPathState
 }
 
 // Dispose clears viewers state
 func (is *DS1ViewerState) Dispose() {
 	is.addObjectState.Dispose()
+	is.addPathState.Dispose()
 }
 
 // DS1Widget represents ds1 viewers widget
 type DS1Widget struct {
-	id  string
-	ds1 *d2ds1.DS1
+	id                  string
+	ds1                 *d2ds1.DS1
+	deleteButtonTexture *giu.Texture
 }
 
 // DS1Viewer creates a new ds1 viewer
-func DS1Viewer(id string, ds1 *d2ds1.DS1) *DS1Widget {
+func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *DS1Widget {
 	result := &DS1Widget{
-		id:  id,
-		ds1: ds1,
+		id:                  id,
+		ds1:                 ds1,
+		deleteButtonTexture: dbt,
 	}
 
 	return result
@@ -133,6 +153,8 @@ func (p *DS1Widget) Build() {
 		p.makeAddFileLayout().Build()
 	case ds1EditorStateAddObject:
 		p.makeAddObjectLayout().Build()
+	case ds1EditorStateAddPath:
+		p.makeAddPathLayout().Build()
 	case ds1EditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -212,11 +234,15 @@ func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 		currentIdx := n
 		l = append(l, giu.Layout{
 			giu.Line(
-				giu.Button("Delete##"+p.id+"DeleteFile"+strconv.Itoa(currentIdx)).Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				giu.ImageButton(p.deleteButtonTexture).Size(15, 15).OnClick(func() {
 					p.deleteFile(currentIdx)
 				}),
 				giu.Label(str),
 			),
+			giu.Custom(func() {
+				imgui.PopID()
+				imgui.PushID("##" + p.id + "DeleteFile" + strconv.Itoa(currentIdx))
+			}),
 		})
 	}
 
@@ -252,6 +278,9 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 		giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
 			state.state = ds1EditorStateAddObject
 		}),
+		giu.Button("Add new path...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
+			state.state = ds1EditorStateAddPath
+		}),
 	)
 
 	return l
@@ -278,27 +307,46 @@ func (p *DS1Widget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
 	}
 
 	if len(obj.Paths) > 0 {
-		l = append(l, giu.Dummy(1, 16), p.makePathLayout(&obj))
+		l = append(
+			l,
+			giu.Dummy(1, 16),
+			p.makePathLayout(&obj),
+		)
 	}
 
 	return l
 }
 
 func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
+	state := p.getState()
+
 	rowWidgets := make([]*giu.RowWidget, 0)
 
 	rowWidgets = append(rowWidgets, giu.Row(
 		giu.Label("Index"),
 		giu.Label("Position"),
 		giu.Label("Action"),
+		giu.Label(""),
 	))
 
 	for idx := range obj.Paths {
+		currentIdx := idx
 		x, y := obj.Paths[idx].Position.X(), obj.Paths[idx].Position.Y()
 		rowWidgets = append(rowWidgets, giu.Row(
 			giu.Label(fmt.Sprintf("%d", idx)),
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
+			giu.ImageButton(p.deleteButtonTexture).Size(15, 15).OnClick(func() {
+				newPaths := make([]d2path.Path, 0)
+
+				for n, i := range p.ds1.Objects[state.object].Paths {
+					if n != currentIdx {
+						newPaths = append(newPaths, i)
+					}
+				}
+
+				p.ds1.Objects[state.object].Paths = newPaths
+			}),
 		))
 	}
 
@@ -603,7 +651,6 @@ func (p *DS1Widget) makeAddFileLayout() giu.Layout {
 
 func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 	state := p.getState()
-	_ = state
 
 	return giu.Layout{
 		giu.Line(
@@ -642,6 +689,50 @@ func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 				state.state = ds1EditorStateViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.state = ds1EditorStateViewer
+			}),
+		),
+	}
+}
+
+func (p *DS1Widget) makeAddPathLayout() giu.Layout {
+	state := p.getState()
+
+	// https://github.com/OpenDiablo2/OpenDiablo2/issues/811
+	// this list should be created like in COFWidget.makeAddLayerLayout
+	actionsList := []string{"1", "2", "3"}
+
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Action: "),
+			giu.Combo("##"+p.id+"newPathAction", actionsList[state.addPathState.pathAction], actionsList, &state.addPathState.pathAction).Size(bigListW),
+		),
+		giu.Label("Vector:"),
+		giu.Line(
+			giu.Label("\tX: "),
+			giu.InputInt("##"+p.id+"newPathX", &state.addPathState.pathX).Size(inputIntW),
+		),
+		giu.Line(
+			giu.Label("\tY: "),
+			giu.InputInt("##"+p.id+"newPathY", &state.addPathState.pathY).Size(inputIntW),
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##"+p.id+"AddPathSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				newPath := d2path.Path{
+					// nolint:gomnd // npc actions starts from 1
+					Action: int(state.addPathState.pathAction) + 1,
+					Position: d2vector.NewPosition(
+						float64(state.addPathState.pathX),
+						float64(state.addPathState.pathY),
+					),
+				}
+
+				p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
+
+				state.state = ds1EditorStateViewer
+			}),
+			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.state = ds1EditorStateViewer
 			}),
 		),

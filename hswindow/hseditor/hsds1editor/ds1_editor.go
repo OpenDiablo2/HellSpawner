@@ -18,18 +18,23 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
+)
+
 // static check if DS1Editor implemented hscommon.EditorWindow
 var _ hscommon.EditorWindow = &DS1Editor{}
 
 // DS1Editor represents ds1 editor
 type DS1Editor struct {
 	*hseditor.Editor
-	ds1 *d2ds1.DS1
+	ds1                 *d2ds1.DS1
+	deleteButtonTexture *g.Texture
 }
 
 // Create creates a new ds1 editor
 func Create(_ *hsconfig.Config,
-	_ *hscommon.TextureLoader,
+	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -45,6 +50,10 @@ func Create(_ *hsconfig.Config,
 
 	result.Path = pathEntry
 
+	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+		result.deleteButtonTexture = texture
+	})
+
 	return result, nil
 }
 
@@ -53,7 +62,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.DS1Viewer(e.Path.GetUniqueID(), e.ds1),
+			hswidget.DS1Viewer(e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
 		})
 }
 
