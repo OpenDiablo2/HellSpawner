@@ -9,6 +9,11 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
 
+const (
+	inputIntW = 40
+	filePathW = 200
+)
+
 type ds1EditorState int
 
 const (
@@ -41,12 +46,18 @@ type ds1Controls struct {
 	}
 }
 
+// DS1AddObjectState represents state of new object
 type DS1AddObjectState struct {
 	objType  int32
 	objID    int32
 	objX     int32
 	objY     int32
 	objFlags int32
+}
+
+// Dispose clears state
+func (t *DS1AddObjectState) Dispose() {
+	// noop
 }
 
 // DS1ViewerState represents ds1 viewers state
@@ -60,7 +71,7 @@ type DS1ViewerState struct {
 
 // Dispose clears viewers state
 func (is *DS1ViewerState) Dispose() {
-	// noop
+	is.addObjectState.Dispose()
 }
 
 // DS1Widget represents ds1 viewers widget
@@ -151,16 +162,21 @@ func (p *DS1Widget) makeViewerLayout() giu.Layout {
 }
 
 func (p *DS1Widget) makeDataLayout() giu.Layout {
+	var version int32 = p.ds1.Version
+
 	state := p.getState()
-	var version int32 = int32(p.ds1.Version)
+
 	l := giu.Layout{
 		giu.Line(
 			giu.Label("Version: "),
-			giu.InputInt("##"+p.id+"version", &version).Size(30).OnChange(func() {
+			giu.InputInt("##"+p.id+"version", &version).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = NewPopUpConfirmDialog(
 					"##"+p.id+"confirmVersionChange",
 					"Are you sure, you want to change DS1 Version?",
-					"This value is used while decoding and encoding ds1 file\nPlease see github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1/ds1.go\nto get more informations.\ncontinue",
+					"This value is used while decoding and encoding ds1 file\n"+
+						"Please see github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1/ds1.go\n"+
+						"to get more informations.\n\n"+
+						"Continue?",
 					func() {
 						p.ds1.Version = version
 						state.state = ds1EditorStateViewer
@@ -193,9 +209,12 @@ func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 	// iterating using the value should not be a big deal as
 	// we only expect a handful of strings in this slice.
 	for n, str := range p.ds1.Files {
+		currentIdx := n
 		l = append(l, giu.Layout{
 			giu.Line(
-				giu.Button("Delete##"+p.id+"DeleteFile"+strconv.Itoa(n)).Size(45, 30).OnClick(func() { p.deleteFile(n) }),
+				giu.Button("Delete##"+p.id+"DeleteFile"+strconv.Itoa(currentIdx)).Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+					p.deleteFile(currentIdx)
+				}),
 				giu.Label(str),
 			),
 		})
@@ -203,7 +222,8 @@ func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 
 	return giu.Layout{
 		l,
-		giu.Button("Add File##"+p.id+"AddFile").Size(100, 30).OnClick(func() {
+		giu.Separator(),
+		giu.Button("Add File##"+p.id+"AddFile").Size(actionButtonW, actionButtonH).OnClick(func() {
 			state.state = ds1EditorStateAddFile
 		}),
 	}
@@ -229,7 +249,7 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 	}
 
 	l = append(l, giu.Separator(),
-		giu.Button("Add new object...##"+p.id+"AddObject").Size(200, 30).OnClick(func() {
+		giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
 			state.state = ds1EditorStateAddObject
 		}),
 	)
@@ -567,14 +587,14 @@ func (p *DS1Widget) makeAddFileLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Label("File path:"),
-		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(200),
+		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(filePathW),
 		giu.Separator(),
 		giu.Line(
-			giu.Button("Add##"+p.id+"addFileAdd").Size(50, 30).OnClick(func() {
+			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
 				state.state = ds1EditorStateViewer
 			}),
-			giu.Button("Cancel##"+p.id+"addFileCancel").Size(50, 30).OnClick(func() {
+			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.state = ds1EditorStateViewer
 			}),
 		),
@@ -588,27 +608,27 @@ func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Type: "),
-			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.objType).Size(40),
+			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.objType).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("ID: "),
-			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.objID).Size(40),
+			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.objID).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("X: "),
-			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.objX).Size(40),
+			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.objX).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("Y: "),
-			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.objY).Size(40),
+			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.objY).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("Flags: "),
-			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.objFlags).Size(40),
+			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.objFlags).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Line(
-			giu.Button("Save##"+p.id+"AddObjectSave").Size(50, 30).OnClick(func() {
+			giu.Button("Save##"+p.id+"AddObjectSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newObject := d2ds1.Object{
 					Type:  int(state.addObjectState.objType),
 					ID:    int(state.addObjectState.objID),
@@ -621,7 +641,7 @@ func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 
 				state.state = ds1EditorStateViewer
 			}),
-			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(50, 30).OnClick(func() {
+			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.state = ds1EditorStateViewer
 			}),
 		),
