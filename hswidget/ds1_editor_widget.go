@@ -14,6 +14,7 @@ type ds1EditorState int
 const (
 	ds1EditorStateViewer ds1EditorState = iota
 	ds1EditorStateAddFile
+	ds1EditorStateAddObject
 	ds1EditorStateConfirm
 )
 
@@ -40,12 +41,21 @@ type ds1Controls struct {
 	}
 }
 
+type DS1AddObjectState struct {
+	objType  int32
+	objID    int32
+	objX     int32
+	objY     int32
+	objFlags int32
+}
+
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
-	state         ds1EditorState
-	confirmDialog *PopUpConfirmDialog
-	newFilePath   string
+	state          ds1EditorState
+	confirmDialog  *PopUpConfirmDialog
+	newFilePath    string
+	addObjectState DS1AddObjectState
 }
 
 // Dispose clears viewers state
@@ -94,7 +104,8 @@ func (p *DS1Widget) setState(s giu.Disposable) {
 
 func (p *DS1Widget) initState() {
 	state := &DS1ViewerState{
-		ds1Controls: &ds1Controls{},
+		ds1Controls:    &ds1Controls{},
+		addObjectState: DS1AddObjectState{},
 	}
 
 	p.setState(state)
@@ -109,6 +120,8 @@ func (p *DS1Widget) Build() {
 		p.makeViewerLayout().Build()
 	case ds1EditorStateAddFile:
 		p.makeAddFileLayout().Build()
+	case ds1EditorStateAddObject:
+		p.makeAddObjectLayout().Build()
 	case ds1EditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -214,6 +227,12 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 		)
 		l = append(l, line)
 	}
+
+	l = append(l, giu.Separator(),
+		giu.Button("Add new object...##"+p.id+"AddObject").Size(200, 30).OnClick(func() {
+			state.state = ds1EditorStateAddObject
+		}),
+	)
 
 	return l
 }
@@ -556,6 +575,53 @@ func (p *DS1Widget) makeAddFileLayout() giu.Layout {
 				state.state = ds1EditorStateViewer
 			}),
 			giu.Button("Cancel##"+p.id+"addFileCancel").Size(50, 30).OnClick(func() {
+				state.state = ds1EditorStateViewer
+			}),
+		),
+	}
+}
+
+func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
+	state := p.getState()
+	_ = state
+
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Type: "),
+			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.objType).Size(40),
+		),
+		giu.Line(
+			giu.Label("ID: "),
+			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.objID).Size(40),
+		),
+		giu.Line(
+			giu.Label("X: "),
+			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.objX).Size(40),
+		),
+		giu.Line(
+			giu.Label("Y: "),
+			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.objY).Size(40),
+		),
+		giu.Line(
+			giu.Label("Flags: "),
+			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.objFlags).Size(40),
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##"+p.id+"AddObjectSave").Size(50, 30).OnClick(func() {
+				newObject := d2ds1.Object{
+					Type:  int(state.addObjectState.objType),
+					ID:    int(state.addObjectState.objID),
+					X:     int(state.addObjectState.objX),
+					Y:     int(state.addObjectState.objY),
+					Flags: int(state.addObjectState.objFlags),
+				}
+
+				p.ds1.Objects = append(p.ds1.Objects, newObject)
+
+				state.state = ds1EditorStateViewer
+			}),
+			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(50, 30).OnClick(func() {
 				state.state = ds1EditorStateViewer
 			}),
 		),
