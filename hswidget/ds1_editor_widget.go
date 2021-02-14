@@ -14,8 +14,9 @@ import (
 )
 
 const (
-	inputIntW = 40
-	filePathW = 200
+	inputIntW        = 40
+	filePathW        = 200
+	deleteButtonSize = 15
 )
 
 type ds1EditorState int
@@ -65,6 +66,7 @@ func (t *DS1AddObjectState) Dispose() {
 	// noop
 }
 
+// DS1AddPathState contains data about new path
 type DS1AddPathState struct {
 	pathAction int32
 	pathX      int32
@@ -232,9 +234,10 @@ func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 	// we only expect a handful of strings in this slice.
 	for n, str := range p.ds1.Files {
 		currentIdx := n
+
 		l = append(l, giu.Layout{
 			giu.Line(
-				giu.ImageButton(p.deleteButtonTexture).Size(15, 15).OnClick(func() {
+				giu.ImageButton(p.deleteButtonTexture).Size(deleteButtonSize, deleteButtonSize).OnClick(func() {
 					p.deleteFile(currentIdx)
 				}),
 				giu.Label(str),
@@ -336,7 +339,7 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 			giu.Label(fmt.Sprintf("%d", idx)),
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
-			giu.ImageButton(p.deleteButtonTexture).Size(15, 15).OnClick(func() {
+			giu.ImageButton(p.deleteButtonTexture).Size(deleteButtonSize, deleteButtonSize).OnClick(func() {
 				newPaths := make([]d2path.Path, 0)
 
 				for n, i := range p.ds1.Objects[state.object].Paths {
@@ -705,7 +708,10 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Action: "),
-			giu.Combo("##"+p.id+"newPathAction", actionsList[state.addPathState.pathAction], actionsList, &state.addPathState.pathAction).Size(bigListW),
+			giu.Combo("##"+p.id+"newPathAction",
+				actionsList[state.addPathState.pathAction],
+				actionsList, &state.addPathState.pathAction,
+			).Size(bigListW),
 		),
 		giu.Label("Vector:"),
 		giu.Line(
