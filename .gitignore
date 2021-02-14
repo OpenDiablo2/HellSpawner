@@ -2,6 +2,9 @@
 .vs
 .vscode
 
+# vim cache files
+*.swp
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
