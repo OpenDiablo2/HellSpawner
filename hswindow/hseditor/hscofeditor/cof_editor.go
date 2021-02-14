@@ -2,6 +2,7 @@
 package hscofeditor
 
 import (
+	"github.com/OpenDiablo2/HellSpawner/hswidget/cofwidget"
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -10,8 +11,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
-
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -75,7 +74,7 @@ func Create(tl *hscommon.TextureLoader,
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	cofWidget := hswidget.COFViewer(e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
+	cofWidget := cofwidget.Create(e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
@@ -113,9 +112,10 @@ func (e *COFEditor) Save() {
 
 // Cleanup hides an editor
 func (e *COFEditor) Cleanup() {
+	const strPrompt = "There are unsaved changes to %s, save before closing this editor?"
+
 	if e.HasChanges(e) {
-		if shouldSave := dialog.Message("There are unsaved changes to %s, save before closing this editor?",
-			e.Path.FullPath).YesNo(); shouldSave {
+		if shouldSave := dialog.Message(strPrompt, e.Path.FullPath).YesNo(); shouldSave {
 			e.Save()
 		}
 	}

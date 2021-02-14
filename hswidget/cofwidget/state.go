@@ -1,24 +1,27 @@
-package hswidget
+package cofwidget
 
-import "github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
+import (
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
-type cofEditorMode int
-
-const (
-	cofEditorModeViewer cofEditorMode = iota
-	cofEditorModeAddLayer
-	cofEditorModeConfirm
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
-// COFState represents cof editor's and viewer's state
-type COFState struct {
+type mode int
+
+const (
+	modeViewer mode = iota
+	modeAddLayer
+	modeConfirm
+)
+
+type widgetState struct {
 	*viewerState
 	*newLayerFields
-	mode cofEditorMode
+	mode
 }
 
 // Dispose clear widget's state
-func (s *COFState) Dispose() {
+func (s *widgetState) Dispose() {
 	s.viewerState.Dispose()
 	s.newLayerFields.Dispose()
 }
@@ -29,7 +32,7 @@ type viewerState struct {
 	directionIndex int32
 	frameIndex     int32
 	layer          *d2cof.CofLayer
-	confirmDialog  *PopUpConfirmDialog
+	confirmDialog  *hswidget.PopUpConfirmDialog
 }
 
 // Dispose clears viewer's layers

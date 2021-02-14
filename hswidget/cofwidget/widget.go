@@ -1,20 +1,20 @@
-package hswidget
+package cofwidget
 
 import (
 	"fmt"
 	"strconv"
 
 	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
 const (
-	indicatorSize                        = 64
+	layerListW                           = 64
 	buttonWidthHeight                    = 15
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
@@ -23,26 +23,25 @@ const (
 	speedInputW                          = 40
 )
 
-type cofTextures struct {
+type textures struct {
 	up    *giu.Texture
 	down  *giu.Texture
 	left  *giu.Texture
 	right *giu.Texture
 }
 
-// COFWidget represents cof viewer's widget
-type COFWidget struct {
-	id       string
-	cof      *d2cof.COF
-	textures cofTextures
+type widget struct {
+	id  string
+	cof *d2cof.COF
+	textures
 }
 
-// COFViewer creates a cof viewer widget
-func COFViewer(
+// Create a new COF widget
+func Create(
 	up, down, right, left *giu.Texture,
 	id string, cof *d2cof.COF,
-) *COFWidget {
-	result := &COFWidget{
+) giu.Widget {
+	result := &widget{
 		id:  id,
 		cof: cof,
 	}
@@ -55,17 +54,35 @@ func COFViewer(
 	return result
 }
 
-func (p *COFWidget) getStateID() string {
+// Build builds a cof viewer
+func (p *widget) Build() {
+	state := p.getState()
+
+	// builds appropriate menu (depends on state)
+	switch state.mode {
+	case modeViewer:
+		p.makeViewerLayout().Build()
+	case modeAddLayer:
+		p.makeAddLayerLayout().Build()
+	case modeConfirm:
+		giu.Layout{
+			giu.Label("Please confirm your decision"),
+			state.confirmDialog,
+		}.Build()
+	}
+}
+
+func (p *widget) getStateID() string {
 	return fmt.Sprintf("COFWidget_%s", p.id)
 }
 
-func (p *COFWidget) getState() *COFState {
-	var state *COFState
+func (p *widget) getState() *widgetState {
+	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*COFState)
+		state = s.(*widgetState)
 	} else {
 		p.initState()
 		state = p.getState()
@@ -74,16 +91,16 @@ func (p *COFWidget) getState() *COFState {
 	return state
 }
 
-func (p *COFWidget) setState(s giu.Disposable) {
+func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *COFWidget) initState() {
-	p.setState(&COFState{
-		mode: cofEditorModeViewer,
+func (p *widget) initState() {
+	p.setState(&widgetState{
+		mode: modeViewer,
 		viewerState: &viewerState{
 			layer:         &p.cof.CofLayers[0],
-			confirmDialog: &PopUpConfirmDialog{},
+			confirmDialog: &hswidget.PopUpConfirmDialog{},
 		},
 		newLayerFields: &newLayerFields{
 			selectable: 1,
@@ -92,43 +109,10 @@ func (p *COFWidget) initState() {
 	})
 }
 
-// Build builds a cof viewer
-func (p *COFWidget) Build() {
-	state := p.getState()
-
-	// builds appropriate menu (depends on state)
-	switch state.mode {
-	case cofEditorModeViewer:
-		p.makeViewerLayout().Build()
-	case cofEditorModeAddLayer:
-		p.makeAddLayerLayout().Build()
-	case cofEditorModeConfirm:
-		giu.Layout{
-			giu.Label("Please confirm your decision"),
-			state.confirmDialog,
-		}.Build()
-	}
-}
-
-// this likely needs to be a method of d2cof.COF
-func speedToFPS(speed int) float64 {
-	const (
-		baseFPS      = 25
-		speedDivisor = 256
-	)
-
-	fps := baseFPS * (float64(speed) / speedDivisor)
-	if fps == 0 {
-		fps = baseFPS
-	}
-
-	return fps
-}
-
-func (p *COFWidget) makeViewerLayout() giu.Layout {
+func (p *widget) makeViewerLayout() giu.Layout {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
-	state := s.(*COFState)
+	state := s.(*widgetState)
 
 	layerStrings := make([]string, 0)
 	for idx := range p.cof.CofLayers {
@@ -137,7 +121,7 @@ func (p *COFWidget) makeViewerLayout() giu.Layout {
 
 	currentLayerName := layerStrings[state.viewerState.layerIndex]
 	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
-	layerList.Size(indicatorSize).OnChange(p.onUpdate)
+	layerList.Size(layerListW).OnChange(p.onUpdate)
 
 	directionStrings := make([]string, 0)
 	for idx := range p.cof.Priority {
@@ -146,7 +130,7 @@ func (p *COFWidget) makeViewerLayout() giu.Layout {
 
 	directionString := directionStrings[state.viewerState.directionIndex]
 	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
-	directionList.Size(indicatorSize).OnChange(p.onUpdate)
+	directionList.Size(layerListW).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)
 	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
@@ -155,7 +139,7 @@ func (p *COFWidget) makeViewerLayout() giu.Layout {
 
 	frameString := frameStrings[state.viewerState.frameIndex]
 	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
-	frameList.Size(indicatorSize).OnChange(p.onUpdate)
+	frameList.Size(layerListW).OnChange(p.onUpdate)
 
 	return giu.Layout{
 		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
@@ -166,18 +150,7 @@ func (p *COFWidget) makeViewerLayout() giu.Layout {
 	}
 }
 
-// this should also probably be a method of COF
-func calculateDuration(cof *d2cof.COF) float64 {
-	const (
-		milliseconds = 1000
-	)
-
-	frameDelay := milliseconds / speedToFPS(cof.Speed)
-
-	return float64(cof.FramesPerDirection) * frameDelay
-}
-
-func (p *COFWidget) makeAnimationTab() giu.Layout {
+func (p *widget) makeAnimationTab() giu.Layout {
 	const (
 		fmtFPS        = "FPS: %.1f"
 		fmtDuration   = "Duration: %.2fms"
@@ -215,11 +188,11 @@ func (p *COFWidget) makeAnimationTab() giu.Layout {
 	}
 }
 
-func (p *COFWidget) makeLayerTab(state *COFState, layerList giu.Widget) giu.Layout {
+func (p *widget) makeLayerTab(state *widgetState, layerList giu.Widget) giu.Layout {
 	addLayerButtonID := fmt.Sprintf("Add a new layer...##%sAddLayer", p.id)
 	addLayerButton := giu.Button(addLayerButtonID).Size(actionButtonW, actionButtonH)
 	addLayerButton.OnClick(func() {
-		p.CreateNewLayer()
+		p.createNewLayer()
 	})
 
 	deleteLayerButtonID := fmt.Sprintf("Delete current layer...##%sDeleteLayer", p.id)
@@ -232,17 +205,17 @@ func (p *COFWidget) makeLayerTab(state *COFState, layerList giu.Widget) giu.Layo
 
 		fnYes := func() {
 			p.deleteCurrentLayer(state.viewerState.layerIndex)
-			state.mode = cofEditorModeViewer
+			state.mode = modeViewer
 		}
 
 		fnNo := func() {
-			state.mode = cofEditorModeViewer
+			state.mode = modeViewer
 		}
 
 		id := fmt.Sprintf("##%sDeleteLayerConfirm", p.id)
-		state.viewerState.confirmDialog = NewPopUpConfirmDialog(id, strPrompt, strMessage, fnYes, fnNo)
+		state.viewerState.confirmDialog = hswidget.NewPopUpConfirmDialog(id, strPrompt, strMessage, fnYes, fnNo)
 
-		state.mode = cofEditorModeConfirm
+		state.mode = modeConfirm
 	})
 
 	layout := giu.Layout{
@@ -257,7 +230,16 @@ func (p *COFWidget) makeLayerTab(state *COFState, layerList giu.Widget) giu.Layo
 	return layout
 }
 
-func (p *COFWidget) makePriorityTab(state *COFState, directionList, frameList giu.Widget) giu.Layout {
+func (p *widget) createNewLayer() {
+	stateID := fmt.Sprintf("COFWidget_%s", p.id)
+	s := giu.Context.GetState(stateID)
+
+	state := s.(*widgetState)
+
+	state.mode = modeAddLayer
+}
+
+func (p *widget) makePriorityTab(state *widgetState, directionList, frameList giu.Widget) giu.Layout {
 	const (
 		strPrompt  = "Do you really want to remove this direction?"
 		strMessage = "If you'll click YES, all data from this direction will be lost. Continue?"
@@ -274,17 +256,17 @@ func (p *COFWidget) makePriorityTab(state *COFState, directionList, frameList gi
 	deleteButton.OnClick(func() {
 		fnYes := func() {
 			p.deleteCurrentDirection()
-			state.mode = cofEditorModeViewer
+			state.mode = modeViewer
 		}
 
 		fnNo := func() {
-			state.mode = cofEditorModeViewer
+			state.mode = modeViewer
 		}
 
 		popupID := fmt.Sprintf("##%sDeleteLayerConfirm", p.id)
 
-		NewPopUpConfirmDialog(popupID, strPrompt, strMessage, fnYes, fnNo)
-		state.mode = cofEditorModeConfirm
+		hswidget.NewPopUpConfirmDialog(popupID, strPrompt, strMessage, fnYes, fnNo)
+		state.mode = modeConfirm
 	})
 
 	return giu.Layout{
@@ -299,34 +281,10 @@ func (p *COFWidget) makePriorityTab(state *COFState, directionList, frameList gi
 	}
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
-}
-
-//nolint:unparam // width and height are always 15 at the time of writing, but may change
-func makeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout {
-	return giu.Layout{
-		giu.ImageButton(t).Size(float32(w), float32(h)).OnClick(fn),
-		giu.Custom(func() {
-			// make this button unique across all editor instances
-			// at the time of writing, ImageButton uses the texture ID as the button ID
-			// so it wont be unique across multiple instances if we use the same texture...
-			// we need to step over giu and manually tell imgui to pop the last ID and
-			// push the desired one onto the stack
-			imgui.PopID()
-			imgui.PushID(id)
-		}),
-	}
-}
-
 // the layout ends up looking like this:
 // Frames (x6):  <- 10 ->
 // you use the arrows to set the number of frames per direction
-func (p *COFWidget) layoutAnimFrames() *giu.LineWidget {
+func (p *widget) layoutAnimFrames() *giu.LineWidget {
 	numFrames := p.cof.FramesPerDirection
 	numDirs := p.cof.NumberOfDirections
 
@@ -355,9 +313,9 @@ func (p *COFWidget) layoutAnimFrames() *giu.LineWidget {
 	return giu.Line(label, left, frameCount, right)
 }
 
-func (p *COFWidget) onUpdate() {
+func (p *widget) onUpdate() {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*COFState)
+	state := giu.Context.GetState(stateID).(*widgetState)
 
 	clone := p.cof.CofLayers[state.viewerState.layerIndex]
 	state.viewerState.layer = &clone
@@ -365,9 +323,9 @@ func (p *COFWidget) onUpdate() {
 	giu.Context.SetState(p.id, state)
 }
 
-func (p *COFWidget) makeLayerLayout() giu.Layout {
+func (p *widget) makeLayerLayout() giu.Layout {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*COFState)
+	state := giu.Context.GetState(stateID).(*widgetState)
 
 	if state.viewerState.layer == nil {
 		p.onUpdate()
@@ -398,7 +356,7 @@ func (p *COFWidget) makeLayerLayout() giu.Layout {
 	}
 }
 
-func (p *COFWidget) makeDirectionLayout() giu.Layout {
+func (p *widget) makeDirectionLayout() giu.Layout {
 	const (
 		strRenderOrderLabel = "Render Order (first to last):"
 		fmtIncreasePriority = "LayerPriorityUp_%d"
@@ -407,7 +365,7 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 	)
 
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*COFState).viewerState
+	state := giu.Context.GetState(stateID).(*widgetState).viewerState
 
 	frames := p.cof.Priority[state.directionIndex]
 	layers := frames[int(state.frameIndex)%len(frames)]
@@ -472,11 +430,11 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 	}
 }
 
-func (p *COFWidget) makeAddLayerLayout() giu.Layout {
+func (p *widget) makeAddLayerLayout() giu.Layout {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
-	state := s.(*COFState)
+	state := s.(*widgetState)
 
 	trueFalse := []string{"false", "true"}
 
@@ -552,7 +510,7 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 	}
 }
 
-func (p *COFWidget) makeSaveCancelButtonLine(available []d2enum.CompositeType, state *COFState) *giu.LineWidget {
+func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, state *widgetState) *giu.LineWidget {
 	fnSave := func() {
 		newCofLayer := &d2cof.CofLayer{
 			Type:        available[state.newLayerFields.layerType],
@@ -576,11 +534,11 @@ func (p *COFWidget) makeSaveCancelButtonLine(available []d2enum.CompositeType, s
 		// this sets layer index to just added layer
 		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
 
-		state.mode = cofEditorModeViewer
+		state.mode = modeViewer
 	}
 
 	fnCancel := func() {
-		state.mode = cofEditorModeViewer
+		state.mode = modeViewer
 	}
 
 	buttonSave := giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnSave)
@@ -589,7 +547,7 @@ func (p *COFWidget) makeSaveCancelButtonLine(available []d2enum.CompositeType, s
 	return giu.Line(buttonSave, buttonCancel)
 }
 
-func (p *COFWidget) deleteCurrentLayer(index int32) {
+func (p *widget) deleteCurrentLayer(index int32) {
 	p.cof.NumberOfLayers--
 
 	newPriority := make([][][]d2enum.CompositeType, p.cof.NumberOfDirections)
@@ -622,18 +580,18 @@ func (p *COFWidget) deleteCurrentLayer(index int32) {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
-	state := s.(*COFState)
+	state := s.(*widgetState)
 
 	if state.viewerState.layerIndex != 0 {
 		state.viewerState.layerIndex--
 	}
 }
 
-func (p *COFWidget) duplicateDirection() {
+func (p *widget) duplicateDirection() {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
-	state := s.(*COFState)
+	state := s.(*widgetState)
 
 	idx := state.viewerState.directionIndex
 
@@ -641,15 +599,14 @@ func (p *COFWidget) duplicateDirection() {
 
 	p.cof.Priority = append(p.cof.Priority, p.cof.Priority[idx])
 
-	// nolint:gomnd // directionIndex starts from 0, but len from 1
 	state.directionIndex = int32(len(p.cof.Priority) - 1)
 }
 
-func (p *COFWidget) deleteCurrentDirection() {
+func (p *widget) deleteCurrentDirection() {
 	stateID := fmt.Sprintf("COFWidget_%s", p.id)
 	s := giu.Context.GetState(stateID)
 
-	state := s.(*COFState)
+	state := s.(*widgetState)
 	index := state.viewerState.directionIndex
 
 	p.cof.NumberOfDirections--
@@ -663,14 +620,4 @@ func (p *COFWidget) deleteCurrentDirection() {
 	}
 
 	p.cof.Priority = newPriority
-}
-
-// CreateNewLayer starts add-cof-layer dialog
-func (p *COFWidget) CreateNewLayer() {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-
-	state := s.(*COFState)
-
-	state.mode = cofEditorModeAddLayer
 }
