@@ -15,8 +15,7 @@ import (
 
 const (
 	indicatorSize                        = 64
-	upDownArrowW, upDownArrowH           = 15, 15
-	leftRightArrowW, leftRightArrowH     = 15, 15
+	buttonWidthHeight                    = 15
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
@@ -336,9 +335,9 @@ func (p *COFWidget) layoutAnimFrames() *giu.LineWidget {
 	leftButtonID := fmt.Sprintf("##%sDecreaseFramesPerDirection", p.id)
 	rightButtonID := fmt.Sprintf("##%sIncreaseFramesPerDirection", p.id)
 
-	left := makeImageButton(leftButtonID, leftRightArrowW, leftRightArrowH, p.textures.left, fnDecrease)
+	left := makeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
-	right := makeImageButton(rightButtonID, leftRightArrowW, leftRightArrowH, p.textures.right, fnIncrease)
+	right := makeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
 
 	return giu.Line(label, left, frameCount, right)
 }
@@ -436,8 +435,8 @@ func (p *COFWidget) makeDirectionLayout() giu.Layout {
 		fnIncPriority := makeIncPriorityFn(currentIdx)
 		fnDecPriority := makeDecPriorityFn(currentIdx)
 
-		increasePriority := makeImageButton(strIncPri, upDownArrowW, upDownArrowH, p.textures.up, fnIncPriority)
-		decreasePriority := makeImageButton(strDecPri, upDownArrowW, upDownArrowH, p.textures.down, fnDecPriority)
+		increasePriority := makeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
+		decreasePriority := makeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
 
 		strLayerName := hsenum.GetLayerName(layers[idx])
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
