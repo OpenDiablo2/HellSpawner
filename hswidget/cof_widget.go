@@ -545,36 +545,40 @@ func (p *COFWidget) makeAddLayerLayout() giu.Layout {
 }
 
 func (p *COFWidget) makeSaveCancelButtonLine(available []d2enum.CompositeType, state *COFState) *giu.LineWidget {
-	return giu.Line(
-		giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-			newCofLayer := &d2cof.CofLayer{
-				Type:        available[state.newLayerFields.layerType],
-				Shadow:      byte(state.newLayerFields.selectable),
-				Selectable:  state.newLayerFields.selectable == 1,
-				Transparent: state.newLayerFields.transparent == 1,
-				DrawEffect:  d2enum.DrawEffect(state.newLayerFields.drawEffect),
-				WeaponClass: d2enum.WeaponClass(state.newLayerFields.weaponClass),
+	fnSave := func() {
+		newCofLayer := &d2cof.CofLayer{
+			Type:        available[state.newLayerFields.layerType],
+			Shadow:      byte(state.newLayerFields.selectable),
+			Selectable:  state.newLayerFields.selectable == 1,
+			Transparent: state.newLayerFields.transparent == 1,
+			DrawEffect:  d2enum.DrawEffect(state.newLayerFields.drawEffect),
+			WeaponClass: d2enum.WeaponClass(state.newLayerFields.weaponClass),
+		}
+
+		p.cof.CofLayers = append(p.cof.CofLayers, *newCofLayer)
+
+		p.cof.NumberOfLayers++
+
+		for dirIdx := range p.cof.Priority {
+			for frameIdx := range p.cof.Priority[dirIdx] {
+				p.cof.Priority[dirIdx][frameIdx] = append(p.cof.Priority[dirIdx][frameIdx], newCofLayer.Type)
 			}
+		}
 
-			p.cof.CofLayers = append(p.cof.CofLayers, *newCofLayer)
+		// this sets layer index to just added layer
+		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
 
-			p.cof.NumberOfLayers++
+		state.mode = cofEditorModeViewer
+	}
 
-			for i := range p.cof.Priority {
-				for j := range p.cof.Priority[i] {
-					p.cof.Priority[i][j] = append(p.cof.Priority[i][j], newCofLayer.Type)
-				}
-			}
+	fnCancel := func() {
+		state.mode = cofEditorModeViewer
+	}
 
-			// this sets layer index to just added layer
-			state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+	buttonSave := giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnSave)
+	buttonCancel := giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnCancel)
 
-			state.mode = cofEditorModeViewer
-		}),
-		giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-			state.mode = cofEditorModeViewer
-		}),
-	)
+	return giu.Line(buttonSave, buttonCancel)
 }
 
 func (p *COFWidget) deleteCurrentLayer(index int32) {
