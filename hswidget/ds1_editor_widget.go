@@ -19,6 +19,10 @@ const (
 	deleteButtonSize = 15
 )
 
+const (
+	maxByteSize = 255
+)
+
 type ds1EditorState int
 
 const (
@@ -26,6 +30,7 @@ const (
 	ds1EditorStateAddFile
 	ds1EditorStateAddObject
 	ds1EditorStateAddPath
+	ds1EditorStateAddFloorShadow
 	ds1EditorStateConfirm
 )
 
@@ -78,14 +83,37 @@ func (t *DS1AddPathState) Dispose() {
 	// noop
 }
 
+// DS1AddFloorShadowState contains data used in
+// add floor-shadow record dialog
+type DS1AddFloorShadowState struct {
+	prop1    int32
+	sequence int32
+	unknown1 int32
+	style    int32
+	unknown2 int32
+	hidden   int32
+	cb       func()
+}
+
+// Dispose resets DS1AddFloorShadowState
+func (t DS1AddFloorShadowState) Dispose() {
+	t.prop1 = 0
+	t.sequence = 0
+	t.unknown1 = 0
+	t.style = 0
+	t.unknown2 = 0
+	t.hidden = 0
+}
+
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
-	state          ds1EditorState
-	confirmDialog  *PopUpConfirmDialog
-	newFilePath    string
-	addObjectState DS1AddObjectState
-	addPathState   DS1AddPathState
+	state               ds1EditorState
+	confirmDialog       *PopUpConfirmDialog
+	newFilePath         string
+	addObjectState      DS1AddObjectState
+	addPathState        DS1AddPathState
+	addFloorShadowState DS1AddFloorShadowState
 }
 
 // Dispose clears viewers state
@@ -157,6 +185,8 @@ func (p *DS1Widget) Build() {
 		p.makeAddObjectLayout().Build()
 	case ds1EditorStateAddPath:
 		p.makeAddPathLayout().Build()
+	case ds1EditorStateAddFloorShadow:
+		p.makeAddFloorShadowLayout().Build()
 	case ds1EditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -374,8 +404,10 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 		p.setState(state)
 	}
 
-	numRows := len(p.ds1.Tiles)
-	if numRows < 1 {
+	numRows, numCols := 0, 0
+
+	numRows = len(p.ds1.Tiles)
+	if numRows == 0 {
 		return l
 	}
 
@@ -395,6 +427,30 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 		l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
 		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
 		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.addFloorShadowState.cb = func() {
+					newFloor := d2ds1.FloorShadowRecord{
+						Prop1:    byte(state.addFloorShadowState.prop1),
+						Sequence: byte(state.addFloorShadowState.sequence),
+						Unknown1: byte(state.addFloorShadowState.unknown1),
+						Style:    byte(state.addFloorShadowState.style),
+						Unknown2: byte(state.addFloorShadowState.unknown2),
+						// available after merging OpenDiablo2 #1057
+						// HiddenBytes: byte(state.addFloorShadowState.hidden),
+					}
+
+					p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
+				}
+				state.state = ds1EditorStateAddFloorShadow
+			}),
+			giu.Button("Add wall##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
+		),
+		giu.Line(
+			giu.Button("Add shadow##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
+			giu.Button("Add substitution##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
+		),
 	)
 
 	return l
@@ -739,6 +795,72 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 				state.state = ds1EditorStateViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.state = ds1EditorStateViewer
+			}),
+		),
+	}
+}
+
+func (p *DS1Widget) makeAddFloorShadowLayout() giu.Layout {
+	state := p.getState()
+
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Prop 1: "),
+			giu.InputInt("##"+p.id+"addFloorShadowProp1", &state.addFloorShadowState.prop1).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.prop1 > maxByteSize {
+					state.addFloorShadowState.prop1 = maxByteSize
+				}
+			}),
+		),
+		giu.Line(
+			giu.Label("Sequence: "),
+			giu.InputInt("##"+p.id+"addFloorShadowSequence", &state.addFloorShadowState.sequence).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.sequence > maxByteSize {
+					state.addFloorShadowState.sequence = maxByteSize
+				}
+			}),
+		),
+		giu.Line(
+			giu.Label("Unknown 1: "),
+			giu.InputInt("##"+p.id+"addFloorShadowUnknown1", &state.addFloorShadowState.unknown1).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.unknown1 > maxByteSize {
+					state.addFloorShadowState.unknown1 = maxByteSize
+				}
+			}),
+		),
+		giu.Line(
+			giu.Label("Style: "),
+			giu.InputInt("##"+p.id+"addFloorShadowStyle", &state.addFloorShadowState.style).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.style > maxByteSize {
+					state.addFloorShadowState.style = maxByteSize
+				}
+			}),
+		),
+		giu.Line(
+			giu.Label("Unknown 2: "),
+			giu.InputInt("##"+p.id+"addFloorShadowUnknown2", &state.addFloorShadowState.unknown2).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.unknown2 > maxByteSize {
+					state.addFloorShadowState.unknown2 = maxByteSize
+				}
+			}),
+		),
+		giu.Line(
+			giu.Label("Hidden: "),
+			giu.Label("Available after merging OpenDiablo2:#1057"),
+			/*giu.InputInt("##"+p.id+"addFloorShadowHidden", &state.addFloorShadowState.hidden).Size(inputIntW).OnChange(func() {
+				if state.addFloorShadowState.hidden> maxByteSize {
+					state.addFloorShadowState.hidden= maxByteSize
+				}
+			}),*/
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##"+p.id+"AddFloorShadowSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.addFloorShadowState.cb()
+				state.state = ds1EditorStateViewer
+			}),
+			giu.Button("Cancel##"+p.id+"AddFloorShadowCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.state = ds1EditorStateViewer
 			}),
 		),
