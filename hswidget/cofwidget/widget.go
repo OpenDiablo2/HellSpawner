@@ -10,6 +10,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -306,9 +307,9 @@ func (p *widget) layoutAnimFrames() *giu.LineWidget {
 	leftButtonID := fmt.Sprintf("##%sDecreaseFramesPerDirection", p.id)
 	rightButtonID := fmt.Sprintf("##%sIncreaseFramesPerDirection", p.id)
 
-	left := makeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
+	left := hsutil.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
-	right := makeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
+	right := hsutil.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
 
 	return giu.Line(label, left, frameCount, right)
 }
@@ -406,8 +407,8 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		fnIncPriority := makeIncPriorityFn(currentIdx)
 		fnDecPriority := makeDecPriorityFn(currentIdx)
 
-		increasePriority := makeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
-		decreasePriority := makeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
+		increasePriority := hsutil.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
+		decreasePriority := hsutil.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
 
 		strLayerName := hsenum.GetLayerName(layers[idx])
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
