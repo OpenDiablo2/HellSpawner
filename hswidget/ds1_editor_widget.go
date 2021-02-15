@@ -10,6 +10,8 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 )
 
@@ -31,6 +33,7 @@ const (
 	ds1EditorStateAddObject
 	ds1EditorStateAddPath
 	ds1EditorStateAddFloorShadow
+	ds1EditorStateAddWall
 	ds1EditorStateConfirm
 )
 
@@ -105,6 +108,16 @@ func (t DS1AddFloorShadowState) Dispose() {
 	t.hidden = 0
 }
 
+type DS1AddWallState struct {
+	tileType int32
+	zero     int32
+	DS1AddFloorShadowState
+}
+
+func (t *DS1AddWallState) Dispose() {
+	t.DS1AddFloorShadowState.Dispose()
+}
+
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
@@ -114,12 +127,15 @@ type DS1ViewerState struct {
 	addObjectState      DS1AddObjectState
 	addPathState        DS1AddPathState
 	addFloorShadowState DS1AddFloorShadowState
+	addWallState        DS1AddWallState
 }
 
 // Dispose clears viewers state
 func (is *DS1ViewerState) Dispose() {
 	is.addObjectState.Dispose()
 	is.addPathState.Dispose()
+	is.addFloorShadowState.Dispose()
+	is.addWallState.Dispose()
 }
 
 // DS1Widget represents ds1 viewers widget
@@ -187,6 +203,8 @@ func (p *DS1Widget) Build() {
 		p.makeAddPathLayout().Build()
 	case ds1EditorStateAddFloorShadow:
 		p.makeAddFloorShadowLayout().Build()
+	case ds1EditorStateAddWall:
+		p.makeAddWallLayout().Build()
 	case ds1EditorStateConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
@@ -427,30 +445,6 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 		l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
 		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
 		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
-		giu.Separator(),
-		giu.Line(
-			giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.addFloorShadowState.cb = func() {
-					newFloor := d2ds1.FloorShadowRecord{
-						Prop1:    byte(state.addFloorShadowState.prop1),
-						Sequence: byte(state.addFloorShadowState.sequence),
-						Unknown1: byte(state.addFloorShadowState.unknown1),
-						Style:    byte(state.addFloorShadowState.style),
-						Unknown2: byte(state.addFloorShadowState.unknown2),
-						// available after merging OpenDiablo2 #1057
-						// HiddenBytes: byte(state.addFloorShadowState.hidden),
-					}
-
-					p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
-				}
-				state.state = ds1EditorStateAddFloorShadow
-			}),
-			giu.Button("Add wall##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
-		),
-		giu.Line(
-			giu.Button("Add shadow##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
-			giu.Button("Add substitution##"+p.id+"addFloor").Size(actionButtonW, actionButtonH),
-		),
 	)
 
 	return l
@@ -460,15 +454,119 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 	tabs := giu.Layout{}
 
 	if len(t.Floors) > 0 {
-		tabs = append(tabs, giu.TabItem("Floors").Layout(p.makeTileFloorsLayout(state, t.Floors)))
+		tabs = append(
+			tabs,
+			giu.TabItem("Floors").Layout(giu.Layout{
+				p.makeTileFloorsLayout(state, t.Floors),
+				giu.Separator(),
+				giu.Line(
+					giu.Button("Edit floor##"+p.id+"editFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+						state.addFloorShadowState.cb = func() {
+							newFloor := d2ds1.FloorShadowRecord{
+								Prop1:    byte(state.addFloorShadowState.prop1),
+								Sequence: byte(state.addFloorShadowState.sequence),
+								Unknown1: byte(state.addFloorShadowState.unknown1),
+								Style:    byte(state.addFloorShadowState.style),
+								Unknown2: byte(state.addFloorShadowState.unknown2),
+								// available after merging OpenDiablo2 #1057
+								// HiddenBytes: byte(state.addFloorShadowState.hidden),
+							}
+
+							p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
+						}
+						state.state = ds1EditorStateAddFloorShadow
+					}),
+					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+						state.addFloorShadowState.cb = func() {
+							newFloor := d2ds1.FloorShadowRecord{
+								Prop1:    byte(state.addFloorShadowState.prop1),
+								Sequence: byte(state.addFloorShadowState.sequence),
+								Unknown1: byte(state.addFloorShadowState.unknown1),
+								Style:    byte(state.addFloorShadowState.style),
+								Unknown2: byte(state.addFloorShadowState.unknown2),
+								// available after merging OpenDiablo2 #1057
+								// HiddenBytes: byte(state.addFloorShadowState.hidden),
+							}
+
+							p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
+
+							p.ds1.NumberOfFloors++
+						}
+						state.state = ds1EditorStateAddFloorShadow
+					}),
+					giu.ImageButton(p.deleteButtonTexture).Size(24, 24).OnClick(func() {
+						newFloors := make([]d2ds1.FloorShadowRecord, 0)
+						for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
+							if n != int(state.object) {
+								newFloors = append(newFloors, i)
+							}
+						}
+
+						p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
+						p.ds1.NumberOfFloors--
+					}),
+				),
+			}),
+		)
 	}
 
 	if len(t.Walls) > 0 {
-		tabs = append(tabs, giu.TabItem("Walls").Layout(p.makeTileWallsLayout(state, t.Walls)))
+		tabs = append(
+			tabs,
+			giu.TabItem("Walls").Layout(giu.Layout{
+				p.makeTileWallsLayout(state, t.Walls),
+				giu.Button("Edit wall##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+					state.addFloorShadowState.cb = func() {
+						newWall := d2ds1.WallRecord{
+							Type:     d2enum.TileType(state.addWallState.tileType),
+							Zero:     byte(state.addWallState.zero),
+							Prop1:    byte(state.addWallState.prop1),
+							Sequence: byte(state.addWallState.sequence),
+							Unknown1: byte(state.addWallState.unknown1),
+							Style:    byte(state.addWallState.style),
+							Unknown2: byte(state.addWallState.unknown2),
+							// available after merging OpenDiablo2 #1057
+							// HiddenBytes: byte(state.addWallState.hidden),
+						}
+
+						// p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
+						p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
+
+						// p.ds1.NumberOfFloors++
+					}
+					state.state = ds1EditorStateAddWall
+				}),
+			}),
+		)
 	}
 
 	if len(t.Shadows) > 0 {
-		tabs = append(tabs, giu.TabItem("Shadows").Layout(p.makeTileShadowsLayout(state, t.Shadows)))
+		tabs = append(
+			tabs,
+			giu.TabItem("Shadows").Layout(giu.Layout{
+				p.makeTileShadowsLayout(state, t.Shadows),
+				giu.Button("Edit shadow##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+					state.addFloorShadowState.cb = func() {
+						newShadow := d2ds1.FloorShadowRecord{
+							Prop1:    byte(state.addFloorShadowState.prop1),
+							Sequence: byte(state.addFloorShadowState.sequence),
+							Unknown1: byte(state.addFloorShadowState.unknown1),
+							Style:    byte(state.addFloorShadowState.style),
+							Unknown2: byte(state.addFloorShadowState.unknown2),
+							// available after merging OpenDiablo2 #1057
+							// HiddenBytes: byte(state.addFloorShadowState.hidden),
+						}
+
+						//p.ds1.Tiles[state.tileY][state.tileY].Shadows = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
+						p.ds1.Tiles[state.tileY][state.tileY].Shadows[state.object] = newShadow
+
+						//p.ds1.NumberOfShadowLayers++
+					}
+
+					state.state = ds1EditorStateAddFloorShadow
+				}),
+			}),
+		)
 	}
 
 	if len(t.Substitutions) > 0 {
@@ -864,6 +962,35 @@ func (p *DS1Widget) makeAddFloorShadowLayout() giu.Layout {
 				state.state = ds1EditorStateViewer
 			}),
 		),
+	}
+}
+
+func (p *DS1Widget) makeAddWallLayout() giu.Layout {
+	state := p.getState()
+
+	// nolint:gomnd // enumeration of tile types starts from 0, but we must give length (starts from 1) in argument
+	tileTypeList := make([]string, d2enum.TileLowerWallsEquivalentToSouthCornerwall+1)
+	for i := d2enum.TileFloor; i <= d2enum.TileLowerWallsEquivalentToSouthCornerwall; i++ {
+		// this list should be a group of strings, which describes d2enum.TileType
+		tileTypeList[int(i)] = strconv.Itoa(int(i))
+	}
+
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Type: "),
+			giu.Combo("##"+p.id+"AddWallType", tileTypeList[int(state.addWallState.tileType)], tileTypeList,
+				&state.addWallState.tileType).Size(bigListW),
+		),
+		giu.Line(
+			giu.Label("Zero: "),
+			giu.InputInt("##"+p.id+"AddWallZero", &state.addWallState.zero).Size(inputIntW).OnChange(func() {
+				if state.addWallState.zero > maxByteSize {
+					state.addWallState.zero = maxByteSize
+				}
+			}),
+		),
+		// this fields are constant for flor, shadow and wall
+		p.makeAddFloorShadowLayout(),
 	}
 }
 
