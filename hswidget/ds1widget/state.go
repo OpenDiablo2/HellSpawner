@@ -87,8 +87,8 @@ func (t *DS1AddWallState) Dispose() {
 	t.DS1AddFloorShadowState.Dispose()
 }
 
-// DS1ViewerState represents ds1 viewers state
-type DS1ViewerState struct {
+// DS1WidgetState represents ds1 viewers state
+type DS1WidgetState struct {
 	*ds1Controls
 	mode                ds1EditorMode
 	confirmDialog       *hswidget.PopUpConfirmDialog
@@ -100,7 +100,7 @@ type DS1ViewerState struct {
 }
 
 // Dispose clears viewers state
-func (is *DS1ViewerState) Dispose() {
+func (is *DS1WidgetState) Dispose() {
 	is.addObjectState.Dispose()
 	is.addPathState.Dispose()
 	is.addFloorShadowState.Dispose()
