@@ -24,6 +24,7 @@ const (
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
+	trueFalseListW                       = 60
 )
 
 const (
@@ -377,8 +378,6 @@ func (p *DS1Widget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
 }
 
 func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
-	state := p.getState()
-
 	rowWidgets := make([]*giu.RowWidget, 0)
 
 	rowWidgets = append(rowWidgets, giu.Row(
@@ -399,15 +398,7 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
-					newPaths := make([]d2path.Path, 0)
-
-					for n, i := range p.ds1.Objects[state.object].Paths {
-						if n != currentIdx {
-							newPaths = append(newPaths, i)
-						}
-					}
-
-					p.ds1.Objects[state.object].Paths = newPaths
+					p.deletePath(currentIdx)
 				},
 			),
 		))
@@ -462,7 +453,6 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 	return l
 }
 
-// nolint:funlen // no need to reduce
 func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 
@@ -496,15 +486,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 						layerDeleteButtonSize, layerDeleteButtonSize,
 						p.deleteButtonTexture,
 						func() {
-							newFloors := make([]d2ds1.FloorShadowRecord, 0)
-							for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
-								if n != int(state.object) {
-									newFloors = append(newFloors, i)
-								}
-							}
-
-							p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
-							p.ds1.NumberOfFloors--
+							p.deleteFloorRecord()
 						},
 					),
 				),
@@ -880,6 +862,8 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 func (p *DS1Widget) makeAddFloorShadowLayout() giu.Layout {
 	state := p.getState()
 
+	trueFalseList := []string{"false", "true"}
+
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop 1: "),
@@ -923,12 +907,11 @@ func (p *DS1Widget) makeAddFloorShadowLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			giu.Label("Available after merging OpenDiablo2:#1057"),
-			/*giu.InputInt("##"+p.id+"addFloorShadowHidden", &state.addFloorShadowState.hidden).Size(inputIntW).OnChange(func() {
-				if state.addFloorShadowState.hidden> maxByteSize {
-					state.addFloorShadowState.hidden= maxByteSize
-				}
-			}),*/
+			giu.Combo(
+				"##"+p.id+"addFloorShadowHidden",
+				trueFalseList[state.addFloorShadowState.hidden],
+				trueFalseList, &state.addFloorShadowState.hidden,
+			).Size(trueFalseListW),
 		),
 		giu.Separator(),
 		giu.Line(
@@ -976,13 +959,12 @@ func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
 	state := p.getState()
 
 	newFloorShadowRecord := d2ds1.FloorShadowRecord{
-		Prop1:    byte(state.addFloorShadowState.prop1),
-		Sequence: byte(state.addFloorShadowState.sequence),
-		Unknown1: byte(state.addFloorShadowState.unknown1),
-		Style:    byte(state.addFloorShadowState.style),
-		Unknown2: byte(state.addFloorShadowState.unknown2),
-		// available after merging OpenDiablo2 #1057
-		// HiddenBytes: byte(state.addFloorShadowState.hidden),
+		Prop1:       byte(state.addFloorShadowState.prop1),
+		Sequence:    byte(state.addFloorShadowState.sequence),
+		Unknown1:    byte(state.addFloorShadowState.unknown1),
+		Style:       byte(state.addFloorShadowState.style),
+		Unknown2:    byte(state.addFloorShadowState.unknown2),
+		HiddenBytes: byte(state.addFloorShadowState.hidden),
 	}
 
 	return newFloorShadowRecord
@@ -992,15 +974,14 @@ func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
 	state := p.getState()
 
 	newWall := d2ds1.WallRecord{
-		Type:     d2enum.TileType(state.addWallState.tileType),
-		Zero:     byte(state.addWallState.zero),
-		Prop1:    byte(state.addWallState.prop1),
-		Sequence: byte(state.addWallState.sequence),
-		Unknown1: byte(state.addWallState.unknown1),
-		Style:    byte(state.addWallState.style),
-		Unknown2: byte(state.addWallState.unknown2),
-		// available after merging OpenDiablo2 #1057
-		// HiddenBytes: byte(state.addWallState.hidden),
+		Type:        d2enum.TileType(state.addWallState.tileType),
+		Zero:        byte(state.addWallState.zero),
+		Prop1:       byte(state.addWallState.prop1),
+		Sequence:    byte(state.addWallState.sequence),
+		Unknown1:    byte(state.addWallState.unknown1),
+		Style:       byte(state.addWallState.style),
+		Unknown2:    byte(state.addWallState.unknown2),
+		HiddenBytes: byte(state.addWallState.hidden),
 	}
 
 	return newWall
@@ -1016,4 +997,33 @@ func (p *DS1Widget) deleteFile(idx int) {
 	}
 
 	p.ds1.Files = newFiles
+}
+
+func (p *DS1Widget) deletePath(idx int) {
+	state := p.getState()
+
+	newPaths := make([]d2path.Path, 0)
+
+	for n, i := range p.ds1.Objects[state.object].Paths {
+		if n != idx {
+			newPaths = append(newPaths, i)
+		}
+	}
+
+	p.ds1.Objects[state.object].Paths = newPaths
+}
+
+func (p *DS1Widget) deleteFloorRecord() {
+	state := p.getState()
+
+	newFloors := make([]d2ds1.FloorShadowRecord, 0)
+
+	for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
+		if n != int(state.object) {
+			newFloors = append(newFloors, i)
+		}
+	}
+
+	p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
+	p.ds1.NumberOfFloors--
 }
