@@ -16,10 +16,13 @@ import (
 )
 
 const (
-	layerDeleteButtonSize = 24
-	inputIntW             = 40
-	filePathW             = 200
-	deleteButtonSize      = 15
+	layerDeleteButtonSize                = 24
+	inputIntW                            = 40
+	filePathW                            = 200
+	deleteButtonSize                     = 15
+	actionButtonW, actionButtonH         = 200, 30
+	saveCancelButtonW, saveCancelButtonH = 80, 30
+	bigListW                             = 200
 )
 
 const (
