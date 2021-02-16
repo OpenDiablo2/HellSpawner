@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -48,7 +49,10 @@ func (a *App) renderMainMenuBar() {
 			g.Separator(),
 			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
-			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(a.Quit),
+			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(func() {
+				a.Quit()
+				os.Exit(0)
+			}),
 		}),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
