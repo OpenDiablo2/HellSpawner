@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -413,4 +414,6 @@ func (a *App) Quit() {
 	a.Save()
 
 	a.CloseAllOpenWindows()
+
+	os.Exit(0)
 }
