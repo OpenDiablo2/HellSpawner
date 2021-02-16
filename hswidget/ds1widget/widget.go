@@ -63,13 +63,13 @@ func (p *DS1Widget) getStateID() string {
 	return fmt.Sprintf("DS1Widget_%s", p.id)
 }
 
-func (p *DS1Widget) getState() *DS1WidgetState {
-	var state *DS1WidgetState
+func (p *DS1Widget) getState() *DS1State {
+	var state *DS1State
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*DS1WidgetState)
+		state = s.(*DS1State)
 	} else {
 		p.initState()
 		state = p.getState()
@@ -83,7 +83,7 @@ func (p *DS1Widget) setState(s giu.Disposable) {
 }
 
 func (p *DS1Widget) initState() {
-	state := &DS1WidgetState{
+	state := &DS1State{
 		ds1Controls:    &ds1Controls{},
 		addObjectState: DS1AddObjectState{},
 	}
@@ -210,7 +210,7 @@ func (p *DS1Widget) makeFilesLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeObjectsLayout(state *DS1WidgetState) giu.Layout {
+func (p *DS1Widget) makeObjectsLayout(state *DS1State) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
 	l := giu.Layout{}
@@ -241,7 +241,7 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1WidgetState) giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makeObjectLayout(state *DS1WidgetState) giu.Layout {
+func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
 	objIdx := int(state.object)
 
 	if objIdx >= len(p.ds1.Objects) {
@@ -305,7 +305,7 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeTilesLayout(state *DS1WidgetState) giu.Layout {
+func (p *DS1Widget) makeTilesLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{}
 
 	tx, ty := int(state.tileX), int(state.tileY)
@@ -349,7 +349,7 @@ func (p *DS1Widget) makeTilesLayout(state *DS1WidgetState) giu.Layout {
 }
 
 // nolint:funlen // cannot reduce
-func (p *DS1Widget) makeTileLayout(state *DS1WidgetState, t *d2ds1.TileRecord) giu.Layout {
+func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
 
@@ -463,7 +463,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1WidgetState, t *d2ds1.TileRecord) g
 }
 
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *DS1Widget) makeTileFloorsLayout(state *DS1WidgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -507,7 +507,7 @@ func (p *DS1Widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Lay
 }
 
 // nolint:dupl // could be changed
-func (p *DS1Widget) makeTileWallsLayout(state *DS1WidgetState, records []d2ds1.WallRecord) giu.Layout {
+func (p *DS1Widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -551,7 +551,7 @@ func (p *DS1Widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 }
 
 // nolint:dupl // no need to change
-func (p *DS1Widget) makeTileShadowsLayout(state *DS1WidgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *DS1Widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -595,7 +595,7 @@ func (p *DS1Widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.La
 }
 
 // nolint:dupl // it is ok
-func (p *DS1Widget) makeTileSubsLayout(state *DS1WidgetState, records []d2ds1.SubstitutionRecord) giu.Layout {
+func (p *DS1Widget) makeTileSubsLayout(state *DS1State, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -630,7 +630,7 @@ func (p *DS1Widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layo
 	}
 }
 
-func (p *DS1Widget) makeSubstitutionsLayout(state *DS1WidgetState) giu.Layout {
+func (p *DS1Widget) makeSubstitutionsLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{}
 
 	recordIdx := int(state.subgroup)
@@ -775,8 +775,8 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 // output in argument, because we're using this method in a two cases:
 // first for adding floor an shadow
 // second to in p.makeAddWallLayout, so we should specify, wher does
-// we want to save results (in DS1WidgetState.addFloorShadowState,
-// or in DS1WidgetState.addWallState)
+// we want to save results (in DS1State.addFloorShadowState,
+// or in DS1State.addWallState)
 func (p *DS1Widget) makeAddFloorShadowLayout(output *DS1AddFloorShadowState) giu.Layout {
 	state := p.getState()
 
