@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	inputIntW        = 40
-	filePathW        = 200
-	deleteButtonSize = 15
+	layerDeleteButtonSize = 24
+	inputIntW             = 40
+	filePathW             = 200
+	deleteButtonSize      = 15
 )
 
 const (
@@ -108,12 +109,14 @@ func (t DS1AddFloorShadowState) Dispose() {
 	t.hidden = 0
 }
 
+// DS1AddWallState contains data used in add wall dialog
 type DS1AddWallState struct {
 	tileType int32
 	zero     int32
 	DS1AddFloorShadowState
 }
 
+// Dispose cleans DS1AddWallState
 func (t *DS1AddWallState) Dispose() {
 	t.DS1AddFloorShadowState.Dispose()
 }
@@ -450,6 +453,7 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 	return l
 }
 
+// nolint:funlen // no need to reduce
 func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 
@@ -460,6 +464,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 				p.makeTileFloorsLayout(state, t.Floors),
 				giu.Separator(),
 				giu.Line(
+					// nolint:dupl // 'll reduce
 					giu.Button("Edit floor##"+p.id+"editFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 						state.addFloorShadowState.cb = func() {
 							newFloor := d2ds1.FloorShadowRecord{
@@ -494,7 +499,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 						}
 						state.state = ds1EditorStateAddFloorShadow
 					}),
-					giu.ImageButton(p.deleteButtonTexture).Size(24, 24).OnClick(func() {
+					giu.ImageButton(p.deleteButtonTexture).Size(layerDeleteButtonSize, layerDeleteButtonSize).OnClick(func() {
 						newFloors := make([]d2ds1.FloorShadowRecord, 0)
 						for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
 							if n != int(state.object) {
@@ -529,10 +534,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 							// HiddenBytes: byte(state.addWallState.hidden),
 						}
 
-						// p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
 						p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
-
-						// p.ds1.NumberOfFloors++
 					}
 					state.state = ds1EditorStateAddWall
 				}),
@@ -545,6 +547,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 			tabs,
 			giu.TabItem("Shadows").Layout(giu.Layout{
 				p.makeTileShadowsLayout(state, t.Shadows),
+				// nolint:dupl // will change
 				giu.Button("Edit shadow##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.addFloorShadowState.cb = func() {
 						newShadow := d2ds1.FloorShadowRecord{
@@ -557,10 +560,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 							// HiddenBytes: byte(state.addFloorShadowState.hidden),
 						}
 
-						//p.ds1.Tiles[state.tileY][state.tileY].Shadows = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
 						p.ds1.Tiles[state.tileY][state.tileY].Shadows[state.object] = newShadow
-
-						//p.ds1.NumberOfShadowLayers++
 					}
 
 					state.state = ds1EditorStateAddFloorShadow
