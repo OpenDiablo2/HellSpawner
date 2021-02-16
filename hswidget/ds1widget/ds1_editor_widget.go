@@ -1,4 +1,4 @@
-package hswidget
+package ds1widget
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
 const (
@@ -27,6 +28,7 @@ const (
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
 	trueFalseListW                       = 60
+	imageW, imageH                       = 32, 32
 )
 
 const (
@@ -132,7 +134,7 @@ func (t *DS1AddWallState) Dispose() {
 type DS1ViewerState struct {
 	*ds1Controls
 	state               ds1EditorState
-	confirmDialog       *PopUpConfirmDialog
+	confirmDialog       *hswidget.PopUpConfirmDialog
 	newFilePath         string
 	addObjectState      DS1AddObjectState
 	addPathState        DS1AddPathState
@@ -252,7 +254,7 @@ func (p *DS1Widget) makeDataLayout() giu.Layout {
 		giu.Line(
 			giu.Label("Version: "),
 			giu.InputInt("##"+p.id+"version", &version).Size(inputIntW).OnChange(func() {
-				state.confirmDialog = NewPopUpConfirmDialog(
+				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmVersionChange",
 					"Are you sure, you want to change DS1 Version?",
 					"This value is used while decoding and encoding ds1 file\n"+
@@ -1211,18 +1213,19 @@ func (p *DS1Widget) deleteShadow() {
 		state.state = ds1EditorStateViewer
 	}
 
-	state.confirmDialog = &PopUpConfirmDialog{
-		header: "Warning",
-		message: "non-shadow files aren't supported.\n" +
-			"If you'll delete shadow, and will not create\n" +
-			"a new one, the file will be destroyed and\n" +
-			"You will be unable to open it again.\n" +
+	state.confirmDialog = hswidget.NewPopUpConfirmDialog(
+		"##"+p.id+"removeShadowConfirm",
+		"Warning",
+		"non-shadow files aren't supported.\n"+
+			"If you'll delete shadow, and will not create\n"+
+			"a new one, the file will be destroyed and\n"+
+			"You will be unable to open it again.\n"+
 			"Continue?",
-		yCB: yesCB,
-		nCB: func() {
+		yesCB,
+		func() {
 			state.state = ds1EditorStateViewer
 		},
-	}
+	)
 	state.state = ds1EditorStateConfirm
 }
 

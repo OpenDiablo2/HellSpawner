@@ -14,7 +14,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/ds1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -62,7 +62,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.DS1Viewer(e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
+			ds1widget.DS1Viewer(e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
 		})
 }
 
