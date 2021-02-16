@@ -331,6 +331,7 @@ func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 		log.Fatal(err)
 	}
 
+	a.mpqExplorer.SetProject(a.project)
 	a.updateWindowTitle()
 	a.reloadAuxiliaryMPQs()
 }
