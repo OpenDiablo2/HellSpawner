@@ -49,8 +49,9 @@ type DC6ViewerWidget struct {
 // DC6Viewer creates new DC6ViewerWidget
 func DC6Viewer(textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) *DC6ViewerWidget {
 	result := &DC6ViewerWidget{
-		id:  id,
-		dc6: dc6,
+		id:            id,
+		dc6:           dc6,
+		textureLoader: textureLoader,
 	}
 
 	return result
