@@ -225,7 +225,7 @@ func (p *DS1Widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
 	tabs := giu.Layout{
-		giu.TabItem("Files").Layout(p.makeFilesLayout(state)),
+		giu.TabItem("Files").Layout(p.makeFilesLayout()),
 		giu.TabItem("Objects").Layout(p.makeObjectsLayout(state)),
 		giu.TabItem("Tiles").Layout(p.makeTilesLayout(state)),
 	}
@@ -281,7 +281,7 @@ func (p *DS1Widget) makeDataLayout() giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
+func (p *DS1Widget) makeFilesLayout() giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -455,6 +455,7 @@ func (p *DS1Widget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 
 func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
+	lastButtons := giu.Layout{}
 
 	if len(t.Floors) > 0 {
 		tabs = append(
@@ -464,22 +465,10 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 				giu.Separator(),
 				giu.Line(
 					giu.Button("Edit floor##"+p.id+"editFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						state.addFloorShadowState.cb = func() {
-							newFloor := p.createFloorShadowRecord()
-
-							p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
-						}
-						state.state = ds1EditorStateAddFloorShadow
+						p.editFloorRecord()
 					}),
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						state.addFloorShadowState.cb = func() {
-							newFloor := p.createFloorShadowRecord()
-
-							p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
-
-							p.ds1.NumberOfFloors++
-						}
-						state.state = ds1EditorStateAddFloorShadow
+						p.addFloor()
 					}),
 					hsutil.MakeImageButton(
 						"##"+p.id+"deleteFloor",
@@ -487,11 +476,15 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 						p.deleteButtonTexture,
 						func() {
 							p.deleteFloorRecord()
-							p.ds1.NumberOfFloors--
-							p.recreateLayerStreamTypes()
 						},
 					),
 				),
+			}),
+		)
+	} else {
+		lastButtons = append(lastButtons,
+			giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
+				p.addFloor()
 			}),
 		)
 	}
@@ -502,7 +495,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 			giu.TabItem("Walls").Layout(giu.Layout{
 				p.makeTileWallsLayout(state, t.Walls),
 				giu.Button("Edit wall##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-					state.addFloorShadowState.cb = func() {
+					state.addWallState.cb = func() {
 						newWall := p.createWallRecord()
 
 						p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
@@ -537,6 +530,14 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 
 	return giu.Layout{
 		giu.TabBar("##TabBar_ds1_tiles" + p.id).Layout(tabs),
+		giu.Custom(func() {
+			if len(lastButtons) > 0 {
+				giu.Layout{
+					giu.Separator(),
+					lastButtons,
+				}.Build()
+			}
+		}),
 	}
 }
 
@@ -841,18 +842,7 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 		giu.Separator(),
 		giu.Line(
 			giu.Button("Save##"+p.id+"AddPathSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				newPath := d2path.Path{
-					// nolint:gomnd // npc actions starts from 1
-					Action: int(state.addPathState.pathAction) + 1,
-					Position: d2vector.NewPosition(
-						float64(state.addPathState.pathX),
-						float64(state.addPathState.pathY),
-					),
-				}
-
-				p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
-
-				state.state = ds1EditorStateViewer
+				p.addPath()
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.state = ds1EditorStateViewer
@@ -957,21 +947,6 @@ func (p *DS1Widget) makeAddWallLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
-	state := p.getState()
-
-	newFloorShadowRecord := d2ds1.FloorShadowRecord{
-		Prop1:       byte(state.addFloorShadowState.prop1),
-		Sequence:    byte(state.addFloorShadowState.sequence),
-		Unknown1:    byte(state.addFloorShadowState.unknown1),
-		Style:       byte(state.addFloorShadowState.style),
-		Unknown2:    byte(state.addFloorShadowState.unknown2),
-		HiddenBytes: byte(state.addFloorShadowState.hidden),
-	}
-
-	return newFloorShadowRecord
-}
-
 func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
 	state := p.getState()
 
@@ -1001,6 +976,23 @@ func (p *DS1Widget) deleteFile(idx int) {
 	p.ds1.Files = newFiles
 }
 
+func (p *DS1Widget) addPath() {
+	state := p.getState()
+
+	newPath := d2path.Path{
+		// nolint:gomnd // npc actions starts from 1
+		Action: int(state.addPathState.pathAction) + 1,
+		Position: d2vector.NewPosition(
+			float64(state.addPathState.pathX),
+			float64(state.addPathState.pathY),
+		),
+	}
+
+	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
+
+	state.state = ds1EditorStateViewer
+}
+
 func (p *DS1Widget) deletePath(idx int) {
 	state := p.getState()
 
@@ -1015,24 +1007,76 @@ func (p *DS1Widget) deletePath(idx int) {
 	p.ds1.Objects[state.object].Paths = newPaths
 }
 
+func (p *DS1Widget) addFloor() {
+	state := p.getState()
+
+	state.addFloorShadowState.cb = func() {
+		newFloor := p.createFloorShadowRecord()
+
+		for y := range p.ds1.Tiles {
+			for x := range p.ds1.Tiles[y] {
+				p.ds1.Tiles[y][x].Floors = append(p.ds1.Tiles[y][x].Floors, newFloor)
+			}
+		}
+
+		p.ds1.NumberOfFloors++
+
+		p.recreateLayerStreamTypes()
+	}
+	state.state = ds1EditorStateAddFloorShadow
+}
+
+func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
+	state := p.getState()
+
+	newFloorShadowRecord := d2ds1.FloorShadowRecord{
+		Prop1:       byte(state.addFloorShadowState.prop1),
+		Sequence:    byte(state.addFloorShadowState.sequence),
+		Unknown1:    byte(state.addFloorShadowState.unknown1),
+		Style:       byte(state.addFloorShadowState.style),
+		Unknown2:    byte(state.addFloorShadowState.unknown2),
+		HiddenBytes: byte(state.addFloorShadowState.hidden),
+	}
+
+	return newFloorShadowRecord
+}
+
+func (p *DS1Widget) editFloorRecord() {
+	state := p.getState()
+
+	state.addFloorShadowState.cb = func() {
+		newFloor := p.createFloorShadowRecord()
+
+		p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
+	}
+	state.state = ds1EditorStateAddFloorShadow
+}
+
 func (p *DS1Widget) deleteFloorRecord() {
 	state := p.getState()
 
-	newFloors := make([]d2ds1.FloorShadowRecord, 0)
+	for y := range p.ds1.Tiles {
+		for x := range p.ds1.Tiles[y] {
+			newFloors := make([]d2ds1.FloorShadowRecord, 0)
 
-	for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
-		if n != int(state.object) {
-			newFloors = append(newFloors, i)
+			for n, i := range p.ds1.Tiles[y][x].Floors {
+				if n != int(state.object) {
+					newFloors = append(newFloors, i)
+				}
+			}
+
+			p.ds1.Tiles[y][x].Floors = newFloors
 		}
 	}
 
-	p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
-
+	p.ds1.NumberOfFloors--
+	p.recreateLayerStreamTypes()
 }
 
 // Warning: this is 1:1 copy from
 // github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1.(*DS1).setupLayerStreamType()
 // but this method is unexported for now, so...
+// see https://github.com/OpenDiablo2/OpenDiablo2/pull/1059
 func (p *DS1Widget) recreateLayerStreamTypes() {
 	var layerStream []d2enum.LayerStreamType
 
