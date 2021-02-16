@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
@@ -13,6 +12,8 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const (
@@ -291,15 +292,16 @@ func (p *DS1Widget) makeFilesLayout(_ *DS1ViewerState) giu.Layout {
 
 		l = append(l, giu.Layout{
 			giu.Line(
-				giu.ImageButton(p.deleteButtonTexture).Size(deleteButtonSize, deleteButtonSize).OnClick(func() {
-					p.deleteFile(currentIdx)
-				}),
+				hsutil.MakeImageButton(
+					"##"+p.id+"DeleteFile"+strconv.Itoa(currentIdx),
+					deleteButtonSize, deleteButtonSize,
+					p.deleteButtonTexture,
+					func() {
+						p.deleteFile(currentIdx)
+					},
+				),
 				giu.Label(str),
 			),
-			giu.Custom(func() {
-				imgui.PopID()
-				imgui.PushID("##" + p.id + "DeleteFile" + strconv.Itoa(currentIdx))
-			}),
 		})
 	}
 
@@ -393,17 +395,21 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 			giu.Label(fmt.Sprintf("%d", idx)),
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
-			giu.ImageButton(p.deleteButtonTexture).Size(deleteButtonSize, deleteButtonSize).OnClick(func() {
-				newPaths := make([]d2path.Path, 0)
+			hsutil.MakeImageButton("##"+p.id+"deletePath",
+				deleteButtonSize, deleteButtonSize,
+				p.deleteButtonTexture,
+				func() {
+					newPaths := make([]d2path.Path, 0)
 
-				for n, i := range p.ds1.Objects[state.object].Paths {
-					if n != currentIdx {
-						newPaths = append(newPaths, i)
+					for n, i := range p.ds1.Objects[state.object].Paths {
+						if n != currentIdx {
+							newPaths = append(newPaths, i)
+						}
 					}
-				}
 
-				p.ds1.Objects[state.object].Paths = newPaths
-			}),
+					p.ds1.Objects[state.object].Paths = newPaths
+				},
+			),
 		))
 	}
 
@@ -467,18 +473,9 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 				p.makeTileFloorsLayout(state, t.Floors),
 				giu.Separator(),
 				giu.Line(
-					// nolint:dupl // 'll reduce
 					giu.Button("Edit floor##"+p.id+"editFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 						state.addFloorShadowState.cb = func() {
-							newFloor := d2ds1.FloorShadowRecord{
-								Prop1:    byte(state.addFloorShadowState.prop1),
-								Sequence: byte(state.addFloorShadowState.sequence),
-								Unknown1: byte(state.addFloorShadowState.unknown1),
-								Style:    byte(state.addFloorShadowState.style),
-								Unknown2: byte(state.addFloorShadowState.unknown2),
-								// available after merging OpenDiablo2 #1057
-								// HiddenBytes: byte(state.addFloorShadowState.hidden),
-							}
+							newFloor := p.createFloorShadowRecord()
 
 							p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
 						}
@@ -486,15 +483,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 					}),
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 						state.addFloorShadowState.cb = func() {
-							newFloor := d2ds1.FloorShadowRecord{
-								Prop1:    byte(state.addFloorShadowState.prop1),
-								Sequence: byte(state.addFloorShadowState.sequence),
-								Unknown1: byte(state.addFloorShadowState.unknown1),
-								Style:    byte(state.addFloorShadowState.style),
-								Unknown2: byte(state.addFloorShadowState.unknown2),
-								// available after merging OpenDiablo2 #1057
-								// HiddenBytes: byte(state.addFloorShadowState.hidden),
-							}
+							newFloor := p.createFloorShadowRecord()
 
 							p.ds1.Tiles[state.tileY][state.tileY].Floors = append(p.ds1.Tiles[state.tileY][state.tileY].Floors, newFloor)
 
@@ -502,17 +491,22 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 						}
 						state.state = ds1EditorStateAddFloorShadow
 					}),
-					giu.ImageButton(p.deleteButtonTexture).Size(layerDeleteButtonSize, layerDeleteButtonSize).OnClick(func() {
-						newFloors := make([]d2ds1.FloorShadowRecord, 0)
-						for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
-							if n != int(state.object) {
-								newFloors = append(newFloors, i)
+					hsutil.MakeImageButton(
+						"##"+p.id+"deleteFloor",
+						layerDeleteButtonSize, layerDeleteButtonSize,
+						p.deleteButtonTexture,
+						func() {
+							newFloors := make([]d2ds1.FloorShadowRecord, 0)
+							for n, i := range p.ds1.Tiles[state.tileY][state.tileX].Floors {
+								if n != int(state.object) {
+									newFloors = append(newFloors, i)
+								}
 							}
-						}
 
-						p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
-						p.ds1.NumberOfFloors--
-					}),
+							p.ds1.Tiles[state.tileY][state.tileX].Floors = newFloors
+							p.ds1.NumberOfFloors--
+						},
+					),
 				),
 			}),
 		)
@@ -525,17 +519,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 				p.makeTileWallsLayout(state, t.Walls),
 				giu.Button("Edit wall##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.addFloorShadowState.cb = func() {
-						newWall := d2ds1.WallRecord{
-							Type:     d2enum.TileType(state.addWallState.tileType),
-							Zero:     byte(state.addWallState.zero),
-							Prop1:    byte(state.addWallState.prop1),
-							Sequence: byte(state.addWallState.sequence),
-							Unknown1: byte(state.addWallState.unknown1),
-							Style:    byte(state.addWallState.style),
-							Unknown2: byte(state.addWallState.unknown2),
-							// available after merging OpenDiablo2 #1057
-							// HiddenBytes: byte(state.addWallState.hidden),
-						}
+						newWall := p.createWallRecord()
 
 						p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
 					}
@@ -550,18 +534,9 @@ func (p *DS1Widget) makeTileLayout(state *DS1ViewerState, t *d2ds1.TileRecord) g
 			tabs,
 			giu.TabItem("Shadows").Layout(giu.Layout{
 				p.makeTileShadowsLayout(state, t.Shadows),
-				// nolint:dupl // will change
 				giu.Button("Edit shadow##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 					state.addFloorShadowState.cb = func() {
-						newShadow := d2ds1.FloorShadowRecord{
-							Prop1:    byte(state.addFloorShadowState.prop1),
-							Sequence: byte(state.addFloorShadowState.sequence),
-							Unknown1: byte(state.addFloorShadowState.unknown1),
-							Style:    byte(state.addFloorShadowState.style),
-							Unknown2: byte(state.addFloorShadowState.unknown2),
-							// available after merging OpenDiablo2 #1057
-							// HiddenBytes: byte(state.addFloorShadowState.hidden),
-						}
+						newShadow := p.createFloorShadowRecord()
 
 						p.ds1.Tiles[state.tileY][state.tileY].Shadows[state.object] = newShadow
 					}
@@ -995,6 +970,40 @@ func (p *DS1Widget) makeAddWallLayout() giu.Layout {
 		// this fields are constant for flor, shadow and wall
 		p.makeAddFloorShadowLayout(),
 	}
+}
+
+func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
+	state := p.getState()
+
+	newFloorShadowRecord := d2ds1.FloorShadowRecord{
+		Prop1:    byte(state.addFloorShadowState.prop1),
+		Sequence: byte(state.addFloorShadowState.sequence),
+		Unknown1: byte(state.addFloorShadowState.unknown1),
+		Style:    byte(state.addFloorShadowState.style),
+		Unknown2: byte(state.addFloorShadowState.unknown2),
+		// available after merging OpenDiablo2 #1057
+		// HiddenBytes: byte(state.addFloorShadowState.hidden),
+	}
+
+	return newFloorShadowRecord
+}
+
+func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
+	state := p.getState()
+
+	newWall := d2ds1.WallRecord{
+		Type:     d2enum.TileType(state.addWallState.tileType),
+		Zero:     byte(state.addWallState.zero),
+		Prop1:    byte(state.addWallState.prop1),
+		Sequence: byte(state.addWallState.sequence),
+		Unknown1: byte(state.addWallState.unknown1),
+		Style:    byte(state.addWallState.style),
+		Unknown2: byte(state.addWallState.unknown2),
+		// available after merging OpenDiablo2 #1057
+		// HiddenBytes: byte(state.addWallState.hidden),
+	}
+
+	return newWall
 }
 
 func (p *DS1Widget) deleteFile(idx int) {
