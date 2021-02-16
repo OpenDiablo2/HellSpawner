@@ -4,6 +4,18 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
+type ds1EditorMode int
+
+const (
+	ds1EditorModeViewer ds1EditorMode = iota
+	ds1EditorModeAddFile
+	ds1EditorModeAddObject
+	ds1EditorModeAddPath
+	ds1EditorModeAddFloorShadow
+	ds1EditorModeAddWall
+	ds1EditorModeConfirm
+)
+
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
@@ -78,7 +90,7 @@ func (t *DS1AddWallState) Dispose() {
 // DS1ViewerState represents ds1 viewers state
 type DS1ViewerState struct {
 	*ds1Controls
-	state               ds1EditorState
+	mode                ds1EditorMode
 	confirmDialog       *hswidget.PopUpConfirmDialog
 	newFilePath         string
 	addObjectState      DS1AddObjectState

@@ -35,18 +35,6 @@ const (
 	maxByteSize = 255
 )
 
-type ds1EditorState int
-
-const (
-	ds1EditorStateViewer ds1EditorState = iota
-	ds1EditorStateAddFile
-	ds1EditorStateAddObject
-	ds1EditorStateAddPath
-	ds1EditorStateAddFloorShadow
-	ds1EditorStateAddWall
-	ds1EditorStateConfirm
-)
-
 const (
 // gridMaxWidth    = 160
 // gridMaxHeight   = 80
@@ -109,20 +97,20 @@ func (p *DS1Widget) initState() {
 func (p *DS1Widget) Build() {
 	state := p.getState()
 
-	switch state.state {
-	case ds1EditorStateViewer:
+	switch state.mode {
+	case ds1EditorModeViewer:
 		p.makeViewerLayout().Build()
-	case ds1EditorStateAddFile:
+	case ds1EditorModeAddFile:
 		p.makeAddFileLayout().Build()
-	case ds1EditorStateAddObject:
+	case ds1EditorModeAddObject:
 		p.makeAddObjectLayout().Build()
-	case ds1EditorStateAddPath:
+	case ds1EditorModeAddPath:
 		p.makeAddPathLayout().Build()
-	case ds1EditorStateAddFloorShadow:
+	case ds1EditorModeAddFloorShadow:
 		p.makeAddFloorShadowLayout(&state.addFloorShadowState).Build()
-	case ds1EditorStateAddWall:
+	case ds1EditorModeAddWall:
 		p.makeAddWallLayout().Build()
-	case ds1EditorStateConfirm:
+	case ds1EditorModeConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
 			state.confirmDialog,
@@ -168,13 +156,13 @@ func (p *DS1Widget) makeDataLayout() giu.Layout {
 						"Continue?",
 					func() {
 						p.ds1.Version = version
-						state.state = ds1EditorStateViewer
+						state.mode = ds1EditorModeViewer
 					},
 					func() {
-						state.state = ds1EditorStateViewer
+						state.mode = ds1EditorModeViewer
 					},
 				)
-				state.state = ds1EditorStateConfirm
+				state.mode = ds1EditorModeConfirm
 			}),
 		),
 		giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
@@ -219,7 +207,7 @@ func (p *DS1Widget) makeFilesLayout() giu.Layout {
 		l,
 		giu.Separator(),
 		giu.Button("Add File##"+p.id+"AddFile").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.state = ds1EditorStateAddFile
+			state.mode = ds1EditorModeAddFile
 		}),
 	}
 }
@@ -245,10 +233,10 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 
 	l = append(l, giu.Separator(),
 		giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.state = ds1EditorStateAddObject
+			state.mode = ds1EditorModeAddObject
 		}),
 		giu.Button("Add new path...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.state = ds1EditorStateAddPath
+			state.mode = ds1EditorModeAddPath
 		}),
 	)
 
@@ -695,10 +683,10 @@ func (p *DS1Widget) makeAddFileLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 		),
 	}
@@ -741,10 +729,10 @@ func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 
 				p.ds1.Objects = append(p.ds1.Objects, newObject)
 
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 		),
 	}
@@ -780,7 +768,7 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 				p.addPath()
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 		),
 	}
@@ -849,10 +837,10 @@ func (p *DS1Widget) makeAddFloorShadowLayout(output *DS1AddFloorShadowState) giu
 		giu.Line(
 			giu.Button("Save##"+p.id+"AddFloorShadowSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				output.cb()
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddFloorShadowCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.state = ds1EditorStateViewer
+				state.mode = ds1EditorModeViewer
 			}),
 		),
 	}
@@ -913,7 +901,7 @@ func (p *DS1Widget) addPath() {
 
 	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
 
-	state.state = ds1EditorStateViewer
+	state.mode = ds1EditorModeViewer
 }
 
 func (p *DS1Widget) deletePath(idx int) {
@@ -947,7 +935,7 @@ func (p *DS1Widget) addFloor() {
 		p.recreateLayerStreamTypes()
 	}
 
-	state.state = ds1EditorStateAddFloorShadow
+	state.mode = ds1EditorModeAddFloorShadow
 }
 
 func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
@@ -973,7 +961,7 @@ func (p *DS1Widget) editFloorRecord() {
 
 		p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
 	}
-	state.state = ds1EditorStateAddFloorShadow
+	state.mode = ds1EditorModeAddFloorShadow
 }
 
 func (p *DS1Widget) deleteFloorRecord() {
@@ -1022,7 +1010,7 @@ func (p *DS1Widget) editWall() {
 
 		p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
 	}
-	state.state = ds1EditorStateAddWall
+	state.mode = ds1EditorModeAddWall
 }
 
 func (p *DS1Widget) addWall() {
@@ -1042,7 +1030,7 @@ func (p *DS1Widget) addWall() {
 		p.recreateLayerStreamTypes()
 	}
 
-	state.state = ds1EditorStateAddWall
+	state.mode = ds1EditorModeAddWall
 }
 
 func (p *DS1Widget) deleteWall() {
@@ -1088,7 +1076,7 @@ func (p *DS1Widget) addShadow() {
 	p.ds1.NumberOfShadowLayers++
 	p.recreateLayerStreamTypes()
 
-	state.state = ds1EditorStateAddFloorShadow
+	state.mode = ds1EditorModeAddFloorShadow
 }
 
 func (p *DS1Widget) editShadow() {
@@ -1099,7 +1087,7 @@ func (p *DS1Widget) editShadow() {
 		p.ds1.Tiles[state.tileY][state.tileY].Shadows[state.object] = newShadow
 	}
 
-	state.state = ds1EditorStateAddFloorShadow
+	state.mode = ds1EditorModeAddFloorShadow
 }
 
 func (p *DS1Widget) deleteShadow() {
@@ -1115,7 +1103,7 @@ func (p *DS1Widget) deleteShadow() {
 		p.ds1.NumberOfShadowLayers--
 		p.recreateLayerStreamTypes()
 
-		state.state = ds1EditorStateViewer
+		state.mode = ds1EditorModeViewer
 	}
 
 	state.confirmDialog = hswidget.NewPopUpConfirmDialog(
@@ -1128,10 +1116,10 @@ func (p *DS1Widget) deleteShadow() {
 			"Continue?",
 		yesCB,
 		func() {
-			state.state = ds1EditorStateViewer
+			state.mode = ds1EditorModeViewer
 		},
 	)
-	state.state = ds1EditorStateConfirm
+	state.mode = ds1EditorModeConfirm
 }
 
 // Warning: this is 1:1 copy from
