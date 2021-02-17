@@ -875,9 +875,9 @@ func (p *DS1Widget) makeAddWallLayout() giu.Layout {
 func (p *DS1Widget) deleteFile(idx int) {
 	newFiles := make([]string, 0)
 
-	for n, i := range p.ds1.Files {
+	for n, file := range p.ds1.Files {
 		if n != idx {
-			newFiles = append(newFiles, i)
+			newFiles = append(newFiles, file)
 		}
 	}
 
@@ -906,9 +906,9 @@ func (p *DS1Widget) deletePath(idx int) {
 
 	newPaths := make([]d2path.Path, 0)
 
-	for n, i := range p.ds1.Objects[state.object].Paths {
+	for n, path := range p.ds1.Objects[state.object].Paths {
 		if n != idx {
-			newPaths = append(newPaths, i)
+			newPaths = append(newPaths, path)
 		}
 	}
 

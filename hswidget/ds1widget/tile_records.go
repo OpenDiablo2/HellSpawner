@@ -77,9 +77,9 @@ func (p *DS1Widget) deleteFloorRecord() {
 		for x := range p.ds1.Tiles[y] {
 			newFloors := make([]d2ds1.FloorShadowRecord, 0)
 
-			for n, i := range p.ds1.Tiles[y][x].Floors {
+			for n, floor := range p.ds1.Tiles[y][x].Floors {
 				if n != int(state.object) {
-					newFloors = append(newFloors, i)
+					newFloors = append(newFloors, floor)
 				}
 			}
 
@@ -129,9 +129,9 @@ func (p *DS1Widget) deleteWall() {
 		for x := range p.ds1.Tiles[y] {
 			newWalls := make([]d2ds1.WallRecord, 0)
 
-			for n, i := range p.ds1.Tiles[y][x].Walls {
+			for n, wall := range p.ds1.Tiles[y][x].Walls {
 				if n != int(state.object) {
-					newWalls = append(newWalls, i)
+					newWalls = append(newWalls, wall)
 				}
 			}
 
