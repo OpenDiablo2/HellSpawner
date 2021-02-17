@@ -27,8 +27,8 @@ type ds1Controls struct {
 	}
 }
 
-// DS1AddObjectState represents state of new object
-type DS1AddObjectState struct {
+// ds1AddObjectState represents state of new object
+type ds1AddObjectState struct {
 	objType  int32
 	objID    int32
 	objX     int32
@@ -37,25 +37,25 @@ type DS1AddObjectState struct {
 }
 
 // Dispose clears state
-func (t *DS1AddObjectState) Dispose() {
+func (t *ds1AddObjectState) Dispose() {
 	// noop
 }
 
-// DS1AddPathState contains data about new path
-type DS1AddPathState struct {
+// ds1AddPathState contains data about new path
+type ds1AddPathState struct {
 	pathAction int32
 	pathX      int32
 	pathY      int32
 }
 
 // Dispose clears state
-func (t *DS1AddPathState) Dispose() {
+func (t *ds1AddPathState) Dispose() {
 	// noop
 }
 
-// DS1AddFloorShadowState contains data used in
+// ds1AddFloorShadowState contains data used in
 // add floor-shadow record dialog
-type DS1AddFloorShadowState struct {
+type ds1AddFloorShadowState struct {
 	prop1    int32
 	sequence int32
 	unknown1 int32
@@ -66,7 +66,7 @@ type DS1AddFloorShadowState struct {
 }
 
 // Dispose resets DS1AddFloorShadowState
-func (t DS1AddFloorShadowState) Dispose() {
+func (t ds1AddFloorShadowState) Dispose() {
 	t.prop1 = 0
 	t.sequence = 0
 	t.unknown1 = 0
@@ -75,16 +75,16 @@ func (t DS1AddFloorShadowState) Dispose() {
 	t.hidden = 0
 }
 
-// DS1AddWallState contains data used in add wall dialog
-type DS1AddWallState struct {
+// ds1AddWallState contains data used in add wall dialog
+type ds1AddWallState struct {
 	tileType int32
 	zero     int32
-	DS1AddFloorShadowState
+	ds1AddFloorShadowState
 }
 
 // Dispose cleans DS1AddWallState
-func (t *DS1AddWallState) Dispose() {
-	t.DS1AddFloorShadowState.Dispose()
+func (t *ds1AddWallState) Dispose() {
+	t.ds1AddFloorShadowState.Dispose()
 }
 
 // DS1State represents ds1 viewers state
@@ -93,10 +93,10 @@ type DS1State struct {
 	mode                ds1EditorMode
 	confirmDialog       *hswidget.PopUpConfirmDialog
 	newFilePath         string
-	addObjectState      DS1AddObjectState
-	addPathState        DS1AddPathState
-	addFloorShadowState DS1AddFloorShadowState
-	addWallState        DS1AddWallState
+	addObjectState      ds1AddObjectState
+	addPathState        ds1AddPathState
+	addFloorShadowState ds1AddFloorShadowState
+	addWallState        ds1AddWallState
 }
 
 // Dispose clears viewers state

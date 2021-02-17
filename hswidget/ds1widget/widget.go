@@ -84,8 +84,7 @@ func (p *DS1Widget) setState(s giu.Disposable) {
 
 func (p *DS1Widget) initState() {
 	state := &DS1State{
-		ds1Controls:    &ds1Controls{},
-		addObjectState: DS1AddObjectState{},
+		ds1Controls: &ds1Controls{},
 	}
 
 	p.setState(state)
@@ -777,7 +776,7 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 // second to in p.makeAddWallLayout, so we should specify, wher does
 // we want to save results (in DS1State.addFloorShadowState,
 // or in DS1State.addWallState)
-func (p *DS1Widget) makeAddFloorShadowLayout(output *DS1AddFloorShadowState) giu.Layout {
+func (p *DS1Widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.Layout {
 	state := p.getState()
 
 	trueFalseList := []string{"false", "true"}
@@ -869,7 +868,7 @@ func (p *DS1Widget) makeAddWallLayout() giu.Layout {
 			}),
 		),
 		// this fields are constant for flor, shadow and wall
-		p.makeAddFloorShadowLayout(&state.addWallState.DS1AddFloorShadowState),
+		p.makeAddFloorShadowLayout(&state.addWallState.ds1AddFloorShadowState),
 	}
 }
 
