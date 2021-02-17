@@ -99,10 +99,6 @@ func (e *FontTableEditor) Build() {
 		Layout(tableLayout)
 }
 
-/*func (e *FontTableEditor) makeGlyphLayout(glyph interface {
-	FrameIndex() int
-	Size() (int, int)
-}) *g.RowWidget {*/
 func (e *FontTableEditor) makeGlyphLayout(r rune) *g.RowWidget {
 	if e.fontTable.Glyphs[r] == nil {
 		return &g.RowWidget{}
