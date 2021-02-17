@@ -2,17 +2,17 @@
 package hsfonttableeditor
 
 import (
-	"encoding/binary"
 	"fmt"
 	"sort"
 
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -20,50 +20,28 @@ const (
 	mainWindowW, mainWindowH = 400, 300
 )
 
-type fontTable map[rune]*fontGlyph
-
-type fontGlyph struct {
-	rune
-	frameIndex int
-	width      int
-}
-
 // static check, to ensure, if font table editor implemented editoWindow
 var _ hscommon.EditorWindow = &FontTableEditor{}
 
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor
-	fontTable
-	rows g.Rows
+	fontTable *d2font.Font
+	rows      g.Rows
 }
 
 // Create creates a new font table editor
 func Create(_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
-	glyphs := make(fontTable)
-
-	table := *data
-
-	const (
-		numHeaderBytes = 12
-		bytesPerGlyph  = 14
-	)
-
-	for i := numHeaderBytes; i < len(table); i += bytesPerGlyph {
-		chr := rune(binary.LittleEndian.Uint16(table[i : i+2]))
-
-		glyphs[chr] = &fontGlyph{
-			rune:       chr,
-			frameIndex: int(binary.LittleEndian.Uint16(table[i+8 : i+10])),
-			width:      int(table[i+3]),
-		}
+	table, err := d2font.Load(*data)
+	if err != nil {
+		return nil, err
 	}
 
 	editor := &FontTableEditor{
 		Editor:    hseditor.New(pathEntry, x, y, project),
-		fontTable: glyphs,
+		fontTable: table,
 	}
 
 	return editor, nil
@@ -78,22 +56,25 @@ func (e *FontTableEditor) init() {
 		g.Label("Width (px)"),
 	))
 
-	// so that we can sort the glyphs
-	glyphs := make([]*fontGlyph, len(e.fontTable))
+	// we need to get keys from map[rune]*d2font.fontGlyph
+	// and then sort them
+	chars := make([]rune, len(e.fontTable.Glyphs))
 
+	// reading runes from map
 	idx := 0
 
-	for _, glyph := range e.fontTable {
-		glyphs[idx] = glyph
+	for r := range e.fontTable.Glyphs {
+		chars[idx] = r
 		idx++
 	}
 
-	sort.Slice(glyphs, func(i, j int) bool {
-		return glyphs[i].frameIndex < glyphs[j].frameIndex
+	// sorting runes
+	sort.Slice(chars, func(i, j int) bool {
+		return e.fontTable.Glyphs[chars[i]].FrameIndex() < e.fontTable.Glyphs[chars[j]].FrameIndex()
 	})
 
-	for idx := range glyphs {
-		e.rows = append(e.rows, e.makeGlyphLayout(glyphs[idx]))
+	for _, idx := range chars {
+		e.rows = append(e.rows, e.makeGlyphLayout(idx))
 	}
 }
 
@@ -118,15 +99,21 @@ func (e *FontTableEditor) Build() {
 		Layout(tableLayout)
 }
 
-func (e *FontTableEditor) makeGlyphLayout(glyph *fontGlyph) *g.RowWidget {
-	if glyph == nil {
+/*func (e *FontTableEditor) makeGlyphLayout(glyph interface {
+	FrameIndex() int
+	Size() (int, int)
+}) *g.RowWidget {*/
+func (e *FontTableEditor) makeGlyphLayout(r rune) *g.RowWidget {
+	if e.fontTable.Glyphs[r] == nil {
 		return &g.RowWidget{}
 	}
 
+	w, _ := e.fontTable.Glyphs[r].Size()
+
 	row := g.Row(
-		g.Label(fmt.Sprintf("%d", glyph.frameIndex)),
-		g.Label(string(glyph.rune)),
-		g.Label(fmt.Sprintf("%d", glyph.width)),
+		g.Label(fmt.Sprintf("%d", e.fontTable.Glyphs[r].FrameIndex())),
+		g.Label(string(r)),
+		g.Label(fmt.Sprintf("%d", w)),
 	)
 
 	return row
