@@ -7,30 +7,27 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
-	//"github.com/OpenDiablo2/HellSpawner/hscommon"
-	//"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const (
-	inputIntW = 25
+	inputIntW    = 25
+	delW, delH   = 50, 30
+	upW, upH     = 30, 30
+	downW, downH = 40, 30
 )
-
-/*const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
-)*/
 
 type textures struct {
 	up, down, del *giu.Texture
 }
 
+// FontTableWidget represents a font table widget
 type FontTableWidget struct {
 	fontTable *d2font.Font
 	id        string
 	textures
 }
 
+// Create creates a new FontTable widget
 func Create(
 	up, down, del *giu.Texture,
 	id string, fontTable *d2font.Font,
@@ -43,33 +40,19 @@ func Create(
 		},
 	}
 
-	/*textureLoader.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *giu.Texture) {
-		result.textures.del = texture
-	})
-
-	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *giu.Texture) {
-		result.textures.up = texture
-	})
-
-	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *giu.Texture) {
-		fmt.Println(texture)
-		result.textures.down = texture
-	})*/
-
 	return result
 }
 
+// Build builds a widget
 func (p *FontTableWidget) Build() {
-	giu.Layout(giu.Layout{
-		p.makeTableLayout(),
-	}).Build()
+	p.makeTableLayout().Build()
 }
 
 func (p *FontTableWidget) makeTableLayout() giu.Layout {
 	rows := make(giu.Rows, 0)
 
 	rows = append(rows, giu.Row(
-		giu.Label("Actions"),
+		giu.Label("Delete"),
 		giu.Label("Index"),
 		giu.Label("Character"),
 		giu.Label("Width (px)"),
@@ -110,19 +93,24 @@ func (p *FontTableWidget) makeGlyphLayout(r rune) *giu.RowWidget {
 
 	w, _ := p.fontTable.Glyphs[r].Size()
 	width32 := int32(w)
+
 	row := giu.Row(
 		giu.Line(
-			/*hsutil.MakeImageButton(
-				"##"+p.id+"delete"+string(r),
-				15, 15,
-				p.textures.del,
-				func() {},
-			),*/
-			giu.ImageButton(p.textures.del).Size(15, 15).OnClick(func() { p.deleteRow(r) }),
-			giu.ImageButton(p.textures.up).Size(15, 15).OnClick(func() {}),
-			giu.ImageButton(p.textures.down).Size(15, 15).OnClick(func() {}),
+			// in fact, it should be ImageButton, but this shit doesn't work
+			// (imgui.PushID returns panic) :-/
+			giu.Button("del##"+p.id+"deleteFrame"+string(r)).Size(delW, delH).OnClick(func() {
+				p.deleteRow(r)
+			}),
 		),
-		giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
+		giu.Line(
+			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
+			giu.Button("up##"+p.id+"upItem"+string(r)).Size(upW, upH).OnClick(func() {
+				p.itemUp(r)
+			}),
+			giu.Button("down##"+p.id+"upItem"+string(r)).Size(downW, downH).OnClick(func() {
+				p.itemDown(r)
+			}),
+		),
 		giu.Label(string(r)),
 		giu.InputInt("##"+p.id+"width"+string(r), &width32).Size(inputIntW).OnChange(func() {
 			_, h := p.fontTable.Glyphs[r].Size()
@@ -135,4 +123,46 @@ func (p *FontTableWidget) makeGlyphLayout(r rune) *giu.RowWidget {
 
 func (p *FontTableWidget) deleteRow(r rune) {
 	delete(p.fontTable.Glyphs, r)
+}
+
+func (p *FontTableWidget) itemUp(r rune) {
+	// currentFrame is frame index of 'r'
+	currentFrame := p.fontTable.Glyphs[r].FrameIndex()
+
+	// checks if above current index (r) is another one
+	for cr, i := range p.fontTable.Glyphs {
+		if i.FrameIndex() == currentFrame-1 {
+			// if above current index ('r') is another one,
+			// this above row gets down
+			p.fontTable.Glyphs[cr].SetFrameIndex(
+				p.fontTable.Glyphs[cr].FrameIndex() + 1,
+			)
+
+			break
+		}
+	}
+
+	// current row's frame count gets up
+	p.fontTable.Glyphs[r].SetFrameIndex(
+		p.fontTable.Glyphs[r].FrameIndex() - 1,
+	)
+}
+
+// itemDown does the sam as itemUp
+func (p *FontTableWidget) itemDown(r rune) {
+	currentFrame := p.fontTable.Glyphs[r].FrameIndex()
+
+	for cr, i := range p.fontTable.Glyphs {
+		if i.FrameIndex() == currentFrame+1 {
+			p.fontTable.Glyphs[cr].SetFrameIndex(
+				p.fontTable.Glyphs[cr].FrameIndex() - 1,
+			)
+
+			break
+		}
+	}
+
+	p.fontTable.Glyphs[r].SetFrameIndex(
+		p.fontTable.Glyphs[r].FrameIndex() + 1,
+	)
 }

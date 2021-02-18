@@ -15,8 +15,7 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 400, 300
-	inputIntW                = 25
+	mainWindowW, mainWindowH = 500, 400
 )
 
 const (
