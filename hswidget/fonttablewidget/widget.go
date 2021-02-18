@@ -20,8 +20,8 @@ type textures struct {
 	up, down, del *giu.Texture
 }
 
-// FontTableWidget represents a font table widget
-type FontTableWidget struct {
+// widget represents a font table widget
+type widget struct {
 	fontTable *d2font.Font
 	id        string
 	textures
@@ -31,8 +31,8 @@ type FontTableWidget struct {
 func Create(
 	up, down, del *giu.Texture,
 	id string, fontTable *d2font.Font,
-) *FontTableWidget {
-	result := &FontTableWidget{
+) *widget {
+	result := &widget{
 		fontTable: fontTable,
 		id:        id,
 		textures: textures{
@@ -44,7 +44,7 @@ func Create(
 }
 
 // Build builds a widget
-func (p *FontTableWidget) Build() {
+func (p *widget) Build() {
 	state := p.getState()
 
 	switch state.mode {
@@ -55,7 +55,7 @@ func (p *FontTableWidget) Build() {
 	}
 }
 
-func (p *FontTableWidget) makeTableLayout() giu.Layout {
+func (p *widget) makeTableLayout() giu.Layout {
 	rows := make(giu.Rows, 0)
 
 	rows = append(rows, giu.Row(
@@ -93,7 +93,7 @@ func (p *FontTableWidget) makeTableLayout() giu.Layout {
 	}
 }
 
-func (p *FontTableWidget) makeGlyphLayout(r rune) *giu.RowWidget {
+func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 	if p.fontTable.Glyphs[r] == nil {
 		return &giu.RowWidget{}
 	}
@@ -128,11 +128,11 @@ func (p *FontTableWidget) makeGlyphLayout(r rune) *giu.RowWidget {
 	return row
 }
 
-func (p *FontTableWidget) deleteRow(r rune) {
+func (p *widget) deleteRow(r rune) {
 	delete(p.fontTable.Glyphs, r)
 }
 
-func (p *FontTableWidget) itemUp(r rune) {
+func (p *widget) itemUp(r rune) {
 	// currentFrame is frame index of 'r'
 	currentFrame := p.fontTable.Glyphs[r].FrameIndex()
 
@@ -156,7 +156,7 @@ func (p *FontTableWidget) itemUp(r rune) {
 }
 
 // itemDown does the sam as itemUp
-func (p *FontTableWidget) itemDown(r rune) {
+func (p *widget) itemDown(r rune) {
 	currentFrame := p.fontTable.Glyphs[r].FrameIndex()
 
 	for cr, i := range p.fontTable.Glyphs {
@@ -174,6 +174,6 @@ func (p *FontTableWidget) itemDown(r rune) {
 	)
 }
 
-func (p *FontTableEditorWidget) makeEditRuneLayout() giu.Layout {
+func (p *widget) makeEditRuneLayout() giu.Layout {
 	return giu.Layout{}
 }

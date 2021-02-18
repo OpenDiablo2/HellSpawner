@@ -22,11 +22,11 @@ func (s *widgetState) Dispose() {
 	// noop
 }
 
-func (p *FontTableWidget) getStateID() string {
+func (p *widget) getStateID() string {
 	return fmt.Sprintf("COFWidget_%s", p.id)
 }
 
-func (p *FontTableWidget) getState() *widgetState {
+func (p *widget) getState() *widgetState {
 	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
@@ -42,12 +42,12 @@ func (p *FontTableWidget) getState() *widgetState {
 
 }
 
-func (p *FontTableWidget) initState() {
+func (p *widget) initState() {
 	p.setState(&widgetState{
 		mode: fontTableWidgetViewer,
 	})
 }
 
-func (p *FontTableWidget) setState(s giu.Disposable) {
+func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
