@@ -31,7 +31,7 @@ type widget struct {
 func Create(
 	up, down, del *giu.Texture,
 	id string, fontTable *d2font.Font,
-) *widget {
+) giu.Widget {
 	result := &widget{
 		fontTable: fontTable,
 		id:        id,

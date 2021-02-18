@@ -39,7 +39,6 @@ func (p *widget) getState() *widgetState {
 	}
 
 	return state
-
 }
 
 func (p *widget) initState() {
