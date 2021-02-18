@@ -45,7 +45,14 @@ func Create(
 
 // Build builds a widget
 func (p *FontTableWidget) Build() {
-	p.makeTableLayout().Build()
+	state := p.getState()
+
+	switch state.mode {
+	case fontTableWidgetViewer:
+		p.makeTableLayout().Build()
+	case fontTableWidgetEditRune:
+		p.makeEditRuneLayout().Build()
+	}
 }
 
 func (p *FontTableWidget) makeTableLayout() giu.Layout {
@@ -165,4 +172,8 @@ func (p *FontTableWidget) itemDown(r rune) {
 	p.fontTable.Glyphs[r].SetFrameIndex(
 		p.fontTable.Glyphs[r].FrameIndex() + 1,
 	)
+}
+
+func (p *FontTableEditorWidget) makeEditRuneLayout() giu.Layout {
+	return giu.Layout{}
 }

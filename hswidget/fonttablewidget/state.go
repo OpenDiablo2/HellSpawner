@@ -10,6 +10,7 @@ type fontTableWidgetMode int
 
 const (
 	fontTableWidgetViewer fontTableWidgetMode = iota
+	fontTableWidgetEditRune
 )
 
 type widgetState struct {
