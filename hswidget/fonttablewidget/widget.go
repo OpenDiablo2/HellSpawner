@@ -199,12 +199,13 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 	state := p.getState()
 
 	r := string(state.editRune.editedRune)
+
 	return giu.Layout{
 		giu.Label("Edit rune:"),
 		giu.Line(
 			giu.Label("Rune: "),
 			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
-				state.editRune.editedRune = int32(rune(r[0]))
+				state.editRune.editedRune = int32(r[0])
 			}),
 		),
 		giu.Line(
@@ -214,7 +215,7 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 		giu.Separator(),
 		giu.Line(
 			giu.Button("Save##"+p.id+"editRuneSave").Size(saveCancelW, saveCancelH).OnClick(func() {
-				_, exist := p.fontTable.Glyphs[rune(state.editRune.editedRune)]
+				_, exist := p.fontTable.Glyphs[state.editRune.editedRune]
 				if !exist {
 					p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
 					delete(p.fontTable.Glyphs, state.editRune.startRune)
