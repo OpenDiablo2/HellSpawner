@@ -6,14 +6,19 @@ import (
 
 	"github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/dialog"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 )
 
 const (
-	inputIntW    = 25
-	delW, delH   = 50, 30
-	upW, upH     = 30, 30
-	downW, downH = 40, 30
+	inputIntW                = 30
+	delW, delH               = 50, 30
+	upW, upH                 = 30, 30
+	downW, downH             = 40, 30
+	addW, addH               = 400, 30
+	editRuneW, editRuneH     = 50, 30
+	saveCancelW, saveCancelH = 80, 30
 )
 
 type textures struct {
@@ -52,10 +57,14 @@ func (p *widget) Build() {
 		p.makeTableLayout().Build()
 	case fontTableWidgetEditRune:
 		p.makeEditRuneLayout().Build()
+	case fontTableWidgetAddItem:
+		p.makeAddItemLayout().Build()
 	}
 }
 
 func (p *widget) makeTableLayout() giu.Layout {
+	state := p.getState()
+
 	rows := make(giu.Rows, 0)
 
 	rows = append(rows, giu.Row(
@@ -89,11 +98,17 @@ func (p *widget) makeTableLayout() giu.Layout {
 	return giu.Layout{
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
+			giu.Separator(),
+			giu.Button("add##"+p.id+"addItem").Size(addW, addH).OnClick(func() {
+				state.mode = fontTableWidgetAddItem
+			}),
 		}),
 	}
 }
 
 func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
+	state := p.getState()
+
 	if p.fontTable.Glyphs[r] == nil {
 		return &giu.RowWidget{}
 	}
@@ -118,7 +133,13 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 				p.itemDown(r)
 			}),
 		),
-		giu.Label(string(r)),
+		giu.Line(
+			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
+				state.editRune.startRune = r
+				state.mode = fontTableWidgetEditRune
+			}),
+			giu.Label(string(r)),
+		),
 		giu.InputInt("##"+p.id+"width"+string(r), &width32).Size(inputIntW).OnChange(func() {
 			_, h := p.fontTable.Glyphs[r].Size()
 			p.fontTable.Glyphs[r].SetSize(int(width32), h)
@@ -175,5 +196,41 @@ func (p *widget) itemDown(r rune) {
 }
 
 func (p *widget) makeEditRuneLayout() giu.Layout {
+	state := p.getState()
+
+	r := string(state.editRune.editedRune)
+	return giu.Layout{
+		giu.Label("Edit rune:"),
+		giu.Line(
+			giu.Label("Rune: "),
+			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
+				state.editRune.editedRune = int32(rune(r[0]))
+			}),
+		),
+		giu.Line(
+			giu.Label("Int: "),
+			giu.InputInt("##"+p.id+"editRuneInt", &state.editRune.editedRune).Size(inputIntW),
+		),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Save##"+p.id+"editRuneSave").Size(saveCancelW, saveCancelH).OnClick(func() {
+				_, exist := p.fontTable.Glyphs[rune(state.editRune.editedRune)]
+				if !exist {
+					p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
+					delete(p.fontTable.Glyphs, state.editRune.startRune)
+				} else {
+					dialog.Message("only one rune of one type is possible").Error()
+				}
+
+				state.mode = fontTableWidgetViewer
+			}),
+			giu.Button("Cancel##"+p.id+"editRuneSave").Size(saveCancelW, saveCancelH).OnClick(func() {
+				state.mode = fontTableWidgetViewer
+			}),
+		),
+	}
+}
+
+func (p *widget) makeAddItemLayout() giu.Layout {
 	return giu.Layout{}
 }

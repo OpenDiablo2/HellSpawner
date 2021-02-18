@@ -9,17 +9,33 @@ import (
 type fontTableWidgetMode int
 
 const (
+	// viewer state
 	fontTableWidgetViewer fontTableWidgetMode = iota
+	// edit rune
 	fontTableWidgetEditRune
+	// opens a dialog and adds a new item on first free index
+	fontTableWidgetAddItem
 )
 
 type widgetState struct {
-	mode fontTableWidgetMode
+	mode     fontTableWidgetMode
+	editRune editRune
 }
 
 // Dispose cleans state
 func (s *widgetState) Dispose() {
-	// noop
+	s.editRune.Dispose()
+}
+
+type editRune struct {
+	editedRune int32
+	startRune  rune
+}
+
+// Dispose disposes a rune state
+func (e *editRune) Dispose() {
+	e.editedRune = rune(0)
+	e.startRune = rune(0)
 }
 
 func (p *widget) getStateID() string {
