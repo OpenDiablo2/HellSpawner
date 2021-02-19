@@ -96,7 +96,6 @@ func (p *widget) makeTableLayout() giu.Layout {
 		rows = append(rows, p.makeGlyphLayout(idx))
 	}
 
-	_ = state
 	return giu.Layout{
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
@@ -238,7 +237,9 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 	state := p.getState()
 
 	firstFreeIndex := 0
+
 	usedIndexes := make([]int, 0)
+
 	for _, i := range p.fontTable.Glyphs {
 		usedIndexes = append(usedIndexes, i.FrameIndex())
 	}
@@ -285,17 +286,17 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 					state.mode = fontTableWidgetViewer
 				})
 
-				_, exist := p.fontTable.Glyphs[rune(state.addItem.newRune.editedRune)]
+				_, exist := p.fontTable.Glyphs[state.addItem.newRune.editedRune]
 				if !exist {
 					giu.Line(
 						giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
 							newGlyph := d2fontglyph.Create(
-								int(firstFreeIndex),
+								firstFreeIndex,
 								int(state.addItem.width),
 								int(state.addItem.height),
 							)
 
-							p.fontTable.Glyphs[rune(state.addItem.newRune.editedRune)] = newGlyph
+							p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
 							state.mode = fontTableWidgetViewer
 						}),
 						cancel,
