@@ -574,24 +574,28 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 }
 
 func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
-	isOther := tile.MaterialFlags.Other
-	isWater := tile.MaterialFlags.Water
-	isWoodObject := tile.MaterialFlags.WoodObject
-	isInsideStone := tile.MaterialFlags.InsideStone
-	isOutsideStone := tile.MaterialFlags.OutsideStone
-	isDirt := tile.MaterialFlags.Dirt
-	isSand := tile.MaterialFlags.Sand
-	isWood := tile.MaterialFlags.Wood
-	isLava := tile.MaterialFlags.Lava
-	isSnow := tile.MaterialFlags.Snow
-
 	return giu.Layout{
 		giu.Label("Material Flags"),
-		giu.Line(giu.Checkbox("Other", &isOther), giu.Checkbox("Water", &isWater)),
-		giu.Line(giu.Checkbox("WoodObject", &isWoodObject), giu.Checkbox("InsideStone", &isInsideStone)),
-		giu.Line(giu.Checkbox("OutsideStone", &isOutsideStone), giu.Checkbox("Dirt", &isDirt)),
-		giu.Line(giu.Checkbox("Sand", &isSand), giu.Checkbox("Wood", &isWood)),
-		giu.Line(giu.Checkbox("Lava", &isLava), giu.Checkbox("Snow", &isSnow)),
+		giu.Line(
+			giu.Checkbox("Other", &tile.MaterialFlags.Other),
+			giu.Checkbox("Water", &tile.MaterialFlags.Water),
+		),
+		giu.Line(
+			giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
+			giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),
+		),
+		giu.Line(
+			giu.Checkbox("OutsideStone", &tile.MaterialFlags.OutsideStone),
+			giu.Checkbox("Dirt", &tile.MaterialFlags.Dirt),
+		),
+		giu.Line(
+			giu.Checkbox("Sand", &tile.MaterialFlags.Sand),
+			giu.Checkbox("Wood", &tile.MaterialFlags.Wood),
+		),
+		giu.Line(
+			giu.Checkbox("Lava", &tile.MaterialFlags.Lava),
+			giu.Checkbox("Snow", &tile.MaterialFlags.Snow),
+		),
 	}
 }
 
