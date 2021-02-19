@@ -6,8 +6,6 @@ import (
 
 	"github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/dialog"
-
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
 )
@@ -73,6 +71,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 		giu.Label("Index"),
 		giu.Label("Character"),
 		giu.Label("Width (px)"),
+		giu.Label("Height (px)"),
 	))
 
 	// we need to get keys from map[rune]*d2font.fontGlyph
@@ -117,6 +116,9 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 	w := p.fontTable.Glyphs[r].Width()
 	width32 := int32(w)
 
+	h := p.fontTable.Glyphs[r].Height()
+	height32 := int32(h)
+
 	row := giu.Row(
 		giu.Line(
 			// in fact, it should be ImageButton, but this shit doesn't work
@@ -137,13 +139,18 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 		giu.Line(
 			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
 				state.editRune.startRune = r
+				state.editRune.editedRune = r
 				state.mode = fontTableWidgetEditRune
 			}),
 			giu.Label(string(r)),
 		),
 		giu.InputInt("##"+p.id+"width"+string(r), &width32).Size(inputIntW).OnChange(func() {
-			_, h := p.fontTable.Glyphs[r].Size()
+			h := p.fontTable.Glyphs[r].Height()
 			p.fontTable.Glyphs[r].SetSize(int(width32), h)
+		}),
+		giu.InputInt("##"+p.id+"height"+string(r), &height32).Size(inputIntW).OnChange(func() {
+			w := p.fontTable.Glyphs[r].Width()
+			p.fontTable.Glyphs[r].SetSize(w, int(height32))
 		}),
 	)
 
@@ -215,20 +222,12 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 		),
 		giu.Separator(),
 		giu.Line(
-			giu.Button("Save##"+p.id+"editRuneSave").Size(saveCancelW, saveCancelH).OnClick(func() {
-				_, exist := p.fontTable.Glyphs[state.editRune.editedRune]
-				if !exist {
-					p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
-					delete(p.fontTable.Glyphs, state.editRune.startRune)
-				} else {
-					dialog.Message("only one rune of one type is possible").Error()
-				}
+			p.makeSaveCancelLine(func() {
+				p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
+				p.deleteRow(state.editRune.startRune)
 
 				state.mode = fontTableWidgetViewer
-			}),
-			giu.Button("Cancel##"+p.id+"editRuneSave").Size(saveCancelW, saveCancelH).OnClick(func() {
-				state.mode = fontTableWidgetViewer
-			}),
+			}, state.editRune.editedRune),
 		),
 	}
 }
@@ -239,7 +238,7 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 
 	// first free index determinates a first frame index, when
 	// we can place our new item
-	firstFreeIndex := 0
+	firstFreeIndex := -1
 
 	// frame indexes, which are already taken
 	usedIndexes := make([]int, 0)
@@ -261,6 +260,11 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 
 			break
 		}
+	}
+
+	// if no free indexes found, then set to next index
+	if firstFreeIndex == -1 {
+		firstFreeIndex = len(usedIndexes)
 	}
 
 	r := string(state.addItem.newRune.editedRune)
@@ -297,29 +301,9 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		),
 		giu.Separator(),
 		giu.Line(
-			// this giant custom function allows us to
-			// check if letter entered by user already exists in map
-			// end depending on it, build save and cancel buttons
-			// or cancel only
-			giu.Custom(func() {
-				cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
-					state.mode = fontTableWidgetViewer
-				})
-
-				_, exist := p.fontTable.Glyphs[state.addItem.newRune.editedRune]
-				if exist {
-					cancel.Build()
-
-					return
-				}
-
-				giu.Line(
-					giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
-						p.addItem(firstFreeIndex)
-					}),
-					cancel,
-				).Build()
-			}),
+			p.makeSaveCancelLine(func() {
+				p.addItem(firstFreeIndex)
+			}, state.addItem.newRune.editedRune),
 		),
 	}
 }
@@ -335,4 +319,33 @@ func (p *widget) addItem(idx int) {
 
 	p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
 	state.mode = fontTableWidgetViewer
+}
+
+// this giant custom function allows us to
+// check if letter entered by user already exists in map
+// end depending on it, build save and cancel buttons
+// or cancel only
+func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
+	state := p.getState()
+	return giu.Layout{
+		giu.Custom(func() {
+			cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
+				state.mode = fontTableWidgetViewer
+			})
+
+			_, exist := p.fontTable.Glyphs[r]
+			if exist {
+				cancel.Build()
+
+				return
+			}
+
+			giu.Line(
+				giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
+					saveCB()
+				}),
+				cancel,
+			).Build()
+		}),
+	}
 }

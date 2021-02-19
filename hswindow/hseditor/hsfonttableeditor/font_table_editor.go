@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 500, 400
+	mainWindowW, mainWindowH = 550, 400
 )
 
 const (
