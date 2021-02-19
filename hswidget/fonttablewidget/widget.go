@@ -327,6 +327,7 @@ func (p *widget) addItem(idx int) {
 // or cancel only
 func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
 	state := p.getState()
+
 	return giu.Layout{
 		giu.Custom(func() {
 			cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
