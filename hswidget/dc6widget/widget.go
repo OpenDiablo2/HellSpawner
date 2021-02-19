@@ -24,7 +24,7 @@ type widget struct {
 	textureLoader *hscommon.TextureLoader
 }
 
-// DC6Viewer creates new widget
+// Create creates new widget
 func Create(textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
 	result := &widget{
 		id:            id,
@@ -39,6 +39,7 @@ func Create(textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) gi
 func (p *widget) Build() {
 	state := p.getState()
 
+	// nolint:gocritic // that's for now, will be more cases
 	switch state.mode {
 	case dc6WidgetViewer:
 		p.makeViewerLayout().Build()
@@ -83,8 +84,10 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	}
 
 	var widget *giu.ImageWidget
+
 	w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
 	h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
+
 	if viewerState.texture == nil {
 		widget = giu.Image(nil).Size(w, h)
 	} else {

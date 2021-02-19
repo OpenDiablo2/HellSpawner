@@ -20,6 +20,12 @@ type widgetState struct {
 	mode dc6WidgetMode
 }
 
+func (w *widgetState) Dispose() {
+	w.viewerState.Dispose()
+	w.mode = dc6WidgetViewer
+}
+
+// nolint:structcheck // :-/ linter bug?! thes values are deffinitly used
 type viewerState struct {
 	controls struct {
 		direction int32
@@ -35,7 +41,7 @@ type viewerState struct {
 }
 
 // Dispose cleans state content
-func (is *widgetState) Dispose() {
+func (is *viewerState) Dispose() {
 	is.texture = nil
 }
 
