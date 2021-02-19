@@ -3,14 +3,6 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037/go.mod h1:H6x//7
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjsvq1Bi7DpoUjqI76VVvW045vpeFeM=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217074531-6043ca531f22 h1:gjW7v9NmvzmRH774upcYQWSNKh6s8proKOplxcZLXG4=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217074531-6043ca531f22/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217103502-e9c9786af1b3 h1:76Eq8UAC3xvkYNTOFVQ9OJgsu9amP9nnioPANV5Twdw=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217103502-e9c9786af1b3/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210218202307-99c7d49510fa h1:Q9s+3bK1K3iaBJsUpq3VlyGqwIs3RVT9QCOR8gfhamE=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210218202307-99c7d49510fa/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210219071837-30fb02bc1002 h1:Z7RVCRKCQJAiWcHC47zlF39jlEccgBEcivEhKxNQGh4=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210219071837-30fb02bc1002/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210219091100-318e4ac7e22c h1:8Dhjzj2eb1ou61ifDX2rE4rxtOfR/zuqKoaylxSmSw0=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210219091100-318e4ac7e22c/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
