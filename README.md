@@ -55,7 +55,7 @@ then clicking on `Edit in settings.json`. Just paste that section where appropri
 
 ## Status
 
-For now (january 2021) we can use HellSpawner to:
+For now (february 2021) we can use HellSpawner to:
 
 * create projects
 
@@ -76,6 +76,10 @@ For now (january 2021) we can use HellSpawner to:
   - TBL - string tables
 
   - PL2 - palettes
+
+* edit:
+
+  - COF animations
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
 
