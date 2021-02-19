@@ -233,11 +233,15 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 	}
 }
 
+// adds new item on the first free position (frame index)
 func (p *widget) makeAddItemLayout() giu.Layout {
 	state := p.getState()
 
+	// first free index determinates a first frame index, when
+	// we can place our new item
 	firstFreeIndex := 0
 
+	// frame indexes, which are already taken
 	usedIndexes := make([]int, 0)
 
 	for _, i := range p.fontTable.Glyphs {
@@ -247,6 +251,11 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 	sort.Ints(usedIndexes)
 
 	for index, used := range usedIndexes {
+		// simple condition:
+		// if index != used, it means that for example
+		// used indexes are [0, 2, 3], so
+		// index in list is 1, but usedIndexes[1] is 2, so
+		// frame 1 is free
 		if index != used {
 			firstFreeIndex = index
 
@@ -262,7 +271,15 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Rune: "),
+			// if user put here more then one letter,
+			// second and further letters will be skipped
 			giu.InputText("##"+p.id+"addItemRune", &r).Size(inputIntW).OnChange(func() {
+				if r == "" {
+					state.addItem.newRune.editedRune = 0
+
+					return
+				}
+
 				state.addItem.newRune.editedRune = int32(r[0])
 			}),
 		),
@@ -280,31 +297,42 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		),
 		giu.Separator(),
 		giu.Line(
-			// this allows as to click save, only, when rune doesn't exist in map
+			// this giant custom function allows us to
+			// check if letter entered by user already exists in map
+			// end depending on it, build save and cancel buttons
+			// or cancel only
 			giu.Custom(func() {
 				cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
 					state.mode = fontTableWidgetViewer
 				})
 
 				_, exist := p.fontTable.Glyphs[state.addItem.newRune.editedRune]
-				if !exist {
-					giu.Line(
-						giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
-							newGlyph := d2fontglyph.Create(
-								firstFreeIndex,
-								int(state.addItem.width),
-								int(state.addItem.height),
-							)
-
-							p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
-							state.mode = fontTableWidgetViewer
-						}),
-						cancel,
-					).Build()
-				} else {
+				if exist {
 					cancel.Build()
+
+					return
 				}
+
+				giu.Line(
+					giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
+						p.addItem(firstFreeIndex)
+					}),
+					cancel,
+				).Build()
 			}),
 		),
 	}
+}
+
+func (p *widget) addItem(idx int) {
+	state := p.getState()
+
+	newGlyph := d2fontglyph.Create(
+		idx,
+		int(state.addItem.width),
+		int(state.addItem.height),
+	)
+
+	p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
+	state.mode = fontTableWidgetViewer
 }

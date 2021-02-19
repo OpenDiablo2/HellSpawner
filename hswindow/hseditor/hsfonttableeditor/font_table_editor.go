@@ -30,8 +30,7 @@ var _ hscommon.EditorWindow = &FontTableEditor{}
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor
-	fontTable     *d2font.Font
-	textureLoader *hscommon.TextureLoader
+	fontTable *d2font.Font
 	textures
 }
 
@@ -51,9 +50,8 @@ func Create(tl *hscommon.TextureLoader,
 	}
 
 	result := &FontTableEditor{
-		Editor:        hseditor.New(pathEntry, x, y, project),
-		fontTable:     table,
-		textureLoader: tl,
+		Editor:    hseditor.New(pathEntry, x, y, project),
+		fontTable: table,
 	}
 
 	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
