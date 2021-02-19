@@ -7,6 +7,8 @@ github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217074531-6043ca531f22 h1:gjW7v9N
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217074531-6043ca531f22/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217103502-e9c9786af1b3 h1:76Eq8UAC3xvkYNTOFVQ9OJgsu9amP9nnioPANV5Twdw=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210217103502-e9c9786af1b3/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210218202307-99c7d49510fa h1:Q9s+3bK1K3iaBJsUpq3VlyGqwIs3RVT9QCOR8gfhamE=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210218202307-99c7d49510fa/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=

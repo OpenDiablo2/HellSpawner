@@ -9,6 +9,7 @@ import (
 	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
 )
 
 const (
@@ -95,6 +96,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 		rows = append(rows, p.makeGlyphLayout(idx))
 	}
 
+	_ = state
 	return giu.Layout{
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
@@ -113,7 +115,7 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 		return &giu.RowWidget{}
 	}
 
-	w, _ := p.fontTable.Glyphs[r].Size()
+	w := p.fontTable.Glyphs[r].Width()
 	width32 := int32(w)
 
 	row := giu.Row(
@@ -233,5 +235,75 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 }
 
 func (p *widget) makeAddItemLayout() giu.Layout {
-	return giu.Layout{}
+	state := p.getState()
+
+	firstFreeIndex := 0
+	usedIndexes := make([]int, 0)
+	for _, i := range p.fontTable.Glyphs {
+		usedIndexes = append(usedIndexes, i.FrameIndex())
+	}
+
+	sort.Ints(usedIndexes)
+
+	for index, used := range usedIndexes {
+		if index != used {
+			firstFreeIndex = index
+
+			break
+		}
+	}
+
+	r := string(state.addItem.newRune.editedRune)
+
+	return giu.Layout{
+		giu.Line(
+			giu.Label(fmt.Sprintf("Frame index: %d", firstFreeIndex)),
+		),
+		giu.Line(
+			giu.Label("Rune: "),
+			giu.InputText("##"+p.id+"addItemRune", &r).Size(inputIntW).OnChange(func() {
+				state.editRune.editedRune = int32(r[0])
+			}),
+		),
+		giu.Line(
+			giu.Label("Int: "),
+			giu.InputInt("##"+p.id+"addItemRuneInt", &state.addItem.newRune.editedRune).Size(inputIntW),
+		),
+		giu.Line(
+			giu.Label("Width: "),
+			giu.InputInt("##"+p.id+"addItemWidth", &state.addItem.width).Size(inputIntW),
+		),
+		giu.Line(
+			giu.Label("Height: "),
+			giu.InputInt("##"+p.id+"addItemHeight", &state.addItem.height).Size(inputIntW),
+		),
+		giu.Separator(),
+		giu.Line(
+			// this allows as to click save, only, when rune doesn't exist in map
+			giu.Custom(func() {
+				cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
+					state.mode = fontTableWidgetViewer
+				})
+
+				_, exist := p.fontTable.Glyphs[rune(state.addItem.newRune.editedRune)]
+				if !exist {
+					giu.Line(
+						giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
+							newGlyph := d2fontglyph.Create(
+								int(firstFreeIndex),
+								int(state.addItem.width),
+								int(state.addItem.height),
+							)
+
+							p.fontTable.Glyphs[rune(state.addItem.newRune.editedRune)] = newGlyph
+							state.mode = fontTableWidgetViewer
+						}),
+						cancel,
+					).Build()
+				} else {
+					cancel.Build()
+				}
+			}),
+		),
+	}
 }
