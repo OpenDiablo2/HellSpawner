@@ -11,7 +11,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -21,8 +21,8 @@ var _ hscommon.EditorWindow = &DT1Editor{}
 // DT1Editor represents a dt1 editor
 type DT1Editor struct {
 	*hseditor.Editor
-	dt1       *d2dt1.DT1
-	dt1Viewer *hswidget.DT1ViewerWidget
+	dt1           *d2dt1.DT1
+	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates new dt1 editor
@@ -35,9 +35,9 @@ func Create(textureLoader *hscommon.TextureLoader,
 	}
 
 	result := &DT1Editor{
-		Editor:    hseditor.New(pathEntry, x, y, project),
-		dt1:       dt1,
-		dt1Viewer: hswidget.DT1Viewer(textureLoader, pathEntry.GetUniqueID(), dt1),
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		dt1:           dt1,
+		textureLoader: textureLoader,
 	}
 
 	return result, nil
@@ -48,7 +48,7 @@ func (e *DT1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			e.dt1Viewer,
+			dt1widget.DT1Viewer(e.textureLoader, e.Path.GetUniqueID(), e.dt1),
 		})
 }
 
@@ -71,15 +71,17 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // RegisterKeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
-	// right arrow goes to the next tile group
-	inputManager.RegisterShortcut(func() {
-		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)
-	}, g.KeyRight, g.ModNone, false)
+	/*
+		// right arrow goes to the next tile group
+		inputManager.RegisterShortcut(func() {
+			e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)
+		}, g.KeyRight, g.ModNone, false)
 
-	// left arrow goes to the previous tile group
-	inputManager.RegisterShortcut(func() {
-		e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
-	}, g.KeyLeft, g.ModNone, false)
+		// left arrow goes to the previous tile group
+		inputManager.RegisterShortcut(func() {
+			e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
+		}, g.KeyLeft, g.ModNone, false)
+	*/
 }
 
 // GenerateSaveData generates data to be saved

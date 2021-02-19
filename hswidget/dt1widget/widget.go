@@ -1,4 +1,4 @@
-package hswidget
+package dt1widget
 
 import (
 	"fmt"
@@ -21,6 +21,7 @@ const (
 	gridDivisionsXY = 5
 	subtileHeight   = gridMaxHeight / gridDivisionsXY
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
+	imageW, imageH  = 32, 32
 )
 
 type dt1Controls struct {
