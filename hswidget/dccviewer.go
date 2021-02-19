@@ -13,6 +13,10 @@ import (
 )
 
 const (
+	maxAlpha = uint8(255)
+)
+
+const (
 	imageW, imageH = 32, 32
 )
 
