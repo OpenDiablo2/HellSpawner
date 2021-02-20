@@ -93,7 +93,7 @@ func getFlagFromPos(x, y int) int {
 	return subtileLookup[y][x]
 }
 
-func (p *DT1ViewerWidget) getSubTileFieldToEdit(idx int) *bool {
+func (p *widget) getSubTileFieldToEdit(idx int) *bool {
 	state := p.getState()
 
 	tileIdx := state.tileGroup

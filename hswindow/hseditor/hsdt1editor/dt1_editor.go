@@ -48,7 +48,7 @@ func (e *DT1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			dt1widget.DT1Viewer(e.textureLoader, e.Path.GetUniqueID(), e.dt1),
+			dt1widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.dt1),
 		})
 }
 

@@ -25,37 +25,6 @@ const (
 	imageW, imageH  = 32, 32
 )
 
-type dt1Controls struct {
-	tileGroup   int32
-	tileVariant int32
-	// nolint:unused,structcheck // will be used
-	tileType int32
-	// nolint:unused,structcheck // will be used
-	tileStyle int32
-	// nolint:unused,structcheck // will be used
-	tileSequence int32
-	showGrid     bool
-	showFloor    bool
-	showWall     bool
-	subtileFlag  int32
-	scale        int32
-}
-
-// widgetState represents dt1 viewers state
-type widgetState struct {
-	*dt1Controls
-
-	lastTileGroup int32
-
-	tileGroups [][]*d2dt1.Tile
-	textures   [][]map[string]*giu.Texture
-}
-
-// Dispose clears viewers state
-func (is *widgetState) Dispose() {
-	is.textures = nil
-}
-
 type tileIdentity string
 
 func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
@@ -63,16 +32,16 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 	return tileIdentity(str)
 }
 
-// DT1ViewerWidget represents dt1 viewers widget
-type DT1ViewerWidget struct {
+// widget represents dt1 viewers widget
+type widget struct {
 	id            string
 	dt1           *d2dt1.DT1
 	textureLoader *hscommon.TextureLoader
 }
 
-// DT1Viewer creates a new dt1 viewers widget
-func DT1Viewer(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) *DT1ViewerWidget {
-	result := &DT1ViewerWidget{
+// Create creates a new dt1 viewers widget
+func Create(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
+	result := &widget{
 		id:            id,
 		dt1:           dt1,
 		textureLoader: textureLoader,
@@ -83,49 +52,12 @@ func DT1Viewer(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1)
 	return result
 }
 
-func (p *DT1ViewerWidget) registerKeyboardShortcuts() {
+func (p *widget) registerKeyboardShortcuts() {
 	// noop
 }
 
-func (p *DT1ViewerWidget) getStateID() string {
-	return fmt.Sprintf("DT1ViewerWidget_%s", p.id)
-}
-
-func (p *DT1ViewerWidget) getState() *widgetState {
-	var state *widgetState
-
-	s := giu.Context.GetState(p.getStateID())
-
-	if s != nil {
-		state = s.(*widgetState)
-	} else {
-		p.initState()
-		p.makeTileTextures()
-		state = p.getState()
-	}
-
-	return state
-}
-
-func (p *DT1ViewerWidget) setState(s giu.Disposable) {
-	giu.Context.SetState(p.getStateID(), s)
-}
-
-func (p *DT1ViewerWidget) initState() {
-	state := &widgetState{
-		dt1Controls: &dt1Controls{
-			showGrid:  true,
-			showFloor: true,
-			showWall:  true,
-		},
-		tileGroups: p.groupTilesByIdentity(),
-	}
-
-	p.setState(state)
-}
-
 // Build builds a viewer
-func (p *DT1ViewerWidget) Build() {
+func (p *widget) Build() {
 	state := p.getState()
 
 	if state.lastTileGroup != state.dt1Controls.tileGroup {
@@ -149,7 +81,7 @@ func (p *DT1ViewerWidget) Build() {
 	}.Build()
 }
 
-func (p *DT1ViewerWidget) groupTilesByIdentity() [][]*d2dt1.Tile {
+func (p *widget) groupTilesByIdentity() [][]*d2dt1.Tile {
 	result := make([][]*d2dt1.Tile, 0)
 
 	var tileID, groupID tileIdentity
@@ -174,7 +106,7 @@ OUTER:
 	return result
 }
 
-func (p *DT1ViewerWidget) makeTileTextures() {
+func (p *widget) makeTileTextures() {
 	state := p.getState()
 	textureGroups := make([][]map[string]*giu.Texture, len(state.tileGroups))
 
@@ -226,7 +158,7 @@ func rangeByte(b byte, min, max float64) byte {
 	return byte((float64(b)/255*(max-min) + min) * 255)
 }
 
-func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
+func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 	tw, th := int(tile.Width), int(tile.Height)
 	if th < 0 {
 		th *= -1
@@ -288,7 +220,7 @@ func (p *DT1ViewerWidget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf [
 	return floorBuf, wallBuf
 }
 
-func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
+func (p *widget) makeTileSelector() giu.Layout {
 	state := p.getState()
 
 	if state.lastTileGroup != state.dt1Controls.tileGroup {
@@ -314,7 +246,7 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 }
 
 // nolint:funlen,gocognit,gocyclo // no need to change
-func (p *DT1ViewerWidget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layout {
+func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
 	// nolint:gocritic // could be useful
@@ -457,7 +389,7 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) 
 	return &layout
 }
 
-func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
+func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	var tileTypeImage *giu.ImageWithFileWidget
 
 	strType := hsenum.GetTileTypeString(tile.Type)
@@ -511,7 +443,7 @@ func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	}
 }
 
-func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
+func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
 		giu.Line(
@@ -538,13 +470,13 @@ func (p *DT1ViewerWidget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 }
 
 // TileGroup returns current tile group
-func (p *DT1ViewerWidget) TileGroup() int32 {
+func (p *widget) TileGroup() int32 {
 	state := p.getState()
 	return state.tileGroup
 }
 
 // SetTileGroup sets current tile group
-func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
+func (p *widget) SetTileGroup(tileGroup int32) {
 	state := p.getState()
 	if int(tileGroup) > len(state.tileGroups) {
 		tileGroup = int32(len(state.tileGroups))
@@ -555,7 +487,7 @@ func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	state.tileGroup = tileGroup
 }
 
-func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
+func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
 	if tile.Height < 0 {
 		tile.Height *= -1
 	}
@@ -586,7 +518,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile)
 	}
 }
 
-func (p *DT1ViewerWidget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.Layout {
+func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
@@ -674,80 +606,5 @@ func (p *DT1ViewerWidget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetStat
 				canvas.AddLine(p1, p2, c, 1)
 			}
 		}),
-	}
-}
-
-// this is copied from `OpenDiablo2/d2common/d2fileformats/d2dt1`,
-// we want to render the isometric (floor) and rle (wall) pixel buffers separately
-func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	for i := range blocks {
-		switch blocks[i].Format() {
-		case d2dt1.BlockFormatIsometric:
-			decodeFloorBlock(&blocks[i], floorPixBuf, tileYOffset, tileWidth)
-		case d2dt1.BlockFormatRLE:
-			decodeWallBlock(&blocks[i], wallPixBuf, tileYOffset, tileWidth)
-		}
-	}
-}
-
-// nolint:gomnd // 3D isometric decoding
-func decodeFloorBlock(block *d2dt1.Block, floorPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	xjump := []int32{14, 12, 10, 8, 6, 4, 2, 0, 2, 4, 6, 8, 10, 12, 14}
-	nbpix := []int32{4, 8, 12, 16, 20, 24, 28, 32, 28, 24, 20, 16, 12, 8, 4}
-	blockX := int32(block.X)
-	blockY := int32(block.Y)
-	length := int32(256)
-	x := int32(0)
-	y := int32(0)
-	idx := 0
-
-	for length > 0 {
-		x = xjump[y]
-		n := nbpix[y]
-		length -= n
-
-		for n > 0 {
-			offset := ((blockY + y + tileYOffset) * tileWidth) + (blockX + x)
-			(*floorPixBuf)[offset] = block.EncodedData[idx]
-			x++
-			n--
-			idx++
-		}
-		y++
-	}
-}
-
-func decodeWallBlock(block *d2dt1.Block, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
-	// RLE Encoding
-	blockX := int32(block.X)
-	blockY := int32(block.Y)
-	x := int32(0)
-	y := int32(0)
-	idx := 0
-	length := block.Length
-
-	for length > 0 {
-		b1 := block.EncodedData[idx]
-		b2 := block.EncodedData[idx+1]
-		idx += 2
-		length -= 2
-
-		if (b1 | b2) == 0 {
-			x = 0
-			y++
-
-			continue
-		}
-
-		x += int32(b1)
-		length -= int32(b2)
-
-		for b2 > 0 {
-			offset := ((blockY + y + tileYOffset) * tileWidth) + (blockX + x)
-			(*wallPixBuf)[offset] = block.EncodedData[idx]
-			idx++
-			x++
-			b2--
-		}
 	}
 }
