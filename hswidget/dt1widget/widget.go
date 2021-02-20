@@ -565,12 +565,12 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile)
 		giu.Label(subtileFlag(1 << state.dt1Controls.subtileFlag).String()),
 		giu.Label("Edit:"),
 		giu.Custom(func() {
-			for y := 0; y < 5; y++ {
+			for y := 0; y < gridDivisionsXY; y++ {
 				layout := giu.Layout{}
-				for x := 0; x < 5; x++ {
+				for x := 0; x < gridDivisionsXY; x++ {
 					layout = append(layout,
-						giu.Checkbox("##"+strconv.Itoa(y*5+x),
-							p.getSubTileFieldToEdit(y+x*5),
+						giu.Checkbox("##"+strconv.Itoa(y*gridDivisionsXY+x),
+							p.getSubTileFieldToEdit(y+x*gridDivisionsXY),
 						),
 					)
 				}
@@ -580,6 +580,14 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile)
 		}),
 		giu.Dummy(0, 4),
 		giu.Label("Preview:"),
+		p.makeSubTilePreview(tile, state),
+
+		giu.Dummy(gridMaxWidth, gridMaxHeight),
+	}
+}
+
+func (p *DT1ViewerWidget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.Layout {
+	return giu.Layout{
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
 			pos := giu.GetCursorScreenPos()
@@ -630,7 +638,7 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile)
 					}
 
 					// nolint:gomnd // constant
-					flag := subtileFlag(0).from(tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)])
+					flag := tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)].Encode()
 
 					hasFlag := (flag & (1 << state.dt1Controls.subtileFlag)) > 0
 
@@ -666,8 +674,6 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile)
 				canvas.AddLine(p1, p2, c, 1)
 			}
 		}),
-
-		giu.Dummy(gridMaxWidth, gridMaxHeight),
 	}
 }
 

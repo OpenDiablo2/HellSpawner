@@ -1,14 +1,17 @@
 package dt1widget
 
-import (
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+const (
+	subTileFlagBlockWalk = iota
+	subTileFlagBlockLOS
+	subTileFlagBlockJump
+	subTileFlagBlockPlayerWalk
+	subTileFlagUnknown1
+	subTileFlagBlockLight
+	subTileFlagUnknown2
+	subTileFlagUnknown3
 )
 
 type subtileFlag byte
-
-func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
-	return subtileFlag((*d2dt1.SubTileFlags).Encode(&flags))
-}
 
 func (f subtileFlag) String() string {
 	lookup := map[subtileFlag]string{
@@ -96,21 +99,21 @@ func (p *DT1ViewerWidget) getSubTileFieldToEdit(idx int) *bool {
 	tileIdx := state.tileGroup
 
 	switch state.subtileFlag {
-	case 0:
+	case subTileFlagBlockWalk:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockWalk
-	case 1:
+	case subTileFlagBlockLOS:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockLOS
-	case 2:
+	case subTileFlagBlockJump:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockJump
-	case 3:
+	case subTileFlagBlockPlayerWalk:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockPlayerWalk
-	case 4:
+	case subTileFlagUnknown1:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].Unknown1
-	case 5:
+	case subTileFlagBlockLight:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockLight
-	case 6:
+	case subTileFlagUnknown2:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].Unknown2
-	case 7:
+	case subTileFlagUnknown3:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].Unknown3
 	}
 
