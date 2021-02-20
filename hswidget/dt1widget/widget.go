@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"strconv"
 
 	"github.com/ianling/giu"
 
@@ -40,8 +41,8 @@ type dt1Controls struct {
 	scale        int32
 }
 
-// DT1ViewerState represents dt1 viewers state
-type DT1ViewerState struct {
+// widgetState represents dt1 viewers state
+type widgetState struct {
 	*dt1Controls
 
 	lastTileGroup int32
@@ -51,7 +52,7 @@ type DT1ViewerState struct {
 }
 
 // Dispose clears viewers state
-func (is *DT1ViewerState) Dispose() {
+func (is *widgetState) Dispose() {
 	is.textures = nil
 }
 
@@ -90,13 +91,13 @@ func (p *DT1ViewerWidget) getStateID() string {
 	return fmt.Sprintf("DT1ViewerWidget_%s", p.id)
 }
 
-func (p *DT1ViewerWidget) getState() *DT1ViewerState {
-	var state *DT1ViewerState
+func (p *DT1ViewerWidget) getState() *widgetState {
+	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*DT1ViewerState)
+		state = s.(*widgetState)
 	} else {
 		p.initState()
 		p.makeTileTextures()
@@ -111,7 +112,7 @@ func (p *DT1ViewerWidget) setState(s giu.Disposable) {
 }
 
 func (p *DT1ViewerWidget) initState() {
-	state := &DT1ViewerState{
+	state := &widgetState{
 		dt1Controls: &dt1Controls{
 			showGrid:  true,
 			showFloor: true,
@@ -313,7 +314,7 @@ func (p *DT1ViewerWidget) makeTileSelector() giu.Layout {
 }
 
 // nolint:funlen,gocognit,gocyclo // no need to change
-func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Tile) *giu.Layout {
+func (p *DT1ViewerWidget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
 	// nolint:gocritic // could be useful
@@ -456,73 +457,10 @@ func (p *DT1ViewerWidget) makeTileDisplay(state *DT1ViewerState, tile *d2dt1.Til
 	return &layout
 }
 
-// nolint:gocyclo // can't reduce
-func getTileTypeString(t int32) string {
-	switch t {
-	case hsenum.TileFloor:
-		return "floor"
-	case hsenum.TileSpecialTile1, hsenum.TileSpecialTile2:
-		return "special"
-	case hsenum.TileShadow:
-		return "shadow"
-	case hsenum.TileTree:
-		return "wall/object"
-	case hsenum.TileRoof:
-		return "roof"
-	case hsenum.TileLeftWall:
-		return "Left Wall"
-	case hsenum.TileRightWall:
-		return "Upper Wall"
-	case hsenum.TileRightPartOfNorthCornerWall:
-		return "Upper part of an Upper-Left corner"
-	case hsenum.TileLeftPartOfNorthCornerWall:
-		return "Left part of an Upper-Left corner"
-	case hsenum.TileLeftEndWall:
-		return "Upper-Right corner"
-	case hsenum.TileRightEndWall:
-		return "Lower-Left corner"
-	case hsenum.TileSouthCornerWall:
-		return "Lower-Right corner"
-	case hsenum.TileLeftWallWithDoor:
-		return "Left Wall with Door object, but not always"
-	case hsenum.TileRightWallWithDoor:
-		return "Upper Wall with Door object, but not always"
-	default:
-		return "lower wall ?"
-	}
-}
-
-func getTileTypeImage(t int32) string {
-	switch t {
-	case hsenum.TileFloor:
-		return "floor.png"
-	case hsenum.TileLeftWall:
-		return "wall_west.png"
-	case hsenum.TileRightWall:
-		return "wall_north.png"
-	case hsenum.TileRightPartOfNorthCornerWall:
-		return "corner_upper_north.png"
-	case hsenum.TileLeftPartOfNorthCornerWall:
-		return "corner_upper_west.png"
-	case hsenum.TileLeftEndWall:
-		return "corner_upper_east.png"
-	case hsenum.TileRightEndWall:
-		return "corner_lower_south.png"
-	case hsenum.TileSouthCornerWall:
-		return "corner_lower_east.png"
-	case hsenum.TileLeftWallWithDoor:
-		return "door_west.png"
-	case hsenum.TileRightWallWithDoor:
-		return "door_north.png"
-	default:
-		return ""
-	}
-}
-
 func (p *DT1ViewerWidget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	var tileTypeImage *giu.ImageWithFileWidget
 
-	strType := getTileTypeString(tile.Type)
+	strType := hsenum.GetTileTypeString(tile.Type)
 
 	tileImageFile := getTileTypeImage(tile.Type)
 
@@ -617,132 +555,7 @@ func (p *DT1ViewerWidget) SetTileGroup(tileGroup int32) {
 	state.tileGroup = tileGroup
 }
 
-type subtileFlag byte
-
-func (f subtileFlag) from(flags d2dt1.SubTileFlags) subtileFlag {
-	if flags.BlockWalk {
-		f |= 1 << 0
-	}
-
-	if flags.BlockLOS {
-		f |= 1 << 1
-	}
-
-	if flags.BlockJump {
-		// nolint:gomnd // const
-		f |= 1 << 2
-	}
-
-	if flags.BlockPlayerWalk {
-		// nolint:gomnd // const
-		f |= 1 << 3
-	}
-
-	if flags.Unknown1 {
-		// nolint:gomnd // const
-		f |= 1 << 4
-	}
-
-	if flags.BlockLight {
-		// nolint:gomnd // const
-		f |= 1 << 5
-	}
-
-	if flags.Unknown2 {
-		// nolint:gomnd // const
-		f |= 1 << 6
-	}
-
-	if flags.Unknown3 {
-		// nolint:gomnd // const
-		f |= 1 << 7
-	}
-
-	return f
-}
-
-// String returns current subtiles name
-func (f subtileFlag) String() string {
-	lookup := map[subtileFlag]string{
-		1 << 0: "block walk",
-		1 << 1: "block light and line of sight",
-		1 << 2: "block jump/teleport",
-		1 << 3: "block player walk, allow merc walk",
-		1 << 4: "unknown #4",
-		1 << 5: "block light only",
-		1 << 6: "unknown #6",
-		1 << 7: "unknown #7",
-	}
-
-	str, found := lookup[f]
-	if !found {
-		return "undefined"
-	}
-
-	return str
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockWalk() bool {
-	// nolint:gomnd // const
-	return ((f >> 0) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockLightAndLOS() bool {
-	// nolint:gomnd // const
-	return ((f >> 1) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockJumpAndTeleport() bool {
-	// nolint:gomnd // const
-	return ((f >> 2) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockPlayerAllowMercWalk() bool {
-	// nolint:gomnd // const
-	return ((f >> 3) & 0b1) > 0
-}
-
-// nolint:unused // I suppose, it will be used
-func (f subtileFlag) unknown4() bool {
-	// nolint:gomnd // const
-	return ((f >> 4) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockLightOnly() bool {
-	// nolint:gomnd // const
-	return ((f >> 5) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) unknown6() bool {
-	// nolint:gomnd // const
-	return ((f >> 6) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) unknown7() bool {
-	// nolint:gomnd // const
-	return ((f >> 7) & 0b1) > 0
-}
-
-func getFlagFromPos(x, y int) int {
-	var subtileLookup = [5][5]int{
-		{20, 21, 22, 23, 24},
-		{15, 16, 17, 18, 19},
-		{10, 11, 12, 13, 14},
-		{5, 6, 7, 8, 9},
-		{0, 1, 2, 3, 4},
-	}
-
-	return subtileLookup[y][x]
-}
-
-func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Tile) giu.Layout {
+func (p *DT1ViewerWidget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
 	if tile.Height < 0 {
 		tile.Height *= -1
 	}
@@ -750,7 +563,23 @@ func (p *DT1ViewerWidget) makeSubtileFlags(state *DT1ViewerState, tile *d2dt1.Ti
 	return giu.Layout{
 		giu.SliderInt("Subtile Type", &state.dt1Controls.subtileFlag, 0, 7),
 		giu.Label(subtileFlag(1 << state.dt1Controls.subtileFlag).String()),
+		giu.Label("Edit:"),
+		giu.Custom(func() {
+			for y := 0; y < 5; y++ {
+				layout := giu.Layout{}
+				for x := 0; x < 5; x++ {
+					layout = append(layout,
+						giu.Checkbox("##"+strconv.Itoa(y*5+x),
+							p.getSubTileFieldToEdit(y+x*5),
+						),
+					)
+				}
+
+				giu.Line(layout...).Build()
+			}
+		}),
 		giu.Dummy(0, 4),
+		giu.Label("Preview:"),
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
 			pos := giu.GetCursorScreenPos()
