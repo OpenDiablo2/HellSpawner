@@ -17,6 +17,10 @@ import (
 )
 
 const (
+	inputIntW = 30
+)
+
+const (
 	gridMaxWidth    = 160
 	gridMaxHeight   = 80
 	gridDivisionsXY = 5
@@ -414,6 +418,8 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		h *= -1
 	}
 
+	roofHeight := int32(tile.RoofHeight)
+
 	return giu.Layout{
 		giu.Label(fmt.Sprintf("%d x %d pixels", int(w), int(h))),
 		giu.Dummy(1, 4),
@@ -421,19 +427,33 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		giu.Label(fmt.Sprintf("Direction: %d", int(tile.Direction))),
 		giu.Dummy(1, 4),
 
-		giu.Label(fmt.Sprintf("RoofHeight: %d", int(tile.RoofHeight))),
+		giu.Line(
+			giu.Label("RoofHeight:"),
+			giu.InputInt("##"+p.id+"roofHeight", &roofHeight).Size(inputIntW).OnChange(func() {
+				tile.RoofHeight = int16(roofHeight)
+			}),
+		),
 		giu.Dummy(1, 4),
 
 		tileTypeInfo,
 		giu.Dummy(1, 4),
 
-		giu.Label(fmt.Sprintf("Style: %d", int(tile.Style))),
+		giu.Line(
+			giu.Label("Style:"),
+			giu.InputInt("##"+p.id+"style", &tile.Style).Size(inputIntW),
+		),
 		giu.Dummy(1, 4),
 
-		giu.Label(fmt.Sprintf("Sequence: %d", int(tile.Sequence))),
+		giu.Line(
+			giu.Label("Sequence:"),
+			giu.InputInt("##"+p.id+"sequence", &tile.Sequence).Size(inputIntW),
+		),
 		giu.Dummy(1, 4),
 
-		giu.Label(fmt.Sprintf("RarityFrameIndex: %d", int(tile.RarityFrameIndex))),
+		giu.Line(
+			giu.Label("RarityFrameIndex:"),
+			giu.InputInt("##"+p.id+"rarityFrameIndex", &tile.RarityFrameIndex).Size(inputIntW),
+		),
 		// giu.Line(
 		//	giu.Label(fmt.Sprintf("SubTileFlags: %v", tile.SubTileFlags)),
 		// ),
