@@ -1,5 +1,9 @@
 package dt1widget
 
+import (
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+)
+
 func decodeWallBlock(block *d2dt1.Block, wallPixBuf *[]byte, tileYOffset, tileWidth int32) {
 	// RLE Encoding
 	blockX := int32(block.X)
