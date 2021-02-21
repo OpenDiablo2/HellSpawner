@@ -24,7 +24,6 @@ type textures struct {
 	up, down, del *giu.Texture
 }
 
-// widget represents a font table widget
 type widget struct {
 	fontTable *d2font.Font
 	id        string
