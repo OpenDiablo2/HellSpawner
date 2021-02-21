@@ -138,8 +138,8 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 		),
 		giu.Line(
 			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
-				state.editRune.startRune = r
-				state.editRune.editedRune = r
+				state.editRuneState.runeBefore = r
+				state.editRuneState.editedRune = r
 				state.mode = modeEditRune
 			}),
 			giu.Label(string(r)),
@@ -206,28 +206,28 @@ func (p *widget) itemDown(r rune) {
 func (p *widget) makeEditRuneLayout() giu.Layout {
 	state := p.getState()
 
-	r := string(state.editRune.editedRune)
+	r := string(state.editRuneState.editedRune)
 
 	return giu.Layout{
 		giu.Label("Edit rune:"),
 		giu.Line(
 			giu.Label("Rune: "),
 			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
-				state.editRune.editedRune = int32(r[0])
+				state.editRuneState.editedRune = int32(r[0])
 			}),
 		),
 		giu.Line(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"editRuneInt", &state.editRune.editedRune).Size(inputIntW),
+			giu.InputInt("##"+p.id+"editRuneInt", &state.editRuneState.editedRune).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Line(
 			p.makeSaveCancelLine(func() {
-				p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
-				p.deleteRow(state.editRune.startRune)
+				p.fontTable.Glyphs[state.editRuneState.editedRune] = p.fontTable.Glyphs[state.editRuneState.runeBefore]
+				p.deleteRow(state.editRuneState.runeBefore)
 
 				state.mode = modeViewer
-			}, state.editRune.editedRune),
+			}, state.editRuneState.editedRune),
 		),
 	}
 }
@@ -267,7 +267,7 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		firstFreeIndex = len(usedIndexes)
 	}
 
-	r := string(state.addItem.newRune.editedRune)
+	r := string(state.addItemState.newRune)
 
 	return giu.Layout{
 		giu.Line(
@@ -279,31 +279,31 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 			// second and further letters will be skipped
 			giu.InputText("##"+p.id+"addItemRune", &r).Size(inputIntW).OnChange(func() {
 				if r == "" {
-					state.addItem.newRune.editedRune = 0
+					state.addItemState.newRune = 0
 
 					return
 				}
 
-				state.addItem.newRune.editedRune = int32(r[0])
+				state.addItemState.newRune = int32(r[0])
 			}),
 		),
 		giu.Line(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"addItemRuneInt", &state.addItem.newRune.editedRune).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemRuneInt", &state.addItemState.newRune).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("Width: "),
-			giu.InputInt("##"+p.id+"addItemWidth", &state.addItem.width).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemWidth", &state.addItemState.width).Size(inputIntW),
 		),
 		giu.Line(
 			giu.Label("Height: "),
-			giu.InputInt("##"+p.id+"addItemHeight", &state.addItem.height).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemHeight", &state.addItemState.height).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Line(
 			p.makeSaveCancelLine(func() {
 				p.addItem(firstFreeIndex)
-			}, state.addItem.newRune.editedRune),
+			}, state.addItemState.newRune),
 		),
 	}
 }
@@ -313,11 +313,11 @@ func (p *widget) addItem(idx int) {
 
 	newGlyph := d2fontglyph.Create(
 		idx,
-		int(state.addItem.width),
-		int(state.addItem.height),
+		int(state.addItemState.width),
+		int(state.addItemState.height),
 	)
 
-	p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
+	p.fontTable.Glyphs[state.addItemState.newRune] = newGlyph
 	state.mode = modeViewer
 }
 

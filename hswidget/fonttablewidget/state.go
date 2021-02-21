@@ -15,36 +15,38 @@ const (
 )
 
 type widgetState struct {
-	mode     fontTableWidgetMode
-	editRune editRune
-	addItem  addItem
+	mode          fontTableWidgetMode
+	editRuneState editRuneState
+	addItemState  addItemState
 }
 
 // Dispose cleans state
 func (s *widgetState) Dispose() {
-	s.editRune.Dispose()
-	s.addItem.Dispose()
+	s.editRuneState.Dispose()
+	s.addItemState.Dispose()
 }
 
-type editRune struct {
+type editRuneState struct {
 	editedRune int32
-	startRune  rune
+	runeBefore rune
 }
 
 // Dispose disposes a rune state
-func (e *editRune) Dispose() {
+func (e *editRuneState) Dispose() {
 	e.editedRune = rune(0)
-	e.startRune = rune(0)
+	e.runeBefore = rune(0)
 }
 
-type addItem struct {
-	newRune editRune
+type addItemState struct {
+	newRune,
 	width,
 	height int32
 }
 
-func (s *addItem) Dispose() {
-	s.newRune.Dispose()
+func (s *addItemState) Dispose() {
+	s.newRune = rune(0)
+	s.height = 0
+	s.width = 0
 }
 
 func (p *widget) getStateID() string {
