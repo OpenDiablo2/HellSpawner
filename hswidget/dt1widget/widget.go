@@ -396,21 +396,41 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	var tileTypeImage *giu.ImageWithFileWidget
 
-	strType := hsenum.GetTileTypeString(tile.Type)
+	// we're creating list of tile names
+	tileTypeList := make([]string, hsenum.TileRightWallWithDoor+1)
+	for i := hsenum.TileFloor; i <= hsenum.TileRightWallWithDoor; i++ {
+		tileTypeList[i] = hsenum.GetTileTypeString(int32(i))
+	}
+
+	// tileTypeIdx is current index on tile types' list
+	var tileTypeIdx int32
+	// if tileTypeIdx is in range of known names (hsenum.GetTileTypeString)
+	// then this index is set to tile.Type
+	// else, we're adding Unknown+#tile.Type to list
+	// and setting tileTypeIdx to this index
+	if tile.Type <= hsenum.TileRightWallWithDoor {
+		tileTypeIdx = tile.Type
+	} else {
+		tileTypeList = append(tileTypeList, "Unknown (#"+strconv.Itoa(int(tile.Type))+")")
+		tileTypeIdx = int32(len(tileTypeList) - 1)
+	}
 
 	tileImageFile := getTileTypeImage(tile.Type)
 
 	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
 
 	tileTypeInfo := giu.Layout{
-		giu.Label(fmt.Sprintf("Type: %d (%s)", int(tile.Type), strType)),
+		giu.Line(
+			giu.Label("Type: "),
+			giu.InputInt("##"+p.id+"tileTypeInt", &tile.Type).Size(inputIntW),
+			giu.Combo("##"+p.id+"tileTypeList", tileTypeList[tileTypeIdx], tileTypeList, &tile.Type),
+		),
 	}
 
 	if tileTypeImage != nil {
-		tileTypeInfo = giu.Layout{
-			giu.Label(fmt.Sprintf("Type: %d (%s)", int(tile.Type), strType)),
+		tileTypeInfo = append(tileTypeInfo,
 			tileTypeImage.Size(imageW, imageH),
-		}
+		)
 	}
 
 	w, h := float32(tile.Width), float32(tile.Height)

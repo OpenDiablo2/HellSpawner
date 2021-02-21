@@ -71,6 +71,7 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // RegisterKeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// nolint:gocritic // we may want to use this code
 	/*
 		// right arrow goes to the next tile group
 		inputManager.RegisterShortcut(func() {
