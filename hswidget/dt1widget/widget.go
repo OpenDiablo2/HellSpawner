@@ -433,7 +433,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		)
 	}
 
-	w, h := float32(tile.Width), float32(tile.Height)
+	w, h := tile.Width, tile.Height
 	if h < 0 {
 		h *= -1
 	}
@@ -441,10 +441,22 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	roofHeight := int32(tile.RoofHeight)
 
 	return giu.Layout{
-		giu.Label(fmt.Sprintf("%d x %d pixels", int(w), int(h))),
+		giu.Line(
+			giu.InputInt("##"+p.id+"inputWidth", &w).Size(inputIntW).OnChange(func() {
+				tile.Width = w
+			}),
+			giu.Label(" x "),
+			giu.InputInt("##"+p.id+"winputHeight", &h).Size(inputIntW).OnChange(func() {
+				tile.Height = h
+			}),
+			giu.Label("pixels"),
+		),
 		giu.Dummy(1, 4),
 
-		giu.Label(fmt.Sprintf("Direction: %d", int(tile.Direction))),
+		giu.Line(
+			giu.Label("Direction: "),
+			giu.InputInt("##"+p.id+"tileDirection", &tile.Direction).Size(inputIntW),
+		),
 		giu.Dummy(1, 4),
 
 		giu.Line(
@@ -486,26 +498,30 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
-		giu.Line(
-			giu.Checkbox("Other", &tile.MaterialFlags.Other),
-			giu.Checkbox("Water", &tile.MaterialFlags.Water),
-		),
-		giu.Line(
-			giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
-			giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),
-		),
-		giu.Line(
-			giu.Checkbox("OutsideStone", &tile.MaterialFlags.OutsideStone),
-			giu.Checkbox("Dirt", &tile.MaterialFlags.Dirt),
-		),
-		giu.Line(
-			giu.Checkbox("Sand", &tile.MaterialFlags.Sand),
-			giu.Checkbox("Wood", &tile.MaterialFlags.Wood),
-		),
-		giu.Line(
-			giu.Checkbox("Lava", &tile.MaterialFlags.Lava),
-			giu.Checkbox("Snow", &tile.MaterialFlags.Snow),
-		),
+		giu.FastTable("##" + p.id + "materialFlags").
+			Border(false).
+			Rows(giu.Rows{
+				giu.Row(
+					giu.Checkbox("Other", &tile.MaterialFlags.Other),
+					giu.Checkbox("Water", &tile.MaterialFlags.Water),
+				),
+				giu.Row(
+					giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
+					giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),
+				),
+				giu.Row(
+					giu.Checkbox("OutsideStone", &tile.MaterialFlags.OutsideStone),
+					giu.Checkbox("Dirt", &tile.MaterialFlags.Dirt),
+				),
+				giu.Row(
+					giu.Checkbox("Sand", &tile.MaterialFlags.Sand),
+					giu.Checkbox("Wood", &tile.MaterialFlags.Wood),
+				),
+				giu.Row(
+					giu.Checkbox("Lava", &tile.MaterialFlags.Lava),
+					giu.Checkbox("Snow", &tile.MaterialFlags.Snow),
+				),
+			}),
 	}
 }
 
