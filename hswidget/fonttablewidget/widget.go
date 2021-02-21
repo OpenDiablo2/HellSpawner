@@ -128,10 +128,10 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
-			giu.Button("up##"+p.id+"upItem"+string(r)).Size(upW, upH).OnClick(func() {
+			giu.ArrowButton("##"+p.id+"upItem"+string(r), giu.DirectionUp).OnClick(func() {
 				p.itemUp(r)
 			}),
-			giu.Button("down##"+p.id+"upItem"+string(r)).Size(downW, downH).OnClick(func() {
+			giu.ArrowButton("##"+p.id+"downItem"+string(r), giu.DirectionDown).OnClick(func() {
 				p.itemDown(r)
 			}),
 		),
