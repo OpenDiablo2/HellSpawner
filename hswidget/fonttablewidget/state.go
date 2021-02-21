@@ -9,12 +9,9 @@ import (
 type fontTableWidgetMode int
 
 const (
-	// viewer state
-	fontTableWidgetViewer fontTableWidgetMode = iota
-	// edit rune
-	fontTableWidgetEditRune
-	// opens a dialog and adds a new item on first free index
-	fontTableWidgetAddItem
+	modeViewer fontTableWidgetMode = iota
+	modeEditRune
+	modeAddItem
 )
 
 type widgetState struct {
@@ -71,7 +68,7 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	p.setState(&widgetState{
-		mode: fontTableWidgetViewer,
+		mode: modeViewer,
 	})
 }
 

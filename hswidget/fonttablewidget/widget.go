@@ -52,11 +52,11 @@ func (p *widget) Build() {
 	state := p.getState()
 
 	switch state.mode {
-	case fontTableWidgetViewer:
+	case modeViewer:
 		p.makeTableLayout().Build()
-	case fontTableWidgetEditRune:
+	case modeEditRune:
 		p.makeEditRuneLayout().Build()
-	case fontTableWidgetAddItem:
+	case modeAddItem:
 		p.makeAddItemLayout().Build()
 	}
 }
@@ -100,7 +100,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
 			giu.Separator(),
 			giu.Button("add##"+p.id+"addItem").Size(addW, addH).OnClick(func() {
-				state.mode = fontTableWidgetAddItem
+				state.mode = modeAddItem
 			}),
 		}),
 	}
@@ -140,7 +140,7 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
 				state.editRune.startRune = r
 				state.editRune.editedRune = r
-				state.mode = fontTableWidgetEditRune
+				state.mode = modeEditRune
 			}),
 			giu.Label(string(r)),
 		),
@@ -226,7 +226,7 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 				p.fontTable.Glyphs[state.editRune.editedRune] = p.fontTable.Glyphs[state.editRune.startRune]
 				p.deleteRow(state.editRune.startRune)
 
-				state.mode = fontTableWidgetViewer
+				state.mode = modeViewer
 			}, state.editRune.editedRune),
 		),
 	}
@@ -318,7 +318,7 @@ func (p *widget) addItem(idx int) {
 	)
 
 	p.fontTable.Glyphs[state.addItem.newRune.editedRune] = newGlyph
-	state.mode = fontTableWidgetViewer
+	state.mode = modeViewer
 }
 
 // this giant custom function allows us to
@@ -331,7 +331,7 @@ func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
 	return giu.Layout{
 		giu.Custom(func() {
 			cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
-				state.mode = fontTableWidgetViewer
+				state.mode = modeViewer
 			})
 
 			_, exist := p.fontTable.Glyphs[r]
