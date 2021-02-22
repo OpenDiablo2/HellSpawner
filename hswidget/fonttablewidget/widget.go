@@ -96,7 +96,6 @@ func (p *widget) makeTableLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
-			//giu.TabBar("test").Layout(giu.Layout{
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
 			giu.Separator(),
 			giu.Button("add##"+p.id+"addItem").Size(addW, addH).OnClick(func() {

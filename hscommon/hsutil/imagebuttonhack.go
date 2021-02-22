@@ -4,6 +4,7 @@ import (
 	"github.com/ianling/giu"
 )
 
+// it looks like childWidget's size must be a bit greater then widget iside of it
 const (
 	stdMod = 8
 )
