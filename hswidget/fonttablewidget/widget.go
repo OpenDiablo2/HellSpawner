@@ -13,8 +13,6 @@ import (
 const (
 	inputIntW                = 30
 	delW, delH               = 50, 30
-	upW, upH                 = 30, 30
-	downW, downH             = 40, 30
 	addW, addH               = 400, 30
 	editRuneW, editRuneH     = 50, 30
 	saveCancelW, saveCancelH = 80, 30
