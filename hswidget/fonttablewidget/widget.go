@@ -8,11 +8,13 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const (
 	inputIntW                = 30
-	delW, delH               = 50, 30
+	delSize                  = 20
 	addW, addH               = 400, 30
 	editRuneW, editRuneH     = 50, 30
 	saveCancelW, saveCancelH = 80, 30
@@ -94,6 +96,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
+			//giu.TabBar("test").Layout(giu.Layout{
 			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
 			giu.Separator(),
 			giu.Button("add##"+p.id+"addItem").Size(addW, addH).OnClick(func() {
@@ -118,11 +121,11 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 
 	row := giu.Row(
 		giu.Line(
-			// in fact, it should be ImageButton, but this shit doesn't work
-			// (imgui.PushID returns panic) :-/
-			giu.Button("del##"+p.id+"deleteFrame"+string(r)).Size(delW, delH).OnClick(func() {
-				p.deleteRow(r)
-			}),
+			hsutil.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
+				delSize, delSize,
+				p.textures.del,
+				func() { p.deleteRow(r) },
+			),
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
