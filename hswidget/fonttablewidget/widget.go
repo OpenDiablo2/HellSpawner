@@ -19,7 +19,7 @@ const (
 )
 
 type textures struct {
-	up, down, del *giu.Texture
+	del *giu.Texture
 }
 
 type widget struct {
@@ -30,14 +30,14 @@ type widget struct {
 
 // Create creates a new FontTable widget
 func Create(
-	up, down, del *giu.Texture,
+	del *giu.Texture,
 	id string, fontTable *d2font.Font,
 ) giu.Widget {
 	result := &widget{
 		fontTable: fontTable,
 		id:        id,
 		textures: textures{
-			up, down, del,
+			del,
 		},
 	}
 

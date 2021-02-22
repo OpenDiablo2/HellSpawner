@@ -20,8 +20,6 @@ const (
 
 const (
 	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
 )
 
 // static check, to ensure, if font table editor implemented editoWindow
@@ -35,8 +33,6 @@ type FontTableEditor struct {
 }
 
 type textures struct {
-	up,
-	down,
 	del *g.Texture
 }
 
@@ -58,14 +54,6 @@ func Create(tl *hscommon.TextureLoader,
 		result.textures.del = texture
 	})
 
-	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
-		result.textures.up = texture
-	})
-
-	tl.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
-		result.textures.down = texture
-	})
-
 	return result, nil
 }
 
@@ -73,7 +61,7 @@ func Create(tl *hscommon.TextureLoader,
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
 		Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		fonttablewidget.Create(e.textures.up, e.textures.down, e.textures.del, e.Path.GetUniqueID(), e.fontTable),
+		fonttablewidget.Create(e.textures.del, e.Path.GetUniqueID(), e.fontTable),
 	})
 }
 
