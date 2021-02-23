@@ -20,14 +20,10 @@ const (
 	saveCancelW, saveCancelH = 80, 30
 )
 
-type textures struct {
-	del *giu.Texture
-}
-
 type widget struct {
-	fontTable *d2font.Font
-	id        string
-	textures
+	fontTable           *d2font.Font
+	id                  string
+	deleteButtonTexture *giu.Texture
 }
 
 // Create creates a new FontTable widget
@@ -36,11 +32,9 @@ func Create(
 	id string, fontTable *d2font.Font,
 ) giu.Widget {
 	result := &widget{
-		fontTable: fontTable,
-		id:        id,
-		textures: textures{
-			del,
-		},
+		fontTable:           fontTable,
+		id:                  id,
+		deleteButtonTexture: del,
 	}
 
 	return result
@@ -122,7 +116,7 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 		giu.Line(
 			hsutil.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
 				delSize, delSize,
-				p.textures.del,
+				p.deleteButtonTexture,
 				func() { p.deleteRow(r) },
 			),
 		),
