@@ -13,6 +13,11 @@ import (
 )
 
 const (
+	// nolint:gomnd // constant = constant
+	maxAlpha = uint8(255)
+)
+
+const (
 	imageW, imageH = 32, 32
 )
 
