@@ -273,12 +273,14 @@ func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
 			giu.Label("ID: "),
 			makeInputIntFromInt("##"+p.id+"objID", &obj.ID),
 		),
+		giu.Label("Position (tiles): "),
 		giu.Line(
-			giu.Label("Position: "),
+			giu.Label("\tX: "),
 			makeInputIntFromInt("##"+p.id+"objX", &obj.X),
-			giu.Label(","),
+		),
+		giu.Line(
+			giu.Label("\tY: "),
 			makeInputIntFromInt("##"+p.id+"objY", &obj.Y),
-			giu.Label(" tiles"),
 		),
 		giu.Line(
 			giu.Label("Flags: 0x"),
