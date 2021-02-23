@@ -315,7 +315,7 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
 			hsutil.MakeImageButton(
-				"##"+p.id+"deletePath",
+				"##"+p.id+"deletePath"+strconv.Itoa(currentIdx),
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
@@ -1010,23 +1010,22 @@ func (p *DS1Widget) deletePath(idx int) {
 }
 
 func (p *DS1Widget) deleteObject(idx int32) {
-	fmt.Println("started")
+	// first, wee check if index (idx) exist in NpcIndexes
 	for n, i := range p.ds1.NpcIndexes {
 		if i == int(idx) {
 			p.ds1.NpcIndexes = append(p.ds1.NpcIndexes[:n], p.ds1.NpcIndexes[n+1:]...)
+
+			// decrease all indexes in npc list
+			for n, i := range p.ds1.NpcIndexes {
+				if i > int(idx) {
+					p.ds1.NpcIndexes[n]--
+				}
+			}
 
 			break
 		}
 	}
 
-	fmt.Println("deleted indexes")
-
-	for n, i := range p.ds1.NpcIndexes {
-		if i > int(idx) {
-			p.ds1.NpcIndexes[n]--
-		}
-	}
-	fmt.Println("sorted")
-
+	// delete object
 	p.ds1.Objects = append(p.ds1.Objects[:idx], p.ds1.Objects[idx+1:]...)
 }
