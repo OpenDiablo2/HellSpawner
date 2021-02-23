@@ -25,7 +25,6 @@ const (
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
-	trueFalseListW                       = 60
 	imageW, imageH                       = 32, 32
 )
 
@@ -865,8 +864,6 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 func (p *DS1Widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.Layout {
 	state := p.getState()
 
-	trueFalseList := []string{"false", "true"}
-
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop 1: "),
@@ -910,11 +907,9 @@ func (p *DS1Widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			giu.Combo(
-				"##"+p.id+"addFloorShadowHidden",
-				trueFalseList[output.hidden],
-				trueFalseList, &output.hidden,
-			).Size(trueFalseListW),
+			makeCheckboxFromByte("##"+p.id+"addFloorShadowHidden",
+				&output.hidden,
+			),
 		),
 		giu.Separator(),
 		giu.Line(

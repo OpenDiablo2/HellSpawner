@@ -50,7 +50,7 @@ func (p *DS1Widget) recreateLayerStreamTypes() {
 	p.ds1.LayerStreamTypes = layerStream
 }
 
-func getByte(input int32, output *byte) {
+func setByteToInt(input int32, output *byte) {
 	const (
 		// nolint:gomnd // constant
 		maxByteSize = byte(255)
@@ -69,7 +69,7 @@ func makeInputIntFromByte(id string, output *byte) *giu.InputIntWidget {
 	input := int32(*output)
 
 	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
-		getByte(input, output)
+		setByteToInt(input, output)
 	})
 }
 
@@ -78,20 +78,6 @@ func makeInputIntFromInt(id string, output *int) *giu.InputIntWidget {
 
 	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
 		*output = int(input)
-	})
-}
-
-func makeTrueFalseCombo(id string, value *byte) *giu.ComboWidget {
-	const (
-		trueFalseListW = 80
-	)
-
-	trueFalseList := []string{"false", "true"}
-
-	i := int32(*value)
-
-	return giu.Combo(id, trueFalseList[i], trueFalseList, &i).Size(trueFalseListW).OnChange(func() {
-		*value = byte(i)
 	})
 }
 

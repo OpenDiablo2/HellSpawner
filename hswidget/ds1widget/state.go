@@ -61,7 +61,7 @@ type ds1AddFloorShadowState struct {
 	unknown1 int32
 	style    int32
 	unknown2 int32
-	hidden   int32
+	hidden   byte
 	cb       func()
 }
 

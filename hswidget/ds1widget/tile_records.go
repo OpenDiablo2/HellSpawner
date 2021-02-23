@@ -16,7 +16,7 @@ func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
 		Unknown1:    byte(state.addFloorShadowState.unknown1),
 		Style:       byte(state.addFloorShadowState.style),
 		Unknown2:    byte(state.addFloorShadowState.unknown2),
-		HiddenBytes: byte(state.addFloorShadowState.hidden),
+		HiddenBytes: state.addFloorShadowState.hidden,
 	}
 
 	return newFloorShadowRecord
@@ -33,7 +33,7 @@ func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
 		Unknown1:    byte(state.addWallState.unknown1),
 		Style:       byte(state.addWallState.style),
 		Unknown2:    byte(state.addWallState.unknown2),
-		HiddenBytes: byte(state.addWallState.hidden),
+		HiddenBytes: state.addWallState.hidden,
 	}
 
 	return newWall
