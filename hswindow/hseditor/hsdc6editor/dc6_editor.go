@@ -8,7 +8,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dc6widget"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 
@@ -46,7 +46,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 // Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.DC6Viewer(e.textureLoader, e.Path.GetUniqueID(), e.dc6),
+		dc6widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.dc6),
 	})
 }
 
