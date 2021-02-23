@@ -239,7 +239,7 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1State) giu.Layout {
 			}),
 			hsutil.MakeImageButton(
 				"##"+p.id+"deleteObject",
-				deleteButtonSize, deleteButtonSize,
+				layerDeleteButtonSize, layerDeleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
 					p.deleteObject(state.object)
@@ -368,8 +368,27 @@ func (p *DS1Widget) makeTilesLayout(state *DS1State) giu.Layout {
 	tx, ty = int(state.tileX), int(state.tileY)
 
 	l = append(
-		l, giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
-		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
+		l,
+		giu.Line(
+			giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
+			giu.Button("Add...##"+p.id+"addTileRow"),
+			hsutil.MakeImageButton(
+				"##"+p.id+"deleteTileRow",
+				deleteButtonSize, deleteButtonSize,
+				p.deleteButtonTexture,
+				func() {},
+			),
+		),
+		giu.Line(
+			giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
+			giu.Button("Add...##"+p.id+"addTileCol"),
+			hsutil.MakeImageButton(
+				"##"+p.id+"deleteTileCol",
+				deleteButtonSize, deleteButtonSize,
+				p.deleteButtonTexture,
+				func() {},
+			),
+		),
 		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
 	)
 
