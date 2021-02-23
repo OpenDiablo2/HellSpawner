@@ -253,41 +253,25 @@ func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
 
 	obj := &p.ds1.Objects[int(state.ds1Controls.object)]
 
-	objectType := int32(obj.Type)
-	objectID := int32(obj.ID)
-	objectX := int32(obj.X)
-	objectY := int32(obj.Y)
-	objectFlags := int32(obj.Flags)
-
 	l := giu.Layout{
 		giu.Line(
 			giu.Label("Type: "),
-			giu.InputInt("##"+p.id+"objType", &objectType).Size(inputIntW).OnChange(func() {
-				obj.Type = int(objectType)
-			}),
+			makeInputIntFromInt("##"+p.id+"objType", &obj.Type),
 		),
 		giu.Line(
 			giu.Label("ID: "),
-			giu.InputInt("##"+p.id+"objID", &objectID).Size(inputIntW).OnChange(func() {
-				obj.ID = int(objectID)
-			}),
+			makeInputIntFromInt("##"+p.id+"objID", &obj.ID),
 		),
 		giu.Line(
 			giu.Label("Position: "),
-			giu.InputInt("##"+p.id+"objX", &objectX).Size(inputIntW).OnChange(func() {
-				obj.X = int(objectX)
-			}),
+			makeInputIntFromInt("##"+p.id+"objX", &obj.X),
 			giu.Label(","),
-			giu.InputInt("##"+p.id+"objY", &objectY).Size(inputIntW).OnChange(func() {
-				obj.Y = int(objectY)
-			}),
+			makeInputIntFromInt("##"+p.id+"objY", &obj.Y),
 			giu.Label(" tiles"),
 		),
 		giu.Line(
 			giu.Label("Flags: 0x"),
-			giu.InputInt("##"+p.id+"objFlags", &objectFlags).Size(inputIntW).OnChange(func() {
-				obj.Flags = int(objectFlags)
-			}),
+			makeInputIntFromInt("##"+p.id+"objFlags", &obj.Flags),
 		),
 	}
 
@@ -390,9 +374,6 @@ func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Lay
 				p.makeTileFloorsLayout(state, t.Floors),
 				giu.Separator(),
 				giu.Line(
-					giu.Button("Edit floor##"+p.id+"editFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.editFloor()
-					}),
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addFloor()
 					}),
@@ -421,9 +402,6 @@ func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Lay
 			giu.TabItem("Walls").Layout(giu.Layout{
 				p.makeTileWallsLayout(state, t.Walls),
 				giu.Line(
-					giu.Button("Edit wall##"+p.id+"editWall").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.editWall()
-					}),
 					giu.Button("Add wall##"+p.id+"addWallIn").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addWall()
 					}),
@@ -452,9 +430,6 @@ func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Lay
 			giu.TabItem("Shadows").Layout(giu.Layout{
 				p.makeTileShadowsLayout(state, t.Shadows),
 				giu.Line(
-					giu.Button("Edit shadow##"+p.id+"editShadow").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.editShadow()
-					}),
 					hsutil.MakeImageButton(
 						"##"+p.id+"deleteFloor",
 						layerDeleteButtonSize, layerDeleteButtonSize,
@@ -524,15 +499,39 @@ func (p *DS1Widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorS
 
 func (p *DS1Widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
-		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
-		giu.Label(fmt.Sprintf("Sequence: %v", record.Sequence)),
-		giu.Label(fmt.Sprintf("Unknown1: %v", record.Unknown1)),
-		giu.Label(fmt.Sprintf("Style: %v", record.Style)),
-		giu.Label(fmt.Sprintf("Unknown2: %v", record.Unknown2)),
-		giu.Label(fmt.Sprintf("Hidden: %v", record.Hidden())),
-		giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
-		giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
-		giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		giu.Line(
+			giu.Label("Prop1: "),
+			makeInputIntFromByte("##"+p.id+"floorProp1", &record.Prop1),
+		),
+		giu.Line(
+			giu.Label("Sequence: "),
+			makeInputIntFromByte("##"+p.id+"floorSequence", &record.Sequence),
+		),
+		giu.Line(
+			giu.Label("Unknown1: "),
+			makeInputIntFromByte("##"+p.id+"floorUnknown1", &record.Unknown1),
+		),
+		giu.Line(
+			giu.Label("Style: "),
+			makeInputIntFromByte("##"+p.id+"floorStyle", &record.Style),
+		),
+		giu.Line(
+			giu.Label("Unknown2: "),
+			makeInputIntFromByte("##"+p.id+"floorUnknown2", &record.Unknown2),
+		),
+		giu.Line(
+			giu.Label("Hidden: "),
+			makeCheckboxFromByte("##"+p.id+"floorHidden", &record.HiddenBytes),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		),
 	}
 }
 
@@ -568,15 +567,40 @@ func (p *DS1Widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRec
 
 func (p *DS1Widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 	return giu.Layout{
-		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
-		giu.Label(fmt.Sprintf("Zero: %v", record.Zero)),
-		giu.Label(fmt.Sprintf("Sequence: %v", record.Sequence)),
-		giu.Label(fmt.Sprintf("Unknown1: %v", record.Unknown1)),
-		giu.Label(fmt.Sprintf("Style: %v", record.Style)),
-		giu.Label(fmt.Sprintf("Unknown2: %v", record.Unknown2)),
-		giu.Label(fmt.Sprintf("Hidden: %v", record.Hidden())),
-		giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
-		giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		giu.Line(
+			giu.Label("Prop1: "),
+			makeInputIntFromByte("##"+p.id+"wallProp1", &record.Prop1),
+		),
+		giu.Line(
+			giu.Label("Zero: "),
+			makeInputIntFromByte("##"+p.id+"wallZero", &record.Zero),
+		),
+		giu.Line(
+			giu.Label("Sequence: "),
+			makeInputIntFromByte("##"+p.id+"wallSequence", &record.Sequence),
+		),
+		giu.Line(
+			giu.Label("Unknown1: "),
+			makeInputIntFromByte("##"+p.id+"wallUnknown1", &record.Unknown1),
+		),
+		giu.Line(
+			giu.Label("Style: "),
+			makeInputIntFromByte("##"+p.id+"wallStyle", &record.Style),
+		),
+		giu.Line(
+			giu.Label("Unknown2: "),
+			makeInputIntFromByte("##"+p.id+"wallUnknown2", &record.Unknown2),
+		),
+		giu.Line(
+			giu.Label("Hidden: "),
+			makeCheckboxFromByte("##"+p.id+"wallHidden", &record.HiddenBytes),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		),
 	}
 }
 
@@ -612,15 +636,39 @@ func (p *DS1Widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.Floor
 
 func (p *DS1Widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
-		giu.Label(fmt.Sprintf("Prop1: %v", record.Prop1)),
-		giu.Label(fmt.Sprintf("Sequence: %v", record.Sequence)),
-		giu.Label(fmt.Sprintf("Unknown1: %v", record.Unknown1)),
-		giu.Label(fmt.Sprintf("Style: %v", record.Style)),
-		giu.Label(fmt.Sprintf("Unknown2: %v", record.Unknown2)),
-		giu.Label(fmt.Sprintf("Hidden: %v", record.Hidden())),
-		giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
-		giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
-		giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		giu.Line(
+			giu.Label("Prop1: "),
+			makeInputIntFromByte("##"+p.id+"floorProp1", &record.Prop1),
+		),
+		giu.Line(
+			giu.Label("Sequence: "),
+			makeInputIntFromByte("##"+p.id+"floorSequence", &record.Sequence),
+		),
+		giu.Line(
+			giu.Label("Unknown1: "),
+			makeInputIntFromByte("##"+p.id+"floorUnknown1", &record.Unknown1),
+		),
+		giu.Line(
+			giu.Label("Style: "),
+			makeInputIntFromByte("##"+p.id+"floorStyle", &record.Style),
+		),
+		giu.Line(
+			giu.Label("Unknown2: "),
+			makeInputIntFromByte("##"+p.id+"floorUnknown2", &record.Unknown2),
+		),
+		giu.Line(
+			giu.Label("Hidden: "),
+			makeCheckboxFromByte("##"+p.id+"floorHidden", &record.HiddenBytes),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
+		),
 	}
 }
 
@@ -655,8 +703,15 @@ func (p *DS1Widget) makeTileSubsLayout(state *DS1State, records []d2ds1.Substitu
 }
 
 func (p *DS1Widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
+	unknown32 := int32(record.Unknown)
+
 	return giu.Layout{
-		giu.Label(fmt.Sprintf("Unknown: %v", record.Unknown)),
+		giu.Line(
+			giu.Label("Unknown: "),
+			giu.InputInt("##"+p.id+"subUnknown", &unknown32).Size(inputIntW).OnChange(func() {
+				record.Unknown = uint32(unknown32)
+			}),
+		),
 	}
 }
 

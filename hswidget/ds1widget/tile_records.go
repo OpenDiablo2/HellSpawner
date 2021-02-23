@@ -59,17 +59,6 @@ func (p *DS1Widget) addFloor() {
 	state.mode = ds1EditorModeAddFloorShadow
 }
 
-func (p *DS1Widget) editFloor() {
-	state := p.getState()
-
-	state.addFloorShadowState.cb = func() {
-		newFloor := p.createFloorShadowRecord()
-
-		p.ds1.Tiles[state.tileY][state.tileY].Floors[state.object] = newFloor
-	}
-	state.mode = ds1EditorModeAddFloorShadow
-}
-
 func (p *DS1Widget) deleteFloorRecord() {
 	state := p.getState()
 
@@ -111,17 +100,6 @@ func (p *DS1Widget) addWall() {
 	state.mode = ds1EditorModeAddWall
 }
 
-func (p *DS1Widget) editWall() {
-	state := p.getState()
-
-	state.addWallState.cb = func() {
-		newWall := p.createWallRecord()
-
-		p.ds1.Tiles[state.tileY][state.tileY].Walls[state.object] = newWall
-	}
-	state.mode = ds1EditorModeAddWall
-}
-
 func (p *DS1Widget) deleteWall() {
 	state := p.getState()
 
@@ -159,17 +137,6 @@ func (p *DS1Widget) addShadow() {
 
 	p.ds1.NumberOfShadowLayers++
 	p.recreateLayerStreamTypes()
-
-	state.mode = ds1EditorModeAddFloorShadow
-}
-
-func (p *DS1Widget) editShadow() {
-	state := p.getState()
-	state.addFloorShadowState.cb = func() {
-		newShadow := p.createFloorShadowRecord()
-
-		p.ds1.Tiles[state.tileY][state.tileY].Shadows[state.object] = newShadow
-	}
 
 	state.mode = ds1EditorModeAddFloorShadow
 }

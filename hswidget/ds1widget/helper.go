@@ -1,6 +1,8 @@
 package ds1widget
 
 import (
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 )
 
@@ -46,4 +48,61 @@ func (p *DS1Widget) recreateLayerStreamTypes() {
 	}
 
 	p.ds1.LayerStreamTypes = layerStream
+}
+
+func getByte(input int32, output *byte) {
+	const (
+		// nolint:gomnd // constant
+		maxByteSize = byte(255)
+	)
+
+	if input > int32(maxByteSize) {
+		*output = maxByteSize
+
+		return
+	}
+
+	*output = byte(input)
+}
+
+func makeInputIntFromByte(id string, output *byte) *giu.InputIntWidget {
+	input := int32(*output)
+
+	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
+		getByte(input, output)
+	})
+}
+
+func makeInputIntFromInt(id string, output *int) *giu.InputIntWidget {
+	input := int32(*output)
+
+	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
+		*output = int(input)
+	})
+}
+
+func makeTrueFalseCombo(id string, value *byte) *giu.ComboWidget {
+	const (
+		trueFalseListW = 80
+	)
+
+	trueFalseList := []string{"false", "true"}
+
+	i := int32(*value)
+
+	return giu.Combo(id, trueFalseList[i], trueFalseList, &i).Size(trueFalseListW).OnChange(func() {
+		*value = byte(i)
+	})
+}
+
+func makeCheckboxFromByte(id string, value *byte) *giu.CheckboxWidget {
+	v := (*value > 0)
+
+	return giu.Checkbox(id, &v).OnChange(func() {
+		if v {
+			*value = 1
+		} else {
+			*value = 0
+		}
+	})
 }
