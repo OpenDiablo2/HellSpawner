@@ -28,12 +28,8 @@ var _ hscommon.EditorWindow = &FontTableEditor{}
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor
-	fontTable *d2font.Font
-	textures
-}
-
-type textures struct {
-	del *g.Texture
+	fontTable           *d2font.Font
+	deleteButtonTexture *g.Texture
 }
 
 // Create creates a new font table editor
@@ -51,7 +47,7 @@ func Create(tl *hscommon.TextureLoader,
 	}
 
 	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
-		result.textures.del = texture
+		result.deleteButtonTexture = texture
 	})
 
 	return result, nil
@@ -61,7 +57,7 @@ func Create(tl *hscommon.TextureLoader,
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
 		Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		fonttablewidget.Create(e.textures.del, e.Path.GetUniqueID(), e.fontTable),
+		fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
 	})
 }
 
