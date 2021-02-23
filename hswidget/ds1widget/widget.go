@@ -22,7 +22,7 @@ const (
 	inputIntW                            = 40
 	filePathW                            = 200
 	deleteButtonSize                     = 15
-	actionButtonW, actionButtonH         = 200, 30
+	actionButtonW, actionButtonH         = 170, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
 	imageW, imageH                       = 32, 32
@@ -227,13 +227,25 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1State) giu.Layout {
 		l = append(l, line)
 	}
 
-	l = append(l, giu.Separator(),
-		giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.mode = ds1EditorModeAddObject
-		}),
-		giu.Button("Add new path...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.mode = ds1EditorModeAddPath
-		}),
+	l = append(
+		l,
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.mode = ds1EditorModeAddObject
+			}),
+			giu.Button("Add new path...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.mode = ds1EditorModeAddPath
+			}),
+			hsutil.MakeImageButton(
+				"##"+p.id+"deleteObject",
+				deleteButtonSize, deleteButtonSize,
+				p.deleteButtonTexture,
+				func() {
+					p.deleteObject(state.object)
+				},
+			),
+		),
 	)
 
 	return l
@@ -302,7 +314,8 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 			giu.Label(fmt.Sprintf("%d", idx)),
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
-			hsutil.MakeImageButton("##"+p.id+"deletePath",
+			hsutil.MakeImageButton(
+				"##"+p.id+"deletePath",
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
@@ -994,4 +1007,26 @@ func (p *DS1Widget) deletePath(idx int) {
 	}
 
 	p.ds1.Objects[state.object].Paths = newPaths
+}
+
+func (p *DS1Widget) deleteObject(idx int32) {
+	fmt.Println("started")
+	for n, i := range p.ds1.NpcIndexes {
+		if i == int(idx) {
+			p.ds1.NpcIndexes = append(p.ds1.NpcIndexes[:n], p.ds1.NpcIndexes[n+1:]...)
+
+			break
+		}
+	}
+
+	fmt.Println("deleted indexes")
+
+	for n, i := range p.ds1.NpcIndexes {
+		if i > int(idx) {
+			p.ds1.NpcIndexes[n]--
+		}
+	}
+	fmt.Println("sorted")
+
+	p.ds1.Objects = append(p.ds1.Objects[:idx], p.ds1.Objects[idx+1:]...)
 }
