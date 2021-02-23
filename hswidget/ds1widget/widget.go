@@ -251,20 +251,51 @@ func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
 		p.setState(state)
 	}
 
-	obj := p.ds1.Objects[int(state.ds1Controls.object)]
+	obj := &p.ds1.Objects[int(state.ds1Controls.object)]
+
+	objectType := int32(obj.Type)
+	objectID := int32(obj.ID)
+	objectX := int32(obj.X)
+	objectY := int32(obj.Y)
+	objectFlags := int32(obj.Flags)
 
 	l := giu.Layout{
-		giu.Label(fmt.Sprintf("Type: %d", obj.Type)),
-		giu.Label(fmt.Sprintf("ID: %d", obj.ID)),
-		giu.Label(fmt.Sprintf("Position: (%d, %d) tiles", obj.X, obj.Y)),
-		giu.Label(fmt.Sprintf("Flags: 0x%X", obj.Flags)),
+		giu.Line(
+			giu.Label("Type: "),
+			giu.InputInt("##"+p.id+"objType", &objectType).Size(inputIntW).OnChange(func() {
+				obj.Type = int(objectType)
+			}),
+		),
+		giu.Line(
+			giu.Label("ID: "),
+			giu.InputInt("##"+p.id+"objID", &objectID).Size(inputIntW).OnChange(func() {
+				obj.ID = int(objectID)
+			}),
+		),
+		giu.Line(
+			giu.Label("Position: "),
+			giu.InputInt("##"+p.id+"objX", &objectX).Size(inputIntW).OnChange(func() {
+				obj.X = int(objectX)
+			}),
+			giu.Label(","),
+			giu.InputInt("##"+p.id+"objY", &objectY).Size(inputIntW).OnChange(func() {
+				obj.Y = int(objectY)
+			}),
+			giu.Label(" tiles"),
+		),
+		giu.Line(
+			giu.Label("Flags: 0x"),
+			giu.InputInt("##"+p.id+"objFlags", &objectFlags).Size(inputIntW).OnChange(func() {
+				obj.Flags = int(objectFlags)
+			}),
+		),
 	}
 
 	if len(obj.Paths) > 0 {
 		l = append(
 			l,
 			giu.Dummy(1, 16),
-			p.makePathLayout(&obj),
+			p.makePathLayout(obj),
 		)
 	}
 
