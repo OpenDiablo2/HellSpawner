@@ -37,15 +37,14 @@ func (is *DCCViewerState) Dispose() {
 	is.textures = nil
 }
 
-// DCCViewerWidget creates a new dcc widget
-type DCCViewerWidget struct {
+type widget struct {
 	id  string
 	dcc *d2dcc.DCC
 }
 
 // DCCViewer creates a new dcc viewers widget
-func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
-	result := &DCCViewerWidget{
+func DCCViewer(id string, dcc *d2dcc.DCC) giu.Widget {
+	result := &widget{
 		id:  id,
 		dcc: dcc,
 	}
@@ -55,8 +54,8 @@ func DCCViewer(id string, dcc *d2dcc.DCC) *DCCViewerWidget {
 
 // Build build a widget
 // nolint:funlen // no need to change
-func (p *DCCViewerWidget) Build() {
-	stateID := fmt.Sprintf("DCCViewerWidget_%s", p.id)
+func (p *widget) Build() {
+	stateID := fmt.Sprintf("widget_%s", p.id)
 	state := giu.Context.GetState(stateID)
 
 	if state == nil {
@@ -119,7 +118,7 @@ func (p *DCCViewerWidget) Build() {
 	}
 }
 
-func (p *DCCViewerWidget) buildNew(stateID string) {
+func (p *widget) buildNew(stateID string) {
 	// Prevent multiple invocation to LoadImage.
 	giu.Context.SetState(stateID, &DCCViewerState{})
 
