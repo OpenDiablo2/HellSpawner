@@ -10,7 +10,7 @@ import (
 // as a giu.child
 func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout {
 	const (
-		childIdSuffix = "child"
+		childIDSuffix = "child"
 		padding       = 8 // pixels
 	)
 
@@ -22,10 +22,10 @@ func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout 
 
 	// the container; needs to be padded to be larger than the button
 	childW, childH := btnW+padding, btnH+padding
-	childID := fmt.Sprintf("%s%s", id, childIdSuffix)
+	childID := fmt.Sprintf("%s%s", id, childIDSuffix)
 	con := giu.Child(childID).
 		Border(false).
-		Size(float32(childW), float32(childH)).
+		Size(childW, childH).
 		Layout(button).
 		Flags(giu.WindowFlagsNoDecoration)
 
