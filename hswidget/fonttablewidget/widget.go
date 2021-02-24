@@ -314,10 +314,9 @@ func (p *widget) addItem(idx int) {
 	state.mode = modeViewer
 }
 
-// this giant custom function allows us to
-// check if letter entered by user already exists in map
-// end depending on it, build save and cancel buttons
-// or cancel only
+// makeSaveCancelLine creates  line of action buttons for an editor
+// if given rune already exists in glyph's table, save button isn't
+// created
 func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
 	state := p.getState()
 
