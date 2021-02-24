@@ -2,8 +2,6 @@ package dccwidget
 
 import (
 	"fmt"
-	image2 "image"
-	"image/color"
 	"log"
 
 	"github.com/ianling/giu"
@@ -20,22 +18,6 @@ const (
 const (
 	imageW, imageH = 32, 32
 )
-
-// widgetState represents dcc viewers state
-type widgetState struct {
-	controls struct {
-		direction int32
-		frame     int32
-		scale     int32
-	}
-
-	textures []*giu.Texture
-}
-
-// Dispose cleans viewers state
-func (is *widgetState) Dispose() {
-	is.textures = nil
-}
 
 type widget struct {
 	id  string
@@ -55,129 +37,58 @@ func Create(id string, dcc *d2dcc.DCC) giu.Widget {
 // Build build a widget
 // nolint:funlen // no need to change
 func (p *widget) Build() {
-	stateID := fmt.Sprintf("widget_%s", p.id)
-	state := giu.Context.GetState(stateID)
+	viewerState := p.getState()
 
-	if state == nil {
-		p.buildNew(stateID)
+	imageScale := uint32(viewerState.controls.scale)
+	dirIdx := int(viewerState.controls.direction)
+	frameIdx := viewerState.controls.frame
+
+	textureIdx := dirIdx*len(p.dcc.Directions[dirIdx].Frames) + int(frameIdx)
+
+	if imageScale < 1 {
+		imageScale = 1
+	}
+
+	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
+	if err != nil {
+		log.Print(err)
+	}
+
+	var widget *giu.ImageWidget
+	if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
+		widget = giu.Image(nil).Size(imageW, imageH)
 	} else {
-		viewerState := state.(*widgetState)
-
-		imageScale := uint32(viewerState.controls.scale)
-		dirIdx := int(viewerState.controls.direction)
-		frameIdx := viewerState.controls.frame
-
-		textureIdx := dirIdx*len(p.dcc.Directions[dirIdx].Frames) + int(frameIdx)
-
-		if imageScale < 1 {
-			imageScale = 1
-		}
-
-		err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
-		if err != nil {
-			log.Print(err)
-		}
-
-		var widget *giu.ImageWidget
-		if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
-			widget = giu.Image(nil).Size(imageW, imageH)
-		} else {
-			bw := p.dcc.Directions[dirIdx].Box.Width
-			bh := p.dcc.Directions[dirIdx].Box.Height
-			w := float32(uint32(bw) * imageScale)
-			h := float32(uint32(bh) * imageScale)
-			widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
-		}
-
-		giu.Layout{
-			giu.Line(
-				giu.Label(fmt.Sprintf("Signature: %v", p.dcc.Signature)),
-				giu.Label(fmt.Sprintf("Version: %v", p.dcc.Version)),
-			),
-			giu.Line(
-				giu.Label(fmt.Sprintf("Directions: %v", p.dcc.NumberOfDirections)),
-				giu.Label(fmt.Sprintf("Frames per Direction: %v", p.dcc.FramesPerDirection)),
-			),
-			giu.Custom(func() {
-				imgui.BeginGroup()
-				if p.dcc.NumberOfDirections > 1 {
-					imgui.SliderInt("Direction", &viewerState.controls.direction, 0, int32(p.dcc.NumberOfDirections-1))
-				}
-
-				if p.dcc.FramesPerDirection > 1 {
-					imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dcc.FramesPerDirection-1))
-				}
-
-				imgui.SliderInt("Scale", &viewerState.controls.scale, 1, 8)
-
-				imgui.EndGroup()
-			}),
-			giu.Separator(),
-			widget,
-		}.Build()
-	}
-}
-
-func (p *widget) buildNew(stateID string) {
-	// Prevent multiple invocation to LoadImage.
-	giu.Context.SetState(stateID, &widgetState{})
-
-	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
-	images := make([]*image2.RGBA, totalFrames)
-
-	for dirIdx := range p.dcc.Directions {
-		fw := p.dcc.Directions[dirIdx].Box.Width
-		fh := p.dcc.Directions[dirIdx].Box.Height
-
-		for frameIdx := range p.dcc.Directions[dirIdx].Frames {
-			absoluteFrameIdx := (dirIdx * p.dcc.FramesPerDirection) + frameIdx
-
-			frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
-			pixels := frame.PixelData
-
-			images[absoluteFrameIdx] = image2.NewRGBA(image2.Rect(0, 0, fw, fh))
-
-			for y := 0; y < fh; y++ {
-				for x := 0; x < fw; x++ {
-					idx := x + (y * fw)
-					if idx >= len(pixels) {
-						continue
-					}
-
-					val := pixels[idx]
-
-					alpha := maxAlpha
-
-					if val == 0 {
-						alpha = 0
-					}
-
-					RGBAcolor := color.RGBA{R: val, G: val, B: val, A: alpha}
-
-					images[absoluteFrameIdx].Set(x, y, RGBAcolor)
-				}
-			}
-		}
+		bw := p.dcc.Directions[dirIdx].Box.Width
+		bh := p.dcc.Directions[dirIdx].Box.Height
+		w := float32(uint32(bw) * imageScale)
+		h := float32(uint32(bh) * imageScale)
+		widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
 	}
 
-	go func() {
-		textures := make([]*giu.Texture, totalFrames)
-
-		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
-			var err error
-
-			textures[frameIndex], err = giu.NewTextureFromRgba(images[frameIndex])
-			if err != nil {
-				log.Fatal(err)
+	giu.Layout{
+		giu.Line(
+			giu.Label(fmt.Sprintf("Signature: %v", p.dcc.Signature)),
+			giu.Label(fmt.Sprintf("Version: %v", p.dcc.Version)),
+		),
+		giu.Line(
+			giu.Label(fmt.Sprintf("Directions: %v", p.dcc.NumberOfDirections)),
+			giu.Label(fmt.Sprintf("Frames per Direction: %v", p.dcc.FramesPerDirection)),
+		),
+		giu.Custom(func() {
+			imgui.BeginGroup()
+			if p.dcc.NumberOfDirections > 1 {
+				imgui.SliderInt("Direction", &viewerState.controls.direction, 0, int32(p.dcc.NumberOfDirections-1))
 			}
-		}
-		giu.Context.SetState(stateID, &widgetState{textures: textures})
-	}()
 
-	// display a temporary dummy image until the real one ready
-	firstFrame := p.dcc.Directions[0].Frames[0]
-	sw := float32(firstFrame.Width)
-	sh := float32(firstFrame.Height)
-	widget := giu.Image(nil).Size(sw, sh)
-	widget.Build()
+			if p.dcc.FramesPerDirection > 1 {
+				imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dcc.FramesPerDirection-1))
+			}
+
+			imgui.SliderInt("Scale", &viewerState.controls.scale, 1, 8)
+
+			imgui.EndGroup()
+		}),
+		giu.Separator(),
+		widget,
+	}.Build()
 }
