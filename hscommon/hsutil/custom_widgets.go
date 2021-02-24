@@ -55,7 +55,7 @@ func SetByteToInt(input int32, output *byte) {
 
 // MakeInputInt creates input intager using POINTER given
 // additionaly, for byte checks, if value smaller than 255
-func MakeInputInt(id string, width int32, output interface{}) *giu.InputIntWidget {
+func MakeInputInt(id string, width int32, output interface{}, optionalCB func()) *giu.InputIntWidget {
 	var input int32
 	switch output.(type) {
 	case *byte:
@@ -63,7 +63,7 @@ func MakeInputInt(id string, width int32, output interface{}) *giu.InputIntWidge
 	case *int:
 		input = int32(*output.(*int))
 	default:
-		panic("invalid value type given")
+		panic("MakeInputInt: invalid value type given")
 	}
 
 	return giu.InputInt(id, &input).Size(float32(width)).OnChange(func() {
@@ -73,6 +73,8 @@ func MakeInputInt(id string, width int32, output interface{}) *giu.InputIntWidge
 		case *int:
 			*output.(*int) = int(input)
 		}
+
+		optionalCB()
 	})
 }
 
