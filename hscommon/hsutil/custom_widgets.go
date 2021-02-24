@@ -6,10 +6,6 @@ import (
 	"github.com/ianling/giu"
 )
 
-const (
-	inputIntW = 30
-)
-
 // MakeImageButton is a hack for giu.ImageButton that creates image button
 // as a giu.child
 func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout {
@@ -54,24 +50,24 @@ func SetByteToInt(input int32, output *byte) {
 }
 
 // MakeInputInt creates input intager using POINTER given
-// additionaly, for byte checks, if value smaller than 255
+// additionally, for byte checks, if value smaller than 255
 func MakeInputInt(id string, width int32, output interface{}, optionalCB func()) *giu.InputIntWidget {
 	var input int32
-	switch output.(type) {
+	switch o := output.(type) {
 	case *byte:
-		input = int32(*output.(*byte))
+		input = int32(*o)
 	case *int:
-		input = int32(*output.(*int))
+		input = int32(*o)
 	default:
 		panic("MakeInputInt: invalid value type given")
 	}
 
 	return giu.InputInt(id, &input).Size(float32(width)).OnChange(func() {
-		switch output.(type) {
+		switch o := output.(type) {
 		case *byte:
-			SetByteToInt(input, &(*output.(*byte)))
+			SetByteToInt(input, o)
 		case *int:
-			*output.(*int) = int(input)
+			*o = int(input)
 		}
 
 		optionalCB()

@@ -20,7 +20,6 @@ const (
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
-	trueFalseListW                       = 60
 	speedInputW                          = 40
 )
 
@@ -512,7 +511,7 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 	fnSave := func() {
 		newCofLayer := &d2cof.CofLayer{
 			Type:        available[state.newLayerFields.layerType],
-			Shadow:      byte(state.newLayerFields.shadow),
+			Shadow:      state.newLayerFields.shadow,
 			Selectable:  state.newLayerFields.selectable,
 			Transparent: state.newLayerFields.transparent,
 			DrawEffect:  d2enum.DrawEffect(state.newLayerFields.drawEffect),
