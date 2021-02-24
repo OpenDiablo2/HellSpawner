@@ -38,9 +38,9 @@ func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout 
 
 // SetByteToInt sets byte given to intager
 // if intager > max possible byte size, sets to 255
-func SetByteToInt(output *byte, input int32) {
+func SetByteToInt(input int32, output *byte) {
 	const (
-		// nolint:gomnd // constant means constans ;-)
+		// nolint:gomnd // constant
 		maxByteSize = byte(255)
 	)
 
@@ -53,21 +53,26 @@ func SetByteToInt(output *byte, input int32) {
 	*output = byte(input)
 }
 
-// MakeInputIntFromByte creates giu.InputIntWidget from byte pointer
-func MakeInputIntFromByte(id string, output *byte) *giu.InputIntWidget {
-	input := int32(*output)
+// MakeInputInt creates input intager using POINTER given
+// additionaly, for byte checks, if value smaller than 255
+func MakeInputInt(id string, width int32, output interface{}) *giu.InputIntWidget {
+	var input int32
+	switch output.(type) {
+	case *byte:
+		input = int32(*output.(*byte))
+	case *int:
+		input = int32(*output.(*int))
+	default:
+		panic("invalid value type given")
+	}
 
-	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
-		SetByteToInt(output, input)
-	})
-}
-
-// MakeInputIntFromInt does the same as MakeInputIntFromByte, but for int
-func MakeInputIntFromInt(id string, output *int) *giu.InputIntWidget {
-	input := int32(*output)
-
-	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
-		*output = int(input)
+	return giu.InputInt(id, &input).Size(float32(width)).OnChange(func() {
+		switch output.(type) {
+		case *byte:
+			SetByteToInt(input, &(*output.(*byte)))
+		case *int:
+			*output.(*int) = int(input)
+		}
 	})
 }
 
