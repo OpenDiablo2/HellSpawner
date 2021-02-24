@@ -21,8 +21,8 @@ const (
 	imageW, imageH = 32, 32
 )
 
-// DCCViewerState represents dcc viewers state
-type DCCViewerState struct {
+// widgetState represents dcc viewers state
+type widgetState struct {
 	controls struct {
 		direction int32
 		frame     int32
@@ -33,7 +33,7 @@ type DCCViewerState struct {
 }
 
 // Dispose cleans viewers state
-func (is *DCCViewerState) Dispose() {
+func (is *widgetState) Dispose() {
 	is.textures = nil
 }
 
@@ -61,7 +61,7 @@ func (p *widget) Build() {
 	if state == nil {
 		p.buildNew(stateID)
 	} else {
-		viewerState := state.(*DCCViewerState)
+		viewerState := state.(*widgetState)
 
 		imageScale := uint32(viewerState.controls.scale)
 		dirIdx := int(viewerState.controls.direction)
@@ -120,7 +120,7 @@ func (p *widget) Build() {
 
 func (p *widget) buildNew(stateID string) {
 	// Prevent multiple invocation to LoadImage.
-	giu.Context.SetState(stateID, &DCCViewerState{})
+	giu.Context.SetState(stateID, &widgetState{})
 
 	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
 	images := make([]*image2.RGBA, totalFrames)
@@ -171,7 +171,7 @@ func (p *widget) buildNew(stateID string) {
 				log.Fatal(err)
 			}
 		}
-		giu.Context.SetState(stateID, &DCCViewerState{textures: textures})
+		giu.Context.SetState(stateID, &widgetState{textures: textures})
 	}()
 
 	// display a temporary dummy image until the real one ready
