@@ -42,8 +42,8 @@ type widget struct {
 	dcc *d2dcc.DCC
 }
 
-// DCCViewer creates a new dcc viewers widget
-func DCCViewer(id string, dcc *d2dcc.DCC) giu.Widget {
+// Create creates a new dcc widget
+func Create(id string, dcc *d2dcc.DCC) giu.Widget {
 	result := &widget{
 		id:  id,
 		dcc: dcc,

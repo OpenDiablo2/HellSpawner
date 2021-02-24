@@ -45,7 +45,7 @@ func Create(_ *hscommon.TextureLoader,
 // Build builds a dcc editor
 func (e *DCCEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		dccwidget.DCCViewer(e.Path.GetUniqueID(), e.dcc),
+		dccwidget.Create(e.Path.GetUniqueID(), e.dcc),
 	})
 }
 
