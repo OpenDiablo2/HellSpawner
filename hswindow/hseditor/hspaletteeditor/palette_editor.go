@@ -14,7 +14,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -48,7 +48,7 @@ func Create(_ *hscommon.TextureLoader,
 func (e *PaletteEditor) Build() {
 	col := e.palette.GetColors()
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteGrid(e.GetID()+"_grid", &col),
+		palettegridwidget.PaletteGrid(e.GetID()+"_grid", &col),
 	})
 }
 
