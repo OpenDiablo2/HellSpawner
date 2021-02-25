@@ -30,15 +30,14 @@ func (p *PaletteGridState) Dispose() {
 	p.texture = nil
 }
 
-// PaletteGridWidget represents palette grids widget
-type PaletteGridWidget struct {
+type widget struct {
 	id     string
 	colors *[256]d2interface.Color
 }
 
-// PaletteGrid creates a new palette grid's widget
-func PaletteGrid(id string, colors *[256]d2interface.Color) *PaletteGridWidget {
-	result := &PaletteGridWidget{
+// Create creates a new palette grid widget
+func Create(id string, colors *[256]d2interface.Color) giu.Widget {
+	result := &widget{
 		id:     id,
 		colors: colors,
 	}
@@ -47,10 +46,10 @@ func PaletteGrid(id string, colors *[256]d2interface.Color) *PaletteGridWidget {
 }
 
 // Build build a new widget
-func (p *PaletteGridWidget) Build() {
+func (p *widget) Build() {
 	var widget *giu.ImageWidget
 
-	stateID := fmt.Sprintf("PaletteGridWidget_%s", p.id)
+	stateID := fmt.Sprintf("widget_%s", p.id)
 
 	state := giu.Context.GetState(stateID)
 	if state == nil {

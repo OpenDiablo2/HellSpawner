@@ -48,7 +48,7 @@ func Create(_ *hscommon.TextureLoader,
 func (e *PaletteEditor) Build() {
 	col := e.palette.GetColors()
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		palettegridwidget.PaletteGrid(e.GetID()+"_grid", &col),
+		palettegridwidget.Create(e.GetID()+"_grid", &col),
 	})
 }
 
