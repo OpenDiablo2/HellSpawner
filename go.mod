@@ -9,7 +9,7 @@ require (
 	github.com/enriquebris/goconcurrentqueue v0.6.0
 	github.com/faiface/beep v1.0.2
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
-	github.com/go-resty/resty/v2 v2.5.0 // indirect
+	github.com/go-resty/resty/v2 v2.4.0 // indirect
 	github.com/hajimehoshi/oto v0.7.1 // indirect
 	github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7
 	github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82
