@@ -30,7 +30,7 @@ github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265/go.mod h1:tQ2
 github.com/go-restruct/restruct v1.2.0-alpha h1:2Lp474S/9660+SJjpVxoKuWX09JsXHSrdV7Nv3/gkvc=
 github.com/go-restruct/restruct v1.2.0-alpha/go.mod h1:KqrpKpn4M8OLznErihXTGLlsXFGeLxHUrLRRI/1YjGk=
 github.com/go-resty/resty/v2 v2.3.0/go.mod h1:UpN9CgLZNsv4e9XG50UU8xdI0F43UQ4HmxLBDwaroHU=
-github.com/go-resty/resty/v2 v2.5.0 h1:GmCjQ7qW3Dzr3Lh7FvTrRJSWgYNWswDdOy+T8sgTAFI=
+github.com/go-resty/resty/v2 v2.5.0 h1:WFb5bD49/85PO7WgAjZ+/TJQ+Ty1XOcWEfD1zIFCM1c=
 github.com/go-resty/resty/v2 v2.5.0/go.mod h1:B88+xCTEwvfD94NOuE6GS1wMlnoKNY8eEiNizfNwOwA=
 github.com/gofrs/flock v0.8.0/go.mod h1:F1TvTiK9OcQqauNUHlbJvyl9Qa1QvF/gOUDKA14jxHU=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
