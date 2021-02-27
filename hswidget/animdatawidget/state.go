@@ -2,17 +2,20 @@ package animdatawidget
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/ianling/giu"
 )
 
 type widgetState struct {
-	mapKeys []string
+	mapKeys  []string
+	mapIndex int32
 }
 
 // Dispose clears widget's state
 func (ws *widgetState) Dispose() {
 	ws.mapKeys = make([]string, 0)
+	ws.mapIndex = 0
 }
 
 func (p *widget) getStateID() string {
@@ -38,6 +41,7 @@ func (p *widget) initState() {
 	state := &widgetState{}
 
 	state.mapKeys = p.d2.GetRecordNames()
+	sort.Strings(state.mapKeys)
 
 	p.setState(state)
 }

@@ -23,7 +23,21 @@ func Create(id string, d2 *d2animdata.AnimationData) giu.Widget {
 
 // Build builds widget
 func (p *widget) Build() {
+	state := p.getState()
+	list := make([]*giu.SelectableWidget, p.d2.GetRecordsCount())
+	for n, index := range state.mapKeys {
+		list[n] = giu.Selectable(index)
+	}
+
 	giu.Layout{
-		giu.Label("an example animation data (D2) editor"),
+		giu.Child("##"+p.id+"keyList").Border(false).
+			Size(200, 200).
+			Layout(giu.Layout{
+				giu.Custom(func() {
+					for _, i := range list {
+						i.Build()
+					}
+				}),
+			}),
 	}.Build()
 }
