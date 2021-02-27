@@ -42,9 +42,9 @@ func (s *viewerState) Dispose() {
 
 type newLayerFields struct {
 	layerType   int32
-	shadow      int32
-	selectable  int32
-	transparent int32
+	shadow      byte
+	selectable  bool
+	transparent bool
 	drawEffect  int32
 	weaponClass int32
 }
