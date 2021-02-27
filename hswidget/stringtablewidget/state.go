@@ -7,11 +7,19 @@ import (
 	"github.com/ianling/giu"
 )
 
+type widgetMode int
+
+const (
+	widgetModeViewer widgetMode = iota
+)
+
 type widgetState struct {
+	mode widgetMode
 	keys []string
 }
 
 func (ws *widgetState) Dispose() {
+	ws.mode = widgetModeViewer
 	ws.keys = make([]string, 0)
 }
 

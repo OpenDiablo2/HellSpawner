@@ -22,6 +22,15 @@ func Create(id string, dict *d2tbl.TextDictionary) giu.Widget {
 
 func (p *widget) Build() {
 	state := p.getState()
+
+	switch state.mode {
+	case widgetModeViewer:
+		p.buildTableLayout()
+	}
+}
+
+func (p *widget) buildTableLayout() {
+	state := p.getState()
 	numEntries := len(state.keys)
 
 	// wprobably will remove
