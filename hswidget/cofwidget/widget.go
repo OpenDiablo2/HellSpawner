@@ -20,7 +20,6 @@ const (
 	actionButtonW, actionButtonH         = 200, 30
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
-	trueFalseListW                       = 60
 	speedInputW                          = 40
 )
 
@@ -104,7 +103,7 @@ func (p *widget) initState() {
 			confirmDialog: &hswidget.PopUpConfirmDialog{},
 		},
 		newLayerFields: &newLayerFields{
-			selectable: 1,
+			selectable: true,
 			drawEffect: int32(d2enum.DrawEffectNone),
 		},
 	})
@@ -168,17 +167,19 @@ func (p *widget) makeAnimationTab() giu.Layout {
 	strLabelFPS := fmt.Sprintf(fmtFPS, fps)
 	strLabelDuration := fmt.Sprintf(fmtDuration, duration)
 
-	speed32 := int32(p.cof.Speed)
 	setSpeed := func() {
-		p.cof.Speed = int(speed32)
-
-		if speed32 >= maxSpeed {
+		if p.cof.Speed >= maxSpeed {
 			p.cof.Speed = maxSpeed
 		}
 	}
 
 	speedLabel := giu.Label(strSpeed)
-	speedInput := giu.InputInt("##"+p.id+"CovViewerSpeedValue", &speed32).Size(speedInputW).OnChange(setSpeed)
+	speedInput := hsutil.MakeInputInt(
+		"##"+p.id+"CovViewerSpeedValue",
+		speedInputW,
+		&p.cof.Speed,
+		setSpeed,
+	)
 
 	return giu.Layout{
 		giu.Label(strLabelDirections),
@@ -437,8 +438,6 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 
 	state := s.(*widgetState)
 
-	trueFalse := []string{"false", "true"}
-
 	// available is a list of available (not currently used) composite types
 	available := make([]d2enum.CompositeType, 0)
 
@@ -483,18 +482,15 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Shadow: "),
-			giu.Combo("##"+p.id+"AddLayerShadow", trueFalse[state.newLayerFields.shadow],
-				trueFalse, &state.newLayerFields.shadow).Size(trueFalseListW),
+			hsutil.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),
-			giu.Combo("##"+p.id+"AddLayerSelectable", trueFalse[state.newLayerFields.selectable],
-				trueFalse, &state.newLayerFields.selectable).Size(trueFalseListW),
+			giu.Checkbox("##"+p.id+"AddLayerSelectable", &state.newLayerFields.selectable),
 		),
 		giu.Line(
 			giu.Label("Transparent: "),
-			giu.Combo("##"+p.id+"AddLayerTransparent", trueFalse[state.newLayerFields.transparent],
-				trueFalse, &state.newLayerFields.transparent).Size(trueFalseListW),
+			giu.Checkbox("##"+p.id+"AddLayerTransparent", &state.newLayerFields.transparent),
 		),
 		giu.Line(
 			giu.Label("Draw effect: "),
@@ -515,9 +511,9 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 	fnSave := func() {
 		newCofLayer := &d2cof.CofLayer{
 			Type:        available[state.newLayerFields.layerType],
-			Shadow:      byte(state.newLayerFields.selectable),
-			Selectable:  state.newLayerFields.selectable == 1,
-			Transparent: state.newLayerFields.transparent == 1,
+			Shadow:      state.newLayerFields.shadow,
+			Selectable:  state.newLayerFields.selectable,
+			Transparent: state.newLayerFields.transparent,
 			DrawEffect:  d2enum.DrawEffect(state.newLayerFields.drawEffect),
 			WeaponClass: d2enum.WeaponClass(state.newLayerFields.weaponClass),
 		}
