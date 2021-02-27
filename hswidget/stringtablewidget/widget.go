@@ -8,10 +8,10 @@ import (
 
 type widget struct {
 	id   string
-	dict *d2tbl.TextDictionary
+	dict d2tbl.TextDictionary
 }
 
-func Create(id string, dict *d2tbl.TextDictionary) giu.Widget {
+func Create(id string, dict d2tbl.TextDictionary) giu.Widget {
 	result := &widget{
 		id:   id,
 		dict: dict,
@@ -53,7 +53,7 @@ func (p *widget) buildTableLayout() {
 		// nolint:gomnd // first row is header
 		rows[keyIdx+1] = giu.Row(
 			giu.Label(key),
-			giu.Label(p.dict.Entries[key]),
+			giu.Label(p.dict[key]),
 		)
 
 		keyIdx++
