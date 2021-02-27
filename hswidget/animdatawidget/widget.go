@@ -80,7 +80,19 @@ func (p *widget) buildViewRecordLayout() {
 	speed := int32(record.Speed())
 
 	giu.Layout{
-		giu.Label(fmt.Sprintf("Animation name: %s", name)),
+		giu.Line(
+			giu.ArrowButton("##"+p.id+"previousAnimation", giu.DirectionLeft).OnClick(func() {
+				if state.mapIndex > 0 {
+					state.mapIndex--
+				}
+			}),
+			giu.Label(fmt.Sprintf("Animation name: %s", name)),
+			giu.ArrowButton("##"+p.id+"nextAnimation", giu.DirectionRight).OnClick(func() {
+				if int(state.mapIndex) < len(state.mapKeys)-1 {
+					state.mapIndex++
+				}
+			}),
+		),
 		giu.Separator(),
 		giu.Custom(func() {
 			if max > 0 {
