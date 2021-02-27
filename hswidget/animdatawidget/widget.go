@@ -1,6 +1,8 @@
 package animdatawidget
 
 import (
+	"strconv"
+
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
@@ -32,6 +34,8 @@ func (p *widget) Build() {
 	switch state.mode {
 	case widgetModeList:
 		p.buildAnimationsList()
+	case widgetModeViewRecord:
+		giu.Layout{giu.Label("exampleRecord" + strconv.Itoa(int(state.mapIndex)))}.Build()
 	}
 }
 
@@ -39,8 +43,13 @@ func (p *widget) buildAnimationsList() {
 	state := p.getState()
 
 	list := make([]*giu.SelectableWidget, p.d2.GetRecordsCount())
+
 	for idx, name := range state.mapKeys {
-		list[idx] = giu.Selectable(name)
+		currentIdx := idx
+		list[idx] = giu.Selectable(name).OnClick(func() {
+			state.mapIndex = int32(currentIdx)
+			state.mode = widgetModeViewRecord
+		})
 	}
 
 	giu.Layout{
