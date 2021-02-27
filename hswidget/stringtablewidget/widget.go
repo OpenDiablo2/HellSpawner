@@ -21,7 +21,8 @@ func Create(id string, dict *d2tbl.TextDictionary) giu.Widget {
 }
 
 func (p *widget) Build() {
-	numEntries := len(p.dict.Entries)
+	state := p.getState()
+	numEntries := len(state.keys)
 
 	// wprobably will remove
 	if !(numEntries > 0) {
@@ -39,9 +40,8 @@ func (p *widget) Build() {
 
 	rows[0] = giu.Row(columnWidgets...)
 
-	keyIdx := 0
-
-	for key := range p.dict.Entries {
+	for keyIdx, key := range state.keys {
+		// nolint:gomnd // first row is header
 		rows[keyIdx+1] = giu.Row(
 			giu.Label(key),
 			giu.Label(p.dict.Entries[key]),
