@@ -18,6 +18,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsanimdataeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hscofeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdc6editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdcceditor"
@@ -36,6 +37,7 @@ func (a *App) setup() error {
 	a.editorConstructors[hsfiletypes.FileTypeText] = hstexteditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeAudio] = hssoundeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypePalette] = hspaletteeditor.Create
+	a.editorConstructors[hsfiletypes.FileTypeAnimationData] = hsanimdataeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeDC6] = hsdc6editor.Create
 	a.editorConstructors[hsfiletypes.FileTypeDCC] = hsdcceditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeCOF] = hscofeditor.Create
