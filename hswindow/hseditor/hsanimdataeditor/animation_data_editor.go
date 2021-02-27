@@ -10,6 +10,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/animdatawidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -41,12 +42,12 @@ func Create(_ *hscommon.TextureLoader,
 
 // Build builds a D2 editor
 func (e *AnimationDataEditor) Build() {
-	// uid := e.Path.GetUniqueID()
-	// animDataWidget := cofwidget.Create(e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
+	uid := e.Path.GetUniqueID()
+	animDataWidget := animdatawidget.Create(uid, e.d2)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
-	e.Layout(g.Layout{g.Label("this is an animation data editor")})
+	e.Layout(g.Layout{animDataWidget})
 }
 
 // UpdateMainMenuLayout updates a main menu layout, to it contains anim data viewer's settings
