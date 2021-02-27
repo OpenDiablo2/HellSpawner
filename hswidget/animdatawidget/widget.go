@@ -24,6 +24,15 @@ func Create(id string, d2 *d2animdata.AnimationData) giu.Widget {
 // Build builds widget
 func (p *widget) Build() {
 	state := p.getState()
+
+	switch state.mode {
+	case widgetModeList:
+		p.buildAnimationsList()
+	}
+}
+
+func (p *widget) buildAnimationsList() {
+	state := p.getState()
 	list := make([]*giu.SelectableWidget, p.d2.GetRecordsCount())
 	for n, index := range state.mapKeys {
 		list[n] = giu.Selectable(index)

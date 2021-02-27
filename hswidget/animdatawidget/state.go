@@ -7,7 +7,15 @@ import (
 	"github.com/ianling/giu"
 )
 
+type widgetMode int
+
+const (
+	widgetModeList widgetMode = iota
+	widgetModeViewRecord
+)
+
 type widgetState struct {
+	mode     widgetMode
 	mapKeys  []string
 	mapIndex int32
 }
@@ -16,6 +24,7 @@ type widgetState struct {
 func (ws *widgetState) Dispose() {
 	ws.mapKeys = make([]string, 0)
 	ws.mapIndex = 0
+	ws.mode = widgetModeList
 }
 
 func (p *widget) getStateID() string {
