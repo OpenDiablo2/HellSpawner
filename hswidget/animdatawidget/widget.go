@@ -1,7 +1,7 @@
 package animdatawidget
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/ianling/giu"
 
@@ -9,7 +9,9 @@ import (
 )
 
 const (
-	listW, listH = 200, 400
+	listW, listH       = 200, 400
+	inputIntW          = 30
+	backBtnW, backBtnH = 200, 30
 )
 
 type widget struct {
@@ -35,7 +37,7 @@ func (p *widget) Build() {
 	case widgetModeList:
 		p.buildAnimationsList()
 	case widgetModeViewRecord:
-		giu.Layout{giu.Label("exampleRecord" + strconv.Itoa(int(state.mapIndex)))}.Build()
+		p.buildViewRecordLayout()
 	}
 }
 
@@ -62,5 +64,51 @@ func (p *widget) buildAnimationsList() {
 					}
 				}),
 			}),
+	}.Build()
+}
+
+func (p *widget) buildViewRecordLayout() {
+	state := p.getState()
+
+	name := state.mapKeys[state.mapIndex]
+	records := p.d2.GetRecords(name)
+	record := records[state.recordIdx]
+
+	max := len(records) - 1
+
+	fpd := int32(record.FramesPerDirection())
+	speed := int32(record.Speed())
+
+	giu.Layout{
+		giu.Label(fmt.Sprintf("Animation name: %s", name)),
+		giu.Separator(),
+		giu.Custom(func() {
+			if max > 0 {
+				giu.Layout{
+					giu.SliderInt("record##"+p.id, &state.recordIdx, 0, int32(max)),
+					giu.Separator(),
+				}.Build()
+			}
+		}),
+		giu.Line(
+			giu.Label("Frames per direction: "),
+			giu.InputInt("##"+p.id+"recordFramesPerDirection", &fpd).Size(inputIntW).OnChange(func() {
+				// nolint:gocritic // just for editing in future
+				// record.SetFramesPerDirection(fpd)
+			}),
+		),
+		giu.Line(
+			giu.Label("Speed: "),
+			giu.InputInt("##"+p.id+"recordSpeed", &speed).Size(inputIntW).OnChange(func() {
+				// nolint:gocritic // just for editing in future
+				// record.SetSpeed(speed)
+			}),
+		),
+		giu.Label(fmt.Sprintf("FPS: %v", record.FPS())),
+		giu.Label(fmt.Sprintf("Frame duration: %v (miliseconds)", record.FrameDurationMS())),
+		giu.Separator(),
+		giu.Button("Select another record##"+p.id+"backToRecordSelection").Size(backBtnW, backBtnH).OnClick(func() {
+			state.mode = widgetModeList
+		}),
 	}.Build()
 }

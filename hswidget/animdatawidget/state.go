@@ -15,16 +15,18 @@ const (
 )
 
 type widgetState struct {
-	mode     widgetMode
-	mapKeys  []string
-	mapIndex int32
+	mode      widgetMode
+	mapKeys   []string
+	mapIndex  int32
+	recordIdx int32
 }
 
 // Dispose clears widget's state
 func (ws *widgetState) Dispose() {
+	ws.mode = widgetModeList
 	ws.mapKeys = make([]string, 0)
 	ws.mapIndex = 0
-	ws.mode = widgetModeList
+	ws.recordIdx = 0
 }
 
 func (p *widget) getStateID() string {
