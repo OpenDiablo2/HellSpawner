@@ -43,7 +43,9 @@ func (p *widget) Build() {
 
 func (p *widget) buildTableLayout() {
 	state := p.getState()
+
 	var numEntries int
+
 	if !state.numOnly {
 		numEntries = len(state.keys)
 	} else {
@@ -160,6 +162,7 @@ func (p *widget) calculateFirstFreeNoName() (firstFreeNoName int) {
 	state := p.getState()
 
 	ints := make([]int, 0)
+
 	for _, key := range state.keys {
 		if key[0] == '#' {
 			idx, err := strconv.Atoi(key[1:])
