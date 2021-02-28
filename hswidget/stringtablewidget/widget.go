@@ -83,6 +83,8 @@ func (p *widget) buildTableLayout() {
 			giu.Label(p.dict[key]),
 			giu.Line(
 				giu.Button("delete##"+p.id+"deleteString"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
+					delete(p.dict, key)
+					p.reloadMapValues()
 				}),
 			),
 		)
