@@ -86,6 +86,12 @@ func (p *widget) buildTableLayout() {
 					delete(p.dict, key)
 					p.reloadMapValues()
 				}),
+				giu.Button("edit##"+p.id+"editButton"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
+					state.key = key
+					state.editable = false
+					p.updateValueText()
+					state.mode = widgetModeAddEdit
+				}),
 			),
 		)
 	}
@@ -93,6 +99,7 @@ func (p *widget) buildTableLayout() {
 	giu.Layout{
 		giu.Button("Add/Edit record##"+p.id+"addEditRecord").
 			Size(addEditW, addEditH).OnClick(func() {
+			state.editable = true
 			state.mode = widgetModeAddEdit
 		}),
 		giu.Separator(),
@@ -110,18 +117,24 @@ func (p *widget) buildAddEditLayout() {
 
 	giu.Layout{
 		giu.Label("Key:"),
-		giu.Line(
-			giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
-				p.updateValueText()
-			}),
-			giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
-				if state.noName {
-					firstFreeNoName := p.calculateFirstFreeNoName()
-					state.key = "#" + strconv.Itoa(firstFreeNoName)
-					p.updateValueText()
-				}
-			}),
-		),
+		giu.Custom(func() {
+			if state.editable {
+				giu.Line(
+					giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
+						p.updateValueText()
+					}),
+					giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
+						if state.noName {
+							firstFreeNoName := p.calculateFirstFreeNoName()
+							state.key = "#" + strconv.Itoa(firstFreeNoName)
+							p.updateValueText()
+						}
+					}),
+				).Build()
+			} else {
+				giu.Label(state.key).Build()
+			}
+		}),
 		giu.Label("Value:"),
 		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.value),
 		giu.Separator(),

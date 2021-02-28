@@ -28,15 +28,17 @@ func (ws *widgetState) Dispose() {
 }
 
 type addEditState struct {
-	noName bool
-	key    string
-	value  string
+	key      string
+	value    string
+	noName   bool
+	editable bool
 }
 
 func (aes *addEditState) Dispose() {
-	aes.noName = false
 	aes.key = ""
 	aes.value = ""
+	aes.noName = false
+	aes.editable = false
 }
 
 func (p *widget) getStateID() string {
