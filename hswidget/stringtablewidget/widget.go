@@ -11,6 +11,7 @@ type widget struct {
 	dict d2tbl.TextDictionary
 }
 
+// Create creates a new string table editor widget
 func Create(id string, dict d2tbl.TextDictionary) giu.Widget {
 	result := &widget{
 		id:   id,
@@ -55,8 +56,6 @@ func (p *widget) buildTableLayout() {
 			giu.Label(key),
 			giu.Label(p.dict[key]),
 		)
-
-		keyIdx++
 	}
 
 	giu.Layout{

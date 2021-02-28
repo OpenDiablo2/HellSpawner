@@ -46,7 +46,9 @@ func (p *widget) initState() {
 	state := &widgetState{}
 
 	keys := make([]string, len(p.dict))
+
 	n := 0
+
 	for key := range p.dict {
 		keys[n] = key
 		n++
