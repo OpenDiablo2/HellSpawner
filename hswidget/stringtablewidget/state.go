@@ -15,8 +15,9 @@ const (
 )
 
 type widgetState struct {
-	mode widgetMode
-	keys []string
+	mode    widgetMode
+	keys    []string
+	numOnly bool
 	addEditState
 }
 
@@ -27,11 +28,13 @@ func (ws *widgetState) Dispose() {
 }
 
 type addEditState struct {
-	key   string
-	value string
+	noName bool
+	key    string
+	value  string
 }
 
 func (aes *addEditState) Dispose() {
+	aes.noName = false
 	aes.key = ""
 	aes.value = ""
 }

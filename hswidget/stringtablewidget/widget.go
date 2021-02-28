@@ -1,6 +1,7 @@
 package stringtablewidget
 
 import (
+	"sort"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -42,7 +43,19 @@ func (p *widget) Build() {
 
 func (p *widget) buildTableLayout() {
 	state := p.getState()
-	numEntries := len(state.keys)
+	var numEntries int
+	if !state.numOnly {
+		numEntries = len(state.keys)
+	} else {
+		for _, key := range state.keys {
+			if key[0] == '#' {
+				numEntries++
+			} else {
+				// labels are sorted, so no-name (starting from # are on top)
+				break
+			}
+		}
+	}
 
 	// wprobably will remove
 	if !(numEntries > 0) {
@@ -60,7 +73,8 @@ func (p *widget) buildTableLayout() {
 
 	rows[0] = giu.Row(columnWidgets...)
 
-	for keyIdx, key := range state.keys {
+	for keyIdx := 0; keyIdx < numEntries; keyIdx++ {
+		key := state.keys[keyIdx]
 		// nolint:gomnd // first row is header
 		rows[keyIdx+1] = giu.Row(
 			giu.Label(key),
@@ -77,6 +91,10 @@ func (p *widget) buildTableLayout() {
 			Size(addEditW, addEditH).OnClick(func() {
 			state.mode = widgetModeAddEdit
 		}),
+		giu.Separator(),
+		giu.Line(
+			giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
+		),
 		giu.Child("").Border(false).Layout(giu.Layout{
 			giu.FastTable("").Border(true).Rows(rows),
 		}),
@@ -88,14 +106,18 @@ func (p *widget) buildAddEditLayout() {
 
 	giu.Layout{
 		giu.Label("Key:"),
-		giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
-			str, found := p.dict[state.key]
-			if found {
-				state.value = str
-			} else {
-				state.value = ""
-			}
-		}),
+		giu.Line(
+			giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
+				p.updateValueText()
+			}),
+			giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
+				if state.noName {
+					firstFreeNoName := p.calculateFirstFreeNoName()
+					state.key = "#" + strconv.Itoa(firstFreeNoName)
+					p.updateValueText()
+				}
+			}),
+		),
 		giu.Label("Value:"),
 		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.value),
 		giu.Separator(),
@@ -104,6 +126,9 @@ func (p *widget) buildAddEditLayout() {
 				var btnStr string
 
 				key := state.key
+				if key == "" {
+					return
+				}
 
 				_, found := p.dict[key]
 				if found {
@@ -126,5 +151,45 @@ func (p *widget) buildAddEditLayout() {
 				state.mode = widgetModeViewer
 			}),
 		),
+		giu.Separator(),
+		giu.Label("Tip: enter existing key in value vield to edit it"),
 	}.Build()
+}
+
+func (p *widget) calculateFirstFreeNoName() (firstFreeNoName int) {
+	state := p.getState()
+
+	ints := make([]int, 0)
+	for _, key := range state.keys {
+		if key[0] == '#' {
+			idx, err := strconv.Atoi(key[1:])
+			if err != nil {
+				continue
+			}
+
+			ints = append(ints, idx)
+		}
+	}
+
+	sort.Ints(ints)
+
+	for n, i := range ints {
+		if n != i {
+			firstFreeNoName = n
+			break
+		}
+	}
+
+	return
+}
+
+func (p *widget) updateValueText() {
+	state := p.getState()
+
+	str, found := p.dict[state.key]
+	if found {
+		state.value = str
+	} else {
+		state.value = ""
+	}
 }
