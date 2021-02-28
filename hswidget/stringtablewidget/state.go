@@ -17,11 +17,23 @@ const (
 type widgetState struct {
 	mode widgetMode
 	keys []string
+	addEditState
 }
 
 func (ws *widgetState) Dispose() {
 	ws.mode = widgetModeViewer
 	ws.keys = make([]string, 0)
+	ws.addEditState.Dispose()
+}
+
+type addEditState struct {
+	key   string
+	value string
+}
+
+func (aes *addEditState) Dispose() {
+	aes.key = ""
+	aes.value = ""
 }
 
 func (p *widget) getStateID() string {
@@ -46,6 +58,14 @@ func (p *widget) getState() *widgetState {
 func (p *widget) initState() {
 	state := &widgetState{}
 
+	p.setState(state)
+
+	p.reloadMapValues()
+}
+
+func (p *widget) reloadMapValues() {
+	state := p.getState()
+
 	keys := make([]string, len(p.dict))
 
 	n := 0
@@ -58,8 +78,6 @@ func (p *widget) initState() {
 	sort.Strings(keys)
 
 	state.keys = keys
-
-	p.setState(state)
 }
 
 func (p *widget) setState(s giu.Disposable) {

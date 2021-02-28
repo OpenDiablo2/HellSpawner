@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	deleteW, deleteH   = 50, 30
-	addEditW, addEditH = 200, 30
+	deleteW, deleteH             = 50, 25
+	addEditW, addEditH           = 200, 30
+	actionButtonW, actionButtonH = 100, 30
 )
 
 type widget struct {
@@ -83,5 +84,47 @@ func (p *widget) buildTableLayout() {
 }
 
 func (p *widget) buildAddEditLayout() {
-	giu.Layout{giu.Label("addEdit")}.Build()
+	state := p.getState()
+
+	giu.Layout{
+		giu.Label("Key:"),
+		giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
+			str, found := p.dict[state.key]
+			if found {
+				state.value = str
+			} else {
+				state.value = ""
+			}
+		}),
+		giu.Label("Value:"),
+		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.value),
+		giu.Separator(),
+		giu.Line(
+			giu.Custom(func() {
+				var btnStr string
+
+				key := state.key
+
+				_, found := p.dict[key]
+				if found {
+					btnStr = "Edit"
+				} else {
+					btnStr = "Add"
+				}
+
+				giu.Button(btnStr+"##"+p.id+"addEditAcceptButton").
+					Size(actionButtonW, actionButtonH).
+					OnClick(func() {
+						p.dict[key] = state.value
+						p.reloadMapValues()
+						state.mode = widgetModeViewer
+					}).
+					Build()
+			}),
+			giu.Button("cancel##"+p.id+"addEditCancel").
+				Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.mode = widgetModeViewer
+			}),
+		),
+	}.Build()
 }
