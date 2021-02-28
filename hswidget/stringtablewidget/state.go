@@ -11,6 +11,7 @@ type widgetMode int
 
 const (
 	widgetModeViewer widgetMode = iota
+	widgetModeAddEdit
 )
 
 type widgetState struct {
