@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 400, 300
+	mainWindowW, mainWindowH = 600, 500
 )
 
 // static check, to ensure, if string table editor implemented editoWindow
@@ -24,10 +24,7 @@ var _ hscommon.EditorWindow = &StringTableEditor{}
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
-	// nolint:unused,structcheck // will be used
-	header g.RowWidget
-	rows   g.Rows
-	dict   d2tbl.TextDictionary
+	dict d2tbl.TextDictionary
 }
 
 // Create creates a new string table editor
