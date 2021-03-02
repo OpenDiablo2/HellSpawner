@@ -57,9 +57,7 @@ then clicking on `Edit in settings.json`. Just paste that section where appropri
 For now (start of march 2021) we can use HellSpawner to:
 
 *   create projects
-
 *   browse MPQ archives
-
 *   view following file formats:
     *   DC6 and DCC animations
     *   DT1 map data
@@ -67,7 +65,6 @@ For now (start of march 2021) we can use HellSpawner to:
     *   TXT - data tables
     *   PL2 - palette transforms
     *   DAT - palettes
-
 *   edit:
     *   COF - animation data
     *   DT1 map's tiles
