@@ -1,6 +1,10 @@
 package ds1widget
 
 import (
+	"fmt"
+
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -105,4 +109,35 @@ func (is *DS1State) Dispose() {
 	is.addPathState.Dispose()
 	is.addFloorShadowState.Dispose()
 	is.addWallState.Dispose()
+}
+
+func (p *DS1Widget) getStateID() string {
+	return fmt.Sprintf("DS1Widget_%s", p.id)
+}
+
+func (p *DS1Widget) getState() *DS1State {
+	var state *DS1State
+
+	s := giu.Context.GetState(p.getStateID())
+
+	if s != nil {
+		state = s.(*DS1State)
+	} else {
+		p.initState()
+		state = p.getState()
+	}
+
+	return state
+}
+
+func (p *DS1Widget) setState(s giu.Disposable) {
+	giu.Context.SetState(p.getStateID(), s)
+}
+
+func (p *DS1Widget) initState() {
+	state := &DS1State{
+		ds1Controls: &ds1Controls{},
+	}
+
+	p.setState(state)
 }

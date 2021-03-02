@@ -58,38 +58,6 @@ func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *DS1Widget {
 	return result
 }
 
-func (p *DS1Widget) getStateID() string {
-	return fmt.Sprintf("DS1Widget_%s", p.id)
-}
-
-func (p *DS1Widget) getState() *DS1State {
-	var state *DS1State
-
-	s := giu.Context.GetState(p.getStateID())
-
-	if s != nil {
-		state = s.(*DS1State)
-	} else {
-		p.initState()
-		state = p.getState()
-	}
-
-	return state
-}
-
-func (p *DS1Widget) setState(s giu.Disposable) {
-	giu.Context.SetState(p.getStateID(), s)
-}
-
-func (p *DS1Widget) initState() {
-	state := &DS1State{
-		ds1Controls: &ds1Controls{},
-	}
-
-	p.setState(state)
-}
-
-// Build builds a viewer
 func (p *DS1Widget) Build() {
 	state := p.getState()
 
