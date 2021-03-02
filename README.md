@@ -62,35 +62,29 @@ For now (start of march 2021) we can use HellSpawner to:
 
 *   view following file formats:
 
-<!---->
+    *   DC6 and DCC animations
 
-*   DC6 and DCC animations
+    *   DT1 map data
 
-*   DT1 map data
+    *   WAV sound files
 
-*   WAV sound files
+    *   TXT - data tables
 
-*   TXT - data tables
+    *   PL2 - palette transforms
 
-*   PL2 - palette transforms
-
-*   DAT - palettes
-
-<!---->
+    *   DAT - palettes
 
 *   edit:
 
-<!---->
+    *   COF - animation data
 
-*   COF - animation data
+    *   DT1 map's tiles
 
-*   DT1 map's tiles
+    *   TBL - font tables
 
-*   TBL - font tables
+    *   TBL - string tables
 
-*   TBL - string tables
-
-*   TXT - text files
+    *   TXT - text files
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
 
