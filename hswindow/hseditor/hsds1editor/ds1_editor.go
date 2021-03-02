@@ -62,7 +62,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			ds1widget.DS1Viewer(e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
+			ds1widget.Create(e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
 		})
 }
 

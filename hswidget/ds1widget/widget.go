@@ -47,8 +47,8 @@ type widget struct {
 	deleteButtonTexture *giu.Texture
 }
 
-// DS1Viewer creates a new ds1 viewer
-func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *widget {
+// Create creates a new ds1 viewer
+func Create(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
 	result := &widget{
 		id:                  id,
 		ds1:                 ds1,
