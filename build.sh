@@ -4,7 +4,7 @@
 # Author: liberodark
 # License: GNU GPLv3
 
-go_version="1.16.1"
+go_version="1.16"
 echo "HellSpawner Build Script"
 
 #=================================================
