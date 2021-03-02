@@ -111,11 +111,11 @@ func (is *DS1State) Dispose() {
 	is.addWallState.Dispose()
 }
 
-func (p *DS1Widget) getStateID() string {
+func (p *widget) getStateID() string {
 	return fmt.Sprintf("DS1Widget_%s", p.id)
 }
 
-func (p *DS1Widget) getState() *DS1State {
+func (p *widget) getState() *DS1State {
 	var state *DS1State
 
 	s := giu.Context.GetState(p.getStateID())
@@ -130,11 +130,11 @@ func (p *DS1Widget) getState() *DS1State {
 	return state
 }
 
-func (p *DS1Widget) setState(s giu.Disposable) {
+func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *DS1Widget) initState() {
+func (p *widget) initState() {
 	state := &DS1State{
 		ds1Controls: &ds1Controls{},
 	}

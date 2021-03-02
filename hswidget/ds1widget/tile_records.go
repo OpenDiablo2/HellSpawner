@@ -7,7 +7,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
-func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
+func (p *widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
 	state := p.getState()
 
 	newFloorShadowRecord := d2ds1.FloorShadowRecord{
@@ -22,7 +22,7 @@ func (p *DS1Widget) createFloorShadowRecord() d2ds1.FloorShadowRecord {
 	return newFloorShadowRecord
 }
 
-func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
+func (p *widget) createWallRecord() d2ds1.WallRecord {
 	state := p.getState()
 
 	newWall := d2ds1.WallRecord{
@@ -39,7 +39,7 @@ func (p *DS1Widget) createWallRecord() d2ds1.WallRecord {
 	return newWall
 }
 
-func (p *DS1Widget) addFloor() {
+func (p *widget) addFloor() {
 	state := p.getState()
 
 	state.addFloorShadowState.cb = func() {
@@ -59,7 +59,7 @@ func (p *DS1Widget) addFloor() {
 	state.mode = ds1EditorModeAddFloorShadow
 }
 
-func (p *DS1Widget) deleteFloorRecord() {
+func (p *widget) deleteFloorRecord() {
 	state := p.getState()
 
 	for y := range p.ds1.Tiles {
@@ -80,7 +80,7 @@ func (p *DS1Widget) deleteFloorRecord() {
 	p.recreateLayerStreamTypes()
 }
 
-func (p *DS1Widget) addWall() {
+func (p *widget) addWall() {
 	state := p.getState()
 
 	state.addWallState.cb = func() {
@@ -100,7 +100,7 @@ func (p *DS1Widget) addWall() {
 	state.mode = ds1EditorModeAddWall
 }
 
-func (p *DS1Widget) deleteWall() {
+func (p *widget) deleteWall() {
 	state := p.getState()
 
 	for y := range p.ds1.Tiles {
@@ -121,7 +121,7 @@ func (p *DS1Widget) deleteWall() {
 	p.recreateLayerStreamTypes()
 }
 
-func (p *DS1Widget) addShadow() {
+func (p *widget) addShadow() {
 	state := p.getState()
 
 	state.addFloorShadowState.cb = func() {
@@ -141,7 +141,7 @@ func (p *DS1Widget) addShadow() {
 	state.mode = ds1EditorModeAddFloorShadow
 }
 
-func (p *DS1Widget) deleteShadow() {
+func (p *widget) deleteShadow() {
 	state := p.getState()
 
 	yesCB := func() {

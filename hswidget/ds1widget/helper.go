@@ -10,7 +10,7 @@ import (
 // github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1.(*DS1).setupLayerStreamType()
 // but this method is unexported for now, so...
 // see https://github.com/OpenDiablo2/OpenDiablo2/pull/1059
-func (p *DS1Widget) recreateLayerStreamTypes() {
+func (p *widget) recreateLayerStreamTypes() {
 	var layerStream []d2enum.LayerStreamType
 
 	// nolint:gomnd // this is constant version

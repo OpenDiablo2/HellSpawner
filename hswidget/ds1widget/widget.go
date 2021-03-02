@@ -40,16 +40,16 @@ const (
 // subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
-// DS1Widget represents ds1 viewers widget
-type DS1Widget struct {
+// widget represents ds1 viewers widget
+type widget struct {
 	id                  string
 	ds1                 *d2ds1.DS1
 	deleteButtonTexture *giu.Texture
 }
 
 // DS1Viewer creates a new ds1 viewer
-func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *DS1Widget {
-	result := &DS1Widget{
+func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *widget {
+	result := &widget{
 		id:                  id,
 		ds1:                 ds1,
 		deleteButtonTexture: dbt,
@@ -58,7 +58,7 @@ func DS1Viewer(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) *DS1Widget {
 	return result
 }
 
-func (p *DS1Widget) Build() {
+func (p *widget) Build() {
 	state := p.getState()
 
 	switch state.mode {
@@ -82,7 +82,7 @@ func (p *DS1Widget) Build() {
 	}
 }
 
-func (p *DS1Widget) makeViewerLayout() giu.Layout {
+func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
 	tabs := giu.Layout{
@@ -102,7 +102,7 @@ func (p *DS1Widget) makeViewerLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeDataLayout() giu.Layout {
+func (p *widget) makeDataLayout() giu.Layout {
 	var version int32 = p.ds1.Version
 
 	state := p.getState()
@@ -142,7 +142,7 @@ func (p *DS1Widget) makeDataLayout() giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makeFilesLayout() giu.Layout {
+func (p *widget) makeFilesLayout() giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -176,7 +176,7 @@ func (p *DS1Widget) makeFilesLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeObjectsLayout(state *DS1State) giu.Layout {
+func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
 	l := giu.Layout{}
@@ -219,7 +219,7 @@ func (p *DS1Widget) makeObjectsLayout(state *DS1State) giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
+func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
 	objIdx := int(state.object)
 
 	if objIdx >= len(p.ds1.Objects) {
@@ -267,7 +267,7 @@ func (p *DS1Widget) makeObjectLayout(state *DS1State) giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
+func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	rowWidgets := make([]*giu.RowWidget, 0)
 
 	rowWidgets = append(rowWidgets, giu.Row(
@@ -301,7 +301,7 @@ func (p *DS1Widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeTilesLayout(state *DS1State) giu.Layout {
+func (p *widget) makeTilesLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{}
 
 	tx, ty := int(state.tileX), int(state.tileY)
@@ -364,7 +364,7 @@ func (p *DS1Widget) makeTilesLayout(state *DS1State) giu.Layout {
 }
 
 // nolint:funlen // cannot reduce
-func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout {
+func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
 
@@ -469,7 +469,7 @@ func (p *DS1Widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Lay
 }
 
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *DS1Widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -498,7 +498,7 @@ func (p *DS1Widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorS
 	return l
 }
 
-func (p *DS1Widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -537,7 +537,7 @@ func (p *DS1Widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Lay
 }
 
 // nolint:dupl // could be changed
-func (p *DS1Widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRecord) giu.Layout {
+func (p *widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -566,7 +566,7 @@ func (p *DS1Widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRec
 	return l
 }
 
-func (p *DS1Widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
+func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -606,7 +606,7 @@ func (p *DS1Widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 }
 
 // nolint:dupl // no need to change
-func (p *DS1Widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -635,7 +635,7 @@ func (p *DS1Widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.Floor
 	return l
 }
 
-func (p *DS1Widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -674,7 +674,7 @@ func (p *DS1Widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.La
 }
 
 // nolint:dupl // it is ok
-func (p *DS1Widget) makeTileSubsLayout(state *DS1State, records []d2ds1.SubstitutionRecord) giu.Layout {
+func (p *widget) makeTileSubsLayout(state *DS1State, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -703,7 +703,7 @@ func (p *DS1Widget) makeTileSubsLayout(state *DS1State, records []d2ds1.Substitu
 	return l
 }
 
-func (p *DS1Widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
+func (p *widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
 	unknown32 := int32(record.Unknown)
 
 	return giu.Layout{
@@ -716,7 +716,7 @@ func (p *DS1Widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layo
 	}
 }
 
-func (p *DS1Widget) makeSubstitutionsLayout(state *DS1State) giu.Layout {
+func (p *widget) makeSubstitutionsLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{}
 
 	recordIdx := int(state.subgroup)
@@ -745,7 +745,7 @@ func (p *DS1Widget) makeSubstitutionsLayout(state *DS1State) giu.Layout {
 	return l
 }
 
-func (p *DS1Widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
+func (p *widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
 	l := giu.Layout{
 		giu.Label(fmt.Sprintf("TileX: %d", group.TileX)),
 		giu.Label(fmt.Sprintf("TileY: %d", group.TileY)),
@@ -757,7 +757,7 @@ func (p *DS1Widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.L
 	return l
 }
 
-func (p *DS1Widget) makeAddFileLayout() giu.Layout {
+func (p *widget) makeAddFileLayout() giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
@@ -776,7 +776,7 @@ func (p *DS1Widget) makeAddFileLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
+func (p *widget) makeAddObjectLayout() giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
@@ -822,7 +822,7 @@ func (p *DS1Widget) makeAddObjectLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) makeAddPathLayout() giu.Layout {
+func (p *widget) makeAddPathLayout() giu.Layout {
 	state := p.getState()
 
 	// https://github.com/OpenDiablo2/OpenDiablo2/issues/811
@@ -863,7 +863,7 @@ func (p *DS1Widget) makeAddPathLayout() giu.Layout {
 // second to in p.makeAddWallLayout, so we should specify, wher does
 // we want to save results (in DS1State.addFloorShadowState,
 // or in DS1State.addWallState)
-func (p *DS1Widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.Layout {
+func (p *widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
@@ -926,7 +926,7 @@ func (p *DS1Widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu
 	}
 }
 
-func (p *DS1Widget) makeAddWallLayout() giu.Layout {
+func (p *widget) makeAddWallLayout() giu.Layout {
 	state := p.getState()
 
 	// nolint:gomnd // enumeration of tile types starts from 0, but we must give length (starts from 1) in argument
@@ -955,7 +955,7 @@ func (p *DS1Widget) makeAddWallLayout() giu.Layout {
 	}
 }
 
-func (p *DS1Widget) deleteFile(idx int) {
+func (p *widget) deleteFile(idx int) {
 	newFiles := make([]string, 0)
 
 	for n, file := range p.ds1.Files {
@@ -967,7 +967,7 @@ func (p *DS1Widget) deleteFile(idx int) {
 	p.ds1.Files = newFiles
 }
 
-func (p *DS1Widget) addPath() {
+func (p *widget) addPath() {
 	state := p.getState()
 
 	newPath := d2path.Path{
@@ -984,7 +984,7 @@ func (p *DS1Widget) addPath() {
 	state.mode = ds1EditorModeViewer
 }
 
-func (p *DS1Widget) deletePath(idx int) {
+func (p *widget) deletePath(idx int) {
 	state := p.getState()
 
 	newPaths := make([]d2path.Path, 0)
@@ -998,7 +998,7 @@ func (p *DS1Widget) deletePath(idx int) {
 	p.ds1.Objects[state.object].Paths = newPaths
 }
 
-func (p *DS1Widget) deleteObject(idx int32) {
+func (p *widget) deleteObject(idx int32) {
 	// first, wee check if index (idx) exist in NpcIndexes
 	for n, i := range p.ds1.NpcIndexes {
 		if i == int(idx) {
