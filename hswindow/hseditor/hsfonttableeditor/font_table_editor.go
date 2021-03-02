@@ -2,9 +2,6 @@
 package hsfonttableeditor
 
 import (
-	"fmt"
-	"sort"
-
 	"github.com/OpenDiablo2/dialog"
 
 	g "github.com/ianling/giu"
@@ -13,11 +10,16 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/fonttablewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 const (
-	mainWindowW, mainWindowH = 400, 300
+	mainWindowW, mainWindowH = 550, 400
+)
+
+const (
+	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
 )
 
 // static check, to ensure, if font table editor implemented editoWindow
@@ -26,12 +28,12 @@ var _ hscommon.EditorWindow = &FontTableEditor{}
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor
-	fontTable *d2font.Font
-	rows      g.Rows
+	fontTable           *d2font.Font
+	deleteButtonTexture *g.Texture
 }
 
 // Create creates a new font table editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	table, err := d2font.Load(*data)
@@ -39,80 +41,24 @@ func Create(_ *hscommon.TextureLoader,
 		return nil, err
 	}
 
-	editor := &FontTableEditor{
+	result := &FontTableEditor{
 		Editor:    hseditor.New(pathEntry, x, y, project),
 		fontTable: table,
 	}
 
-	return editor, nil
-}
-
-func (e *FontTableEditor) init() {
-	e.rows = make(g.Rows, 0)
-
-	e.rows = append(e.rows, g.Row(
-		g.Label("Index"),
-		g.Label("Character"),
-		g.Label("Width (px)"),
-	))
-
-	// we need to get keys from map[rune]*d2font.fontGlyph
-	// and then sort them
-	chars := make([]rune, len(e.fontTable.Glyphs))
-
-	// reading runes from map
-	idx := 0
-
-	for r := range e.fontTable.Glyphs {
-		chars[idx] = r
-		idx++
-	}
-
-	// sorting runes
-	sort.Slice(chars, func(i, j int) bool {
-		return e.fontTable.Glyphs[chars[i]].FrameIndex() < e.fontTable.Glyphs[chars[j]].FrameIndex()
+	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+		result.deleteButtonTexture = texture
 	})
 
-	for _, idx := range chars {
-		e.rows = append(e.rows, e.makeGlyphLayout(idx))
-	}
+	return result, nil
 }
 
 // Build builds a font table editor's window
 func (e *FontTableEditor) Build() {
-	if e.rows == nil {
-		e.init()
-		return
-	}
-
-	tableLayout := g.Layout{g.Child("").
-		Border(false).
-		Layout(
-			g.Layout{
-				g.FastTable("").Border(true).Rows(e.rows),
-			},
-		)}
-
-	e.IsOpen(&e.Visible).
-		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(mainWindowW, mainWindowH).
-		Layout(tableLayout)
-}
-
-func (e *FontTableEditor) makeGlyphLayout(r rune) *g.RowWidget {
-	if e.fontTable.Glyphs[r] == nil {
-		return &g.RowWidget{}
-	}
-
-	w, _ := e.fontTable.Glyphs[r].Size()
-
-	row := g.Row(
-		g.Label(fmt.Sprintf("%d", e.fontTable.Glyphs[r].FrameIndex())),
-		g.Label(string(r)),
-		g.Label(fmt.Sprintf("%d", w)),
-	)
-
-	return row
+	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
+		Size(mainWindowW, mainWindowH).Layout(g.Layout{
+		fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
+	})
 }
 
 // UpdateMainMenuLayout updates mainMenu layout's to it contain FontTableEditor's options
@@ -134,8 +80,7 @@ func (e *FontTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData generates data to be saved
 func (e *FontTableEditor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.fontTable.Marshal()
 
 	return data
 }

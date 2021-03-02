@@ -26,7 +26,7 @@ type StringTableEditor struct {
 	// nolint:unused,structcheck // will be used
 	header g.RowWidget
 	rows   g.Rows
-	dict   *d2tbl.TextDictionary
+	dict   d2tbl.TextDictionary
 }
 
 // Create creates a new string table editor
@@ -45,7 +45,7 @@ func Create(_ *hscommon.TextureLoader,
 
 	result.Path = pathEntry
 
-	numEntries := len(result.dict.Entries)
+	numEntries := len(result.dict)
 
 	if !(numEntries > 0) {
 		return result, nil
@@ -64,10 +64,10 @@ func Create(_ *hscommon.TextureLoader,
 
 	keyIdx := 0
 
-	for key := range result.dict.Entries {
+	for key := range result.dict {
 		result.rows[keyIdx+1] = g.Row(
 			g.Label(key),
-			g.Label(result.dict.Entries[key]),
+			g.Label(result.dict[key]),
 		)
 
 		keyIdx++
