@@ -59,7 +59,7 @@ func MakeInputInt(id string, width int32, output interface{}, optionalCB func())
 	case *int:
 		input = int32(*o)
 	default:
-		panic("MakeInputInt: invalid value type given")
+		panic(fmt.Sprintf("MakeInputInt: invalid value type %T given", o))
 	}
 
 	return giu.InputInt(id, &input).Size(float32(width)).OnChange(func() {

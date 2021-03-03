@@ -102,6 +102,8 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	}
 }
 
+// makeDataLayout creates basic data layout
+// used in p.makeViewerLayout
 func (p *widget) makeDataLayout() giu.Layout {
 	var version int32 = p.ds1.Version
 
