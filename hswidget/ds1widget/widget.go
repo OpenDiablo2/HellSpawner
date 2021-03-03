@@ -82,6 +82,7 @@ func (p *widget) Build() {
 	}
 }
 
+// creates standard viewer/editor layout
 func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
@@ -144,6 +145,8 @@ func (p *widget) makeDataLayout() giu.Layout {
 	return l
 }
 
+// makeFilesLayout creates files list
+// used in p.makeViewerLayout (files tab)
 func (p *widget) makeFilesLayout() giu.Layout {
 	state := p.getState()
 
@@ -178,6 +181,8 @@ func (p *widget) makeFilesLayout() giu.Layout {
 	}
 }
 
+// makeObjectsLayout creates objects info tab
+// used in p.makeViewerLayout (in objects tab)
 func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
@@ -194,6 +199,7 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 			giu.Label("No objects."),
 			giu.ImageWithFile("hsassets/images/shrug.png").Size(imageW, imageH),
 		)
+
 		l = append(l, line)
 	}
 
@@ -204,7 +210,7 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 			giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
 				state.mode = ds1EditorModeAddObject
 			}),
-			giu.Button("Add new path...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
+			giu.Button("Add path to this object...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
 				state.mode = ds1EditorModeAddPath
 			}),
 			hsutil.MakeImageButton(
@@ -221,6 +227,8 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 	return l
 }
 
+// makeObjectLayout creates informations about single object
+// used in p.makeObjectsLayout
 func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
 	objIdx := int(state.object)
 
@@ -237,24 +245,49 @@ func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{
 		giu.Line(
 			giu.Label("Type: "),
-			makeInputIntFromInt("##"+p.id+"objType", &obj.Type),
+			hsutil.MakeInputInt(
+				"##"+p.id+"objType",
+				inputIntW,
+				&obj.Type,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("ID: "),
-			makeInputIntFromInt("##"+p.id+"objID", &obj.ID),
+			hsutil.MakeInputInt(
+				"##"+p.id+"objID",
+				inputIntW,
+				&obj.ID,
+				nil,
+			),
 		),
 		giu.Label("Position (tiles): "),
 		giu.Line(
 			giu.Label("\tX: "),
-			makeInputIntFromInt("##"+p.id+"objX", &obj.X),
+			hsutil.MakeInputInt(
+				"##"+p.id+"objX",
+				inputIntW,
+				&obj.X,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("\tY: "),
-			makeInputIntFromInt("##"+p.id+"objY", &obj.Y),
+			hsutil.MakeInputInt(
+				"##"+p.id+"objY",
+				inputIntW,
+				&obj.Y,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Flags: 0x"),
-			makeInputIntFromInt("##"+p.id+"objFlags", &obj.Flags),
+			hsutil.MakeInputInt(
+				"##"+p.id+"objFlags",
+				inputIntW,
+				&obj.Flags,
+				nil,
+			),
 		),
 	}
 
@@ -269,6 +302,8 @@ func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
 	return l
 }
 
+// makePathLayout creates paths table
+// used in p.makeObjectLayout
 func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	rowWidgets := make([]*giu.RowWidget, 0)
 
@@ -303,6 +338,7 @@ func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	}
 }
 
+// makeTilesLayout creates tiles layout (tile x, y)
 func (p *widget) makeTilesLayout(state *DS1State) giu.Layout {
 	l := giu.Layout{}
 
@@ -365,7 +401,8 @@ func (p *widget) makeTilesLayout(state *DS1State) giu.Layout {
 	return l
 }
 
-// nolint:funlen // cannot reduce
+// makeTileLayout creates tabs for tile types
+// used in p.makeTilesLayout
 func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
@@ -432,22 +469,6 @@ func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout
 			tabs,
 			giu.TabItem("Shadows").Layout(giu.Layout{
 				p.makeTileShadowsLayout(state, t.Shadows),
-				giu.Line(
-					hsutil.MakeImageButton(
-						"##"+p.id+"deleteFloor",
-						layerDeleteButtonSize, layerDeleteButtonSize,
-						p.deleteButtonTexture,
-						func() {
-							p.deleteShadow()
-						},
-					),
-				),
-			}),
-		)
-	} else {
-		editionButtons = append(editionButtons,
-			giu.Button("Add shadow##"+p.id+"addShadow").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.addShadow()
 			}),
 		)
 	}
@@ -470,6 +491,8 @@ func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout
 	}
 }
 
+// makeTileFloorsLayout creates floors tab
+// used in p.makeTileLayout
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
 func (p *widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
@@ -500,31 +523,61 @@ func (p *widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShad
 	return l
 }
 
+// makeTileFloorLayout makes single floor's layout
+// used in p.makeTileFloorsLayout
 func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			makeInputIntFromByte("##"+p.id+"floorProp1", &record.Prop1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorProp1",
+				inputIntW,
+				&record.Prop1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			makeInputIntFromByte("##"+p.id+"floorSequence", &record.Sequence),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorSequence",
+				inputIntW,
+				&record.Sequence,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			makeInputIntFromByte("##"+p.id+"floorUnknown1", &record.Unknown1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorUnknown1",
+				inputIntW,
+				&record.Unknown1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			makeInputIntFromByte("##"+p.id+"floorStyle", &record.Style),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorStyle",
+				inputIntW,
+				&record.Style,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			makeInputIntFromByte("##"+p.id+"floorUnknown2", &record.Unknown2),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorUnknown2",
+				inputIntW,
+				&record.Unknown2,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			makeCheckboxFromByte("##"+p.id+"floorHidden", &record.HiddenBytes),
+			hsutil.MakeCheckboxFromByte(
+				"##"+p.id+"floorHidden",
+				&record.HiddenBytes,
+			),
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
@@ -572,31 +625,64 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			makeInputIntFromByte("##"+p.id+"wallProp1", &record.Prop1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallProp1",
+				inputIntW,
+				&record.Prop1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Zero: "),
-			makeInputIntFromByte("##"+p.id+"wallZero", &record.Zero),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallZero",
+				inputIntW,
+				&record.Zero,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			makeInputIntFromByte("##"+p.id+"wallSequence", &record.Sequence),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallSequence",
+				inputIntW,
+				&record.Sequence,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			makeInputIntFromByte("##"+p.id+"wallUnknown1", &record.Unknown1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallUnknown1",
+				inputIntW,
+				&record.Unknown1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			makeInputIntFromByte("##"+p.id+"wallStyle", &record.Style),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallStyle",
+				inputIntW,
+				&record.Style,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			makeInputIntFromByte("##"+p.id+"wallUnknown2", &record.Unknown2),
+			hsutil.MakeInputInt(
+				"##"+p.id+"wallUnknown2",
+				inputIntW,
+				&record.Unknown2,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			makeCheckboxFromByte("##"+p.id+"wallHidden", &record.HiddenBytes),
+			hsutil.MakeCheckboxFromByte(
+				"##"+p.id+"wallHidden",
+				&record.HiddenBytes,
+			),
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
@@ -641,27 +727,55 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			makeInputIntFromByte("##"+p.id+"floorProp1", &record.Prop1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorProp1",
+				inputIntW,
+				&record.Prop1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			makeInputIntFromByte("##"+p.id+"floorSequence", &record.Sequence),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorSequence",
+				inputIntW,
+				&record.Sequence,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			makeInputIntFromByte("##"+p.id+"floorUnknown1", &record.Unknown1),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorUnknown1",
+				inputIntW,
+				&record.Unknown1,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			makeInputIntFromByte("##"+p.id+"floorStyle", &record.Style),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorStyle",
+				inputIntW,
+				&record.Style,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			makeInputIntFromByte("##"+p.id+"floorUnknown2", &record.Unknown2),
+			hsutil.MakeInputInt(
+				"##"+p.id+"floorUnknown2",
+				inputIntW,
+				&record.Unknown2,
+				nil,
+			),
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			makeCheckboxFromByte("##"+p.id+"floorHidden", &record.HiddenBytes),
+			hsutil.MakeCheckboxFromByte(
+				"##"+p.id+"floorHidden",
+				&record.HiddenBytes,
+			),
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
@@ -911,7 +1025,8 @@ func (p *widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.La
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			makeCheckboxFromByte("##"+p.id+"addFloorShadowHidden",
+			hsutil.MakeCheckboxFromByte(
+				"##"+p.id+"addFloorShadowHidden",
 				&output.hidden,
 			),
 		),
@@ -1001,7 +1116,7 @@ func (p *widget) deletePath(idx int) {
 }
 
 func (p *widget) deleteObject(idx int32) {
-	// first, wee check if index (idx) exist in NpcIndexes
+	// first, we check if index (idx) exist in NpcIndexes
 	for n, i := range p.ds1.NpcIndexes {
 		if i == int(idx) {
 			p.ds1.NpcIndexes = append(p.ds1.NpcIndexes[:n], p.ds1.NpcIndexes[n+1:]...)

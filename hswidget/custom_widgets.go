@@ -70,7 +70,9 @@ func MakeInputInt(id string, width int32, output interface{}, optionalCB func())
 			*o = int(input)
 		}
 
-		optionalCB()
+		if optionalCB != nil {
+			optionalCB()
+		}
 	})
 }
 

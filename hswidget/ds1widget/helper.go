@@ -1,8 +1,6 @@
 package ds1widget
 
 import (
-	"github.com/ianling/giu"
-
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 )
 
@@ -48,47 +46,4 @@ func (p *widget) recreateLayerStreamTypes() {
 	}
 
 	p.ds1.LayerStreamTypes = layerStream
-}
-
-func setByteToInt(input int32, output *byte) {
-	const (
-		// nolint:gomnd // constant
-		maxByteSize = byte(255)
-	)
-
-	if input > int32(maxByteSize) {
-		*output = maxByteSize
-
-		return
-	}
-
-	*output = byte(input)
-}
-
-func makeInputIntFromByte(id string, output *byte) *giu.InputIntWidget {
-	input := int32(*output)
-
-	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
-		setByteToInt(input, output)
-	})
-}
-
-func makeInputIntFromInt(id string, output *int) *giu.InputIntWidget {
-	input := int32(*output)
-
-	return giu.InputInt(id, &input).Size(inputIntW).OnChange(func() {
-		*output = int(input)
-	})
-}
-
-func makeCheckboxFromByte(id string, value *byte) *giu.CheckboxWidget {
-	v := (*value > 0)
-
-	return giu.Checkbox(id, &v).OnChange(func() {
-		if v {
-			*value = 1
-		} else {
-			*value = 0
-		}
-	})
 }
