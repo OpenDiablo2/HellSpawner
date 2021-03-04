@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/stringtablewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -61,6 +62,8 @@ func (e *StringTableEditor) Build() {
 // UpdateMainMenuLayout updates main menu layout to it contain editors options
 func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("String Table Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -73,6 +76,14 @@ func (e *StringTableEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *StringTableEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved

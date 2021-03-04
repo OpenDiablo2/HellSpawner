@@ -14,6 +14,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -55,6 +56,8 @@ func (e *DC6Editor) Build() {
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu
 func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DC6 Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -67,6 +70,14 @@ func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *DC6Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates save data

@@ -57,6 +57,8 @@ func (e *DT1Editor) Build() {
 // UpdateMainMenuLayout updates main menu layout to it contains editors options
 func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DT1 Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -73,6 +75,11 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // RegisterKeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
+
 	// nolint:gocritic // we may want to use this code
 	/*
 		// right arrow goes to the next tile group
