@@ -12,6 +12,7 @@ type widgetMode int
 const (
 	widgetModeList widgetMode = iota
 	widgetModeViewRecord
+	widgetModeAddEntry
 )
 
 type widgetState struct {
@@ -19,6 +20,7 @@ type widgetState struct {
 	mapKeys   []string
 	mapIndex  int32
 	recordIdx int32
+	addEntryState
 }
 
 // Dispose clears widget's state
@@ -27,6 +29,15 @@ func (ws *widgetState) Dispose() {
 	ws.mapKeys = make([]string, 0)
 	ws.mapIndex = 0
 	ws.recordIdx = 0
+	ws.addEntryState.Dispose()
+}
+
+type addEntryState struct {
+	name string
+}
+
+func (aes *addEntryState) Dispose() {
+	aes.name = ""
 }
 
 func (p *widget) getStateID() string {

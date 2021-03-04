@@ -2,6 +2,9 @@ package animdatawidget
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/OpenDiablo2/dialog"
 
 	"github.com/ianling/giu"
 
@@ -9,9 +12,10 @@ import (
 )
 
 const (
-	listW, listH       = 200, 400
-	inputIntW          = 30
-	backBtnW, backBtnH = 200, 30
+	listW, listH                         = 200, 400
+	inputIntW                            = 30
+	actionBtnW, actionBtnH               = 200, 30
+	saveCancelButtonW, saveCancelButtonH = 50, 30
 )
 
 type widget struct {
@@ -44,7 +48,7 @@ func (p *widget) Build() {
 func (p *widget) buildAnimationsList() {
 	state := p.getState()
 
-	list := make([]*giu.SelectableWidget, p.d2.GetRecordsCount())
+	list := make([]giu.Widget, p.d2.GetRecordsCount())
 
 	for idx, name := range state.mapKeys {
 		currentIdx := idx
@@ -55,15 +59,11 @@ func (p *widget) buildAnimationsList() {
 	}
 
 	giu.Layout{
+		p.makeSearchLayout(),
+		giu.Separator(),
 		giu.Child("##"+p.id+"keyList").Border(false).
 			Size(listW, listH).
-			Layout(giu.Layout{
-				giu.Custom(func() {
-					for _, i := range list {
-						i.Build()
-					}
-				}),
-			}),
+			Layout(list),
 	}.Build()
 }
 
@@ -105,22 +105,75 @@ func (p *widget) buildViewRecordLayout() {
 		giu.Line(
 			giu.Label("Frames per direction: "),
 			giu.InputInt("##"+p.id+"recordFramesPerDirection", &fpd).Size(inputIntW).OnChange(func() {
-				// nolint:gocritic // just for editing in future
-				// record.SetFramesPerDirection(fpd)
+				record.SetFramesPerDirection(uint32(fpd))
 			}),
 		),
 		giu.Line(
 			giu.Label("Speed: "),
 			giu.InputInt("##"+p.id+"recordSpeed", &speed).Size(inputIntW).OnChange(func() {
-				// nolint:gocritic // just for editing in future
-				// record.SetSpeed(speed)
+				record.SetSpeed(uint16(speed))
 			}),
 		),
 		giu.Label(fmt.Sprintf("FPS: %v", record.FPS())),
 		giu.Label(fmt.Sprintf("Frame duration: %v (miliseconds)", record.FrameDurationMS())),
 		giu.Separator(),
-		giu.Button("Select another record##"+p.id+"backToRecordSelection").Size(backBtnW, backBtnH).OnClick(func() {
+		giu.Button("Select another record##"+p.id+"backToRecordSelection").Size(actionBtnW, actionBtnH).OnClick(func() {
 			state.mode = widgetModeList
 		}),
+		giu.Button("Add record##"+p.id+"addRecordBtn").Size(actionBtnW, actionBtnH).OnClick(func() {
+			dialog.Message("available after merging https://github.com/OpenDiablo2/OpenDiablo2/pulls/1086").Info()
+			// p.d2.PushRecord(name)
+			// nolint:gomnd // list index
+			// state.recordIdx = len(records)-1
+		}),
 	}.Build()
+}
+
+func (p *widget) makeSearchLayout() giu.Layout {
+	state := p.getState()
+
+	return giu.Layout{
+		giu.Label("Search or type new entry name:"),
+		giu.InputText("##"+p.id+"newEntryName", &state.name).Size(listW).OnChange(func() {
+			// formatting
+			state.name = strings.ToUpper(state.name)
+			state.name = strings.ReplaceAll(state.name, " ", "")
+		}),
+		giu.Custom(func() {
+			if state.name == "" {
+				return
+			}
+
+			found := (len(p.d2.GetRecords(state.name)) > 0)
+			if found {
+				giu.Line(
+					giu.Button("View##"+p.id+"addEntryViewEntry").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+						p.viewRecord()
+					}),
+				).Build()
+
+				return
+			}
+
+			giu.Line(
+				giu.Button("Add##"+p.id+"addEntry").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+					dialog.Message("available after merging https://github.com/OpenDiablo2/OpenDiablo2/pulls/1086").Info()
+					// p.d2.AddRecord(state.name)
+					// p.viewRecord()
+				}),
+			).Build()
+		}),
+	}
+}
+
+func (p *widget) viewRecord() {
+	state := p.getState()
+
+	for n, i := range state.mapKeys {
+		if i == state.name {
+			state.mapIndex = int32(n)
+		}
+	}
+
+	state.mode = widgetModeViewRecord
 }
