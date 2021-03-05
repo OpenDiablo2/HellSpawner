@@ -3,11 +3,14 @@ package animdatawidget
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const (
@@ -18,15 +21,17 @@ const (
 )
 
 type widget struct {
-	id string
-	d2 *d2animdata.AnimationData
+	id  string
+	d2  *d2animdata.AnimationData
+	del *giu.Texture
 }
 
 // Create creates a new widget
-func Create(id string, d2 *d2animdata.AnimationData) giu.Widget {
+func Create(del *giu.Texture, id string, d2 *d2animdata.AnimationData) giu.Widget {
 	result := &widget{
-		id: id,
-		d2: d2,
+		id:  id,
+		d2:  d2,
+		del: del,
 	}
 
 	return result
@@ -51,10 +56,20 @@ func (p *widget) buildAnimationsList() {
 
 	for idx, name := range state.mapKeys {
 		currentIdx := idx
-		list[idx] = giu.Selectable(name).OnClick(func() {
-			state.mapIndex = int32(currentIdx)
-			state.mode = widgetModeViewRecord
-		})
+		list[idx] = giu.Line(
+			hsutil.MakeImageButton(
+				"##"+p.id+"deleteEntry"+strconv.Itoa(currentIdx),
+				13, 13,
+				p.del,
+				func() {
+					p.deleteEntry(state.mapKeys[currentIdx])
+				},
+			),
+			giu.Selectable(name).OnClick(func() {
+				state.mapIndex = int32(currentIdx)
+				state.mode = widgetModeViewRecord
+			}),
+		)
 	}
 
 	giu.Layout{
