@@ -2,9 +2,8 @@ package animdatawidget
 
 import (
 	"fmt"
+	"log"
 	"strings"
-
-	"github.com/OpenDiablo2/dialog"
 
 	"github.com/ianling/giu"
 
@@ -121,10 +120,10 @@ func (p *widget) buildViewRecordLayout() {
 			state.mode = widgetModeList
 		}),
 		giu.Button("Add record##"+p.id+"addRecordBtn").Size(actionBtnW, actionBtnH).OnClick(func() {
-			dialog.Message("available after merging https://github.com/OpenDiablo2/OpenDiablo2/pulls/1086").Info()
-			// p.d2.PushRecord(name)
+			p.d2.PushRecord(name)
+
 			// nolint:gomnd // list index
-			// state.recordIdx = len(records)-1
+			state.recordIdx = int32(len(records) - 1)
 		}),
 	}.Build()
 }
@@ -157,9 +156,14 @@ func (p *widget) makeSearchLayout() giu.Layout {
 
 			giu.Line(
 				giu.Button("Add##"+p.id+"addEntry").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-					dialog.Message("available after merging https://github.com/OpenDiablo2/OpenDiablo2/pulls/1086").Info()
-					// p.d2.AddRecord(state.name)
-					// p.viewRecord()
+					err := p.d2.AddEntry(state.name)
+					if err != nil {
+						log.Print(err)
+					}
+
+					p.d2.PushRecord(state.name)
+					p.reloadMapKeys()
+					p.viewRecord()
 				}),
 			).Build()
 		}),

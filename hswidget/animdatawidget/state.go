@@ -12,7 +12,6 @@ type widgetMode int
 const (
 	widgetModeList widgetMode = iota
 	widgetModeViewRecord
-	widgetModeAddEntry
 )
 
 type widgetState struct {
@@ -61,11 +60,15 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{}
+	p.setState(state)
 
+	p.reloadMapKeys()
+}
+
+func (p *widget) reloadMapKeys() {
+	state := p.getState()
 	state.mapKeys = p.d2.GetRecordNames()
 	sort.Strings(state.mapKeys)
-
-	p.setState(state)
 }
 
 func (p *widget) setState(s giu.Disposable) {
