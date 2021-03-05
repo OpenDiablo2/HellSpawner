@@ -169,7 +169,8 @@ func (p *widget) buildAddEditLayout() {
 			}),
 		),
 		giu.Separator(),
-		giu.Label("Tip: enter existing key in value vield to edit it"),
+		giu.Label("Tip: enter existing key in key field to edit it"),
+		giu.Label("Tip: you don't have to enter key; you can just select \"no-name\""),
 	}.Build()
 }
 
