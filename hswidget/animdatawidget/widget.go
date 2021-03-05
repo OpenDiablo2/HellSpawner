@@ -81,12 +81,16 @@ func (p *widget) buildViewRecordLayout() {
 	giu.Layout{
 		giu.Line(
 			giu.ArrowButton("##"+p.id+"previousAnimation", giu.DirectionLeft).OnClick(func() {
+				state.recordIdx = 0
+
 				if state.mapIndex > 0 {
 					state.mapIndex--
 				}
 			}),
 			giu.Label(fmt.Sprintf("Animation name: %s", name)),
 			giu.ArrowButton("##"+p.id+"nextAnimation", giu.DirectionRight).OnClick(func() {
+				state.recordIdx = 0
+
 				if int(state.mapIndex) < len(state.mapKeys)-1 {
 					state.mapIndex++
 				}
@@ -116,14 +120,35 @@ func (p *widget) buildViewRecordLayout() {
 		giu.Label(fmt.Sprintf("FPS: %v", record.FPS())),
 		giu.Label(fmt.Sprintf("Frame duration: %v (miliseconds)", record.FrameDurationMS())),
 		giu.Separator(),
-		giu.Button("Select another record##"+p.id+"backToRecordSelection").Size(actionBtnW, actionBtnH).OnClick(func() {
+		giu.Button("Back to entry preview##"+p.id+"backToRecordSelection").Size(actionBtnW, actionBtnH).OnClick(func() {
 			state.mode = widgetModeList
 		}),
 		giu.Button("Add record##"+p.id+"addRecordBtn").Size(actionBtnW, actionBtnH).OnClick(func() {
 			p.d2.PushRecord(name)
 
-			// nolint:gomnd // list index
-			state.recordIdx = int32(len(records) - 1)
+			// no -1, because current records hasn't new field yet
+			state.recordIdx = int32(len(records))
+		}),
+		giu.Button("Delete record##"+p.id+"deleteRecordBtn").Size(actionBtnW, actionBtnH).OnClick(func() {
+			if len(records) == 1 {
+				state.recordIdx = 0
+				state.mode = widgetModeList
+				p.deleteEntry(name)
+
+				return
+			}
+			if state.recordIdx == int32(len(records)-1) {
+				if state.recordIdx > 0 {
+					state.recordIdx--
+				} else {
+					state.mode = widgetModeList
+				}
+			}
+
+			err := p.d2.DeleteRecord(name, int(state.recordIdx))
+			if err != nil {
+				log.Print(err)
+			}
 		}),
 	}.Build()
 }
@@ -180,4 +205,13 @@ func (p *widget) viewRecord() {
 	}
 
 	state.mode = widgetModeViewRecord
+}
+
+func (p *widget) deleteEntry(name string) {
+	err := p.d2.DeleteEntry(name)
+	if err != nil {
+		log.Print(fmt.Errorf("deleting entry: %v", err))
+	}
+
+	p.reloadMapKeys()
 }
