@@ -70,7 +70,7 @@ func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixed
 	// convert html to text
 	text, err := html2text.FromString(string(html), html2text.Options{PrettyTables: true})
 	if err != nil {
-		return result, err
+		return result, fmt.Errorf("error converting HTML to text: %w", err)
 	}
 
 	// set string's max length
