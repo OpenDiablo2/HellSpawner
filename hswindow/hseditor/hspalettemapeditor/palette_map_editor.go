@@ -72,8 +72,7 @@ func (e *PaletteMapEditor) UpdateMainMenuLayout(l *g.Layout) {
 
 // GenerateSaveData creates data to be saved
 func (e *PaletteMapEditor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	data := e.pl2.Marshal()
 
 	return data
 }
