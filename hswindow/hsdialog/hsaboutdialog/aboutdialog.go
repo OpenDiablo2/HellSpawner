@@ -2,6 +2,7 @@
 package hsaboutdialog
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
