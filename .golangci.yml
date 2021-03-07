@@ -59,6 +59,7 @@ linters:
     - ineffassign
     - interfacer
     - lll
+    - makezero
     - maligned
     - misspell
     - nakedret
