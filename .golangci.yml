@@ -62,6 +62,7 @@ linters:
     - maligned
     - misspell
     - nakedret
+    - nolintlint
     - prealloc
     - rowserrcheck
     - scopelint

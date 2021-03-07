@@ -23,9 +23,9 @@ const (
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
-	// nolint:unused,structcheck // will be used
+	// nolint:structcheck // will be used
 	subgroup int32
-	// nolint:unused,structcheck // will be used
+	// nolint:structcheck // will be used
 	tile struct {
 		floor, wall, shadow, sub int32
 	}
