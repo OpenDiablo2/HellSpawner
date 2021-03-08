@@ -79,17 +79,18 @@ func (p *widget) buildTableLayout() {
 	rows[0] = giu.Row(columnWidgets...)
 
 	for keyIdx, key := range keys {
+		currentKey := key
 		// nolint:gomnd // first row is header
 		rows[keyIdx+1] = giu.Row(
-			giu.Label(key),
-			giu.Label(p.dict[key]),
+			giu.Label(currentKey),
+			giu.Label(p.dict[currentKey]),
 			giu.Line(
 				giu.Button("delete##"+p.id+"deleteString"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
-					delete(p.dict, key)
+					delete(p.dict, currentKey)
 					p.reloadMapValues()
 				}),
 				giu.Button("edit##"+p.id+"editButton"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
-					state.key = key
+					state.key = currentKey
 					state.editable = false
 					p.updateValueText()
 					state.mode = widgetModeAddEdit
