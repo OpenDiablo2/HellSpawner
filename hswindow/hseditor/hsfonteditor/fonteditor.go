@@ -35,7 +35,7 @@ func Create(_ *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	font, err := hsfont.LoadFromJSON(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading JSON font: %w", err)
 	}
 
 	result := &FontEditor{

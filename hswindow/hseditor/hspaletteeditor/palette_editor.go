@@ -2,6 +2,8 @@
 package hspaletteeditor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/dialog"
 
 	g "github.com/ianling/giu"
@@ -30,7 +32,7 @@ func Create(_ *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading dat palette: %w", err)
 	}
 
 	result := &PaletteEditor{

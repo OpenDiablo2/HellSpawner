@@ -3,6 +3,7 @@ package hsfont
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 )
@@ -38,14 +39,14 @@ func LoadFromJSON(data []byte) (*Font, error) {
 
 	err := json.Unmarshal(data, font)
 
-	return font, err
+	return font, fmt.Errorf("cannot unmarshal font: %w", err)
 }
 
 // JSON exports font to json
 func (f *Font) JSON() ([]byte, error) {
 	data, err := json.MarshalIndent(f, "", "   ")
 
-	return data, err
+	return data, fmt.Errorf("cannot marshal Font: %w", err)
 }
 
 // SaveToFile saves font
@@ -60,7 +61,7 @@ func (f *Font) SaveToFile() error {
 	}
 
 	if err := ioutil.WriteFile(f.filePath, data, os.FileMode(newFilePerms)); err != nil {
-		return err
+		return fmt.Errorf("cannot write to file %s: %w", f.filePath, err)
 	}
 
 	return nil

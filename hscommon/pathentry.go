@@ -64,7 +64,7 @@ func (p *PathEntry) GetUniqueID() string {
 func (p *PathEntry) GetFileBytes() ([]byte, error) {
 	if p.Source == PathEntrySourceProject {
 		if _, err := os.Stat(p.FullPath); os.IsNotExist(err) {
-			return nil, err
+			return nil, fmt.Errorf("cannot get informations about file %s: %w", p.FullPath, err)
 		}
 
 		return ioutil.ReadFile(p.FullPath)
@@ -72,7 +72,7 @@ func (p *PathEntry) GetFileBytes() ([]byte, error) {
 
 	mpq, err := d2mpq.FromFile(p.MPQFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading file from MPQ: %w", err)
 	}
 
 	if mpq.Contains(p.FullPath) {
@@ -90,12 +90,12 @@ func (p *PathEntry) WriteFile(data []byte) error {
 
 	info, err := os.Stat(p.FullPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get informations about file %s: %w", p.FullPath, err)
 	}
 
 	err = ioutil.WriteFile(p.FullPath, data, info.Mode())
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot write to file at %s: %w", p.FullPath, err)
 	}
 
 	return nil
