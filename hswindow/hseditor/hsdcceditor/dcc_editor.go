@@ -2,6 +2,8 @@
 package hsdcceditor
 
 import (
+	"fmt"
+
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/dialog"
@@ -31,7 +33,7 @@ func Create(_ *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dcc, err := d2dcc.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading dcc animation: %w", err)
 	}
 
 	result := &DCCEditor{
