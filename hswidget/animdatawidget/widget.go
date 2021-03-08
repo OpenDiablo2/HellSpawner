@@ -52,9 +52,21 @@ func (p *widget) Build() {
 func (p *widget) buildAnimationsList() {
 	state := p.getState()
 
-	list := make([]giu.Widget, p.d2.GetRecordsCount())
+	keys := make([]string, 0)
 
-	for idx, name := range state.mapKeys {
+	if state.name != "" {
+		for _, key := range state.mapKeys {
+			if strings.Contains(key, state.name) {
+				keys = append(keys, key)
+			}
+		}
+	} else {
+		keys = state.mapKeys
+	}
+
+	list := make([]giu.Widget, len(keys))
+
+	for idx, name := range keys {
 		currentIdx := idx
 		list[idx] = giu.Line(
 			hsutil.MakeImageButton(
@@ -77,7 +89,17 @@ func (p *widget) buildAnimationsList() {
 		giu.Separator(),
 		giu.Child("##"+p.id+"keyList").Border(false).
 			Size(listW, listH).
-			Layout(list),
+			Layout(giu.Layout{
+				giu.Custom(func() {
+					if len(list) > 0 {
+						giu.Layout(list).Build()
+
+						return
+					}
+
+					giu.Label("Nothing matches...").Build()
+				}),
+			}),
 	}.Build()
 }
 
