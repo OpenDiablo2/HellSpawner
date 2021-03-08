@@ -1,6 +1,7 @@
 package abysswrapper
 
 import (
+	"fmt"
 	"io"
 	"os/exec"
 	"sync"
@@ -61,7 +62,7 @@ func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 
 	if err := a.cmd.Start(); err != nil {
 		a.mutex.Unlock()
-		return err
+		return fmt.Errorf("error while running AbyssWrapper: %w", err)
 	}
 
 	a.running = true
