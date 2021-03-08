@@ -48,3 +48,35 @@ func (p *widget) calculateFirstFreeNoName() (firstFreeNoName int) {
 
 	return
 }
+
+func (p *widget) generateTableKeys() (keys []string) {
+	state := p.getState()
+
+	switch {
+	case state.numOnly:
+		for _, key := range state.keys {
+			if key[0] == '#' {
+				keys = append(keys, key)
+			} else {
+				// labels are sorted, so no-name (starting from # are on top)
+				break
+			}
+		}
+	case state.search != "":
+		for _, key := range state.keys {
+			s := strings.ToLower(state.search)
+			k := strings.ToLower(key)
+			v := strings.ToLower(p.dict[key])
+
+			switch {
+			case strings.Contains(k, s),
+				strings.Contains(v, s):
+				keys = append(keys, key)
+			}
+		}
+	default:
+		keys = state.keys
+	}
+
+	return
+}

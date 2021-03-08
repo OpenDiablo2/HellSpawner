@@ -2,7 +2,6 @@ package stringtablewidget
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/ianling/giu"
 
@@ -58,24 +57,8 @@ func (p *widget) buildTableLayout() {
 	rows[0] = giu.Row(columnWidgets...)
 
 	for keyIdx, key := range keys {
-		currentKey := key
 		// nolint:gomnd // first row is header
-		rows[keyIdx+1] = giu.Row(
-			giu.Label(currentKey),
-			giu.Label(p.dict[currentKey]),
-			giu.Line(
-				giu.Button("delete##"+p.id+"deleteString"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
-					delete(p.dict, currentKey)
-					p.reloadMapValues()
-				}),
-				giu.Button("edit##"+p.id+"editButton"+strconv.Itoa(keyIdx)).Size(deleteW, deleteH).OnClick(func() {
-					state.key = currentKey
-					state.editable = false
-					p.updateValueText()
-					state.mode = widgetModeAddEdit
-				}),
-			),
-		)
+		rows[keyIdx+1] = p.makeTableRow(key)
 	}
 
 	giu.Layout{
@@ -85,19 +68,7 @@ func (p *widget) buildTableLayout() {
 			state.mode = widgetModeAddEdit
 		}),
 		giu.Separator(),
-		giu.Line(
-			giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
-		),
-		giu.Custom(func() {
-			if !state.numOnly {
-				giu.Line(
-					giu.Label("Search:"),
-					giu.InputText("##"+p.id+"search", &state.search).OnChange(func() {
-						p.formatKey(&state.search)
-					}),
-				).Build()
-			}
-		}),
+		p.makeSearchSection(),
 		giu.Separator(),
 		giu.Child("").Border(false).Layout(giu.Layout{
 			giu.FastTable("").Border(true).Rows(rows),
@@ -105,36 +76,41 @@ func (p *widget) buildTableLayout() {
 	}.Build()
 }
 
-func (p *widget) generateTableKeys() (keys []string) {
+func (p *widget) makeTableRow(key string) *giu.RowWidget {
 	state := p.getState()
 
-	switch {
-	case state.numOnly:
-		for _, key := range state.keys {
-			if key[0] == '#' {
-				keys = append(keys, key)
-			} else {
-				// labels are sorted, so no-name (starting from # are on top)
-				break
-			}
-		}
-	case state.search != "":
-		for _, key := range state.keys {
-			s := strings.ToLower(state.search)
-			k := strings.ToLower(key)
-			v := strings.ToLower(p.dict[key])
+	return giu.Row(
+		giu.Label(key),
+		giu.Label(p.dict[key]),
+		giu.Line(
+			giu.Button("delete##"+p.id+"deleteString"+key).Size(deleteW, deleteH).OnClick(func() {
+				delete(p.dict, key)
+				p.reloadMapValues()
+			}),
+			giu.Button("edit##"+p.id+"editButton"+key).Size(deleteW, deleteH).OnClick(func() {
+				state.key = key
+				state.editable = false
+				p.updateValueText()
+				state.mode = widgetModeAddEdit
+			}),
+		),
+	)
+}
 
-			switch {
-			case strings.Contains(k, s),
-				strings.Contains(v, s):
-				keys = append(keys, key)
+func (p *widget) makeSearchSection() giu.Layout {
+	state := p.getState()
+
+	return giu.Layout{
+		giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
+		giu.Custom(func() {
+			if !state.numOnly {
+				giu.Line(
+					giu.Label("Search:"),
+					giu.InputText("##"+p.id+"search", &state.search),
+				).Build()
 			}
-		}
-	default:
-		keys = state.keys
+		}),
 	}
-
-	return
 }
 
 func (p *widget) buildAddEditLayout() {
