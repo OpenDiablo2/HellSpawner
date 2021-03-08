@@ -120,12 +120,13 @@ func (p *widget) generateTableKeys() (keys []string) {
 		}
 	case state.search != "":
 		for _, key := range state.keys {
+			s := strings.ToLower(state.search)
 			k := strings.ToLower(key)
 			v := strings.ToLower(p.dict[key])
 
 			switch {
-			case strings.Contains(k, state.search),
-				strings.Contains(v, state.search):
+			case strings.Contains(k, s),
+				strings.Contains(v, s):
 				keys = append(keys, key)
 			}
 		}
