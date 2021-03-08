@@ -2,6 +2,8 @@
 package hsanimdataeditor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -34,7 +36,7 @@ func Create(tl *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	d2, err := d2animdata.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading animation data file: %w", err)
 	}
 
 	result := &AnimationDataEditor{

@@ -2,6 +2,7 @@ package hsconfig
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -86,11 +87,12 @@ func (c *Config) Save() error {
 	var data []byte
 
 	if data, err = json.MarshalIndent(c, "", "   "); err != nil {
-		return err
+		return fmt.Errorf("cannot marshal config: %w", err)
 	}
 
-	if err := ioutil.WriteFile(getConfigPath(), data, os.FileMode(newFileMode)); err != nil {
-		return err
+	path := getConfigPath()
+	if err := ioutil.WriteFile(path, data, os.FileMode(newFileMode)); err != nil {
+		return fmt.Errorf("cannot write config at %s: %w", path, err)
 	}
 
 	return nil

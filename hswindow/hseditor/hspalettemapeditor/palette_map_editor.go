@@ -2,6 +2,8 @@
 package hspalettemapeditor
 
 import (
+	"fmt"
+
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/dialog"
@@ -30,7 +32,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	pl2, err := d2pl2.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading PL2 file: %w", err)
 	}
 
 	result := &PaletteMapEditor{

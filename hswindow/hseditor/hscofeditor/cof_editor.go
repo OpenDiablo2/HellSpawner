@@ -2,6 +2,8 @@
 package hscofeditor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/HellSpawner/hswidget/cofwidget"
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
@@ -43,7 +45,7 @@ func Create(tl *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	cof, err := d2cof.Unmarshal(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading cof file: %w", err)
 	}
 
 	result := &COFEditor{

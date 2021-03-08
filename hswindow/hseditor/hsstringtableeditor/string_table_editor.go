@@ -2,6 +2,8 @@
 package hsstringtableeditor
 
 import (
+	"fmt"
+
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/dialog"
@@ -35,7 +37,7 @@ func Create(_ *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading string table: %w", err)
 	}
 
 	result := &StringTableEditor{
