@@ -70,8 +70,17 @@ func (p *widget) buildTableLayout() {
 		giu.Separator(),
 		p.makeSearchSection(),
 		giu.Separator(),
-		giu.Child("").Border(false).Layout(giu.Layout{
-			giu.FastTable("").Border(true).Rows(rows),
+		giu.Custom(func() {
+			if len(keys) == 0 {
+				giu.Label("Nothing to display.").Build()
+
+				return
+			}
+			giu.Layout{
+				giu.Child("").Border(false).Layout(giu.Layout{
+					giu.FastTable("").Border(true).Rows(rows),
+				}),
+			}.Build()
 		}),
 	}.Build()
 }
