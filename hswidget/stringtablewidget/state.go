@@ -19,18 +19,24 @@ type widgetState struct {
 	keys    []string
 	numOnly bool
 	addEditState
+	search string
 }
 
 func (ws *widgetState) Dispose() {
 	ws.mode = widgetModeViewer
 	ws.keys = make([]string, 0)
 	ws.addEditState.Dispose()
+	ws.search = ""
 }
 
 type addEditState struct {
-	key      string
-	value    string
-	noName   bool
+	key   string
+	value string
+	// noName is true, when we're viewing only no-named indexes
+	noName bool
+
+	// if we used edit button by table entry,
+	// we can't edit key value in edit layout
 	editable bool
 }
 

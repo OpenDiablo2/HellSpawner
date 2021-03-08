@@ -3,6 +3,7 @@ package stringtablewidget
 import (
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/ianling/giu"
 
@@ -44,27 +45,29 @@ func (p *widget) Build() {
 func (p *widget) buildTableLayout() {
 	state := p.getState()
 
-	var numEntries int
+	keys := make([]string, 0)
 
-	if !state.numOnly {
-		numEntries = len(state.keys)
-	} else {
+	switch {
+	case state.numOnly:
 		for _, key := range state.keys {
 			if key[0] == '#' {
-				numEntries++
+				keys = append(keys, key)
 			} else {
 				// labels are sorted, so no-name (starting from # are on top)
 				break
 			}
 		}
+	case state.search != "":
+		for _, key := range state.keys {
+			if strings.Contains(key, state.search) {
+				keys = append(keys, key)
+			}
+		}
+	default:
+		keys = state.keys
 	}
 
-	// wprobably will remove
-	if !(numEntries > 0) {
-		giu.Layout{}.Build()
-	}
-
-	rows := make([]*giu.RowWidget, numEntries+1)
+	rows := make([]*giu.RowWidget, len(keys)+1)
 
 	columns := []string{"key", "value", "action"}
 	columnWidgets := make([]giu.Widget, len(columns))
@@ -75,8 +78,7 @@ func (p *widget) buildTableLayout() {
 
 	rows[0] = giu.Row(columnWidgets...)
 
-	for keyIdx := 0; keyIdx < numEntries; keyIdx++ {
-		key := state.keys[keyIdx]
+	for keyIdx, key := range keys {
 		// nolint:gomnd // first row is header
 		rows[keyIdx+1] = giu.Row(
 			giu.Label(key),
@@ -106,6 +108,17 @@ func (p *widget) buildTableLayout() {
 		giu.Line(
 			giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
 		),
+		giu.Custom(func() {
+			if !state.numOnly {
+				giu.Line(
+					giu.Label("Search:"),
+					giu.InputText("##"+p.id+"search", &state.search).OnChange(func() {
+						p.formatKey(&state.search)
+					}),
+				).Build()
+			}
+		}),
+		giu.Separator(),
 		giu.Child("").Border(false).Layout(giu.Layout{
 			giu.FastTable("").Border(true).Rows(rows),
 		}),
@@ -118,18 +131,18 @@ func (p *widget) buildAddEditLayout() {
 	giu.Layout{
 		giu.Label("Key:"),
 		giu.Custom(func() {
+			checkbox := giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
+				if state.noName {
+					firstFreeNoName := p.calculateFirstFreeNoName()
+					state.key = "#" + strconv.Itoa(firstFreeNoName)
+					p.updateValueText()
+				}
+			})
+
 			if state.editable {
 				giu.Line(
-					giu.InputText("##"+p.id+"addEditKey", &state.key).OnChange(func() {
-						p.updateValueText()
-					}),
-					giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
-						if state.noName {
-							firstFreeNoName := p.calculateFirstFreeNoName()
-							state.key = "#" + strconv.Itoa(firstFreeNoName)
-							p.updateValueText()
-						}
-					}),
+					p.makeKeyField("##"+p.id+"addEditKey"),
+					checkbox,
 				).Build()
 			} else {
 				giu.Label(state.key).Build()
@@ -174,6 +187,15 @@ func (p *widget) buildAddEditLayout() {
 	}.Build()
 }
 
+func (p *widget) makeKeyField(id string) giu.Widget {
+	state := p.getState()
+
+	return giu.InputText(id, &state.key).OnChange(func() {
+		p.formatKey(&state.key)
+		p.updateValueText()
+	})
+}
+
 func (p *widget) calculateFirstFreeNoName() (firstFreeNoName int) {
 	state := p.getState()
 
@@ -211,4 +233,8 @@ func (p *widget) updateValueText() {
 	} else {
 		state.value = ""
 	}
+}
+
+func (p *widget) formatKey(s *string) {
+	*s = strings.ReplaceAll(*s, " ", "_")
 }
