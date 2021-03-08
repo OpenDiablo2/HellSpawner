@@ -1,6 +1,7 @@
 package hsapp
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
@@ -50,13 +51,13 @@ func (a *App) setup() error {
 
 	// Register the tool windows
 	if a.mpqExplorer, err = hsmpqexplorer.Create(a.openEditor, a.config, mpqExplorerDefaultX, mpqExplorerDefaultY); err != nil {
-		return err
+		return fmt.Errorf("error creating a MPQ explorer: %w", err)
 	}
 
 	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader,
 		a.openEditor, projectExplorerDefaultX,
 		projectExplorerDefaultY); err != nil {
-		return err
+		return fmt.Errorf("error creating a project explorer: %w", err)
 	}
 
 	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)

@@ -2,6 +2,8 @@
 package hsfonttableeditor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/dialog"
 
 	g "github.com/ianling/giu"
@@ -38,7 +40,7 @@ func Create(tl *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	table, err := d2font.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error font table: %w", err)
 	}
 
 	result := &FontTableEditor{
