@@ -403,8 +403,7 @@ func (a *App) Save() {
 		a.config.ProjectStates[a.project.GetProjectFilePath()] = a.State()
 	}
 
-	err := a.config.Save()
-	if err != nil {
+	if err := a.config.Save(); err != nil {
 		log.Print("failed to save config: ", err)
 		return
 	}

@@ -160,9 +160,7 @@ func (p *DS1ViewerWidget) makeObjectsLayout(state *DS1ViewerState) giu.Layout {
 }
 
 func (p *DS1ViewerWidget) makeObjectLayout(state *DS1ViewerState) giu.Layout {
-	objIdx := int(state.object)
-
-	if objIdx >= len(p.ds1.Objects) {
+	if objIdx := int(state.object); objIdx >= len(p.ds1.Objects) {
 		state.ds1Controls.object = int32(len(p.ds1.Objects) - 1)
 		p.setState(state)
 	} else if objIdx < 0 {
