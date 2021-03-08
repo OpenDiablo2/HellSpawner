@@ -85,11 +85,11 @@ func (p *Project) Save() error {
 	var file []byte
 
 	if file, err = json.MarshalIndent(p, "", "   "); err != nil {
-		return err
+		return fmt.Errorf("cannot marshal project: %w", err)
 	}
 
 	if err := ioutil.WriteFile(p.filePath, file, os.FileMode(newFileMode)); err != nil {
-		return err
+		return fmt.Errorf("cannot write to file %s: %w", p.filePath, err)
 	}
 
 	if err := p.ensureProjectPaths(); err != nil {
@@ -122,11 +122,11 @@ func LoadFromFile(fileName string) (*Project, error) {
 	var result *Project
 
 	if file, err = ioutil.ReadFile(filepath.Clean(fileName)); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot read project's file %s: %w", fileName, err)
 	}
 
 	if err := json.Unmarshal(file, &result); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot unmarshal file %s: %w", fileName, err)
 	}
 
 	result.filePath = fileName
@@ -146,7 +146,7 @@ func (p *Project) ensureProjectPaths() error {
 
 	if _, err := os.Stat(contentPath); os.IsNotExist(err) {
 		if err := os.Mkdir(contentPath, os.FileMode(newDirMode)); err != nil {
-			return err
+			return fmt.Errorf("cannot create project's directory at %s: %w", contentPath, err)
 		}
 	}
 
