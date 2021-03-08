@@ -2,6 +2,8 @@
 package hsds1editor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -29,7 +31,7 @@ func Create(_ *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading DS1 file")
 	}
 
 	result := &DS1Editor{

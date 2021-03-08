@@ -2,6 +2,8 @@
 package hsdc6editor
 
 import (
+	"fmt"
+
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -31,7 +33,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error loading DC6 animation: %w", err)
 	}
 
 	result := &DC6Editor{
