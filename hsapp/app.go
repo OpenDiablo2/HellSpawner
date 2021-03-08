@@ -53,6 +53,10 @@ const (
 	bgColor = 0x0a0a0aff
 )
 
+const (
+	autoSaveTimer = 120
+)
+
 // App represents an app
 type App struct {
 	project      *hsproject.Project
@@ -124,6 +128,12 @@ func (a *App) Run() {
 	}
 
 	dialog.Init()
+
+	// initialize auto-save timer
+	go func() {
+		time.Sleep(autoSaveTimer * time.Second)
+		a.Save()
+	}()
 
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
