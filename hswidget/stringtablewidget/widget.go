@@ -59,7 +59,12 @@ func (p *widget) buildTableLayout() {
 		}
 	case state.search != "":
 		for _, key := range state.keys {
-			if strings.Contains(key, state.search) {
+			k := strings.ToLower(key)
+			v := strings.ToLower(p.dict[key])
+
+			switch {
+			case strings.Contains(k, state.search),
+				strings.Contains(v, state.search):
 				keys = append(keys, key)
 			}
 		}
