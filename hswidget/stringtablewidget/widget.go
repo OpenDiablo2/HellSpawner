@@ -77,8 +77,8 @@ func (p *widget) buildTableLayout() {
 				return
 			}
 			giu.Layout{
-				giu.Child("").Border(false).Layout(giu.Layout{
-					giu.FastTable("").Border(true).Rows(rows),
+				giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
+					giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
 				}),
 			}.Build()
 		}),
