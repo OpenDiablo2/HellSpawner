@@ -57,10 +57,18 @@ func (p *widget) buildGrid() {
 				line := make([]giu.Widget, 0)
 
 				for x := 0; x < gridWidth; x++ {
+					currentX := x
 					line = append(
 						line,
 						giu.ImageButton(state.texture[y*gridWidth+x]).
 							Size(cellSize, cellSize).OnClick(func() {
+							color := p.colors[currentX]
+							state.idx = currentX
+							state.r = color.R()
+							state.g = color.G()
+							state.b = color.B()
+
+							state.mode = widgetModeEdit
 						}),
 					)
 				}

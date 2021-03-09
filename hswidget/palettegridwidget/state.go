@@ -31,7 +31,7 @@ func (ws *widgetState) Dispose() {
 
 type editEntryState struct {
 	idx     int
-	r, g, b int32
+	r, g, b uint8
 }
 
 func (ees *editEntryState) Dispose() {
