@@ -21,7 +21,7 @@ func (p *widget) loadTexture(i int) {
 		}
 	}
 
-	go p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
+	p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
 		state.texture[i] = texture
 		giu.Context.SetState(p.getStateID(), state)
 	})

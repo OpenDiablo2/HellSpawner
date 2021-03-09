@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	inputIntW = 30
+	inputIntW                    = 30
+	actionButtonW, actionButtonH = 280, 30
 )
 
 const (
@@ -97,6 +98,10 @@ func (p *widget) buildEditor() {
 		p.makeRGBField("##"+p.id+"changeG", "G:", &state.g),
 		giu.Separator(),
 		p.makeRGBField("##"+p.id+"changeB", "B:", &state.b),
+		giu.Separator(),
+		giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
+			state.mode = widgetModeGrid
+		}),
 	}.Build()
 }
 
