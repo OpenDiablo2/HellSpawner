@@ -105,7 +105,7 @@ func (p *widget) buildEditor() {
 	}.Build()
 }
 
-func (p *widget) makeRGBField(id string, label string, field *uint8) giu.Layout {
+func (p *widget) makeRGBField(id, label string, field *uint8) giu.Layout {
 	state := p.getState()
 
 	f32 := int32(*field)
