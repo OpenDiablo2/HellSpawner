@@ -91,30 +91,36 @@ func (p *widget) buildEditor() {
 	giu.Layout{
 		giu.Label("Edit Color: "),
 		giu.Image(state.texture[state.idx]),
-		p.makeRGBField("##"+p.id+"changeR", &state.r),
-		p.makeRGBField("##"+p.id+"changeG", &state.g),
-		p.makeRGBField("##"+p.id+"changeB", &state.b),
+		giu.Separator(),
+		p.makeRGBField("##"+p.id+"changeR", "R:", &state.r),
+		giu.Separator(),
+		p.makeRGBField("##"+p.id+"changeG", "G:", &state.g),
+		giu.Separator(),
+		p.makeRGBField("##"+p.id+"changeB", "B:", &state.b),
 	}.Build()
 }
 
-func (p *widget) makeRGBField(id string, field *uint8) giu.Layout {
+func (p *widget) makeRGBField(id string, label string, field *uint8) giu.Layout {
 	state := p.getState()
 
 	f32 := int32(*field)
 
 	return giu.Layout{
-		hsutil.MakeInputInt(
-			id,
-			inputIntW,
-			field,
-			func() {
-				p.changeColor(
-					state.r,
-					state.g,
-					state.b,
-					state.idx,
-				)
-			},
+		giu.Line(
+			giu.Label(label),
+			hsutil.MakeInputInt(
+				id,
+				inputIntW,
+				field,
+				func() {
+					p.changeColor(
+						state.r,
+						state.g,
+						state.b,
+						state.idx,
+					)
+				},
+			),
 		),
 		giu.SliderInt(id+"Slider", &f32, 0, 255).OnChange(func() {
 			// we need to lock, because sometimes crashes
