@@ -38,6 +38,17 @@ func Create(tl *hscommon.TextureLoader, id string, colors *[256]d2interface.Colo
 func (p *widget) Build() {
 	state := p.getState()
 
+	switch state.mode {
+	case widgetModeGrid:
+		p.buildGrid()
+	case widgetModeEdit:
+		giu.Label("edit color").Build()
+	}
+}
+
+func (p *widget) buildGrid() {
+	state := p.getState()
+
 	giu.Layout{
 		giu.Custom(func() {
 			var grid giu.Layout = make([]giu.Widget, 0)

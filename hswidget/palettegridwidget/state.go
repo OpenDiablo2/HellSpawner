@@ -6,18 +6,39 @@ import (
 	"github.com/ianling/giu"
 )
 
+type widgetMode int
+
+const (
+	widgetModeGrid widgetMode = iota
+	widgetModeEdit
+)
+
 // PaletteGridState represents palette grid's state
 type widgetState struct {
+	mode widgetMode
 	// nolint:unused,structcheck // will be used
 	loading bool
 	// nolint:unused,structcheck // will be used
 	failure bool
 	texture [256]*giu.Texture
+	editEntryState
 }
 
 // Dispose cleans palette grids state
-func (p *widgetState) Dispose() {
-	// noop
+func (ws *widgetState) Dispose() {
+	ws.mode = widgetModeGrid
+}
+
+type editEntryState struct {
+	idx     int
+	r, g, b int32
+}
+
+func (ees *editEntryState) Dispose() {
+	ees.idx = 0
+	ees.r = 0
+	ees.g = 0
+	ees.b = 0
 }
 
 func (p *widget) getStateID() string {
@@ -40,7 +61,9 @@ func (p *widget) getState() *widgetState {
 }
 
 func (p *widget) initState() {
-	state := &widgetState{}
+	state := &widgetState{
+		mode: widgetModeGrid,
+	}
 
 	p.reloadTextures()
 
