@@ -39,7 +39,7 @@ func (p *widget) Build() {
 	case widgetModeGrid:
 		p.buildGrid()
 	case widgetModeEdit:
-		giu.Label("edit color").Build()
+		p.buildEditor()
 	}
 }
 
@@ -76,4 +76,8 @@ func (p *widget) buildGrid() {
 			grid.Build()
 		}),
 	}.Build()
+}
+
+func (p *widget) buildEditor() {
+	giu.Label("edit color").Build()
 }
