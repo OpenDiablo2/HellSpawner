@@ -24,12 +24,12 @@ type PaletteGridState struct {
 	loading bool
 	// nolint:unused,structcheck // will be used
 	failure bool
-	texture *giu.Texture
+	texture [256]*giu.Texture
 }
 
 // Dispose cleans palette grids state
 func (p *PaletteGridState) Dispose() {
-	p.texture = nil
+	//p.texture = nil
 }
 
 type widget struct {
@@ -51,46 +51,60 @@ func Create(tl *hscommon.TextureLoader, id string, colors *[256]d2interface.Colo
 
 // Build build a new widget
 func (p *widget) Build() {
-	var widget *giu.ImageWidget
-
-	stateID := fmt.Sprintf("widget_%s", p.id)
+	stateID := p.getStateID()
 
 	state := giu.Context.GetState(stateID)
 	if state == nil {
-		widget = giu.Image(nil).Size(gridWidth*cellSize, gridHeight*cellSize)
-
 		// Prevent multiple invocation to LoadImage.
 		giu.Context.SetState(stateID, &PaletteGridState{})
 
-		rgb := image2.NewRGBA(image2.Rect(0, 0, gridWidth*cellSize, gridHeight*cellSize))
-
-		for y := 0; y < gridHeight*cellSize; y++ {
-			if y%cellSize == 0 {
-				continue
-			}
-
-			for x := 0; x < gridWidth*cellSize; x++ {
-				if x%cellSize == 0 {
-					continue
-				}
-
-				idx := (x / cellSize) + ((y / cellSize) * gridWidth)
-
-				col := p.colors[idx]
-
-				// nolint:gomnd // const
-				rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
-			}
+		for x := 0; x < 256; x++ {
+			p.loadTexture(x)
 		}
 
-		//texture, err := giu.NewTextureFromRgba(rgb)
-		p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
-			giu.Context.SetState(stateID, &PaletteGridState{texture: texture})
-		})
-	} else {
-		imgState := state.(*PaletteGridState)
-		widget = giu.Image(imgState.texture).Size(gridWidth*cellSize, gridHeight*cellSize)
+		return
 	}
 
-	widget.Build()
+	imgState := state.(*PaletteGridState)
+	giu.Layout{
+		giu.Custom(func() {
+			var grid giu.Layout = make([]giu.Widget, 0)
+			for y := 0; y < gridHeight; y++ {
+				line := make([]giu.Widget, 0)
+				for x := 0; x < gridWidth; x++ {
+					line = append(
+						line,
+						giu.Image(imgState.texture[y*gridWidth+x]).Size(cellSize, cellSize),
+					)
+				}
+				grid = append(grid, giu.Line(line...))
+			}
+			grid.Build()
+		}),
+	}.Build()
+}
+
+func (p *widget) loadTexture(i int) {
+
+	s := giu.Context.GetState(p.getStateID())
+	state := s.(*PaletteGridState)
+
+	rgb := image2.NewRGBA(image2.Rect(0, 0, cellSize, cellSize))
+	for y := 0; y < cellSize; y++ {
+		for x := 0; x < cellSize; x++ {
+			col := p.colors[i]
+
+			// nolint:gomnd // opacity
+			rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
+		}
+	}
+
+	p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
+		state.texture[i] = texture
+		giu.Context.SetState(p.getStateID(), state)
+	})
+}
+
+func (p *widget) getStateID() string {
+	return fmt.Sprintf("PaletteGridWidget_%s", p.id)
 }
