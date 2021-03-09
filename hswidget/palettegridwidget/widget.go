@@ -63,8 +63,7 @@ func (p *widget) Build() {
 }
 
 func (p *widget) loadTexture(i int) {
-	s := giu.Context.GetState(p.getStateID())
-	state := s.(*widgetState)
+	state := p.getState()
 
 	rgb := image2.NewRGBA(image2.Rect(0, 0, cellSize, cellSize))
 
