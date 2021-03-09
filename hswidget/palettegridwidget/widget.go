@@ -8,6 +8,8 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
 const (
@@ -31,15 +33,17 @@ func (p *PaletteGridState) Dispose() {
 }
 
 type widget struct {
-	id     string
-	colors *[256]d2interface.Color
+	id            string
+	colors        *[256]d2interface.Color
+	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new palette grid widget
-func Create(id string, colors *[256]d2interface.Color) giu.Widget {
+func Create(tl *hscommon.TextureLoader, id string, colors *[256]d2interface.Color) giu.Widget {
 	result := &widget{
-		id:     id,
-		colors: colors,
+		id:            id,
+		colors:        colors,
+		textureLoader: tl,
 	}
 
 	return result
@@ -79,12 +83,10 @@ func (p *widget) Build() {
 			}
 		}
 
-		go func() {
-			texture, err := giu.NewTextureFromRgba(rgb)
-			if err == nil {
-				giu.Context.SetState(stateID, &PaletteGridState{texture: texture})
-			}
-		}()
+		//texture, err := giu.NewTextureFromRgba(rgb)
+		p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
+			giu.Context.SetState(stateID, &PaletteGridState{texture: texture})
+		})
 	} else {
 		imgState := state.(*PaletteGridState)
 		widget = giu.Image(imgState.texture).Size(gridWidth*cellSize, gridHeight*cellSize)

@@ -24,11 +24,12 @@ var _ hscommon.EditorWindow = &PaletteEditor{}
 // PaletteEditor represents a palette editor
 type PaletteEditor struct {
 	*hseditor.Editor
-	palette d2interface.Palette
+	palette       d2interface.Palette
+	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new palette editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
@@ -37,8 +38,9 @@ func Create(_ *hscommon.TextureLoader,
 	}
 
 	result := &PaletteEditor{
-		Editor:  hseditor.New(pathEntry, x, y, project),
-		palette: palette,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		palette:       palette,
+		textureLoader: tl,
 	}
 
 	return result, nil
@@ -48,7 +50,7 @@ func Create(_ *hscommon.TextureLoader,
 func (e *PaletteEditor) Build() {
 	col := e.palette.GetColors()
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		palettegridwidget.Create(e.GetID()+"_grid", &col),
+		palettegridwidget.Create(e.textureLoader, e.GetID()+"_grid", &col),
 	})
 }
 
