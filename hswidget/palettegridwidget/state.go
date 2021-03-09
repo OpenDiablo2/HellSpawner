@@ -41,7 +41,9 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{}
+
 	p.reloadTextures()
+
 	p.setState(state)
 }
 
@@ -56,6 +58,4 @@ func (p *widget) reloadTextures() {
 	for x := 0; x < 256; x++ {
 		p.loadTexture(x)
 	}
-
-	return
 }
