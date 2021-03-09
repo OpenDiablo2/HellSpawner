@@ -53,6 +53,7 @@ func (p *widget) getState() *widgetState {
 	if s != nil {
 		state = s.(*widgetState)
 	} else {
+		p.setState(&widgetState{})
 		p.initState()
 		state = p.getState()
 	}
@@ -72,13 +73,4 @@ func (p *widget) initState() {
 
 func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
-}
-
-func (p *widget) reloadTextures() {
-	// Prevent multiple invocation to LoadImage.
-	p.setState(&widgetState{})
-
-	for x := 0; x < 256; x++ {
-		p.loadTexture(x)
-	}
 }
