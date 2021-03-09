@@ -3,6 +3,8 @@ package palettegridwidget
 import (
 	"github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 

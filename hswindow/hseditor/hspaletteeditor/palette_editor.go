@@ -31,7 +31,8 @@ type PaletteEditor struct {
 }
 
 // Create creates a new palette editor
-func Create(_ *hsconfig.Config,
+func Create(
+	_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
