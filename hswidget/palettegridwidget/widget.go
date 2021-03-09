@@ -69,16 +69,22 @@ func (p *widget) Build() {
 	giu.Layout{
 		giu.Custom(func() {
 			var grid giu.Layout = make([]giu.Widget, 0)
+
 			for y := 0; y < gridHeight; y++ {
 				line := make([]giu.Widget, 0)
+
 				for x := 0; x < gridWidth; x++ {
 					line = append(
 						line,
-						giu.Image(imgState.texture[y*gridWidth+x]).Size(cellSize, cellSize),
+						giu.ImageButton(imgState.texture[y*gridWidth+x]).
+							Size(cellSize, cellSize).OnClick(func() {
+						}),
 					)
 				}
+
 				grid = append(grid, giu.Line(line...))
 			}
+
 			grid.Build()
 		}),
 	}.Build()
