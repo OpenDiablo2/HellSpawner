@@ -5,6 +5,8 @@ import (
 	"image/color"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 func (p *widget) loadTexture(i int) {
@@ -14,10 +16,14 @@ func (p *widget) loadTexture(i int) {
 
 	for y := 0; y < cellSize; y++ {
 		for x := 0; x < cellSize; x++ {
-			col := p.colors[i]
+			col := hsutil.Color(p.colors[i].RGBA())
 
-			// nolint:gomnd // opacity
-			rgb.Set(x, y, color.RGBA{R: col.R(), G: col.G(), B: col.B(), A: 255})
+			rgb.Set(x, y, color.RGBA{
+				R: col.R,
+				G: col.G,
+				B: col.B,
+				A: 255,
+			})
 		}
 	}
 

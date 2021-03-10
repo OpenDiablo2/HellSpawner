@@ -48,7 +48,11 @@ func Create(tl *hscommon.TextureLoader,
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
-	col := e.palette.GetColors()
+	var col [256]palettegridwidget.PaletteColor
+	for n, i := range e.palette.GetColors() {
+		col[n] = palettegridwidget.PaletteColor(i)
+	}
+
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
 		palettegridwidget.Create(e.textureLoader, e.GetID()+"_grid", &col),
 	})

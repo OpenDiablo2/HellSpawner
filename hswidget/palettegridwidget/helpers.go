@@ -1,6 +1,6 @@
 package palettegridwidget
 
-func (p *widget) changeColor(r, g, b uint8, idx int) {
+func (p *widget) changeColor(state *widgetState) {
 	const (
 		maxValue = 255
 		rOffset  = 24
@@ -10,10 +10,10 @@ func (p *widget) changeColor(r, g, b uint8, idx int) {
 	)
 
 	var rgba uint32
-	rgba |= uint32(r) << rOffset
-	rgba |= uint32(g) << gOffset
-	rgba |= uint32(b) << bOffset
+	rgba |= uint32(state.r) << rOffset
+	rgba |= uint32(state.g) << gOffset
+	rgba |= uint32(state.b) << bOffset
 	rgba |= uint32(maxValue) << aOffset
-	p.colors[idx].SetRGBA(rgba)
-	p.loadTexture(idx)
+	p.colors[state.idx].SetRGBA(rgba)
+	p.loadTexture(state.idx)
 }

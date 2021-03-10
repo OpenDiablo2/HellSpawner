@@ -5,7 +5,7 @@ import (
 
 	"github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+	//"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -24,12 +24,12 @@ const (
 
 type widget struct {
 	id            string
-	colors        *[256]d2interface.Color
+	colors        *[256]PaletteColor
 	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new palette grid widget
-func Create(tl *hscommon.TextureLoader, id string, colors *[256]d2interface.Color) giu.Widget {
+func Create(tl *hscommon.TextureLoader, id string, colors *[256]PaletteColor) giu.Widget {
 	result := &widget{
 		id:            id,
 		colors:        colors,
@@ -67,11 +67,11 @@ func (p *widget) buildGrid() {
 						line,
 						giu.ImageButton(state.texture[idx]).
 							Size(cellSize, cellSize).OnClick(func() {
-							color := p.colors[idx]
+							color := hsutil.Color(p.colors[idx].RGBA())
 							state.idx = idx
-							state.r = color.R()
-							state.g = color.G()
-							state.b = color.B()
+							state.r = color.R
+							state.g = color.G
+							state.b = color.B
 
 							state.mode = widgetModeEdit
 						}),
@@ -119,10 +119,7 @@ func (p *widget) makeRGBField(id, label string, field *uint8) giu.Layout {
 				field,
 				func() {
 					p.changeColor(
-						state.r,
-						state.g,
-						state.b,
-						state.idx,
+						state,
 					)
 				},
 			),
@@ -132,10 +129,7 @@ func (p *widget) makeRGBField(id, label string, field *uint8) giu.Layout {
 			var mutex = &sync.Mutex{}
 			mutex.Lock()
 			p.changeColor(
-				state.r,
-				state.g,
-				state.b,
-				state.idx,
+				state,
 			)
 			hsutil.SetByteToInt(f32, field)
 			mutex.Unlock()
