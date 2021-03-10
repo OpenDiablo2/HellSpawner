@@ -1,6 +1,7 @@
 package palettegridwidget
 
 import (
+	"log"
 	"sync"
 
 	"github.com/ianling/giu"
@@ -70,6 +71,7 @@ func (p *widget) buildGrid() {
 							state.r = color.R
 							state.g = color.G
 							state.b = color.B
+							state.hex = RGB2Hex(state.r, state.g, state.b)
 
 							state.mode = widgetModeEdit
 						}),
@@ -97,6 +99,18 @@ func (p *widget) buildEditor() {
 		giu.Separator(),
 		p.makeRGBField("##"+p.id+"changeB", "B:", &state.b),
 		giu.Separator(),
+		giu.Line(
+			giu.Label("Hex: "),
+			giu.InputText("##"+p.id+"editHex", &state.hex).OnChange(func() {
+				r, g, b, err := Hex2RGB(state.hex)
+				if err != nil {
+					log.Print("error: ", err)
+				}
+
+				state.r, state.g, state.b = r, g, b
+			}),
+		),
+		giu.Separator(),
 		giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
 			state.mode = widgetModeGrid
 		}),
@@ -116,9 +130,8 @@ func (p *widget) makeRGBField(id, label string, field *uint8) giu.Layout {
 				inputIntW,
 				field,
 				func() {
-					p.changeColor(
-						state,
-					)
+					p.changeColor(state)
+					state.hex = RGB2Hex(state.r, state.g, state.b)
 				},
 			),
 		),
@@ -126,9 +139,8 @@ func (p *widget) makeRGBField(id, label string, field *uint8) giu.Layout {
 			// we need to lock, because sometimes crashes
 			var mutex = &sync.Mutex{}
 			mutex.Lock()
-			p.changeColor(
-				state,
-			)
+			p.changeColor(state)
+			state.hex = RGB2Hex(state.r, state.g, state.b)
 			hsutil.SetByteToInt(f32, field)
 			mutex.Unlock()
 		}),
