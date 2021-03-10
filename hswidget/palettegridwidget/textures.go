@@ -18,6 +18,7 @@ func (p *widget) loadTexture(i int) {
 		for x := 0; x < cellSize; x++ {
 			col := hsutil.Color(p.colors[i].RGBA())
 
+			// nolint:gomnd // alpha = 255
 			rgb.Set(x, y, color.RGBA{
 				R: col.R,
 				G: col.G,
