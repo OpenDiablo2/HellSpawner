@@ -32,7 +32,7 @@ func (ws *widgetState) Dispose() {
 type editEntryState struct {
 	idx     int
 	r, g, b uint8
-	hex     string
+	hex     string // nolint:structcheck // linter's bug
 }
 
 func (ees *editEntryState) Dispose() {

@@ -1,6 +1,7 @@
 package palettegridwidget
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -22,16 +23,22 @@ func (p *widget) changeColor(state *widgetState) {
 	p.loadTexture(state.idx)
 }
 
+// Hex2RGB converts haxadecimal color into r, g, b
 func Hex2RGB(hex string) (r, g, b uint8, err error) {
-	values, err := strconv.ParseUint(string(hex), 16, 32)
-
+	values, err := strconv.ParseUint(hex, 16, 32)
 	if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, 0, fmt.Errorf("error parsing uint: %w", err)
 	}
 
-	r = uint8(values >> 16)
-	g = uint8((values >> 8) & 0xFF)
-	b = uint8(values & 0xFF)
+	const (
+		mask    = 0xFF
+		rOffset = 16
+		gOffset = 8
+	)
+
+	r = uint8(values >> rOffset)
+	g = uint8((values >> gOffset) & mask)
+	b = uint8(values & mask)
 
 	return r, g, b, nil
 }
@@ -41,12 +48,15 @@ func t2x(t int64) string {
 	if len(result) == 1 {
 		result = "0" + result
 	}
+
 	return result
 }
 
+// RGB2Hex converts RGB into hexadecimal
 func RGB2Hex(red, green, blue uint8) string {
 	r := t2x(int64(red))
 	g := t2x(int64(green))
 	b := t2x(int64(blue))
-	return string(r + g + b)
+
+	return r + g + b
 }
