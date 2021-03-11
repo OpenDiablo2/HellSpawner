@@ -9,7 +9,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
-func (p *widget) loadTexture(i int) {
+func (p *PaletteGridWidget) loadTexture(i int) {
 	state := p.getState()
 
 	rgb := image2.NewRGBA(image2.Rect(0, 0, cellSize, cellSize))
@@ -34,7 +34,7 @@ func (p *widget) loadTexture(i int) {
 	})
 }
 
-func (p *widget) reloadTextures() {
+func (p *PaletteGridWidget) reloadTextures() {
 	for x := 0; x < 256; x++ {
 		p.loadTexture(x)
 	}

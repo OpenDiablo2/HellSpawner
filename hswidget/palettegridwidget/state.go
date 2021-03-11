@@ -6,47 +6,25 @@ import (
 	"github.com/ianling/giu"
 )
 
-type widgetMode int
-
-const (
-	widgetModeGrid widgetMode = iota
-	widgetModeEdit
-)
-
 // PaletteGridState represents palette grid's state
 type widgetState struct {
-	mode widgetMode
 	// nolint:unused,structcheck // will be used
 	loading bool
 	// nolint:unused,structcheck // will be used
 	failure bool
 	texture [256]*giu.Texture
-	editEntryState
 }
 
 // Dispose cleans palette grids state
 func (ws *widgetState) Dispose() {
-	ws.mode = widgetModeGrid
+	// noop
 }
 
-type editEntryState struct {
-	idx     int
-	r, g, b uint8
-	hex     string // nolint:structcheck // linter's bug
-}
-
-func (ees *editEntryState) Dispose() {
-	ees.idx = 0
-	ees.r = 0
-	ees.g = 0
-	ees.b = 0
-}
-
-func (p *widget) getStateID() string {
+func (p *PaletteGridWidget) getStateID() string {
 	return fmt.Sprintf("PaletteGridWidget_%s", p.id)
 }
 
-func (p *widget) getState() *widgetState {
+func (p *PaletteGridWidget) getState() *widgetState {
 	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
@@ -62,16 +40,14 @@ func (p *widget) getState() *widgetState {
 	return state
 }
 
-func (p *widget) initState() {
-	state := &widgetState{
-		mode: widgetModeGrid,
-	}
+func (p *PaletteGridWidget) initState() {
+	state := &widgetState{}
 
 	p.reloadTextures()
 
 	p.setState(state)
 }
 
-func (p *widget) setState(s giu.Disposable) {
+func (p *PaletteGridWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
