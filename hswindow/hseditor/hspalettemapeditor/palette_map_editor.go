@@ -14,7 +14,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettemapwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -54,7 +54,7 @@ func (e *PaletteMapEditor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.PaletteMapViewer(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
+			palettemapwidget.PaletteMapViewer(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
 		})
 }
 

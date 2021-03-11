@@ -1,4 +1,4 @@
-package hswidget
+package palettemapwidget
 
 import (
 	"fmt"
