@@ -59,18 +59,18 @@ For now (start of march 2021) we can use HellSpawner to:
 *   create projects
 *   browse MPQ archives
 *   view following file formats:
-    *   DC6 and DCC animations
-    *   DT1 map data
-    *   WAV sound files
+    *   DC6 - and DCC animations
+    *   WAV - sound files
     *   TXT - data tables
     *   PL2 - palette transforms
-    *   DAT - palettes
+    *   DS1 - map data
 *   edit:
     *   COF - animation data
-    *   DT1 map's tiles
     *   TBL - font tables
     *   TBL - string tables
     *   TXT - text files
+    *   DAT - palettes
+    *   DT1 - map tiles
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
 
