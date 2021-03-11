@@ -18,8 +18,8 @@ const (
 	bigImageW, bigImageH = 208, 208
 )
 
-// PaletteMapViewerState creates a new palette map viewer's state
-type PaletteMapViewerState struct {
+// widgetState creates a new palette map viewer's state
+type widgetState struct {
 	selection int32
 	slider1   int32
 	slider2   int32
@@ -27,7 +27,7 @@ type PaletteMapViewerState struct {
 }
 
 // Dispose cleans viewer's state
-func (p *PaletteMapViewerState) Dispose() {
+func (p *widgetState) Dispose() {
 	p.textures = make(map[string]*giu.Texture)
 }
 
@@ -53,20 +53,20 @@ func (p *widget) getStateID() string {
 }
 
 func (p *widget) initState() {
-	state := &PaletteMapViewerState{
+	state := &widgetState{
 		textures: make(map[string]*giu.Texture),
 	}
 
 	p.setState(state)
 }
 
-func (p *widget) getState() *PaletteMapViewerState {
-	var state *PaletteMapViewerState
+func (p *widget) getState() *widgetState {
+	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*PaletteMapViewerState)
+		state = s.(*widgetState)
 	} else {
 		p.initState()
 		state = p.getState()
