@@ -71,6 +71,7 @@ For now (start of march 2021) we can use HellSpawner to:
     *   TXT - text files
     *   DAT - palettes
     *   DT1 - map tiles
+    *   D2 - animation data
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
 
