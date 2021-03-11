@@ -1,6 +1,7 @@
 package dt1widget
 
 import (
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 )
 
@@ -76,5 +77,42 @@ func decodeTileGfxData(blocks []d2dt1.Block, floorPixBuf, wallPixBuf *[]byte, ti
 		case d2dt1.BlockFormatRLE:
 			decodeWallBlock(&blocks[i], wallPixBuf, tileYOffset, tileWidth)
 		}
+	}
+}
+
+// nolint:gocyclo // can't reduce
+// https://github.com/OpenDiablo2/OpenDiablo2/pull/1089
+func getTileTypeString(t d2enum.TileType) string {
+	switch t {
+	case d2enum.TileFloor:
+		return "floor"
+	case d2enum.TileSpecialTile1, d2enum.TileSpecialTile2:
+		return "special"
+	case d2enum.TileShadow:
+		return "shadow"
+	case d2enum.TileTree:
+		return "wall/object"
+	case d2enum.TileRoof:
+		return "roof"
+	case d2enum.TileLeftWall:
+		return "Left Wall"
+	case d2enum.TileRightWall:
+		return "Upper Wall"
+	case d2enum.TileRightPartOfNorthCornerWall:
+		return "Upper part of an Upper-Left corner"
+	case d2enum.TileLeftPartOfNorthCornerWall:
+		return "Left part of an Upper-Left corner"
+	case d2enum.TileLeftEndWall:
+		return "Upper-Right corner"
+	case d2enum.TileRightEndWall:
+		return "Lower-Left corner"
+	case d2enum.TileSouthCornerWall:
+		return "Lower-Right corner"
+	case d2enum.TileLeftWallWithDoor:
+		return "Left Wall with Door object, but not always"
+	case d2enum.TileRightWallWithDoor:
+		return "Upper Wall with Door object, but not always"
+	default:
+		return "lower wall ?"
 	}
 }

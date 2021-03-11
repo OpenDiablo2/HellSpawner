@@ -9,11 +9,11 @@ import (
 
 	"github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 )
 
 const (
@@ -397,9 +397,9 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	var tileTypeImage *giu.ImageWithFileWidget
 
 	// we're creating list of tile names
-	tileTypeList := make([]string, hsenum.TileRightWallWithDoor+1)
-	for i := hsenum.TileFloor; i <= hsenum.TileRightWallWithDoor; i++ {
-		tileTypeList[i] = hsenum.GetTileTypeString(int32(i))
+	tileTypeList := make([]string, d2enum.TileRightWallWithDoor+1)
+	for i := d2enum.TileFloor; i <= d2enum.TileRightWallWithDoor; i++ {
+		tileTypeList[int(i)] = getTileTypeString(i)
 	}
 
 	// tileTypeIdx is current index on tile types' list
@@ -408,14 +408,14 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	// then this index is set to tile.Type
 	// else, we're adding Unknown+#tile.Type to list
 	// and setting tileTypeIdx to this index
-	if tile.Type <= hsenum.TileRightWallWithDoor {
+	if tile.Type <= int32(d2enum.TileRightWallWithDoor) {
 		tileTypeIdx = tile.Type
 	} else {
 		tileTypeList = append(tileTypeList, "Unknown (#"+strconv.Itoa(int(tile.Type))+")")
 		tileTypeIdx = int32(len(tileTypeList) - 1)
 	}
 
-	tileImageFile := getTileTypeImage(tile.Type)
+	tileImageFile := getTileTypeImage(d2enum.TileType(tile.Type))
 
 	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
 
