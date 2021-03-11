@@ -31,16 +31,15 @@ func (p *PaletteMapViewerState) Dispose() {
 	p.textures = make(map[string]*giu.Texture)
 }
 
-// PaletteMapViewerWidget represents a palette map viewer's widget
-type PaletteMapViewerWidget struct {
+type widget struct {
 	id            string
 	pl2           *d2pl2.PL2
 	textureLoader *hscommon.TextureLoader
 }
 
 // PaletteMapViewer creates a new palette map viewer's widget
-func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) *PaletteMapViewerWidget {
-	result := &PaletteMapViewerWidget{
+func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
+	result := &widget{
 		id:            id,
 		pl2:           pl2,
 		textureLoader: textureLoader,
@@ -49,11 +48,11 @@ func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2p
 	return result
 }
 
-func (p *PaletteMapViewerWidget) getStateID() string {
-	return fmt.Sprintf("PaletteMapViewerWidget_%s", p.id)
+func (p *widget) getStateID() string {
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
-func (p *PaletteMapViewerWidget) initState() {
+func (p *widget) initState() {
 	state := &PaletteMapViewerState{
 		textures: make(map[string]*giu.Texture),
 	}
@@ -61,7 +60,7 @@ func (p *PaletteMapViewerWidget) initState() {
 	p.setState(state)
 }
 
-func (p *PaletteMapViewerWidget) getState() *PaletteMapViewerState {
+func (p *widget) getState() *PaletteMapViewerState {
 	var state *PaletteMapViewerState
 
 	s := giu.Context.GetState(p.getStateID())
@@ -76,12 +75,12 @@ func (p *PaletteMapViewerWidget) getState() *PaletteMapViewerState {
 	return state
 }
 
-func (p *PaletteMapViewerWidget) setState(s giu.Disposable) {
+func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
 // Build builds a new widget
-func (p *PaletteMapViewerWidget) Build() {
+func (p *widget) Build() {
 	// nolint:ifshort // state should be a global variable here
 	state := p.getState()
 
@@ -138,7 +137,7 @@ func (p *PaletteMapViewerWidget) Build() {
 	layout.Build()
 }
 
-func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.Layout {
+func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
 	buildLayout := []func() giu.Layout{
 		func() giu.Layout {
 			return p.transformMulti("LightLevelVariations", p.pl2.LightLevelVariations[:])
@@ -190,7 +189,7 @@ func (p *PaletteMapViewerWidget) getTransformViewLayout(transformIdx int32) giu.
 	return buildLayout[transformIdx]()
 }
 
-func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interface.Color) {
+func (p *widget) makeTexture(key string, colors *[256]d2interface.Color) {
 	// nolint:gomnd // constant
 	pix := make([]byte, 256*4)
 
@@ -218,7 +217,7 @@ func (p *PaletteMapViewerWidget) makeTexture(key string, colors *[256]d2interfac
 	p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 }
 
-func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface.Color {
+func (p *widget) getColors(indices *[256]byte) *[256]d2interface.Color {
 	result := &[256]d2interface.Color{}
 
 	for idx := range indices {
@@ -243,7 +242,7 @@ func (p *PaletteMapViewerWidget) getColors(indices *[256]byte) *[256]d2interface
 
 // single transform (256 palette indices)
 // example: selected unit
-func (p *PaletteMapViewerWidget) transformSingle(key string, transform *[256]byte) giu.Layout {
+func (p *widget) transformSingle(key string, transform *[256]byte) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -260,7 +259,7 @@ func (p *PaletteMapViewerWidget) transformSingle(key string, transform *[256]byt
 
 // multiple transforms (n * 256 palette indices)
 // light level variations, there's 32
-func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.PL2PaletteTransform) giu.Layout {
+func (p *widget) transformMulti(key string, transforms []d2pl2.PL2PaletteTransform) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -287,7 +286,7 @@ func (p *PaletteMapViewerWidget) transformMulti(key string, transforms []d2pl2.P
 
 // tranferMultiGroup - groups of multiple transforms (m * n * 256 palette indices)
 // example: alpha blend, there's 3 alpha levels (25%, 50%, 75% ?), and each do a blend against all 256 colors
-func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2PaletteTransform) giu.Layout {
+func (p *widget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2PaletteTransform) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -327,7 +326,7 @@ func (p *PaletteMapViewerWidget) transformMultiGroup(key string, groups ...[256]
 	return l
 }
 
-func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layout {
+func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layout {
 	state := p.getState()
 
 	l := giu.Layout{}
@@ -386,7 +385,7 @@ func (p *PaletteMapViewerWidget) textColors(key string, colors []d2pl2.PL2Color2
 	return l
 }
 
-func (p *PaletteMapViewerWidget) paletteView() giu.Layout {
+func (p *widget) paletteView() giu.Layout {
 	baseTransform := [256]byte{}
 
 	for idx := range baseTransform {
