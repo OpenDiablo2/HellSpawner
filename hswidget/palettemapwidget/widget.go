@@ -37,8 +37,8 @@ type widget struct {
 	textureLoader *hscommon.TextureLoader
 }
 
-// PaletteMapViewer creates a new palette map viewer's widget
-func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
+// Create creates a new palette map viewer's widget
+func Create(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
 	result := &widget{
 		id:            id,
 		pl2:           pl2,
@@ -49,7 +49,7 @@ func PaletteMapViewer(textureLoader *hscommon.TextureLoader, id string, pl2 *d2p
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("widget_%s", p.id)
+	return fmt.Sprintf("PaletteMapWidget_%s", p.id)
 }
 
 func (p *widget) initState() {

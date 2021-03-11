@@ -54,7 +54,7 @@ func (e *PaletteMapEditor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			palettemapwidget.PaletteMapViewer(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
+			palettemapwidget.Create(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
 		})
 }
 
