@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
@@ -73,7 +74,7 @@ func (p *widget) Build() {
 
 	left := giu.Layout{
 		giu.Label("Base Palette"),
-		palettegridwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
+		palettegrideditorwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
 			state.textures = make(map[string]*giu.Texture)
 		}),
 	}
