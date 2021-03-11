@@ -11,6 +11,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
 const (
@@ -63,9 +64,15 @@ func (p *widget) Build() {
 		log.Print(err)
 	}
 
+	var baseColors [256]palettegridwidget.PaletteColor
+	colors := &p.pl2.BasePalette.Colors
+	for n := range colors {
+		baseColors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
+	}
+
 	left := giu.Layout{
 		giu.Label("Base Palette"),
-		p.paletteView(),
+		palettegridwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors),
 	}
 
 	right := giu.Layout{
