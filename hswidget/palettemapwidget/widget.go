@@ -11,6 +11,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
@@ -72,7 +73,9 @@ func (p *widget) Build() {
 
 	left := giu.Layout{
 		giu.Label("Base Palette"),
-		palettegridwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors),
+		palettegridwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
+			state.textures = make(map[string]*giu.Texture)
+		}),
 	}
 
 	right := giu.Layout{
@@ -152,7 +155,7 @@ func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
 	return buildLayout[transformIdx]()
 }
 
-func (p *widget) makeTexture(key string, colors *[256]d2interface.Color) {
+func (p *widget) makeTexture(key string, colors *[256]palettegridwidget.PaletteColor) {
 	// nolint:gomnd // constant
 	pix := make([]byte, 256*4)
 
@@ -164,9 +167,10 @@ func (p *widget) makeTexture(key string, colors *[256]d2interface.Color) {
 	}
 
 	for idx := range colors {
-		pix[idx*4+0] = colors[idx].R()
-		pix[idx*4+1] = colors[idx].G()
-		pix[idx*4+2] = colors[idx].B()
+		col := hsutil.Color(colors[idx].RGBA())
+		pix[idx*4+0] = col.R
+		pix[idx*4+1] = col.G
+		pix[idx*4+2] = col.B
 		pix[idx*4+3] = 0xFF
 	}
 
@@ -180,8 +184,8 @@ func (p *widget) makeTexture(key string, colors *[256]d2interface.Color) {
 	p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 }
 
-func (p *widget) getColors(indices *[256]byte) *[256]d2interface.Color {
-	result := &[256]d2interface.Color{}
+func (p *widget) getColors(indices *[256]byte) *[256]palettegridwidget.PaletteColor {
+	result := &[256]palettegridwidget.PaletteColor{}
 
 	for idx := range indices {
 		// nolint:gomnd // const
@@ -189,15 +193,15 @@ func (p *widget) getColors(indices *[256]byte) *[256]d2interface.Color {
 			break
 		}
 
-		c := p.pl2.BasePalette.Colors[indices[idx]]
+		/*c := p.pl2.BasePalette.Colors[indices[idx]]
 
 		cface := &colorFace{
 			r: c.R,
 			g: c.G,
 			b: c.B,
-		}
+		}*/
 
-		result[idx] = cface
+		result[idx] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[indices[idx]])
 	}
 
 	return result
