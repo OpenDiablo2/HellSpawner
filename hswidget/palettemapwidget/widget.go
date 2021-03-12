@@ -15,6 +15,7 @@ import (
 const (
 	comboW           = 280
 	layoutW, layoutH = 475, 300
+	actionButtonW    = layoutW
 )
 
 type widget struct {
@@ -182,5 +183,12 @@ func (p *widget) buildEditor(state *widgetState) {
 		state.mode = widgetModeView
 	})
 
-	giu.Layout{grid}.Build()
+	giu.Layout{
+		grid,
+		giu.Separator(),
+		// if height > 0, then pushItemHeight
+		giu.Button("Cancel##"+p.id+"cancelEditorButton").Size(actionButtonW, 0).OnClick(func() {
+			state.mode = widgetModeView
+		}),
+	}.Build()
 }
