@@ -2,16 +2,16 @@ package palettemapwidget
 
 import (
 	"fmt"
-	"image"
+	//"image"
 	"log"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+	//"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	//"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
@@ -42,6 +42,16 @@ func Create(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) gi
 func (p *widget) Build() {
 	// nolint:ifshort // state should be a global variable here
 	state := p.getState()
+
+	switch state.mode {
+	case widgetModeView:
+		p.buildViewer(state)
+	case widgetModeEditTransform:
+		giu.Layout{giu.Label("test")}.Build()
+	}
+}
+
+func (p *widget) buildViewer(state *widgetState) {
 
 	selections := []string{
 		"Light Level Variations",
@@ -75,7 +85,7 @@ func (p *widget) Build() {
 	left := giu.Layout{
 		giu.Label("Base Palette"),
 		palettegrideditorwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
-			state.textures = make(map[string]*giu.Texture)
+			state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
 		}),
 	}
 
@@ -157,32 +167,38 @@ func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
 }
 
 func (p *widget) makeTexture(key string, colors *[256]palettegridwidget.PaletteColor) {
-	// nolint:gomnd // constant
-	pix := make([]byte, 256*4)
+	/*
+		// nolint:gomnd // constant
+		pix := make([]byte, 256*4)
 
-	img := &image.RGBA{
-		Rect: image.Rectangle{
-			image.Point{0, 0},
-			image.Point{16, 16},
-		},
-	}
+		img := &image.RGBA{
+			Rect: image.Rectangle{
+				image.Point{0, 0},
+				image.Point{16, 16},
+			},
+		}
 
-	for idx := range colors {
-		col := hsutil.Color(colors[idx].RGBA())
-		pix[idx*4+0] = col.R
-		pix[idx*4+1] = col.G
-		pix[idx*4+2] = col.B
-		pix[idx*4+3] = 0xFF
-	}
+		for idx := range colors {
+			col := hsutil.Color(colors[idx].RGBA())
+			pix[idx*4+0] = col.R
+			pix[idx*4+1] = col.G
+			pix[idx*4+2] = col.B
+			pix[idx*4+3] = 0xFF
+		}
 
-	img.Pix = pix
+		img.Pix = pix
 
-	makeTexture := func(tex *giu.Texture) {
-		state := p.getState()
-		state.textures[key] = tex
-	}
+		makeTexture := func(tex *giu.Texture) {
+			state := p.getState()
+			state.textures[key] = tex
+		}
 
-	p.textureLoader.CreateTextureFromARGB(img, makeTexture)
+		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
+	*/
+	state := p.getState()
+	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id, colors).OnClick(func(_ int) {
+		state.mode = widgetModeEditTransform
+	})
 }
 
 func (p *widget) getColors(indices *[256]byte) *[256]palettegridwidget.PaletteColor {
@@ -216,8 +232,7 @@ func (p *widget) transformSingle(key string, transform *[256]byte) giu.Layout {
 	l := giu.Layout{}
 
 	if tex, found := state.textures[key]; found {
-		// nolint:gomnd // constant
-		l = append(l, giu.Image(tex).Size(255, 255))
+		l = append(l, tex)
 	} else {
 		p.makeTexture(key, p.getColors(transform))
 	}
@@ -244,7 +259,7 @@ func (p *widget) transformMulti(key string, transforms []d2pl2.PL2PaletteTransfo
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections-1))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
+		l = append(l, tex)
 	} else {
 		p.makeTexture(textureID, p.getColors(&transforms[state.slider1].Indices))
 	}
@@ -285,7 +300,7 @@ func (p *widget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2Palette
 	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections))
 
 	if tex, found := state.textures[textureID]; found {
-		l = append(l, giu.Image(tex).Size(bigImageW, bigImageH))
+		l = append(l, tex)
 	} else {
 		col := p.getColors(&groups[groupIdx][state.slider1].Indices)
 		p.makeTexture(textureID, col)
@@ -308,10 +323,9 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 
 	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
 	if tex, found := state.textures[textureID]; found {
-		// nolint:gomnd // const
-		l = append(l, giu.Image(tex).Size(float32(len(colors)*16), 16))
+		l = append(l, tex)
 	} else {
-		colorFaces := make([]d2interface.Color, len(colors))
+		/*colorFaces := make([]d2interface.Color, len(colors))
 
 		for idx := range colors {
 			cface := &colorFace{
@@ -348,6 +362,7 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 		}
 
 		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
+		*/
 	}
 
 	return l

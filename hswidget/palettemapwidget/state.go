@@ -4,18 +4,37 @@ import (
 	"fmt"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
+)
+
+type widgetMode int
+
+const (
+	widgetModeView widgetMode = iota
+	widgetModeEditTransform
 )
 
 type widgetState struct {
+	mode      widgetMode
 	selection int32
 	slider1   int32
 	slider2   int32
-	textures  map[string]*giu.Texture
+	textures  map[string]*palettegridwidget.PaletteGridWidget
+	editTransformState
 }
 
 // Dispose cleans viewer's state
 func (p *widgetState) Dispose() {
-	p.textures = make(map[string]*giu.Texture)
+	p.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
+	p.editTransformState.Dispose()
+}
+
+type editTransformState struct {
+}
+
+func (p *editTransformState) Dispose() {
+	// noop
 }
 
 func (p *widget) getStateID() string {
@@ -39,7 +58,8 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{
-		textures: make(map[string]*giu.Texture),
+		mode:     widgetModeView,
+		textures: make(map[string]*palettegridwidget.PaletteGridWidget),
 	}
 
 	p.setState(state)
