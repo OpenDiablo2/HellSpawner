@@ -8,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
@@ -182,8 +183,9 @@ func (p *widget) buildEditor(state *widgetState) {
 
 		state.mode = widgetModeView
 	})
-
+	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indicate[state.idx]].RGBA())
 	giu.Layout{
+		giu.Label("Select color from base palette").Color(&labelColor),
 		grid,
 		giu.Separator(),
 		// if height > 0, then pushItemHeight
