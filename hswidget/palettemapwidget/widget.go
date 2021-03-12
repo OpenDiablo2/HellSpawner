@@ -25,6 +25,7 @@ type widget struct {
 	id            string
 	pl2           *d2pl2.PL2
 	textureLoader *hscommon.TextureLoader
+	baseColors    *[256]palettegridwidget.PaletteColor
 }
 
 // Create creates a new palette map viewer's widget
@@ -47,12 +48,11 @@ func (p *widget) Build() {
 	case widgetModeView:
 		p.buildViewer(state)
 	case widgetModeEditTransform:
-		giu.Layout{giu.Label("test")}.Build()
+		p.buildEditor(state)
 	}
 }
 
 func (p *widget) buildViewer(state *widgetState) {
-
 	selections := []string{
 		"Light Level Variations",
 		"InvColor Variations",
@@ -76,7 +76,7 @@ func (p *widget) buildViewer(state *widgetState) {
 		log.Print(err)
 	}
 
-	var baseColors [256]palettegridwidget.PaletteColor
+	var baseColors = make([]palettegridwidget.PaletteColor, 256)
 	colors := &p.pl2.BasePalette.Colors
 	for n := range colors {
 		baseColors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
@@ -85,7 +85,8 @@ func (p *widget) buildViewer(state *widgetState) {
 	left := giu.Layout{
 		giu.Label("Base Palette"),
 		palettegrideditorwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
-			state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
+			//state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
+			state.textures = make(map[string]giu.Widget)
 		}),
 	}
 
@@ -112,6 +113,41 @@ func (p *widget) buildViewer(state *widgetState) {
 	}
 
 	layout.Build()
+}
+
+func (p *widget) buildEditor(state *widgetState) {
+	var grid giu.Widget
+	var colors = make([]palettegridwidget.PaletteColor, len(p.pl2.BasePalette.Colors))
+	for n := range colors {
+		colors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
+	}
+
+	indices := []*[256]uint8{
+		&p.pl2.LightLevelVariations[state.slider1].Indices,
+		&p.pl2.InvColorVariations[state.slider1].Indices,
+		&p.pl2.SelectedUintShift.Indices,
+		&p.pl2.AlphaBlend[state.slider2][state.slider1].Indices,
+		&p.pl2.AdditiveBlend[state.slider1].Indices,
+		&p.pl2.MultiplicativeBlend[state.slider1].Indices,
+		&p.pl2.HueVariations[state.slider1].Indices,
+		&p.pl2.RedTones.Indices,
+		&p.pl2.GreenTones.Indices,
+		&p.pl2.BlueTones.Indices,
+		&p.pl2.UnknownVariations[state.slider1].Indices,
+		&p.pl2.MaxComponentBlend[state.slider1].Indices,
+		&p.pl2.DarkendColorShift.Indices,
+		nil,
+		&p.pl2.TextColorShifts[state.slider1].Indices,
+	}
+
+	cols := indices[state.selection]
+
+	grid = palettegridwidget.Create(p.textureLoader, p.id+"transformEdit", &colors).OnClick(func(idx int) {
+		cols[state.idx] = byte(idx)
+		state.mode = widgetModeView
+	})
+
+	giu.Layout{grid}.Build()
 }
 
 func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
@@ -167,40 +203,15 @@ func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
 }
 
 func (p *widget) makeTexture(key string, colors *[256]palettegridwidget.PaletteColor) {
-	/*
-		// nolint:gomnd // constant
-		pix := make([]byte, 256*4)
-
-		img := &image.RGBA{
-			Rect: image.Rectangle{
-				image.Point{0, 0},
-				image.Point{16, 16},
-			},
-		}
-
-		for idx := range colors {
-			col := hsutil.Color(colors[idx].RGBA())
-			pix[idx*4+0] = col.R
-			pix[idx*4+1] = col.G
-			pix[idx*4+2] = col.B
-			pix[idx*4+3] = 0xFF
-		}
-
-		img.Pix = pix
-
-		makeTexture := func(tex *giu.Texture) {
-			state := p.getState()
-			state.textures[key] = tex
-		}
-
-		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
-	*/
 	c := make([]palettegridwidget.PaletteColor, len(colors))
 	for n := range colors {
 		c[n] = colors[n]
 	}
+
 	state := p.getState()
-	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id, &c).OnClick(func(_ int) {
+	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id+key, &c).OnClick(func(idx int) {
+		state.id = key
+		state.idx = idx
 		state.mode = widgetModeEditTransform
 	})
 }
@@ -329,6 +340,18 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, tex)
 	} else {
+		c := make([]palettegridwidget.PaletteColor, len(p.pl2.TextColors))
+
+		for n := range c {
+			c[n] = palettegridwidget.PaletteColor(&p.pl2.TextColors[n])
+		}
+
+		grid := palettegrideditorwidget.Create(p.textureLoader, p.id+"transform24editColor", &c).OnChange(func() {
+			//state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
+			//state.textures = make(map[string]giu.Widget)
+		})
+
+		state.textures[textureID] = grid
 		/*colorFaces := make([]d2interface.Color, len(colors))
 
 		for idx := range colors {

@@ -35,7 +35,7 @@ func (p *PaletteGridWidget) loadTexture(i int) {
 }
 
 func (p *PaletteGridWidget) reloadTextures() {
-	for x := 0; x < 256; x++ {
+	for x := 0; x < len(*p.colors); x++ {
 		p.loadTexture(x)
 	}
 }

@@ -51,7 +51,7 @@ func Create(_ *hsconfig.Config,
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
-	var col [256]palettegridwidget.PaletteColor
+	var col = make([]palettegridwidget.PaletteColor, 256)
 	for n, i := range e.palette.GetColors() {
 		col[n] = palettegridwidget.PaletteColor(i)
 	}
