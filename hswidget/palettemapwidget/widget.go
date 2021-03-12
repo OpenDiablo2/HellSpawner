@@ -49,24 +49,6 @@ func (p *widget) Build() {
 }
 
 func (p *widget) buildViewer(state *widgetState) {
-	selections := []string{
-		"Light Level Variations",
-		"InvColor Variations",
-		"Selected Unit Shift",
-		"Alpha Blend",
-		"Additive Blend",
-		"Multiplicative Blend",
-		"Hue Variations",
-		"Red Tones",
-		"Green Tones",
-		"Blue Tones",
-		"Unknown Variations",
-		"MaxComponent Blend",
-		"Darkened Color Shift",
-		"Text Colors",
-		"Text ColorShifts",
-	}
-
 	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
 	if err != nil {
 		log.Print(err)
@@ -85,6 +67,7 @@ func (p *widget) buildViewer(state *widgetState) {
 		}),
 	}
 
+	selections := getPaletteTransformString()
 	right := giu.Layout{
 		giu.Label("Palette Map"),
 		giu.Layout{
