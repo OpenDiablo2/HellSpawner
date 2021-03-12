@@ -195,8 +195,12 @@ func (p *widget) makeTexture(key string, colors *[256]palettegridwidget.PaletteC
 
 		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
 	*/
+	c := make([]palettegridwidget.PaletteColor, len(colors))
+	for n := range colors {
+		c[n] = colors[n]
+	}
 	state := p.getState()
-	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id, colors).OnClick(func(_ int) {
+	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id, &c).OnClick(func(_ int) {
 		state.mode = widgetModeEditTransform
 	})
 }

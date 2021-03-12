@@ -16,7 +16,7 @@ func (p *PaletteGridWidget) loadTexture(i int) {
 
 	for y := 0; y < cellSize; y++ {
 		for x := 0; x < cellSize; x++ {
-			col := hsutil.Color(p.colors[i].RGBA())
+			col := hsutil.Color((*p.colors)[i].RGBA())
 
 			// nolint:gomnd // alpha = 255
 			rgb.Set(x, y, color.RGBA{
