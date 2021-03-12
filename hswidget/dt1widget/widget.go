@@ -550,7 +550,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 
 	return giu.Layout{
 		giu.SliderInt("Subtile Type", &state.dt1Controls.subtileFlag, 0, 7),
-		giu.Label(subtileFlag(1 << state.dt1Controls.subtileFlag).String()),
+		giu.Label(subTileString(state.dt1Controls.subtileFlag)),
 		giu.Label("Edit:"),
 		giu.Custom(func() {
 			for y := 0; y < gridDivisionsXY; y++ {

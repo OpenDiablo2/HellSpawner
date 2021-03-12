@@ -11,10 +11,8 @@ const (
 	subTileFlagUnknown3
 )
 
-type subtileFlag byte
-
-func (f subtileFlag) String() string {
-	lookup := map[subtileFlag]string{
+func subTileString(subtile int32) string {
+	lookup := map[byte]string{
 		1 << 0: "block walk",
 		1 << 1: "block light and line of sight",
 		1 << 2: "block jump/teleport",
@@ -25,60 +23,12 @@ func (f subtileFlag) String() string {
 		1 << 7: "unknown #7",
 	}
 
-	str, found := lookup[f]
+	str, found := lookup[byte(1<<subtile)]
 	if !found {
-		return "undefined"
+		return "unknown"
 	}
 
 	return str
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockWalk() bool {
-	// nolint:gomnd // const
-	return ((f >> 0) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockLightAndLOS() bool {
-	// nolint:gomnd // const
-	return ((f >> 1) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockJumpAndTeleport() bool {
-	// nolint:gomnd // const
-	return ((f >> 2) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockPlayerAllowMercWalk() bool {
-	// nolint:gomnd // const
-	return ((f >> 3) & 0b1) > 0
-}
-
-// nolint:unused // I suppose, it will be used
-func (f subtileFlag) unknown4() bool {
-	// nolint:gomnd // const
-	return ((f >> 4) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) blockLightOnly() bool {
-	// nolint:gomnd // const
-	return ((f >> 5) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) unknown6() bool {
-	// nolint:gomnd // const
-	return ((f >> 6) & 0b1) > 0
-}
-
-// nolint:unused // will be used
-func (f subtileFlag) unknown7() bool {
-	// nolint:gomnd // const
-	return ((f >> 7) & 0b1) > 0
 }
 
 func getFlagFromPos(x, y int) int {
