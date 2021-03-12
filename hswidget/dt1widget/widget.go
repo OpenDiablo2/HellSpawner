@@ -399,7 +399,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	// we're creating list of tile names
 	tileTypeList := make([]string, d2enum.TileRightWallWithDoor+1)
 	for i := d2enum.TileFloor; i <= d2enum.TileRightWallWithDoor; i++ {
-		tileTypeList[int(i)] = getTileTypeString(i)
+		tileTypeList[int(i)] = i.String()
 	}
 
 	// tileTypeIdx is current index on tile types' list
