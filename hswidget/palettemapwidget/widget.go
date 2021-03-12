@@ -2,16 +2,13 @@ package palettemapwidget
 
 import (
 	"fmt"
-	//"image"
 	"log"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
-	//"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	//"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
@@ -225,14 +222,6 @@ func (p *widget) getColors(indices *[256]byte) *[256]palettegridwidget.PaletteCo
 			break
 		}
 
-		/*c := p.pl2.BasePalette.Colors[indices[idx]]
-
-		cface := &colorFace{
-			r: c.R,
-			g: c.G,
-			b: c.B,
-		}*/
-
 		result[idx] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[indices[idx]])
 	}
 
@@ -346,50 +335,9 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 			c[n] = palettegridwidget.PaletteColor(&p.pl2.TextColors[n])
 		}
 
-		grid := palettegrideditorwidget.Create(p.textureLoader, p.id+"transform24editColor", &c).OnChange(func() {
-			//state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
-			//state.textures = make(map[string]giu.Widget)
-		})
+		grid := palettegrideditorwidget.Create(p.textureLoader, p.id+"transform24editColor", &c)
 
 		state.textures[textureID] = grid
-		/*colorFaces := make([]d2interface.Color, len(colors))
-
-		for idx := range colors {
-			cface := &colorFace{
-				r: colors[idx].R,
-				g: colors[idx].G,
-				b: colors[idx].B,
-			}
-
-			colorFaces[idx] = cface
-		}
-
-		// nolint:gomnd // constant
-		pix := make([]byte, len(colors)*4)
-
-		img := &image.RGBA{
-			Rect: image.Rectangle{
-				image.Point{0, 0},
-				image.Point{len(colors), 1},
-			},
-		}
-
-		for idx := range colors {
-			pix[idx*4+0] = colorFaces[idx].R()
-			pix[idx*4+1] = colorFaces[idx].G()
-			pix[idx*4+2] = colorFaces[idx].B()
-			pix[idx*4+3] = 0xFF
-		}
-
-		img.Pix = pix
-
-		makeTexture := func(tex *giu.Texture) {
-			state := p.getState()
-			state.textures[textureID] = tex
-		}
-
-		p.textureLoader.CreateTextureFromARGB(img, makeTexture)
-		*/
 	}
 
 	return l
