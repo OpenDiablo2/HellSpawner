@@ -24,13 +24,13 @@ type widgetState struct {
 
 // Dispose cleans viewer's state
 func (p *widgetState) Dispose() {
-	//p.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
 	p.textures = make(map[string]giu.Widget)
 	p.editTransformState.Dispose()
 }
 
 type editTransformState struct {
-	id  string
+	id string
+	// nolint:structcheck // linter's bug: this value is used
 	idx int
 }
 

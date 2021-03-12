@@ -14,15 +14,14 @@ import (
 )
 
 const (
-	leftLayoutSize       = 180
-	bigImageW, bigImageH = 208, 208
+	comboW           = 280
+	layoutW, layoutH = 475, 300
 )
 
 type widget struct {
 	id            string
 	pl2           *d2pl2.PL2
 	textureLoader *hscommon.TextureLoader
-	baseColors    *[256]palettegridwidget.PaletteColor
 }
 
 // Create creates a new palette map viewer's widget
@@ -74,15 +73,14 @@ func (p *widget) buildViewer(state *widgetState) {
 	}
 
 	var baseColors = make([]palettegridwidget.PaletteColor, 256)
-	colors := &p.pl2.BasePalette.Colors
-	for n := range colors {
+
+	for n := range baseColors {
 		baseColors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
 	}
 
 	left := giu.Layout{
 		giu.Label("Base Palette"),
 		palettegrideditorwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
-			//state.textures = make(map[string]*palettegridwidget.PaletteGridWidget)
 			state.textures = make(map[string]giu.Widget)
 		}),
 	}
@@ -90,14 +88,13 @@ func (p *widget) buildViewer(state *widgetState) {
 	right := giu.Layout{
 		giu.Label("Palette Map"),
 		giu.Layout{
-			giu.Combo("", selections[state.selection], selections, &state.selection).Size(leftLayoutSize),
+			giu.Combo("", selections[state.selection], selections, &state.selection).Size(comboW),
 			p.getTransformViewLayout(state.selection),
 		},
 	}
 
-	// nolint:gomnd // constant
-	w1, h1 := float32(256+32), float32(256+48)
-	w2, h2 := w1, h1
+	w1, h1 := float32(layoutW), float32(layoutH)
+	w2, h2 := float32(layoutW), float32(layoutH)
 
 	// nolint:gomnd // special case for alpha blend
 	if state.selection == 3 {
@@ -114,10 +111,6 @@ func (p *widget) buildViewer(state *widgetState) {
 
 func (p *widget) buildEditor(state *widgetState) {
 	var grid giu.Widget
-	var colors = make([]palettegridwidget.PaletteColor, len(p.pl2.BasePalette.Colors))
-	for n := range colors {
-		colors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
-	}
 
 	indices := []*[256]uint8{
 		&p.pl2.LightLevelVariations[state.slider1].Indices,
@@ -137,10 +130,17 @@ func (p *widget) buildEditor(state *widgetState) {
 		&p.pl2.TextColorShifts[state.slider1].Indices,
 	}
 
-	cols := indices[state.selection]
+	indicate := indices[state.selection]
+
+	var colors = make([]palettegridwidget.PaletteColor, len(p.pl2.BasePalette.Colors))
+
+	for n := range colors {
+		colors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
+	}
 
 	grid = palettegridwidget.Create(p.textureLoader, p.id+"transformEdit", &colors).OnClick(func(idx int) {
-		cols[state.idx] = byte(idx)
+		// this is save, because idx is always less than 256
+		indicate[state.idx] = byte(idx)
 		state.mode = widgetModeView
 	})
 
@@ -341,59 +341,4 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 	}
 
 	return l
-}
-
-func (p *widget) paletteView() giu.Layout {
-	baseTransform := [256]byte{}
-
-	for idx := range baseTransform {
-		baseTransform[idx] = byte(idx)
-	}
-
-	return p.transformSingle("base_palette", &baseTransform)
-}
-
-type colorFace struct {
-	r, g, b uint8
-}
-
-func (c colorFace) R() uint8 {
-	return c.r
-}
-
-func (c colorFace) G() uint8 {
-	return c.g
-}
-
-func (c colorFace) B() uint8 {
-	return c.b
-}
-
-func (c colorFace) A() uint8 {
-	// nolint:gomnd // full-opacity (RGBA a=255)
-	return 0xff
-}
-
-func (c colorFace) RGBA() uint32 {
-	// nolint:gomnd // constants
-	return uint32(c.r)<<24 | uint32(c.g)<<16 | uint32(c.b)<<8 | uint32(0xff)
-}
-
-// nolint:gomnd // constants
-func (c colorFace) SetRGBA(u uint32) {
-	c.r = byte((u >> 24) & 0xff)
-	c.g = byte((u >> 16) & 0xff)
-	c.b = byte((u >> 8) & 0xff)
-}
-
-func (c colorFace) BGRA() uint32 {
-	// nolint:gomnd // constants
-	return uint32(c.b)<<8 | uint32(c.g)<<16 | uint32(c.r)<<24 | uint32(0xff)
-}
-
-// nolint:gomnd // constants
-func (c colorFace) SetBGRA(u uint32) {
-	c.b = byte((u >> 24) & 0xff)
-	c.g = byte((u >> 16) & 0xff)
-	c.r = byte((u >> 8) & 0xff)
 }
