@@ -98,10 +98,9 @@ func (m *MPQExplorer) Build() {
 		})
 }
 
+// Layout returns mpq explorer without using hstoolwindow.ToolWindow
 func (m *MPQExplorer) Layout() g.Layout {
-	return g.Layout{
-		g.Layout(m.getMpqTreeNodes()),
-	}
+	return g.Layout(m.getMpqTreeNodes())
 }
 
 func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {

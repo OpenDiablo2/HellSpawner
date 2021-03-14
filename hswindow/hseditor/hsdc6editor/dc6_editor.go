@@ -69,6 +69,7 @@ func Create(config *hsconfig.Config,
 func (e *DC6Editor) Build() {
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
+
 	if !e.selectPalette {
 		e.Layout(g.Layout{
 			dc6widget.Create(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
@@ -96,7 +97,6 @@ func (e *DC6Editor) Build() {
 				}
 
 				if ft == hsfiletypes.FileTypePalette {
-
 					// load new palette:
 					paletteData, err := path.GetFileBytes()
 					if err != nil {
@@ -118,12 +118,15 @@ func (e *DC6Editor) Build() {
 			e.config,
 			0, 0,
 		)
+
 		mpqExplorer.SetProject(e.Project)
+
 		if err != nil {
 			log.Print(err)
 
 			return
 		}
+
 		mpqExplorer.Visible = e.Visible
 
 		e.explorer = mpqExplorer

@@ -93,6 +93,7 @@ func (p *widget) initState() {
 				}
 
 				var r, g, b uint8
+
 				if p.palette != nil {
 					col := p.palette[val]
 					r, g, b = col.R(), col.G(), col.B()
@@ -100,7 +101,6 @@ func (p *widget) initState() {
 					r, g, b = val, val, val
 				}
 
-				//newState.rgb[frameIndex].Set(x, y, color.RGBA{R: val, G: val, B: val, A: alpha})
 				newState.rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
