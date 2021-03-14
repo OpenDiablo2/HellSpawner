@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -28,7 +29,8 @@ type DT1Editor struct {
 }
 
 // Create creates new dt1 editor
-func Create(textureLoader *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)

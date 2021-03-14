@@ -13,6 +13,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
 
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -29,7 +30,8 @@ type DCCEditor struct {
 }
 
 // Create creates a new dcc editor
-func Create(_ *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dcc, err := d2dcc.Load(*data)

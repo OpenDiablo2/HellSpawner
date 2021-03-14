@@ -84,15 +84,23 @@ func (m *MPQExplorer) Build() {
 					}),
 				),
 			})})
-	} else {
-		m.IsOpen(&m.Visible).
-			Size(mainWindowW, mainWindowH).
-			Layout(g.Layout{
-				g.Child("MpqExplorerContent").
-					Border(false).
-					Flags(g.WindowFlagsHorizontalScrollbar).
-					Layout(m.getMpqTreeNodes()),
-			})
+
+		return
+	}
+
+	m.IsOpen(&m.Visible).
+		Size(mainWindowW, mainWindowH).
+		Layout(g.Layout{
+			g.Child("MpqExplorerContent").
+				Border(false).
+				Flags(g.WindowFlagsHorizontalScrollbar).
+				Layout(m.getMpqTreeNodes()),
+		})
+}
+
+func (m *MPQExplorer) Layout() g.Layout {
+	return g.Layout{
+		g.Layout(m.getMpqTreeNodes()),
 	}
 }
 

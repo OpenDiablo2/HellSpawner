@@ -73,6 +73,7 @@ type App struct {
 
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(
+		config *hsconfig.Config,
 		textureLoader *hscommon.TextureLoader,
 		pathEntry *hscommon.PathEntry,
 		data *[]byte,
@@ -98,6 +99,7 @@ func Create() (*App, error) {
 	result := &App{
 		editors: make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]func(
+			config *hsconfig.Config,
 			textureLoader *hscommon.TextureLoader,
 			pathEntry *hscommon.PathEntry,
 			data *[]byte,
@@ -258,7 +260,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](a.TextureLoader, path, &data, x, y, a.project)
+	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, &data, x, y, a.project)
 
 	if err != nil {
 		dialog.Message("Error creating editor: %s", err).Error()
