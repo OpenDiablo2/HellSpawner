@@ -3,21 +3,30 @@ package hsdcceditor
 
 import (
 	"fmt"
+	"log"
+	"path/filepath"
 
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/dialog"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
-
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
+)
+
+const (
+	paletteSelectW, paletteSelectH = 400, 600
+	actionButtonW, actionButtonH   = 200, 30
 )
 
 // static check, to ensure, if dc6 editor implemented editoWindow
@@ -26,11 +35,15 @@ var _ hscommon.EditorWindow = &DCCEditor{}
 // DCCEditor represents a new dcc editor
 type DCCEditor struct {
 	*hseditor.Editor
-	dcc *d2dcc.DCC
+	dcc           *d2dcc.DCC
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	explorer      *hsmpqexplorer.MPQExplorer
 }
 
 // Create creates a new dcc editor
-func Create(_ *hsconfig.Config,
+func Create(config *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -40,8 +53,10 @@ func Create(_ *hsconfig.Config,
 	}
 
 	result := &DCCEditor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		dcc:    dcc,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		dcc:           dcc,
+		config:        config,
+		selectPalette: false,
 	}
 
 	return result, nil
@@ -49,14 +64,93 @@ func Create(_ *hsconfig.Config,
 
 // Build builds a dcc editor
 func (e *DCCEditor) Build() {
-	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		dccwidget.Create(e.Path.GetUniqueID(), e.dcc),
+	e.IsOpen(&e.Visible)
+	e.Flags(g.WindowFlagsAlwaysAutoResize)
+
+	if !e.selectPalette {
+		e.Layout(g.Layout{
+			hswidget.DCCViewer(e.palette, e.Path.GetUniqueID(), e.dcc),
+		})
+
+		return
+	}
+
+	// create mpq explorer if doesn't exist for now
+	if e.explorer == nil {
+		mpqExplorer, err := hsmpqexplorer.Create(
+			func(path *hscommon.PathEntry) {
+				bytes, bytesErr := path.GetFileBytes()
+				if bytesErr != nil {
+					log.Print(bytesErr)
+
+					return
+				}
+
+				ft, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &bytes)
+				if err != nil {
+					log.Print(err)
+
+					return
+				}
+
+				if ft == hsfiletypes.FileTypePalette {
+					// load new palette:
+					paletteData, err := path.GetFileBytes()
+					if err != nil {
+						log.Print(err)
+					}
+
+					palette, err := d2dat.Load(paletteData)
+					if err != nil {
+						log.Print(err)
+					}
+
+					colors := palette.GetColors()
+
+					e.palette = &colors
+
+					e.selectPalette = false
+				}
+			},
+			e.config,
+			0, 0,
+		)
+
+		mpqExplorer.SetProject(e.Project)
+
+		if err != nil {
+			log.Print(err)
+
+			return
+		}
+
+		mpqExplorer.Visible = e.Visible
+
+		e.explorer = mpqExplorer
+	}
+
+	e.Layout(g.Layout{
+		g.PopupModal("something").IsOpen(&e.Visible).Layout(g.Layout{
+			g.Child("somethingChild").Size(paletteSelectW, paletteSelectH).Layout(g.Layout{
+				e.explorer.Layout(),
+				g.Separator(),
+				g.Button("Exit##"+e.Path.GetUniqueID()+"selectPaletteExit").
+					Size(actionButtonW, actionButtonH).
+					OnClick(func() {
+						e.selectPalette = false
+					}),
+			}),
+		}),
 	})
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options
 func (e *DCCEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DCC Editor").Layout(g.Layout{
+		g.MenuItem("Change Palette").OnClick(func() {
+			e.selectPalette = true
+		}),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
