@@ -3,30 +3,20 @@ package hsdcceditor
 
 import (
 	"fmt"
-	"log"
-	"path/filepath"
 
 	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
-)
-
-const (
-	paletteSelectW, paletteSelectH = 400, 600
-	actionButtonW, actionButtonH   = 200, 30
 )
 
 // static check, to ensure, if dc6 editor implemented editoWindow
@@ -35,11 +25,11 @@ var _ hscommon.EditorWindow = &DCCEditor{}
 // DCCEditor represents a new dcc editor
 type DCCEditor struct {
 	*hseditor.Editor
-	dcc           *d2dcc.DCC
-	config        *hsconfig.Config
-	selectPalette bool
-	palette       *[256]d2interface.Color
-	explorer      *hsmpqexplorer.MPQExplorer
+	dcc                 *d2dcc.DCC
+	config              *hsconfig.Config
+	selectPalette       bool
+	palette             *[256]d2interface.Color
+	selectPaletteWidget g.Widget
 }
 
 // Create creates a new dcc editor
@@ -75,73 +65,21 @@ func (e *DCCEditor) Build() {
 		return
 	}
 
-	// create mpq explorer if doesn't exist for now
-	if e.explorer == nil {
-		mpqExplorer, err := hsmpqexplorer.Create(
-			func(path *hscommon.PathEntry) {
-				bytes, bytesErr := path.GetFileBytes()
-				if bytesErr != nil {
-					log.Print(bytesErr)
-
-					return
-				}
-
-				ft, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &bytes)
-				if err != nil {
-					log.Print(err)
-
-					return
-				}
-
-				if ft == hsfiletypes.FileTypePalette {
-					// load new palette:
-					paletteData, err := path.GetFileBytes()
-					if err != nil {
-						log.Print(err)
-					}
-
-					palette, err := d2dat.Load(paletteData)
-					if err != nil {
-						log.Print(err)
-					}
-
-					colors := palette.GetColors()
-
-					e.palette = &colors
-
-					e.selectPalette = false
-				}
-			},
+	if e.selectPaletteWidget == nil {
+		e.selectPaletteWidget = hswidget.NewSelectPaletteWidget(
+			"##"+e.Path.GetUniqueID()+"SelectPaletteWidget",
+			e.Project,
 			e.config,
-			0, 0,
+			func(colors *[256]d2interface.Color) {
+				e.palette = colors
+			},
+			func() {
+				e.selectPalette = false
+			},
 		)
-
-		mpqExplorer.SetProject(e.Project)
-
-		if err != nil {
-			log.Print(err)
-
-			return
-		}
-
-		mpqExplorer.Visible = e.Visible
-
-		e.explorer = mpqExplorer
 	}
 
-	e.Layout(g.Layout{
-		g.PopupModal("something").IsOpen(&e.Visible).Layout(g.Layout{
-			g.Child("somethingChild").Size(paletteSelectW, paletteSelectH).Layout(g.Layout{
-				g.Layout(e.explorer.GetMpqTreeNodes()),
-				g.Separator(),
-				g.Button("Exit##"+e.Path.GetUniqueID()+"selectPaletteExit").
-					Size(actionButtonW, actionButtonH).
-					OnClick(func() {
-						e.selectPalette = false
-					}),
-			}),
-		}),
-	})
+	e.Layout(g.Layout{e.selectPaletteWidget})
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options
