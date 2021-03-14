@@ -94,16 +94,12 @@ func (m *MPQExplorer) Build() {
 			g.Child("MpqExplorerContent").
 				Border(false).
 				Flags(g.WindowFlagsHorizontalScrollbar).
-				Layout(m.getMpqTreeNodes()),
+				Layout(m.GetMpqTreeNodes()),
 		})
 }
 
-// Layout returns mpq explorer without using hstoolwindow.ToolWindow
-func (m *MPQExplorer) Layout() g.Layout {
-	return g.Layout(m.getMpqTreeNodes())
-}
-
-func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
+// GetMpqTreeNodes returns mpq tree
+func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 	if m.nodeCache != nil {
 		return m.nodeCache
 	}

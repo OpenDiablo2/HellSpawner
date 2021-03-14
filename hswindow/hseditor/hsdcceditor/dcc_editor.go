@@ -132,7 +132,7 @@ func (e *DCCEditor) Build() {
 	e.Layout(g.Layout{
 		g.PopupModal("something").IsOpen(&e.Visible).Layout(g.Layout{
 			g.Child("somethingChild").Size(paletteSelectW, paletteSelectH).Layout(g.Layout{
-				e.explorer.Layout(),
+				g.Layout(e.explorer.GetMpqTreeNodes()),
 				g.Separator(),
 				g.Button("Exit##"+e.Path.GetUniqueID()+"selectPaletteExit").
 					Size(actionButtonW, actionButtonH).
