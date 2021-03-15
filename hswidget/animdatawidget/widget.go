@@ -3,7 +3,6 @@ package animdatawidget
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -36,10 +35,8 @@ func Create(del *giu.Texture, state []byte, id string, d2 *d2animdata.AnimationD
 	}
 
 	if state != nil && giu.Context.GetState(result.getStateID()) == nil {
-		s := &AnimationDataWidgetState{}
+		s := result.getState()
 		s.Decode(state)
-		s.mapKeys = result.d2.GetRecordNames()
-		sort.Strings(s.mapKeys)
 		result.setState(s)
 	}
 

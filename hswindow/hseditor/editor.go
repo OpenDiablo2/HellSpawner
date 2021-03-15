@@ -126,10 +126,15 @@ func (e *Editor) GetState() []byte {
 	s := giu.Context.GetState(id)
 
 	if s != nil {
-		state := s.(interface {
+		state, ok := s.(interface {
 			Dispose()
 			Encode() []byte
 		})
+		if !ok {
+			log.Fatalf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
+			return nil
+		}
+
 		return state.Encode()
 	}
 
