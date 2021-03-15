@@ -60,6 +60,8 @@ github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7 h1:KsJrIgPoCRtn+98ZM
 github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
 github.com/ianling/giu v0.5.1-0.20210311191131-fbc1eed3f704 h1:Ae4Fa5gu3w7wy1yz6bW2a5CbKQu2VqAvURxHbHvFtho=
 github.com/ianling/giu v0.5.1-0.20210311191131-fbc1eed3f704/go.mod h1:4NYyx77Cj7V7+mEm4nUFM5eyopdx+Q7pjHnmYP8cAJo=
+github.com/ianling/giu v0.5.1-0.20210315172859-9fed7147e162 h1:/qP19MrZriYv0G4i6XtR/fXBT5g0sR6gqahgvHo5tlc=
+github.com/ianling/giu v0.5.1-0.20210315172859-9fed7147e162/go.mod h1:4NYyx77Cj7V7+mEm4nUFM5eyopdx+Q7pjHnmYP8cAJo=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82 h1:0MOR+YCbB8lqENL09KZzWMGiCCc3gnVfo4OLS1UWL4s=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82/go.mod h1:yFLUkH/g8eMfNx16GrLoCGUDjTjjHAQjrg5EMdspDUY=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
