@@ -34,13 +34,14 @@ type FontTableEditor struct {
 	*hseditor.Editor
 	fontTable           *d2font.Font
 	deleteButtonTexture *g.Texture
+	state               []byte
 }
 
 // Create creates a new font table editor
 func Create(_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
-	_ []byte,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	table, err := d2font.Load(*data)
 	if err != nil {
@@ -50,6 +51,7 @@ func Create(_ *hsconfig.Config,
 	result := &FontTableEditor{
 		Editor:    hseditor.New(pathEntry, x, y, project),
 		fontTable: table,
+		state:     state,
 	}
 
 	if w, h := result.CurrentSize(); w == 0 || h == 0 {
@@ -67,7 +69,7 @@ func Create(_ *hsconfig.Config,
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
 		Layout(g.Layout{
-			fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
+			fonttablewidget.Create(e.state, e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
 		})
 }
 
