@@ -59,7 +59,7 @@ func (p *widget) setState(s giu.Disposable) {
 
 func (p *widget) initState() {
 	state := &widgetState{
-		dt1Controls: &dt1Controls{
+		controls: &controls{
 			showGrid:  true,
 			showFloor: true,
 			showWall:  true,
