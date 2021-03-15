@@ -130,6 +130,7 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	}
 }
 
+// GetProjectTreeNodes returns project tree
 func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 	if m.project == nil {
 		return []g.Widget{g.Label("No project loaded...")}

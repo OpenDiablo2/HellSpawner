@@ -107,7 +107,7 @@ func (p *SelectPaletteWidget) Build() {
 	giu.Layout{
 		giu.PopupModal("##" + p.id + "popUpSelectPalette").IsOpen(&isOpen).Layout(giu.Layout{
 			giu.Child("##"+p.id+"popUpSelectPaletteChildWidget").Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
-				giu.Layout(p.projectExplorer.GetProjectTreeNodes()),
+				p.projectExplorer.GetProjectTreeNodes(),
 				giu.Layout(p.mpqExplorer.GetMpqTreeNodes()),
 				giu.Separator(),
 				giu.Button("Don't use any palette##"+p.id+"selectPaletteDonotUseAny").
