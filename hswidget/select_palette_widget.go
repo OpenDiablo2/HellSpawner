@@ -14,6 +14,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 )
 
 const (
@@ -24,9 +25,11 @@ const (
 // SelectPaletteWidget represents an pop-up MPQ explorer, when we're
 // selectin DAT palette
 type SelectPaletteWidget struct {
-	mpqExplorer *hsmpqexplorer.MPQExplorer
-	id          string
-	closeCB     func()
+	mpqExplorer     *hsmpqexplorer.MPQExplorer
+	projectExplorer *hsprojectexplorer.ProjectExplorer
+	id              string
+	saveCB          func(colors *[256]d2interface.Color)
+	closeCB         func()
 }
 
 // NewSelectPaletteWidget creates a select palette widget
@@ -38,10 +41,11 @@ func NewSelectPaletteWidget(
 	closeCB func(),
 ) *SelectPaletteWidget {
 	result := &SelectPaletteWidget{
+		saveCB:  saveCB,
 		closeCB: closeCB,
 	}
 
-	onMpqSelect := func(path *hscommon.PathEntry) {
+	callback := func(path *hscommon.PathEntry) {
 		bytes, bytesErr := path.GetFileBytes()
 		if bytesErr != nil {
 			log.Print(bytesErr)
@@ -75,7 +79,7 @@ func NewSelectPaletteWidget(
 		}
 	}
 
-	mpqExplorer, err := hsmpqexplorer.Create(onMpqSelect, config, 0, 0)
+	mpqExplorer, err := hsmpqexplorer.Create(callback, config, 0, 0)
 	if err != nil {
 		log.Print(err)
 	}
@@ -83,6 +87,15 @@ func NewSelectPaletteWidget(
 	mpqExplorer.SetProject(project)
 
 	result.mpqExplorer = mpqExplorer
+
+	projectExplorer, err := hsprojectexplorer.Create(nil, callback, 0, 0)
+	if err != nil {
+		log.Print(err)
+	}
+
+	projectExplorer.SetProject(project)
+
+	result.projectExplorer = projectExplorer
 
 	return result
 }
@@ -94,8 +107,15 @@ func (p *SelectPaletteWidget) Build() {
 	giu.Layout{
 		giu.PopupModal("##" + p.id + "popUpSelectPalette").IsOpen(&isOpen).Layout(giu.Layout{
 			giu.Child("##"+p.id+"popUpSelectPaletteChildWidget").Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
+				giu.Layout(p.projectExplorer.GetProjectTreeNodes()),
 				giu.Layout(p.mpqExplorer.GetMpqTreeNodes()),
 				giu.Separator(),
+				giu.Button("Don't use any palette##"+p.id+"selectPaletteDonotUseAny").
+					Size(actionButtonW, actionButtonH).
+					OnClick(func() {
+						p.saveCB(nil)
+						p.closeCB()
+					}),
 				giu.Button("Exit##"+p.id+"selectPaletteExit").
 					Size(actionButtonW, actionButtonH).
 					OnClick(func() {
