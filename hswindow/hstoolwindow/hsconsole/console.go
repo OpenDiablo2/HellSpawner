@@ -28,13 +28,16 @@ func Create(fontFixed imgui.Font, x, y float32) *Console {
 		ToolWindow: hstoolwindow.New("Console", hsstate.ToolWindowTypeConsole, x, y),
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	return result
 }
 
 // Build builds a console
 func (c *Console) Build() {
 	c.IsOpen(&c.Visible).
-		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
 			g.Custom(func() {
 				g.PushFont(c.fontFixed)

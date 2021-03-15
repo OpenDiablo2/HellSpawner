@@ -43,6 +43,7 @@ func (a *App) RestoreAppState(state hsstate.AppState) {
 
 		tool.Pos(toolState.PosX, toolState.PosY)
 		tool.SetVisible(toolState.Visible)
+		tool.Size(toolState.Width, toolState.Height)
 	}
 
 	for _, editorState := range state.EditorWindows {
