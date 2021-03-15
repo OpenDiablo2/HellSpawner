@@ -24,7 +24,10 @@ type PaletteGridEditorWidget struct {
 }
 
 // Create creates a new palette grid editor widget
-func Create(state []byte, textureLoader *hscommon.TextureLoader, id string, colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
+func Create(state []byte,
+	textureLoader *hscommon.TextureLoader,
+	id string,
+	colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{
 		id:            id,
 		colors:        colors,

@@ -128,6 +128,7 @@ func (p *widget) initState() {
 				log.Fatal(err)
 			}
 		}
+
 		s := p.getState()
 		s.textures = textures
 		p.setState(s)

@@ -45,13 +45,32 @@ func (w *widgetState) Decode(data []byte) {
 	mode, err := sr.ReadInt32()
 	if err != nil {
 		log.Print(err)
+
+		return
 	}
 
 	w.mode = widgetMode(mode)
 
 	w.controls.direction, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
 	w.controls.frame, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
 	w.controls.scale, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
 }
 
 // nolint:structcheck // :-/ linter bug?! thes values are deffinitly used

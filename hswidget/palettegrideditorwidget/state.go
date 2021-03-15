@@ -91,6 +91,7 @@ func (ws *widgetState) Decode(data []byte) {
 	}
 
 	s := make([]rune, int(l))
+
 	for i := 0; i < int(l); i++ {
 		r, err := sr.ReadByte()
 		if err != nil {
@@ -100,7 +101,6 @@ func (ws *widgetState) Decode(data []byte) {
 		}
 
 		s[i] = rune(r)
-
 	}
 
 	ws.hex = string(s)

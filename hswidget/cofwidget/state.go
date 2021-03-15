@@ -1,7 +1,6 @@
 package cofwidget
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
@@ -30,6 +29,7 @@ func (s *widgetState) Dispose() {
 	s.newLayerFields.Dispose()
 }
 
+// Encode encodes state into byte slice to save it
 func (s *widgetState) Encode() []byte {
 	sw := d2datautils.CreateStreamWriter()
 
@@ -62,8 +62,8 @@ func (s *widgetState) Encode() []byte {
 	return sw.GetBytes()
 }
 
+// Decode decodes byt slice into state
 func (s *widgetState) Decode(data []byte) {
-	fmt.Println(s)
 	sr := d2datautils.CreateStreamReader(data)
 
 	m, err := sr.ReadInt32()
