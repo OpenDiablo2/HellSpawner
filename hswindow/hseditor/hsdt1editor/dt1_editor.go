@@ -32,13 +32,14 @@ type DT1Editor struct {
 	selectPalette       bool
 	palette             *[256]d2interface.Color
 	selectPaletteWidget g.Widget
+	state               []byte
 }
 
 // Create creates new dt1 editor
 func Create(config *hsconfig.Config,
 	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
-	_ []byte,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {
@@ -51,6 +52,7 @@ func Create(config *hsconfig.Config,
 		config:        config,
 		selectPalette: false,
 		textureLoader: textureLoader,
+		state:         state,
 	}
 
 	return result, nil
@@ -62,7 +64,7 @@ func (e *DT1Editor) Build() {
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
 	if !e.selectPalette {
-		dt1Viewer := dt1widget.Create(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
+		dt1Viewer := dt1widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
 		e.Layout(g.Layout{
 			dt1Viewer,
 		})
