@@ -20,12 +20,12 @@ type widgetState struct {
 }
 
 // Dispose cleans viewers state
-func (is *widgetState) Dispose() {
-	is.textures = nil
+func (s *widgetState) Dispose() {
+	s.textures = nil
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("DCCWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {
