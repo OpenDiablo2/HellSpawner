@@ -56,8 +56,10 @@ github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2h
 github.com/hajimehoshi/oto v0.6.8/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk=
 github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
-github.com/ianling/giu v0.5.1-0.20210309164633-6146ab53c15a h1:/weu/22mQygOk1jI1XmbIkcndgP6Pfa5zVnZjYYhI0g=
-github.com/ianling/giu v0.5.1-0.20210309164633-6146ab53c15a/go.mod h1:b0WlNuBLjfc4mel1dBCkCUWEC45tt8C39u33HSeHdJ4=
+github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7 h1:KsJrIgPoCRtn+98ZMlsI1v7lgh6wqgqUCI3cI5ryoac=
+github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
+github.com/ianling/giu v0.5.1-0.20210311191131-fbc1eed3f704 h1:Ae4Fa5gu3w7wy1yz6bW2a5CbKQu2VqAvURxHbHvFtho=
+github.com/ianling/giu v0.5.1-0.20210311191131-fbc1eed3f704/go.mod h1:4NYyx77Cj7V7+mEm4nUFM5eyopdx+Q7pjHnmYP8cAJo=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82 h1:0MOR+YCbB8lqENL09KZzWMGiCCc3gnVfo4OLS1UWL4s=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82/go.mod h1:yFLUkH/g8eMfNx16GrLoCGUDjTjjHAQjrg5EMdspDUY=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
@@ -102,6 +104,7 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
@@ -175,3 +178,4 @@ gopkg.in/sourcemap.v1 v1.0.5 h1:inv58fC9f9J3TK2Y2R1NPntXEn3/wjWHkonhIUODNTI=
 gopkg.in/sourcemap.v1 v1.0.5/go.mod h1:2RlvNNSMglmRrcvhfuzp4hQHwOtjxlbjX7UPY/GXb78=
 gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
+gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
