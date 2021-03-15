@@ -51,9 +51,11 @@ func Create(_ *hsconfig.Config,
 
 // Build builds an editor
 func (e *PaletteMapEditor) Build() {
-	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteMapViewer(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
-	})
+	e.IsOpen(&e.Visible).
+		Flags(g.WindowFlagsAlwaysAutoResize).
+		Layout(g.Layout{
+			hswidget.PaletteMapViewer(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
+		})
 }
 
 // UpdateMainMenuLayout updates a main menu layout to it contains editors options

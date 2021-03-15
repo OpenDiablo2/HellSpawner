@@ -290,6 +290,9 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 	a.editorManagerMutex.RUnlock()
 
+	// w, h = 0, because we're createing a new editor,
+	// width and height aren't saved, so we give 0 and
+	// editors without AutoResize flag sets w, h to default
 	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
 }
 
