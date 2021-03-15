@@ -8,7 +8,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 )
 
-type dt1Controls struct {
+type controls struct {
 	tileGroup   int32
 	tileVariant int32
 	showGrid    bool
@@ -20,7 +20,7 @@ type dt1Controls struct {
 
 // widgetState represents dt1 viewers state
 type widgetState struct {
-	*dt1Controls
+	*controls
 
 	lastTileGroup int32
 
@@ -29,8 +29,8 @@ type widgetState struct {
 }
 
 // Dispose clears viewers state
-func (is *widgetState) Dispose() {
-	is.textures = nil
+func (s *widgetState) Dispose() {
+	s.textures = nil
 }
 
 func (p *widget) getStateID() string {
