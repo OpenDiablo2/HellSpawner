@@ -11,17 +11,11 @@ import (
 type dt1Controls struct {
 	tileGroup   int32
 	tileVariant int32
-	// nolint:unused,structcheck // will be used
-	tileType int32
-	// nolint:unused,structcheck // will be used
-	tileStyle int32
-	// nolint:unused,structcheck // will be used
-	tileSequence int32
-	showGrid     bool
-	showFloor    bool
-	showWall     bool
-	subtileFlag  int32
-	scale        int32
+	showGrid    bool
+	showFloor   bool
+	showWall    bool
+	subtileFlag int32
+	scale       int32
 }
 
 // widgetState represents dt1 viewers state
