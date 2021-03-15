@@ -242,7 +242,7 @@ func (a *App) setupFonts() {
 	}
 }
 
-func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
+func (a *App) createEditor(path *hscommon.PathEntry, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
 		dialog.Message("Could not load file!").Error()
@@ -261,11 +261,12 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y float32) {
 	}
 
 	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, &data, x, y, a.project)
-
 	if err != nil {
 		dialog.Message("Error creating editor: %s", err).Error()
 		return
 	}
+
+	editor.Size(w, h)
 
 	a.editorManagerMutex.Lock()
 	a.editors = append(a.editors, editor)
@@ -289,7 +290,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 	a.editorManagerMutex.RUnlock()
 
-	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY)
+	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
 }
 
 func (a *App) loadProjectFromFile(file string) {

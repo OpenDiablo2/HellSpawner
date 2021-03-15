@@ -1,6 +1,10 @@
 package hscommon
 
-import "github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+import (
+	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+)
 
 // EditorWindow represents editor window
 type EditorWindow interface {
@@ -23,4 +27,6 @@ type EditorWindow interface {
 	State() hsstate.EditorState
 	// Save writes any changes made in the editor to the file that is open in the editor.
 	Save()
+
+	Size(float32, float32) *giu.WindowWidget
 }
