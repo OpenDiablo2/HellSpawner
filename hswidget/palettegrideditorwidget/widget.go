@@ -24,12 +24,18 @@ type PaletteGridEditorWidget struct {
 }
 
 // Create creates a new palette grid editor widget
-func Create(textureLoader *hscommon.TextureLoader, id string, colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
+func Create(state []byte, textureLoader *hscommon.TextureLoader, id string, colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{
 		id:            id,
 		colors:        colors,
 		textureLoader: textureLoader,
 		onChange:      nil,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
+		result.setState(s)
 	}
 
 	return result
