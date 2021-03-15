@@ -50,7 +50,7 @@ func (s *addItemState) Dispose() {
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("FontTableWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {

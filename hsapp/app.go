@@ -76,6 +76,7 @@ type App struct {
 		config *hsconfig.Config,
 		textureLoader *hscommon.TextureLoader,
 		pathEntry *hscommon.PathEntry,
+		state []byte,
 		data *[]byte,
 		x, y float32,
 		project *hsproject.Project,
@@ -102,6 +103,7 @@ func Create() (*App, error) {
 			config *hsconfig.Config,
 			textureLoader *hscommon.TextureLoader,
 			pathEntry *hscommon.PathEntry,
+			state []byte,
 			data *[]byte,
 			x, y float32,
 			project *hsproject.Project) (hscommon.EditorWindow, error)),
@@ -242,7 +244,7 @@ func (a *App) setupFonts() {
 	}
 }
 
-func (a *App) createEditor(path *hscommon.PathEntry, x, y, w, h float32) {
+func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
 		dialog.Message("Could not load file!").Error()
@@ -260,7 +262,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, x, y, w, h float32) {
 		return
 	}
 
-	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, &data, x, y, a.project)
+	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, state, &data, x, y, a.project)
 	if err != nil {
 		dialog.Message("Error creating editor: %s", err).Error()
 		return
@@ -293,7 +295,7 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	// w, h = 0, because we're createing a new editor,
 	// width and height aren't saved, so we give 0 and
 	// editors without AutoResize flag sets w, h to default
-	a.createEditor(path, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
+	a.createEditor(path, nil, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
 }
 
 func (a *App) loadProjectFromFile(file string) {

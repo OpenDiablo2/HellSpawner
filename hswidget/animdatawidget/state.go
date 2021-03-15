@@ -2,19 +2,22 @@ package animdatawidget
 
 import (
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type widgetMode int
+type widgetMode int32
 
 const (
 	widgetModeList widgetMode = iota
 	widgetModeViewRecord
 )
 
-type widgetState struct {
+type AnimationDataWidgetState struct {
 	mode      widgetMode
 	mapKeys   []string
 	mapIndex  int32
@@ -23,7 +26,7 @@ type widgetState struct {
 }
 
 // Dispose clears widget's state
-func (ws *widgetState) Dispose() {
+func (ws *AnimationDataWidgetState) Dispose() {
 	ws.mode = widgetModeList
 	ws.mapKeys = make([]string, 0)
 	ws.mapIndex = 0
@@ -39,17 +42,55 @@ func (aes *addEntryState) Dispose() {
 	aes.name = ""
 }
 
-func (p *widget) getStateID() string {
-	return fmt.Sprintf("AnimationDataWidget_%s", p.id)
+func (ws *AnimationDataWidgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(int32(ws.mode))
+	sw.PushInt32(ws.mapIndex)
+	sw.PushInt32(ws.recordIdx)
+
+	return sw.GetBytes()
 }
 
-func (p *widget) getState() *widgetState {
-	var state *widgetState
+func (ws *AnimationDataWidgetState) Decode(data []byte) {
+	sr := d2datautils.CreateStreamReader(data)
+	mode, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	mapIndex, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	recordIdx, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.mode = widgetMode(mode)
+	ws.mapIndex = mapIndex
+	ws.recordIdx = recordIdx
+}
+
+func (p *widget) getStateID() string {
+	return fmt.Sprintf("widget_%s", p.id)
+}
+
+func (p *widget) getState() *AnimationDataWidgetState {
+	var state *AnimationDataWidgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*widgetState)
+		state = s.(*AnimationDataWidgetState)
 	} else {
 		p.initState()
 		state = p.getState()

@@ -38,6 +38,7 @@ type DT1Editor struct {
 func Create(config *hsconfig.Config,
 	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dt1, err := d2dt1.LoadDT1(*data)
 	if err != nil {

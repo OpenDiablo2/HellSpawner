@@ -35,6 +35,7 @@ type StringTableEditor struct {
 func Create(_ *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {

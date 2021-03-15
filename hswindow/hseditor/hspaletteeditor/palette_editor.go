@@ -34,6 +34,7 @@ type PaletteEditor struct {
 func Create(_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {

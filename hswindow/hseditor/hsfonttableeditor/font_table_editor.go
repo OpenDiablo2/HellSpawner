@@ -40,6 +40,7 @@ type FontTableEditor struct {
 func Create(_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	table, err := d2font.Load(*data)
 	if err != nil {

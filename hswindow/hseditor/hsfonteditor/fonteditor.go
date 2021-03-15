@@ -34,6 +34,7 @@ type FontEditor struct {
 func Create(_ *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	font, err := hsfont.LoadFromJSON(*data)
 	if err != nil {

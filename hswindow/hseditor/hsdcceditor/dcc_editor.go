@@ -37,6 +37,7 @@ type DCCEditor struct {
 func Create(config *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dcc, err := d2dcc.Load(*data)
 	if err != nil {
