@@ -51,6 +51,10 @@ func Create(_ *hsconfig.Config,
 		fontTable: table,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
@@ -61,9 +65,9 @@ func Create(_ *hsconfig.Config,
 // Build builds a font table editor's window
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
-	})
+		Layout(g.Layout{
+			fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
+		})
 }
 
 // UpdateMainMenuLayout updates mainMenu layout's to it contain FontTableEditor's options
