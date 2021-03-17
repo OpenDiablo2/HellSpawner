@@ -20,7 +20,12 @@ func (a *App) State() hsstate.AppState {
 		appState.EditorWindows = append(appState.EditorWindows, editor.State())
 	}
 
-	appState.ToolWindows = append(appState.ToolWindows, a.mpqExplorer.State(), a.projectExplorer.State())
+	appState.ToolWindows = append(
+		appState.ToolWindows,
+		a.mpqExplorer.State(),
+		a.projectExplorer.State(),
+		a.console.State(),
+	)
 
 	return appState
 }
