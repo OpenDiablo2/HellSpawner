@@ -13,6 +13,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -86,6 +87,8 @@ func (e *COFEditor) Build() {
 // UpdateMainMenuLayout updates a main menu layout, to it contains COFViewer's settings
 func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("COF Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -98,6 +101,14 @@ func (e *COFEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *COFEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved
