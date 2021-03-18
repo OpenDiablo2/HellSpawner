@@ -12,8 +12,13 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/animdatawidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+)
+
+const (
+	delItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
 )
 
 // static check, to ensure, if D2 editor implemented editoWindow
@@ -22,11 +27,12 @@ var _ hscommon.EditorWindow = &AnimationDataEditor{}
 // AnimationDataEditor represents a cof editor
 type AnimationDataEditor struct {
 	*hseditor.Editor
-	d2 *d2animdata.AnimationData
+	d2  *d2animdata.AnimationData
+	del *g.Texture
 }
 
 // Create creates a new cof editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	d2, err := d2animdata.Load(*data)
@@ -39,13 +45,17 @@ func Create(_ *hscommon.TextureLoader,
 		d2:     d2,
 	}
 
+	tl.CreateTextureFromFileAsync(delItemButtonPath, func(texture *g.Texture) {
+		result.del = texture
+	})
+
 	return result, nil
 }
 
 // Build builds a D2 editor
 func (e *AnimationDataEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	animDataWidget := animdatawidget.Create(uid, e.d2)
+	animDataWidget := animdatawidget.Create(e.del, uid, e.d2)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
@@ -55,6 +65,8 @@ func (e *AnimationDataEditor) Build() {
 // UpdateMainMenuLayout updates a main menu layout, to it contains anim data viewer's settings
 func (e *AnimationDataEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Animation Data Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -67,6 +79,14 @@ func (e *AnimationDataEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *AnimationDataEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved
