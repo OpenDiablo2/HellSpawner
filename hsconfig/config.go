@@ -48,8 +48,7 @@ func generateDefaultConfig() *Config {
 		ProjectStates:           make(map[string]hsstate.AppState),
 	}
 
-	err := result.Save()
-	if err != nil {
+	if err := result.Save(); err != nil {
 		log.Fatalf("filed to save config: %s", err)
 	}
 
@@ -128,8 +127,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 		c.RecentProjects = recent
 	}
 
-	err := c.Save()
-	if err != nil {
+	if err := c.Save(); err != nil {
 		log.Fatalf("failed to save config: %s", err)
 	}
 }

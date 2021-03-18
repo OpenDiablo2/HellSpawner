@@ -81,10 +81,14 @@ func (e *PaletteEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputMan
 
 // GenerateSaveData generates data to be saved
 func (e *PaletteEditor) GenerateSaveData() []byte {
-	// https://github.com/OpenDiablo2/HellSpawner/issues/181
-	data, _ := e.Path.GetFileBytes()
+	palette, ok := e.palette.(*d2dat.DATPalette)
+	if ok {
+		data := palette.Marshal()
 
-	return data
+		return data
+	}
+
+	return make([]byte, 0)
 }
 
 // Save saves editor

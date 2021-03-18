@@ -82,6 +82,7 @@ func (p *PaletteMapViewerWidget) setState(s giu.Disposable) {
 
 // Build builds a new widget
 func (p *PaletteMapViewerWidget) Build() {
+	// nolint:ifshort // state should be a global variable here
 	state := p.getState()
 
 	selections := []string{
