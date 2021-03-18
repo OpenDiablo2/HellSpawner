@@ -97,8 +97,7 @@ func (s *SoundEditor) Cleanup() {
 	speaker.Lock()
 	s.control.Paused = true
 
-	err := s.streamer.Close()
-	if err != nil {
+	if err := s.streamer.Close(); err != nil {
 		log.Print(err)
 	}
 

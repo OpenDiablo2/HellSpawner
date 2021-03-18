@@ -57,7 +57,7 @@ func (p *widget) buildTableLayout() {
 	rows[0] = giu.Row(columnWidgets...)
 
 	for keyIdx, key := range keys {
-		// nolint:gomnd // first row is header
+		// first row is header
 		rows[keyIdx+1] = p.makeTableRow(key)
 	}
 
