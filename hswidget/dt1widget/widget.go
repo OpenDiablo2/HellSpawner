@@ -323,7 +323,6 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 				// nolint:gomnd // const
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
-				// nolint:gomnd // const
 				if idx == 0 || idx == gridDivisionsXY {
 					c.R = 255
 				}
@@ -411,6 +410,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	if tile.Type <= int32(d2enum.TileRightWallWithDoor) {
 		tileTypeIdx = tile.Type
 	} else {
+		// nolint:makezero // this is OK
 		tileTypeList = append(tileTypeList, "Unknown (#"+strconv.Itoa(int(tile.Type))+")")
 		tileTypeIdx = int32(len(tileTypeList) - 1)
 	}
@@ -600,7 +600,6 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
-					// nolint:gomnd // const
 					c.R = 255
 				}
 
@@ -655,7 +654,6 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
 
 				if idx == 0 || idx == gridDivisionsXY {
-					// nolint:gomnd // const
 					c.R = 255
 				}
 
