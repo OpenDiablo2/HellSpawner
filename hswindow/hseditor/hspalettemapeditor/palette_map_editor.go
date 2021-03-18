@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -56,6 +57,8 @@ func (e *PaletteMapEditor) Build() {
 // UpdateMainMenuLayout updates a main menu layout to it contains editors options
 func (e *PaletteMapEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Palette Map Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -68,6 +71,14 @@ func (e *PaletteMapEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *PaletteMapEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData creates data to be saved

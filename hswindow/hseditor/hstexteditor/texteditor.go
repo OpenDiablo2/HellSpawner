@@ -4,14 +4,13 @@ package hstexteditor
 import (
 	"strings"
 
-	"github.com/OpenDiablo2/dialog"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
-
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/dialog"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -96,6 +95,8 @@ func (e *TextEditor) Build() {
 // UpdateMainMenuLayout updates mainMenu layout to it contains editor's options
 func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("Text Editor").Layout(g.Layout{
+		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),
@@ -108,6 +109,14 @@ func (e *TextEditor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
+}
+
+// RegisterKeyboardShortcuts adds a local shortcuts for this editor
+func (e *TextEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
+	// Ctrl+Shift+S saves file
+	inputManager.RegisterShortcut(func() {
+		e.Save()
+	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved
