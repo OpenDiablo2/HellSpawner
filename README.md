@@ -8,7 +8,7 @@
 
 ## About this project
 
-HellSpawner is the toolset used for developing games on the [OpenDiablo2](https://github.com/OpenDiablo2/OpenDiablo2) engine. 
+HellSpawner is the toolset used for developing games on the [OpenDiablo2](https://github.com/OpenDiablo2/OpenDiablo2) engine.
 
 ## Getting the source
 
@@ -35,18 +35,17 @@ If you find something you'd like to fix that's obviously broken, create a branch
 If you'd like to help out and are not quite sure how, you can look through any open issues and tasks, or ask
 for tasks on our discord server.
 
-
 ### Lint Errors
-We use `golangci-lint` to catch lint errors, and we require all contributors to install and use
- it. Installation instructions can be found [here](https://golangci-lint.run/usage/install/).
 
+We use `golangci-lint` to catch lint errors, and we require all contributors to install and use
+it. Installation instructions can be found [here](https://golangci-lint.run/usage/install/).
 
 ## VS Code Extensions
 
 The following extensions are recommended for working with this project:
 
--   ms-vscode.go
--   defaltd.go-coverage-viewer
+*   ms-vscode.go
+*   defaltd.go-coverage-viewer
 
 When you open the workspace for the first time, Visual Studio Code will automatically suggest these extensions for installation.
 
@@ -55,35 +54,29 @@ then clicking on `Edit in settings.json`. Just paste that section where appropri
 
 ## Status
 
-For now (february 2021) we can use HellSpawner to:
+For now (start of march 2021) we can use HellSpawner to:
 
-* create projects
-
-* browse MPQ archives
-
-* view following file formats:
-
-  - COF, DC6 and DCC animations
-
-  - DS1 and DT1 map's tiles
-  
-  - WAV sound files
-
-  - TXT - data tables
-
-  - TBL - font tables
-  
-  - TBL - string tables
-
-  - PL2 - palettes
-
-* edit:
-
-  - COF animations
+*   create projects
+*   browse MPQ archives
+*   view following file formats:
+    *   DC6 - and DCC animations
+    *   WAV - sound files
+    *   TXT - data tables
+    *   PL2 - palette transforms
+    *   DS1 - map data
+*   edit:
+    *   COF - animation data
+    *   TBL - font tables
+    *   TBL - string tables
+    *   TXT - text files
+    *   DAT - palettes
+    *   DT1 - map tiles
+    *   D2 - animation data
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
 
 Feel free to contribute!
 
 ## Screenshots
+
 ![Screenshot](docs/overview.png)

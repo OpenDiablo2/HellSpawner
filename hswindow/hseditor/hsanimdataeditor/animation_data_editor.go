@@ -16,17 +16,22 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
+const (
+	delItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
+)
+
 // static check, to ensure, if D2 editor implemented editoWindow
 var _ hscommon.EditorWindow = &AnimationDataEditor{}
 
 // AnimationDataEditor represents a cof editor
 type AnimationDataEditor struct {
 	*hseditor.Editor
-	d2 *d2animdata.AnimationData
+	d2  *d2animdata.AnimationData
+	del *g.Texture
 }
 
 // Create creates a new cof editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	d2, err := d2animdata.Load(*data)
@@ -39,13 +44,17 @@ func Create(_ *hscommon.TextureLoader,
 		d2:     d2,
 	}
 
+	tl.CreateTextureFromFileAsync(delItemButtonPath, func(texture *g.Texture) {
+		result.del = texture
+	})
+
 	return result, nil
 }
 
 // Build builds a D2 editor
 func (e *AnimationDataEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	animDataWidget := animdatawidget.Create(uid, e.d2)
+	animDataWidget := animdatawidget.Create(e.del, uid, e.d2)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
