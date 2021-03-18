@@ -15,6 +15,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -26,7 +27,6 @@ var _ hscommon.EditorWindow = &DT1Editor{}
 type DT1Editor struct {
 	*hseditor.Editor
 	dt1                 *d2dt1.DT1
-	dt1Viewer           *hswidget.DT1ViewerWidget
 	textureLoader       *hscommon.TextureLoader
 	config              *hsconfig.Config
 	selectPalette       bool
@@ -61,7 +61,7 @@ func (e *DT1Editor) Build() {
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
 	if !e.selectPalette {
-		dt1Viewer := hswidget.DT1Viewer(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
+		dt1Viewer := dt1widget.Create(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
 		e.Layout(g.Layout{
 			dt1Viewer,
 		})
