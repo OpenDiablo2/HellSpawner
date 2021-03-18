@@ -74,6 +74,7 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 }
 
 // RegisterKeyboardShortcuts register a new keyboard shortcut
+// nolint:wsl // I can't put this ccommented out code anywhere else
 func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
