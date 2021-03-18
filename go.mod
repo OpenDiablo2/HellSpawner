@@ -8,7 +8,8 @@ require (
 	github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d // indirect
 	github.com/enriquebris/goconcurrentqueue v0.6.0
 	github.com/faiface/beep v1.0.2
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
+	github.com/go-gl/gl v0.0.0-20210315015930-ae072cafe09d // indirect
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210311203641-62640a716d48
 	github.com/go-resty/resty/v2 v2.4.0 // indirect
 	github.com/hajimehoshi/oto v0.7.1 // indirect
 	github.com/ianling/giu v0.5.1-0.20210318165044-d964e9e54891
@@ -23,6 +24,6 @@ require (
 	golang.org/x/exp v0.0.0-20210220032938-85be41e4509f // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb // indirect
 	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08 // indirect
-	golang.org/x/net v0.0.0-20210224082022-3d97a244fca7 // indirect
-	golang.org/x/sys v0.0.0-20210225134936-a50acf3fe073 // indirect
+	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
+	golang.org/x/sys v0.0.0-20210317225723-c4fcb01b228e // indirect
 )
