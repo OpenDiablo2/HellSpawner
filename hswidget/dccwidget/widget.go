@@ -35,7 +35,6 @@ func Create(id string, dcc *d2dcc.DCC) giu.Widget {
 }
 
 // Build build a widget
-// nolint:funlen // no need to change
 func (p *widget) Build() {
 	viewerState := p.getState()
 
