@@ -12,11 +12,12 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/stringtablewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
 const (
-	mainWindowW, mainWindowH = 400, 300
+	mainWindowW, mainWindowH = 600, 500
 )
 
 // static check, to ensure, if string table editor implemented editoWindow
@@ -25,10 +26,7 @@ var _ hscommon.EditorWindow = &StringTableEditor{}
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
-	// nolint:unused,structcheck // will be used
-	header g.RowWidget
-	rows   g.Rows
-	dict   d2tbl.TextDictionary
+	dict d2tbl.TextDictionary
 }
 
 // Create creates a new string table editor
@@ -47,49 +45,17 @@ func Create(_ *hscommon.TextureLoader,
 
 	result.Path = pathEntry
 
-	numEntries := len(result.dict)
-
-	if !(numEntries > 0) {
-		return result, nil
-	}
-
-	result.rows = make([]*g.RowWidget, numEntries+1)
-
-	columns := []string{"key", "value"}
-	columnWidgets := make([]g.Widget, len(columns))
-
-	for idx := range columns {
-		columnWidgets[idx] = g.Label(columns[idx])
-	}
-
-	result.rows[0] = g.Row(columnWidgets...)
-
-	keyIdx := 0
-
-	for key := range result.dict {
-		result.rows[keyIdx+1] = g.Row(
-			g.Label(key),
-			g.Label(result.dict[key]),
-		)
-
-		keyIdx++
-	}
-
 	return result, nil
 }
 
 // Build builds an editor
 func (e *StringTableEditor) Build() {
-	l := g.Layout{
-		g.Child("").Border(false).Layout(g.Layout{
-			g.FastTable("").Border(true).Rows(e.rows),
-		}),
-	}
+	l := stringtablewidget.Create(e.Path.GetUniqueID(), e.dict)
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
 		Size(mainWindowW, mainWindowH).
-		Layout(l)
+		Layout(g.Layout{l})
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contain editors options
