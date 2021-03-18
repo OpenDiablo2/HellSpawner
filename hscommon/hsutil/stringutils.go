@@ -39,7 +39,7 @@ func SplitIntoLinesWithMaxWidth(fullSentence string, maxChars int) []string {
 }
 
 func splitCjkIntoChunks(str string, chars int) []string {
-	chunks := make([]string, chars/len(str))
+	chunks := make([]string, 0)
 	i, count := 0, 0
 
 	for j, ch := range str {

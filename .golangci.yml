@@ -40,6 +40,7 @@ linters:
     - dogsled
     - dupl
     - errcheck
+    - errorlint
     - funlen
     - gochecknoglobals
     - gochecknoinits
@@ -56,12 +57,13 @@ linters:
     - gosec
     - gosimple
     - govet
+    - ifshort
     - ineffassign
-    - interfacer
     - lll
-    - maligned
+    - makezero
     - misspell
     - nakedret
+    - nolintlint
     - prealloc
     - rowserrcheck
     - scopelint

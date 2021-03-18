@@ -245,9 +245,8 @@ func (p *widget) viewRecord() {
 }
 
 func (p *widget) deleteEntry(name string) {
-	err := p.d2.DeleteEntry(name)
-	if err != nil {
-		log.Print(fmt.Errorf("deleting entry: %v", err))
+	if err := p.d2.DeleteEntry(name); err != nil {
+		log.Print(fmt.Errorf("deleting entry: %w", err))
 	}
 
 	p.reloadMapKeys()
