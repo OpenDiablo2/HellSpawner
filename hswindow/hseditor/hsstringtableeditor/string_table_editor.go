@@ -61,7 +61,7 @@ func (e *StringTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Layout(l)
+		Layout(g.Layout{l})
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contain editors options
