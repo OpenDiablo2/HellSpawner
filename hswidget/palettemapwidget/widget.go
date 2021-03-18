@@ -38,7 +38,6 @@ func Create(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) gi
 
 // Build builds a new widget
 func (p *widget) Build() {
-	// nolint:ifshort // state should be a global variable here
 	state := p.getState()
 
 	switch state.mode {
@@ -55,7 +54,7 @@ func (p *widget) buildViewer(state *widgetState) {
 		log.Print(err)
 	}
 
-	var baseColors = make([]palettegridwidget.PaletteColor, 256)
+	baseColors := make([]palettegridwidget.PaletteColor, 256)
 
 	for n := range baseColors {
 		baseColors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
@@ -148,27 +147,9 @@ func (p *widget) getTransformViewLayout(transformIdx int32) giu.Layout {
 func (p *widget) buildEditor(state *widgetState) {
 	var grid giu.Widget
 
-	indices := []*[256]uint8{
-		&p.pl2.LightLevelVariations[state.slider1].Indices,
-		&p.pl2.InvColorVariations[state.slider1].Indices,
-		&p.pl2.SelectedUintShift.Indices,
-		&p.pl2.AlphaBlend[state.slider2][state.slider1].Indices,
-		&p.pl2.AdditiveBlend[state.slider1].Indices,
-		&p.pl2.MultiplicativeBlend[state.slider1].Indices,
-		&p.pl2.HueVariations[state.slider1].Indices,
-		&p.pl2.RedTones.Indices,
-		&p.pl2.GreenTones.Indices,
-		&p.pl2.BlueTones.Indices,
-		&p.pl2.UnknownVariations[state.slider1].Indices,
-		&p.pl2.MaxComponentBlend[state.slider1].Indices,
-		&p.pl2.DarkendColorShift.Indices,
-		nil,
-		&p.pl2.TextColorShifts[state.slider1].Indices,
-	}
+	indices := p.getPaletteIndices(state)
 
-	indicate := indices[state.selection]
-
-	var colors = make([]palettegridwidget.PaletteColor, len(p.pl2.BasePalette.Colors))
+	colors := make([]palettegridwidget.PaletteColor, len(p.pl2.BasePalette.Colors))
 
 	for n := range colors {
 		colors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])
@@ -176,14 +157,14 @@ func (p *widget) buildEditor(state *widgetState) {
 
 	grid = palettegridwidget.Create(p.textureLoader, p.id+"transformEdit", &colors).OnClick(func(idx int) {
 		// this is save, because idx is always less than 256
-		indicate[state.idx] = byte(idx)
+		indices[state.idx] = byte(idx)
 
 		// reset textures list
 		state.textures = make(map[string]giu.Widget)
 
 		state.mode = widgetModeView
 	})
-	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indicate[state.idx]].RGBA())
+	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indices[state.idx]].RGBA())
 	giu.Layout{
 		giu.Label("Select color from base palette").Color(&labelColor),
 		grid,
