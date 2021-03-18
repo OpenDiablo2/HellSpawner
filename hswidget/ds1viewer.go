@@ -16,6 +16,10 @@ const (
 // subtileWidth    = gridMaxWidth / gridDivisionsXY
 )
 
+const (
+	imageW, imageH = 32, 32
+)
+
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
