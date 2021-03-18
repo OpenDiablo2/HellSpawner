@@ -71,28 +71,8 @@ func (p *widget) initState() {
 
 					val := pixels[idx]
 
-					alpha := maxAlpha
-
-					if val == 0 {
-						alpha = 0
-					}
-
-					var r, g, b uint8
-					if p.palette != nil {
-						col := p.palette[val]
-						r, g, b = col.R(), col.G(), col.B()
-					} else {
-						r, g, b = val, val, val
-					}
-
-					RGBAcolor := color.RGBA{
-						R: r,
-						G: g,
-						B: b,
-						A: alpha,
-					}
-
-					images[absoluteFrameIdx].Set(x, y, RGBAcolor)
+					RGBAColor := p.makeImagePixel(val)
+					images[absoluteFrameIdx].Set(x, y, RGBAColor)
 				}
 			}
 		}
@@ -122,4 +102,30 @@ func (p *widget) initState() {
 
 func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
+}
+
+func (p *widget) makeImagePixel(val byte) color.RGBA {
+	alpha := maxAlpha
+
+	if val == 0 {
+		alpha = 0
+	}
+
+	var r, g, b uint8
+
+	if p.palette != nil {
+		col := p.palette[val]
+		r, g, b = col.R(), col.G(), col.B()
+	} else {
+		r, g, b = val, val, val
+	}
+
+	RGBAColor := color.RGBA{
+		R: r,
+		G: g,
+		B: b,
+		A: alpha,
+	}
+
+	return RGBAColor
 }
