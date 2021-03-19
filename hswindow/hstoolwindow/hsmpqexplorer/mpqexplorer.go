@@ -84,19 +84,22 @@ func (m *MPQExplorer) Build() {
 					}),
 				),
 			})})
-	} else {
-		m.IsOpen(&m.Visible).
-			Size(mainWindowW, mainWindowH).
-			Layout(g.Layout{
-				g.Child("MpqExplorerContent").
-					Border(false).
-					Flags(g.WindowFlagsHorizontalScrollbar).
-					Layout(m.getMpqTreeNodes()),
-			})
+
+		return
 	}
+
+	m.IsOpen(&m.Visible).
+		Size(mainWindowW, mainWindowH).
+		Layout(g.Layout{
+			g.Child("MpqExplorerContent").
+				Border(false).
+				Flags(g.WindowFlagsHorizontalScrollbar).
+				Layout(m.GetMpqTreeNodes()),
+		})
 }
 
-func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
+// GetMpqTreeNodes returns mpq tree
+func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 	if m.nodeCache != nil {
 		return m.nodeCache
 	}

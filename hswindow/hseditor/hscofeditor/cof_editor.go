@@ -13,6 +13,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -41,7 +42,7 @@ type COFEditor struct {
 }
 
 // Create creates a new cof editor
-func Create(tl *hscommon.TextureLoader,
+func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	cof, err := d2cof.Unmarshal(*data)

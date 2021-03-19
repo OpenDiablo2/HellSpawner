@@ -11,6 +11,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -40,15 +41,17 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 type widget struct {
 	id            string
 	dt1           *d2dt1.DT1
+	palette       *[256]d2interface.Color
 	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new dt1 viewers widget
-func Create(textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
+func Create(palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
 	result := &widget{
 		id:            id,
 		dt1:           dt1,
 		textureLoader: textureLoader,
+		palette:       palette,
 	}
 
 	result.registerKeyboardShortcuts()
@@ -187,18 +190,27 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 	wallBuf = make([]byte, tw*th*4) // rgba, fake palette values
 
 	for idx := range floor {
-		var alpha byte
+		var r, g, b, alpha byte
 
 		floorVal := floor[idx]
 		wallVal := wall[idx]
 
 		// nolint:gomnd // constant
-		r, g, b, a := idx*4+0, idx*4+1, idx*4+2, idx*4+3
+		rPos, gPos, bPos, aPos := idx*4+0, idx*4+1, idx*4+2, idx*4+3
 
 		// the faux rgb color data here is just to make it look more interesting
-		floorBuf[r] = rangeByte(floorVal, 128, 256)
-		floorBuf[g] = 0
-		floorBuf[b] = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+		if p.palette != nil {
+			col := p.palette[floorVal]
+			r, g, b = col.R(), col.G(), col.B()
+		} else {
+			r = rangeByte(floorVal, 128, 256)
+			g = 0
+			b = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+		}
+
+		floorBuf[rPos] = r
+		floorBuf[gPos] = g
+		floorBuf[bPos] = b
 
 		if floorVal > 0 {
 			alpha = 255
@@ -206,11 +218,20 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 			alpha = 0
 		}
 
-		floorBuf[a] = alpha
+		floorBuf[aPos] = alpha
 
-		wallBuf[r] = 0
-		wallBuf[g] = rangeByte(wallVal, 64, 196)
-		wallBuf[b] = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+		if p.palette != nil {
+			col := p.palette[wallVal]
+			r, g, b = col.R(), col.G(), col.B()
+		} else {
+			r = 0
+			g = rangeByte(wallVal, 64, 196)
+			b = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+		}
+
+		wallBuf[rPos] = r
+		wallBuf[gPos] = g
+		wallBuf[bPos] = b
 
 		if wallVal > 0 {
 			alpha = 255
@@ -218,7 +239,7 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 			alpha = 0
 		}
 
-		wallBuf[a] = alpha
+		wallBuf[aPos] = alpha
 	}
 
 	return floorBuf, wallBuf

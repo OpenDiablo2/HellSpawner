@@ -8,6 +8,7 @@ import (
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
@@ -22,14 +23,16 @@ type widget struct {
 	id            string
 	dc6           *d2dc6.DC6
 	textureLoader *hscommon.TextureLoader
+	palette       *[256]d2interface.Color
 }
 
 // Create creates new widget
-func Create(textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
+func Create(palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
 	result := &widget{
 		id:            id,
 		dc6:           dc6,
 		textureLoader: textureLoader,
+		palette:       palette,
 	}
 
 	return result
