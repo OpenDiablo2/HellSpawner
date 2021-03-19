@@ -14,7 +14,8 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -24,11 +25,12 @@ var _ hscommon.EditorWindow = &PaletteEditor{}
 // PaletteEditor represents a palette editor
 type PaletteEditor struct {
 	*hseditor.Editor
-	palette d2interface.Palette
+	palette       d2interface.Palette
+	textureLoader *hscommon.TextureLoader
 }
 
 // Create creates a new palette editor
-func Create(_ *hscommon.TextureLoader,
+func Create(tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
@@ -37,8 +39,9 @@ func Create(_ *hscommon.TextureLoader,
 	}
 
 	result := &PaletteEditor{
-		Editor:  hseditor.New(pathEntry, x, y, project),
-		palette: palette,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		palette:       palette,
+		textureLoader: tl,
 	}
 
 	return result, nil
@@ -46,9 +49,13 @@ func Create(_ *hscommon.TextureLoader,
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
-	col := e.palette.GetColors()
+	var col [256]palettegridwidget.PaletteColor
+	for n, i := range e.palette.GetColors() {
+		col[n] = palettegridwidget.PaletteColor(i)
+	}
+
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		hswidget.PaletteGrid(e.GetID()+"_grid", &col),
+		palettegrideditorwidget.Create(e.textureLoader, e.GetID()+"_grid", &col),
 	})
 }
 
