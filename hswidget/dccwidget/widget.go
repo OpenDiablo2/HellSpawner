@@ -8,6 +8,7 @@ import (
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 const (
@@ -20,15 +21,17 @@ const (
 )
 
 type widget struct {
-	id  string
-	dcc *d2dcc.DCC
+	id      string
+	dcc     *d2dcc.DCC
+	palette *[256]d2interface.Color
 }
 
 // Create creates a new dcc widget
-func Create(id string, dcc *d2dcc.DCC) giu.Widget {
+func Create(palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
 	result := &widget{
-		id:  id,
-		dcc: dcc,
+		id:      id,
+		dcc:     dcc,
+		palette: palette,
 	}
 
 	return result

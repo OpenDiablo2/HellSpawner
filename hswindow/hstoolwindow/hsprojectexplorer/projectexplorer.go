@@ -60,9 +60,11 @@ func Create(textureLoader *hscommon.TextureLoader,
 	}
 	result.Visible = false
 
-	textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
-		result.refreshIconTexture = texture
-	})
+	if textureLoader != nil {
+		textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
+			result.refreshIconTexture = texture
+		})
+	}
 
 	return result, nil
 }
@@ -84,7 +86,7 @@ func (m *ProjectExplorer) Build() {
 
 	tree := g.Child("ProjectExplorerProjectTreeContainer").
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Layout(m.getProjectTreeNodes())
+		Layout(m.GetProjectTreeNodes())
 
 	m.IsOpen(&m.Visible).
 		Size(mainWindowW, mainWindowH).
@@ -128,7 +130,8 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 	}
 }
 
-func (m *ProjectExplorer) getProjectTreeNodes() g.Layout {
+// GetProjectTreeNodes returns project tree
+func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 	if m.project == nil {
 		return []g.Widget{g.Label("No project loaded...")}
 	}

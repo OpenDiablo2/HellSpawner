@@ -7,14 +7,15 @@ import (
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hswidget/dc6widget"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
-
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dc6widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -24,12 +25,17 @@ var _ hscommon.EditorWindow = &DC6Editor{}
 // DC6Editor represents a dc6 editor
 type DC6Editor struct {
 	*hseditor.Editor
-	dc6           *d2dc6.DC6
-	textureLoader *hscommon.TextureLoader
+	dc6                 *d2dc6.DC6
+	textureLoader       *hscommon.TextureLoader
+	config              *hsconfig.Config
+	selectPalette       bool
+	palette             *[256]d2interface.Color
+	selectPaletteWidget g.Widget
 }
 
 // Create creates a new dc6 editor
-func Create(textureLoader *hscommon.TextureLoader,
+func Create(config *hsconfig.Config,
+	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
@@ -41,6 +47,8 @@ func Create(textureLoader *hscommon.TextureLoader,
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		dc6:           dc6,
 		textureLoader: textureLoader,
+		selectPalette: false,
+		config:        config,
 	}
 
 	return result, nil
@@ -48,14 +56,41 @@ func Create(textureLoader *hscommon.TextureLoader,
 
 // Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
-	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		dc6widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.dc6),
-	})
+	e.IsOpen(&e.Visible)
+	e.Flags(g.WindowFlagsAlwaysAutoResize)
+
+	if !e.selectPalette {
+		e.Layout(g.Layout{
+			dc6widget.Create(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
+		})
+
+		return
+	}
+
+	if e.selectPaletteWidget == nil {
+		e.selectPaletteWidget = hswidget.NewSelectPaletteWidget(
+			e.Path.GetUniqueID()+"selectPalette",
+			e.Project,
+			e.config,
+			func(palette *[256]d2interface.Color) {
+				e.palette = palette
+			},
+			func() {
+				e.selectPalette = false
+			},
+		)
+	}
+
+	e.Layout(g.Layout{e.selectPaletteWidget})
 }
 
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu
 func (e *DC6Editor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DC6 Editor").Layout(g.Layout{
+		g.MenuItem("Change Palette").OnClick(func() {
+			e.selectPalette = true
+		}),
+		g.Separator(),
 		g.MenuItem("Save\t\t\t\tCtrl+Shift+S").OnClick(e.Save),
 		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
