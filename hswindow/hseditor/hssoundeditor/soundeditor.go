@@ -78,20 +78,23 @@ func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / progressTimeModifier
 	secondsTotal := s.streamer.Len() / progressTimeModifier
 
-	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-			Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
-				secondsCurrent/progressIndicatorModifier,
-				secondsCurrent%progressIndicatorModifier,
-				secondsTotal/progressIndicatorModifier,
-				secondsTotal%progressIndicatorModifier,
-			)),
-		g.Separator(),
-		g.Line(
-			g.Button("Play").OnClick(s.play),
-			g.Button("Stop").OnClick(s.stop),
-		),
-	})
+	s.IsOpen(&s.Visible).
+		Flags(g.WindowFlagsNoResize).
+		Size(mainWindowW, mainWindowH).
+		Layout(g.Layout{
+			g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
+				Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
+					secondsCurrent/progressIndicatorModifier,
+					secondsCurrent%progressIndicatorModifier,
+					secondsTotal/progressIndicatorModifier,
+					secondsTotal%progressIndicatorModifier,
+				)),
+			g.Separator(),
+			g.Line(
+				g.Button("Play").OnClick(s.play),
+				g.Button("Stop").OnClick(s.stop),
+			),
+		})
 }
 
 // Cleanup closes an editor

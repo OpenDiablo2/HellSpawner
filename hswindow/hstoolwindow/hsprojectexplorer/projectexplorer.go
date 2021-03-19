@@ -58,12 +58,18 @@ func Create(textureLoader *hscommon.TextureLoader,
 		nodeCache:            make(map[string][]g.Widget),
 		fileSelectedCallback: fileSelectedCallback,
 	}
+
 	result.Visible = false
 
+	// some type of workaround ;-). SOmetimes we only want to get tree nodes (and don't need textures)
 	if textureLoader != nil {
 		textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
 			result.refreshIconTexture = texture
 		})
+	}
+
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
 	}
 
 	return result, nil
@@ -89,7 +95,6 @@ func (m *ProjectExplorer) Build() {
 		Layout(m.GetProjectTreeNodes())
 
 	m.IsOpen(&m.Visible).
-		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
 			header,
 			g.Separator(),
@@ -211,7 +216,7 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 }
 
 func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry, layout g.Layout) g.Widget {
-	var id = pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath
+	id := pathEntry.Name + "##ProjectExplorerNode_" + pathEntry.FullPath
 
 	if pathEntry.IsRenaming {
 		return g.Layout{

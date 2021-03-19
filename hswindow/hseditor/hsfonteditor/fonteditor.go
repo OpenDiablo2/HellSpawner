@@ -45,30 +45,35 @@ func Create(_ *hsconfig.Config,
 		Font:   font,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	return result, nil
 }
 
 // Build builds an editor
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		g.Label("DC6 Path"),
-		g.Line(
-			g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
-		),
-		g.Separator(),
-		g.Label("TBL Path"),
-		g.Line(
-			g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
-		),
-		g.Separator(),
-		g.Label("PL2 Path"),
-		g.Line(
-			g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
-		),
-	})
+	e.IsOpen(&e.Visible).
+		Layout(g.Layout{
+			g.Label("DC6 Path"),
+			g.Line(
+				g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
+			),
+			g.Separator(),
+			g.Label("TBL Path"),
+			g.Line(
+				g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
+			),
+			g.Separator(),
+			g.Label("PL2 Path"),
+			g.Line(
+				g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
+			),
+		})
 }
 
 func (e *FontEditor) onBrowseDC6PathClicked() {

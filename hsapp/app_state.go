@@ -20,7 +20,12 @@ func (a *App) State() hsstate.AppState {
 		appState.EditorWindows = append(appState.EditorWindows, editor.State())
 	}
 
-	appState.ToolWindows = append(appState.ToolWindows, a.mpqExplorer.State(), a.projectExplorer.State())
+	appState.ToolWindows = append(
+		appState.ToolWindows,
+		a.mpqExplorer.State(),
+		a.projectExplorer.State(),
+		a.console.State(),
+	)
 
 	return appState
 }
@@ -43,6 +48,7 @@ func (a *App) RestoreAppState(state hsstate.AppState) {
 
 		tool.Pos(toolState.PosX, toolState.PosY)
 		tool.SetVisible(toolState.Visible)
+		tool.Size(toolState.Width, toolState.Height)
 	}
 
 	for _, editorState := range state.EditorWindows {
@@ -56,6 +62,6 @@ func (a *App) RestoreAppState(state hsstate.AppState) {
 			continue
 		}
 
-		go a.createEditor(&path, editorState.PosX, editorState.PosY)
+		go a.createEditor(&path, editorState.PosX, editorState.PosY, editorState.Width, editorState.Height)
 	}
 }

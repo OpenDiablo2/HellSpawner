@@ -43,7 +43,9 @@ func Create(_ *hsconfig.Config,
 		text:   string(*data),
 	}
 
-	result.Path = pathEntry
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
 
 	lines := strings.Split(result.text, "\n")
 	firstLine := lines[0]
@@ -82,15 +84,19 @@ func Create(_ *hsconfig.Config,
 // Build builds an editor
 func (e *TextEditor) Build() {
 	if !e.tableView {
-		e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-			g.InputTextMultiline("", &e.text).Size(-1, -1).Flags(g.InputTextFlagsAllowTabInput),
-		})
+		e.IsOpen(&e.Visible).
+			Layout(g.Layout{
+				g.InputTextMultiline("", &e.text).
+					Flags(g.InputTextFlagsAllowTabInput),
+			})
 	} else {
-		e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-			g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
-				g.FastTable("").Border(true).Rows(e.tableRows),
-			}),
-		})
+		e.IsOpen(&e.Visible).
+			Flags(g.WindowFlagsHorizontalScrollbar).
+			Layout(g.Layout{
+				g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
+					g.FastTable("").Border(true).Rows(e.tableRows),
+				}),
+			})
 	}
 }
 

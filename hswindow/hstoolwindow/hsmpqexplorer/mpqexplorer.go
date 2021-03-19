@@ -52,6 +52,10 @@ func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconf
 		config:               config,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	return result, nil
 }
 
@@ -83,7 +87,8 @@ func (m *MPQExplorer) Build() {
 						m.filesToOverwrite = m.filesToOverwrite[1:]
 					}),
 				),
-			})})
+			}),
+		})
 
 		return
 	}
@@ -142,7 +147,8 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
 				}),
-			})}
+			}),
+		}
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))

@@ -46,6 +46,10 @@ func Create(_ *hsconfig.Config,
 		dict:   dict,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	result.Path = pathEntry
 
 	return result, nil
@@ -57,7 +61,6 @@ func (e *StringTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{l})
 }
 
