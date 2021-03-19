@@ -38,15 +38,21 @@ func LoadFromJSON(data []byte) (*Font, error) {
 	var font *Font = &Font{}
 
 	err := json.Unmarshal(data, font)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal font: %w", err)
+	}
 
-	return font, fmt.Errorf("cannot unmarshal font: %w", err)
+	return font, nil
 }
 
 // JSON exports font to json
 func (f *Font) JSON() ([]byte, error) {
 	data, err := json.MarshalIndent(f, "", "   ")
+	if err != nil {
+		return nil, fmt.Errorf("cannot marshal Font: %w", err)
+	}
 
-	return data, fmt.Errorf("cannot marshal Font: %w", err)
+	return data, nil
 }
 
 // SaveToFile saves font
