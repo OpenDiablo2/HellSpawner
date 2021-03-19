@@ -3,6 +3,8 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20201218220906-28db891af037/go.mod h1:H6x//7
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjsvq1Bi7DpoUjqI76VVvW045vpeFeM=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210226200908-fa4276156cd6 h1:1VKox/5vUZh7qaFPewugWgAKgbeloWeyIjglRMIAbSU=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210226200908-fa4276156cd6/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210312062429-536233ffeef1 h1:XWcVla2cgSNoa04HMxhoOIE9/RL2rGhq26ULLDMx1Pk=
 github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210312062429-536233ffeef1/go.mod h1:3JsaDhsHD+3mmG/WLLct2Zy1HjXS39jsyLPFbgRkbN0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
@@ -54,8 +56,8 @@ github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2h
 github.com/hajimehoshi/oto v0.6.8/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk=
 github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
-github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7 h1:KsJrIgPoCRtn+98ZMlsI1v7lgh6wqgqUCI3cI5ryoac=
-github.com/ianling/giu v0.5.1-0.20210118214207-b29f443330f7/go.mod h1:w4SqEWOdPOzBbmPne4xUntHvNX8H1hntDwyyT5yUs9o=
+github.com/ianling/giu v0.5.1-0.20210309164633-6146ab53c15a h1:/weu/22mQygOk1jI1XmbIkcndgP6Pfa5zVnZjYYhI0g=
+github.com/ianling/giu v0.5.1-0.20210309164633-6146ab53c15a/go.mod h1:b0WlNuBLjfc4mel1dBCkCUWEC45tt8C39u33HSeHdJ4=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82 h1:0MOR+YCbB8lqENL09KZzWMGiCCc3gnVfo4OLS1UWL4s=
 github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82/go.mod h1:yFLUkH/g8eMfNx16GrLoCGUDjTjjHAQjrg5EMdspDUY=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
