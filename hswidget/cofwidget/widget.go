@@ -265,9 +265,9 @@ func (p *widget) makePriorityTab(state *widgetState, directionList, frameList gi
 			state.mode = modeViewer
 		}
 
-		popupID := fmt.Sprintf("##%sDeleteLayerConfirm", p.id)
+		popupID := fmt.Sprintf("%sDeleteLayerConfirm", p.id)
 
-		hswidget.NewPopUpConfirmDialog(popupID, strPrompt, strMessage, fnYes, fnNo)
+		state.confirmDialog = hswidget.NewPopUpConfirmDialog(popupID, strPrompt, strMessage, fnYes, fnNo)
 		state.mode = modeConfirm
 	})
 

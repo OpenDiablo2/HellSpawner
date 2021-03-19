@@ -1,6 +1,8 @@
 package hswidget
 
 import (
+	"log"
+
 	"github.com/ianling/giu"
 )
 
@@ -32,9 +34,13 @@ func NewPopUpConfirmDialog(id, header, message string, yCB, nCB func()) *PopUpCo
 
 // Build builds a pop up dialog
 func (p *PopUpConfirmDialog) Build() {
+	if p.header == "" {
+		log.Fatal("Header is empty; please ensure, if you're building appropriate dialog")
+	}
+
 	open := true
 	giu.Layout{
-		giu.PopupModal(p.header).IsOpen(&open).Layout(giu.Layout{
+		giu.PopupModal(p.header + "##" + p.id).IsOpen(&open).Layout(giu.Layout{
 			giu.Label(p.message),
 			giu.Separator(),
 			giu.Line(
