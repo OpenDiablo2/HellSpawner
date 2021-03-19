@@ -13,6 +13,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegrideditorwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
@@ -30,7 +31,8 @@ type PaletteEditor struct {
 }
 
 // Create creates a new palette editor
-func Create(tl *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)

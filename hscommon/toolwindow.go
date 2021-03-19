@@ -16,4 +16,6 @@ type ToolWindow interface {
 	BringToFront()
 	State() hsstate.ToolWindowState
 	Pos(x, y float32) *giu.WindowWidget
+	Size(float32, float32) *giu.WindowWidget
+	CurrentSize() (float32, float32)
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/animdatawidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -32,7 +33,8 @@ type AnimationDataEditor struct {
 }
 
 // Create creates a new cof editor
-func Create(tl *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	d2, err := d2animdata.Load(*data)

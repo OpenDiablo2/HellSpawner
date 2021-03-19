@@ -17,6 +17,7 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
 
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 
 	g "github.com/ianling/giu"
@@ -42,7 +43,8 @@ type SoundEditor struct {
 }
 
 // Create creates a new sound editor
-func Create(_ *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
@@ -76,20 +78,23 @@ func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / progressTimeModifier
 	secondsTotal := s.streamer.Len() / progressTimeModifier
 
-	s.IsOpen(&s.Visible).Flags(g.WindowFlagsNoResize).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-			Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
-				secondsCurrent/progressIndicatorModifier,
-				secondsCurrent%progressIndicatorModifier,
-				secondsTotal/progressIndicatorModifier,
-				secondsTotal%progressIndicatorModifier,
-			)),
-		g.Separator(),
-		g.Line(
-			g.Button("Play").OnClick(s.play),
-			g.Button("Stop").OnClick(s.stop),
-		),
-	})
+	s.IsOpen(&s.Visible).
+		Flags(g.WindowFlagsNoResize).
+		Size(mainWindowW, mainWindowH).
+		Layout(g.Layout{
+			g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
+				Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
+					secondsCurrent/progressIndicatorModifier,
+					secondsCurrent%progressIndicatorModifier,
+					secondsTotal/progressIndicatorModifier,
+					secondsTotal%progressIndicatorModifier,
+				)),
+			g.Separator(),
+			g.Line(
+				g.Button("Play").OnClick(s.play),
+				g.Button("Stop").OnClick(s.stop),
+			),
+		})
 }
 
 // Cleanup closes an editor

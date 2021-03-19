@@ -52,6 +52,10 @@ func Create(fileSelectedCallback MPQExplorerFileSelectedCallback, config *hsconf
 		config:               config,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	return result, nil
 }
 
@@ -83,20 +87,24 @@ func (m *MPQExplorer) Build() {
 						m.filesToOverwrite = m.filesToOverwrite[1:]
 					}),
 				),
-			})})
-	} else {
-		m.IsOpen(&m.Visible).
-			Size(mainWindowW, mainWindowH).
-			Layout(g.Layout{
-				g.Child("MpqExplorerContent").
-					Border(false).
-					Flags(g.WindowFlagsHorizontalScrollbar).
-					Layout(m.getMpqTreeNodes()),
-			})
+			}),
+		})
+
+		return
 	}
+
+	m.IsOpen(&m.Visible).
+		Size(mainWindowW, mainWindowH).
+		Layout(g.Layout{
+			g.Child("MpqExplorerContent").
+				Border(false).
+				Flags(g.WindowFlagsHorizontalScrollbar).
+				Layout(m.GetMpqTreeNodes()),
+		})
 }
 
-func (m *MPQExplorer) getMpqTreeNodes() []g.Widget {
+// GetMpqTreeNodes returns mpq tree
+func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 	if m.nodeCache != nil {
 		return m.nodeCache
 	}
@@ -139,7 +147,8 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
 				}),
-			})}
+			}),
+		}
 	}
 
 	widgets := make([]g.Widget, len(pathEntry.Children))
