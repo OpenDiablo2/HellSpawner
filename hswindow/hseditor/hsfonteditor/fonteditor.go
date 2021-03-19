@@ -11,6 +11,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -30,7 +31,8 @@ type FontEditor struct {
 }
 
 // Create creates a new font editor
-func Create(_ *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	font, err := hsfont.LoadFromJSON(*data)
@@ -43,30 +45,35 @@ func Create(_ *hscommon.TextureLoader,
 		Font:   font,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	return result, nil
 }
 
 // Build builds an editor
 func (e *FontEditor) Build() {
-	e.IsOpen(&e.Visible).Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		g.Label("DC6 Path"),
-		g.Line(
-			g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
-		),
-		g.Separator(),
-		g.Label("TBL Path"),
-		g.Line(
-			g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
-		),
-		g.Separator(),
-		g.Label("PL2 Path"),
-		g.Line(
-			g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
-			g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
-		),
-	})
+	e.IsOpen(&e.Visible).
+		Layout(g.Layout{
+			g.Label("DC6 Path"),
+			g.Line(
+				g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
+			),
+			g.Separator(),
+			g.Label("TBL Path"),
+			g.Line(
+				g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
+			),
+			g.Separator(),
+			g.Label("PL2 Path"),
+			g.Line(
+				g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
+			),
+		})
 }
 
 func (e *FontEditor) onBrowseDC6PathClicked() {

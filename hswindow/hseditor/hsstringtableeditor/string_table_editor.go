@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/stringtablewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -31,7 +32,8 @@ type StringTableEditor struct {
 }
 
 // Create creates a new string table editor
-func Create(_ *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
@@ -42,6 +44,10 @@ func Create(_ *hscommon.TextureLoader,
 	result := &StringTableEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
 		dict:   dict,
+	}
+
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
 	}
 
 	result.Path = pathEntry
@@ -55,7 +61,6 @@ func (e *StringTableEditor) Build() {
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{l})
 }
 

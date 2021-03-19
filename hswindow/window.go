@@ -23,11 +23,14 @@ func New(title string, x, y float32) *Window {
 // State returns window's state
 func (t *Window) State() hsstate.WindowState {
 	x, y := t.CurrentPosition()
+	w, h := t.CurrentSize()
 
 	return hsstate.WindowState{
 		Visible: t.Visible,
 		PosX:    x,
 		PosY:    y,
+		Width:   w,
+		Height:  h,
 	}
 }
 

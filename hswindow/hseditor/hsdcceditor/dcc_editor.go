@@ -9,13 +9,14 @@ import (
 	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
-
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -25,11 +26,16 @@ var _ hscommon.EditorWindow = &DCCEditor{}
 // DCCEditor represents a new dcc editor
 type DCCEditor struct {
 	*hseditor.Editor
-	dcc *d2dcc.DCC
+	dcc                 *d2dcc.DCC
+	config              *hsconfig.Config
+	selectPalette       bool
+	palette             *[256]d2interface.Color
+	selectPaletteWidget g.Widget
 }
 
 // Create creates a new dcc editor
-func Create(_ *hscommon.TextureLoader,
+func Create(config *hsconfig.Config,
+	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dcc, err := d2dcc.Load(*data)
@@ -38,8 +44,10 @@ func Create(_ *hscommon.TextureLoader,
 	}
 
 	result := &DCCEditor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		dcc:    dcc,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		dcc:           dcc,
+		config:        config,
+		selectPalette: false,
 	}
 
 	return result, nil
@@ -47,14 +55,41 @@ func Create(_ *hscommon.TextureLoader,
 
 // Build builds a dcc editor
 func (e *DCCEditor) Build() {
-	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		dccwidget.Create(e.Path.GetUniqueID(), e.dcc),
-	})
+	e.IsOpen(&e.Visible)
+	e.Flags(g.WindowFlagsAlwaysAutoResize)
+
+	if !e.selectPalette {
+		e.Layout(g.Layout{
+			dccwidget.Create(e.palette, e.Path.GetUniqueID(), e.dcc),
+		})
+
+		return
+	}
+
+	if e.selectPaletteWidget == nil {
+		e.selectPaletteWidget = hswidget.NewSelectPaletteWidget(
+			"##"+e.Path.GetUniqueID()+"SelectPaletteWidget",
+			e.Project,
+			e.config,
+			func(colors *[256]d2interface.Color) {
+				e.palette = colors
+			},
+			func() {
+				e.selectPalette = false
+			},
+		)
+	}
+
+	e.Layout(g.Layout{e.selectPaletteWidget})
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options
 func (e *DCCEditor) UpdateMainMenuLayout(l *g.Layout) {
 	m := g.Menu("DCC Editor").Layout(g.Layout{
+		g.MenuItem("Change Palette").OnClick(func() {
+			e.selectPalette = true
+		}),
+		g.Separator(),
 		g.MenuItem("Add to project").OnClick(func() {}),
 		g.MenuItem("Remove from project").OnClick(func() {}),
 		g.Separator(),

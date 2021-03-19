@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/fonttablewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -36,7 +37,8 @@ type FontTableEditor struct {
 }
 
 // Create creates a new font table editor
-func Create(tl *hscommon.TextureLoader,
+func Create(_ *hsconfig.Config,
+	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	table, err := d2font.Load(*data)
@@ -49,6 +51,10 @@ func Create(tl *hscommon.TextureLoader,
 		fontTable: table,
 	}
 
+	if w, h := result.CurrentSize(); w == 0 || h == 0 {
+		result.Size(mainWindowW, mainWindowH)
+	}
+
 	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
@@ -59,9 +65,9 @@ func Create(tl *hscommon.TextureLoader,
 // Build builds a font table editor's window
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
-		Size(mainWindowW, mainWindowH).Layout(g.Layout{
-		fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
-	})
+		Layout(g.Layout{
+			fonttablewidget.Create(e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
+		})
 }
 
 // UpdateMainMenuLayout updates mainMenu layout's to it contain FontTableEditor's options
