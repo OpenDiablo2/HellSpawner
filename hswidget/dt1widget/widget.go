@@ -125,6 +125,9 @@ func (p *widget) makeTileTextures() {
 			tile := state.tileGroups[groupIdx][variantIdx]
 
 			floorPix, wallPix := p.makePixelBuffer(tile)
+			if len(floorPix) == 0 || len(wallPix) == 0 {
+				continue
+			}
 
 			tw, th := int(tile.Width), int(tile.Height)
 			if th < 0 {
