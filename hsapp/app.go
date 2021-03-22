@@ -441,7 +441,11 @@ func (a *App) Quit() {
 
 func (a *App) checkForDependencies() error {
 	if _, err := os.Stat("3rdparty"); err != nil {
-		return fmt.Errorf("directory not found: 3rdparty: %w\nDid you forget to git submodule update --init --recursive?", err)
+		return fmt.Errorf(
+			"directory not found: 3rdparty: %w\nDid you forget to %s or %s?", err,
+			"git submodule update --init --recursive",
+			"git clone https://github.com/madmaxms/iconpack-obsidian 3rdparty/iconpack-obsidian",
+		)
 	}
 
 	return nil
