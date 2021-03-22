@@ -1,7 +1,9 @@
 package hsapp
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -120,10 +122,15 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
+	if err := a.checkForDependencies(); err != nil {
+		log.Fatalf("looking for dependencies: %v", err)
+	}
+
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
 	sampleRate := beep.SampleRate(sampleRate)
+
 	// nolint:gomnd // this is 0.1 of second
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
@@ -230,12 +237,14 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
-	imgui.CurrentStyle().ScaleAllSizes(1)
+	if _, err := os.Stat("hsassets"); err == nil {
+		imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
+		a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
+		a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
+		a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
+		a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
+		imgui.CurrentStyle().ScaleAllSizes(1)
+	}
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
@@ -428,4 +437,12 @@ func (a *App) Quit() {
 	a.Save()
 
 	a.CloseAllOpenWindows()
+}
+
+func (a *App) checkForDependencies() error {
+	if _, err := os.Stat("3rdparty"); err != nil {
+		return fmt.Errorf("directory not found: 3rdparty: %w\nDid you forget to git submodule update --init --recursive?", err)
+	}
+
+	return nil
 }
