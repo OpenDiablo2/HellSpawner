@@ -4,7 +4,6 @@ package hsaboutdialog
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strings"
 
 	g "github.com/ianling/giu"
@@ -51,19 +50,19 @@ func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixed
 	var data []byte
 
 	if data, err = ioutil.ReadFile("LICENSE"); err != nil {
-		log.Fatal(err)
+		data = nil
 	}
 
 	result.license = string(data)
 
 	if data, err = ioutil.ReadFile("CONTRIBUTORS"); err != nil {
-		log.Fatal(err)
+		data = nil
 	}
 
 	result.credits = string(data)
 
 	if data, err = ioutil.ReadFile("README.md"); err != nil {
-		log.Fatal(err)
+		data = nil
 	}
 
 	// convert output md to html
