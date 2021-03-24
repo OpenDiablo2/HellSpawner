@@ -27,11 +27,17 @@ type widget struct {
 }
 
 // Create creates a new widget
-func Create(del *giu.Texture, id string, d2 *d2animdata.AnimationData) giu.Widget {
+func Create(del *giu.Texture, state []byte, id string, d2 *d2animdata.AnimationData) giu.Widget {
 	result := &widget{
 		id:  id,
 		d2:  d2,
 		del: del,
+	}
+
+	if state != nil && giu.Context.GetState(result.getStateID()) == nil {
+		s := result.getState()
+		s.Decode(state)
+		result.setState(s)
 	}
 
 	return result

@@ -7,6 +7,8 @@ import (
 	"log"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
 type widgetState struct {
@@ -22,6 +24,43 @@ type widgetState struct {
 // Dispose cleans viewers state
 func (s *widgetState) Dispose() {
 	s.textures = nil
+}
+
+func (s *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(s.controls.direction)
+	sw.PushInt32(s.controls.frame)
+	sw.PushInt32(s.controls.scale)
+
+	return sw.GetBytes()
+}
+
+func (s *widgetState) Decode(data []byte) {
+	var err error
+
+	sr := d2datautils.CreateStreamReader(data)
+
+	s.controls.direction, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.controls.frame, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.controls.scale, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
 }
 
 func (p *widget) getStateID() string {
@@ -89,7 +128,10 @@ func (p *widget) initState() {
 				log.Fatal(err)
 			}
 		}
-		p.setState(&widgetState{textures: textures})
+
+		s := p.getState()
+		s.textures = textures
+		p.setState(s)
 	}()
 
 	// display a temporary dummy image until the real one ready

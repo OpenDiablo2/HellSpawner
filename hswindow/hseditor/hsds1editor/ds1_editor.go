@@ -31,6 +31,7 @@ type DS1Editor struct {
 func Create(_ *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.LoadDS1(*data)
 	if err != nil {

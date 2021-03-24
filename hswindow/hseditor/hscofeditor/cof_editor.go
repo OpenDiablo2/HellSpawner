@@ -33,6 +33,7 @@ type COFEditor struct {
 	*hseditor.Editor
 	cof           *d2cof.COF
 	textureLoader *hscommon.TextureLoader
+	state         []byte
 	textures      struct {
 		up    *g.Texture
 		down  *g.Texture
@@ -44,6 +45,7 @@ type COFEditor struct {
 // Create creates a new cof editor
 func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	cof, err := d2cof.Unmarshal(*data)
 	if err != nil {
@@ -54,6 +56,7 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		cof:           cof,
 		textureLoader: tl,
+		state:         state,
 	}
 
 	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
@@ -78,7 +81,7 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	cofWidget := cofwidget.Create(e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
+	cofWidget := cofwidget.Create(e.state, e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)

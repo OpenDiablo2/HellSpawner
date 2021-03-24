@@ -38,6 +38,7 @@ type widget struct {
 
 // Create a new COF widget
 func Create(
+	state []byte,
 	up, down, right, left *giu.Texture,
 	id string, cof *d2cof.COF,
 ) giu.Widget {
@@ -50,6 +51,15 @@ func Create(
 	result.textures.down = down
 	result.textures.left = left
 	result.textures.right = right
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := &widgetState{
+			viewerState:    &viewerState{},
+			newLayerFields: &newLayerFields{},
+		}
+		s.Decode(state)
+		result.setState(s)
+	}
 
 	return result
 }
@@ -73,7 +83,7 @@ func (p *widget) Build() {
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("COFWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {
@@ -110,9 +120,7 @@ func (p *widget) initState() {
 }
 
 func (p *widget) makeViewerLayout() giu.Layout {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-	state := s.(*widgetState)
+	state := p.getState()
 
 	layerStrings := make([]string, 0)
 	for idx := range p.cof.CofLayers {
@@ -233,10 +241,7 @@ func (p *widget) makeLayerTab(state *widgetState, layerList giu.Widget) giu.Layo
 }
 
 func (p *widget) createNewLayer() {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-
-	state := s.(*widgetState)
+	state := p.getState()
 
 	state.mode = modeAddLayer
 }
@@ -316,8 +321,7 @@ func (p *widget) layoutAnimFrames() *giu.LineWidget {
 }
 
 func (p *widget) onUpdate() {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*widgetState)
+	state := p.getState()
 
 	clone := p.cof.CofLayers[state.viewerState.layerIndex]
 	state.viewerState.layer = &clone
@@ -326,8 +330,7 @@ func (p *widget) onUpdate() {
 }
 
 func (p *widget) makeLayerLayout() giu.Layout {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*widgetState)
+	state := p.getState()
 
 	if state.viewerState.layer == nil {
 		p.onUpdate()
@@ -366,8 +369,7 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		fmtLayerLabel       = "%d: %s"
 	)
 
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	state := giu.Context.GetState(stateID).(*widgetState).viewerState
+	state := p.getState()
 
 	frames := p.cof.Priority[state.directionIndex]
 	layers := frames[int(state.frameIndex)%len(frames)]
@@ -433,10 +435,7 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 }
 
 func (p *widget) makeAddLayerLayout() giu.Layout {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-
-	state := s.(*widgetState)
+	state := p.getState()
 
 	// available is a list of available (not currently used) composite types
 	available := make([]d2enum.CompositeType, 0)
@@ -574,10 +573,7 @@ func (p *widget) deleteCurrentLayer(index int32) {
 
 	p.cof.CofLayers = newLayers
 
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-
-	state := s.(*widgetState)
+	state := p.getState()
 
 	if state.viewerState.layerIndex != 0 {
 		state.viewerState.layerIndex--
@@ -585,10 +581,7 @@ func (p *widget) deleteCurrentLayer(index int32) {
 }
 
 func (p *widget) duplicateDirection() {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
-
-	state := s.(*widgetState)
+	state := p.getState()
 
 	idx := state.viewerState.directionIndex
 
@@ -600,10 +593,8 @@ func (p *widget) duplicateDirection() {
 }
 
 func (p *widget) deleteCurrentDirection() {
-	stateID := fmt.Sprintf("COFWidget_%s", p.id)
-	s := giu.Context.GetState(stateID)
+	state := p.getState()
 
-	state := s.(*widgetState)
 	index := state.viewerState.directionIndex
 
 	p.cof.NumberOfDirections--

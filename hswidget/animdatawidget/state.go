@@ -2,12 +2,15 @@ package animdatawidget
 
 import (
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type widgetMode int
+type widgetMode int32
 
 const (
 	widgetModeList widgetMode = iota
@@ -39,8 +42,49 @@ func (aes *addEntryState) Dispose() {
 	aes.name = ""
 }
 
+// Encode encodes state into byte slice to save it
+func (ws *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(int32(ws.mode))
+	sw.PushInt32(ws.mapIndex)
+	sw.PushInt32(ws.recordIdx)
+
+	return sw.GetBytes()
+}
+
+// Decode decodes byte slice into widget state
+func (ws *widgetState) Decode(data []byte) {
+	sr := d2datautils.CreateStreamReader(data)
+
+	mode, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	mapIndex, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	recordIdx, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.mode = widgetMode(mode)
+	ws.mapIndex = mapIndex
+	ws.recordIdx = recordIdx
+}
+
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("AnimationDataWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {

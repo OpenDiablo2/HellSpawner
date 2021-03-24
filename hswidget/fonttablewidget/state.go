@@ -2,20 +2,23 @@ package fonttablewidget
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type fontTableWidgetMode int
+type widgetMode int32
 
 const (
-	modeViewer fontTableWidgetMode = iota
+	modeViewer widgetMode = iota
 	modeEditRune
 	modeAddItem
 )
 
 type widgetState struct {
-	mode          fontTableWidgetMode
+	mode          widgetMode
 	editRuneState editRuneState
 	addItemState  addItemState
 }
@@ -24,6 +27,69 @@ type widgetState struct {
 func (s *widgetState) Dispose() {
 	s.editRuneState.Dispose()
 	s.addItemState.Dispose()
+}
+
+func (s *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(int32(s.mode))
+	sw.PushInt32(s.editRuneState.editedRune)
+	sw.PushInt16(int16(s.editRuneState.runeBefore))
+	sw.PushInt32(s.addItemState.newRune)
+	sw.PushInt32(s.addItemState.width)
+	sw.PushInt32(s.addItemState.height)
+
+	return sw.GetBytes()
+}
+
+func (s *widgetState) Decode(data []byte) {
+	sr := d2datautils.CreateStreamReader(data)
+
+	mode, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.mode = widgetMode(mode)
+
+	s.editRuneState.editedRune, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	runeBefore, err := sr.ReadInt16()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.editRuneState.runeBefore = rune(runeBefore)
+
+	s.addItemState.newRune, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.addItemState.width, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.addItemState.height, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
 }
 
 type editRuneState struct {
@@ -50,7 +116,7 @@ func (s *addItemState) Dispose() {
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("FontTableWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {

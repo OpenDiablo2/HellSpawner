@@ -20,10 +20,16 @@ type widget struct {
 }
 
 // Create creates a new string table editor widget
-func Create(id string, dict d2tbl.TextDictionary) giu.Widget {
+func Create(state []byte, id string, dict d2tbl.TextDictionary) giu.Widget {
 	result := &widget{
 		id:   id,
 		dict: dict,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
+		result.setState(s)
 	}
 
 	return result

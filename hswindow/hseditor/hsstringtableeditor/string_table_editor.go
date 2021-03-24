@@ -28,13 +28,15 @@ var _ hscommon.EditorWindow = &StringTableEditor{}
 // StringTableEditor represents a string table editor
 type StringTableEditor struct {
 	*hseditor.Editor
-	dict d2tbl.TextDictionary
+	dict  d2tbl.TextDictionary
+	state []byte
 }
 
 // Create creates a new string table editor
 func Create(_ *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dict, err := d2tbl.LoadTextDictionary(*data)
 	if err != nil {
@@ -44,6 +46,7 @@ func Create(_ *hsconfig.Config,
 	result := &StringTableEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
 		dict:   dict,
+		state:  state,
 	}
 
 	if w, h := result.CurrentSize(); w == 0 || h == 0 {
@@ -57,7 +60,7 @@ func Create(_ *hsconfig.Config,
 
 // Build builds an editor
 func (e *StringTableEditor) Build() {
-	l := stringtablewidget.Create(e.Path.GetUniqueID(), e.dict)
+	l := stringtablewidget.Create(e.state, e.Path.GetUniqueID(), e.dict)
 
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsHorizontalScrollbar).
