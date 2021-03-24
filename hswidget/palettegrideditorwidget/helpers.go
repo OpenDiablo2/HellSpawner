@@ -19,7 +19,7 @@ func (p *PaletteGridEditorWidget) changeColor(state *widgetState) {
 	rgba |= uint32(state.g) << gOffset
 	rgba |= uint32(state.b) << bOffset
 	rgba |= uint32(maxValue) << aOffset
-	p.colors[state.idx].SetRGBA(rgba)
+	(*p.colors)[state.idx].SetRGBA(rgba)
 }
 
 // Hex2RGB converts haxadecimal color into r, g, b
