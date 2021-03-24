@@ -1,0 +1,18 @@
+package palettemapwidget
+
+const (
+	transformLightLevelVariations = iota
+	transformInvColorVariations
+	transformSelectedUintShift
+	transformAlphaBlend
+	transformAdditiveBlend
+	transformMultiplicativeBlend
+	transformHueVariations
+	transformRedTones
+	transformGreenTones
+	transformBlueTones
+	transformUnknownVariations
+	transformMaxComponentBlend
+	transformDarkendColorShift
+	transformTextColorShifts
+)

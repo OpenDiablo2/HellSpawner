@@ -18,7 +18,7 @@ const (
 // PaletteGridEditorWidget represents a palette grid editor
 type PaletteGridEditorWidget struct {
 	id            string
-	colors        *[256]palettegridwidget.PaletteColor
+	colors        *[]palettegridwidget.PaletteColor
 	textureLoader *hscommon.TextureLoader
 	onChange      func()
 }
@@ -27,7 +27,7 @@ type PaletteGridEditorWidget struct {
 func Create(state []byte,
 	textureLoader *hscommon.TextureLoader,
 	id string,
-	colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
+	colors *[]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{
 		id:            id,
 		colors:        colors,
@@ -54,8 +54,15 @@ func (p *PaletteGridEditorWidget) OnChange(onChange func()) *PaletteGridEditorWi
 // Build Builds a widget
 func (p *PaletteGridEditorWidget) Build() {
 	state := p.getState()
-	grid := palettegridwidget.Create(p.textureLoader, p.id, p.colors).OnClick(func(idx int) {
-		color := hsutil.Color(p.colors[idx].RGBA())
+
+	colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
+
+	for n := range *(p.colors) {
+		colors[n] = (*p.colors)[n]
+	}
+
+	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
+		color := hsutil.Color((*p.colors)[idx].RGBA())
 		state.r = color.R
 		state.g = color.G
 		state.b = color.B
