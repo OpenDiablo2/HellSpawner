@@ -46,7 +46,7 @@ type widget struct {
 }
 
 // Create creates a new dt1 viewers widget
-func Create(palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
+func Create(state []byte, palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
 	result := &widget{
 		id:            id,
 		dt1:           dt1,
@@ -55,6 +55,11 @@ func Create(palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoad
 	}
 
 	result.registerKeyboardShortcuts()
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
+	}
 
 	return result
 }

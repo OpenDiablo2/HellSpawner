@@ -27,11 +27,17 @@ type widget struct {
 }
 
 // Create creates a new dcc widget
-func Create(palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
+func Create(state []byte, palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
 	result := &widget{
 		id:      id,
 		dcc:     dcc,
 		palette: palette,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
+		result.setState(s)
 	}
 
 	return result

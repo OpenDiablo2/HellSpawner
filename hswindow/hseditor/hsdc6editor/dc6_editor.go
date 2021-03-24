@@ -31,12 +31,14 @@ type DC6Editor struct {
 	selectPalette       bool
 	palette             *[256]d2interface.Color
 	selectPaletteWidget g.Widget
+	state               []byte
 }
 
 // Create creates a new dc6 editor
 func Create(config *hsconfig.Config,
 	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	dc6, err := d2dc6.Load(*data)
 	if err != nil {
@@ -49,6 +51,7 @@ func Create(config *hsconfig.Config,
 		textureLoader: textureLoader,
 		selectPalette: false,
 		config:        config,
+		state:         state,
 	}
 
 	return result, nil
@@ -61,7 +64,7 @@ func (e *DC6Editor) Build() {
 
 	if !e.selectPalette {
 		e.Layout(g.Layout{
-			dc6widget.Create(e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
+			dc6widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
 		})
 
 		return

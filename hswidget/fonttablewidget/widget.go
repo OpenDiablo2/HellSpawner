@@ -28,6 +28,7 @@ type widget struct {
 
 // Create creates a new FontTable widget
 func Create(
+	state []byte,
 	del *giu.Texture,
 	id string, fontTable *d2font.Font,
 ) giu.Widget {
@@ -35,6 +36,11 @@ func Create(
 		fontTable:           fontTable,
 		id:                  id,
 		deleteButtonTexture: del,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
 	}
 
 	return result
