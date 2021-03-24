@@ -62,7 +62,7 @@ func (p *widget) buildViewer(state *widgetState) {
 
 	left := giu.Layout{
 		giu.Label("Base Palette"),
-		palettegrideditorwidget.Create(p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
+		palettegrideditorwidget.Create(nil, p.textureLoader, p.id+"basePalette", &baseColors).OnChange(func() {
 			state.textures = make(map[string]giu.Widget)
 		}),
 	}

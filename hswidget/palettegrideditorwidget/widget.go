@@ -27,7 +27,7 @@ type PaletteGridEditorWidget struct {
 func Create(state []byte,
 	textureLoader *hscommon.TextureLoader,
 	id string,
-	colors *[256]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
+	colors *[]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{
 		id:            id,
 		colors:        colors,
