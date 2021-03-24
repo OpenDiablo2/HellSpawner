@@ -25,7 +25,7 @@ func getPaletteTransformString() []string {
 // cannot use map or literal, because len of transforms isn't the same, so
 // for example if state.slider1 = 30, state.selection = 0 (LightLevelVariation)
 // and len p.pl2.InvColorVariations = 16, than
-// (if we'd use map) we recieve "index out of range" panic
+// (if we'd use map) we receive "index out of range" panic
 func (p *widget) getPaletteIndices(state *widgetState) (indice *[256]byte) {
 	switch state.selection {
 	case transformLightLevelVariations:
