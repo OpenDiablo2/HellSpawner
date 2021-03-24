@@ -20,7 +20,7 @@ or after pulling the source, download submodules:
 
 `git submodule update --init --recursive`
 
-Thenn, you need to download go's dependencies:
+Then, you need to download go's dependencies:
 
 In root of your project run `go get -d`
 
