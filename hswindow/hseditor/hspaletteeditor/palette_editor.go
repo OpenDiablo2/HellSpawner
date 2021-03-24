@@ -28,12 +28,15 @@ type PaletteEditor struct {
 	*hseditor.Editor
 	palette       d2interface.Palette
 	textureLoader *hscommon.TextureLoader
+	state         []byte
 }
 
 // Create creates a new palette editor
-func Create(_ *hsconfig.Config,
+func Create(
+	_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	palette, err := d2dat.Load(*data)
 	if err != nil {
@@ -44,6 +47,7 @@ func Create(_ *hsconfig.Config,
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		palette:       palette,
 		textureLoader: tl,
+		state:         state,
 	}
 
 	return result, nil
@@ -57,7 +61,7 @@ func (e *PaletteEditor) Build() {
 	}
 
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsAlwaysAutoResize).Layout(g.Layout{
-		palettegrideditorwidget.Create(e.textureLoader, e.GetID()+"_grid", &col),
+		palettegrideditorwidget.Create(e.state, e.textureLoader, e.GetID(), &col),
 	})
 }
 

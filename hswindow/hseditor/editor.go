@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -36,10 +38,13 @@ func (e *Editor) State() hsstate.EditorState {
 		log.Print("failed to marshal editor path to JSON: ", err)
 	}
 
-	return hsstate.EditorState{
+	result := hsstate.EditorState{
 		WindowState: e.Window.State(),
 		Path:        path,
+		EditorState: e.GetStateData(),
 	}
+
+	return result
 }
 
 // GetWindowTitle returns window title
@@ -114,4 +119,24 @@ func (e *Editor) Cleanup() {
 
 func generateWindowTitle(path *hscommon.PathEntry) string {
 	return path.Name + "##" + path.GetUniqueID()
+}
+
+// GetStateData returns widget's state (unique for each editor type) in byte slice format
+func (e *Editor) GetStateData() []byte {
+	id := fmt.Sprintf("widget_%s", e.Path.GetUniqueID())
+
+	if s := giu.Context.GetState(id); s != nil {
+		state, ok := s.(interface {
+			Dispose()
+			Encode() []byte
+		})
+		if !ok {
+			log.Fatalf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
+			return nil
+		}
+
+		return state.Encode()
+	}
+
+	return nil
 }

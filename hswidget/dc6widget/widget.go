@@ -27,12 +27,18 @@ type widget struct {
 }
 
 // Create creates new widget
-func Create(palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
+func Create(state []byte, palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
 	result := &widget{
 		id:            id,
 		dc6:           dc6,
 		textureLoader: textureLoader,
 		palette:       palette,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		s.Decode(state)
+		result.setState(s)
 	}
 
 	return result

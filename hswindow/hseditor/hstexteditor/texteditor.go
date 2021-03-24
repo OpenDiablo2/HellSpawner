@@ -37,6 +37,7 @@ type TextEditor struct {
 func Create(_ *hsconfig.Config,
 	_ *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	result := &TextEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),

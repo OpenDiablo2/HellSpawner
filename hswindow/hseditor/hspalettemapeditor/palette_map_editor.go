@@ -32,6 +32,7 @@ type PaletteMapEditor struct {
 func Create(_ *hsconfig.Config,
 	textureLoader *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	pl2, err := d2pl2.Load(*data)
 	if err != nil {

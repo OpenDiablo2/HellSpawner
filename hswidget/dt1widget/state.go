@@ -2,9 +2,11 @@ package dt1widget
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
 )
 
@@ -31,6 +33,97 @@ type widgetState struct {
 // Dispose clears viewers state
 func (s *widgetState) Dispose() {
 	s.textures = nil
+}
+
+func (s *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(s.tileGroup)
+	sw.PushInt32(s.tileVariant)
+
+	if s.showGrid {
+		sw.PushBytes(1)
+	} else {
+		sw.PushBytes(0)
+	}
+
+	if s.showFloor {
+		sw.PushBytes(1)
+	} else {
+		sw.PushBytes(0)
+	}
+
+	if s.showWall {
+		sw.PushBytes(1)
+	} else {
+		sw.PushBytes(0)
+	}
+
+	sw.PushInt32(s.subtileFlag)
+	sw.PushInt32(s.scale)
+
+	return sw.GetBytes()
+}
+
+func (s *widgetState) Decode(data []byte) {
+	var err error
+
+	sr := d2datautils.CreateStreamReader(data)
+
+	s.tileGroup, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.tileVariant, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	showGrid, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.showGrid = (showGrid == 1)
+
+	showFloor, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.showFloor = (showFloor == 1)
+
+	showWall, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.showWall = (showWall == 1)
+
+	s.subtileFlag, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s.scale, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
 }
 
 func (p *widget) getStateID() string {

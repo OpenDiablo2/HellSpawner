@@ -4,25 +4,73 @@ import (
 	"fmt"
 	image2 "image"
 	"image/color"
+	"log"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type dc6WidgetMode int
+type widgetMode int32
 
 const (
-	dc6WidgetViewer dc6WidgetMode = iota
+	dc6WidgetViewer widgetMode = iota
 )
 
 // widgetState represents dc6 viewer's state
 type widgetState struct {
 	viewerState
-	mode dc6WidgetMode
+	mode widgetMode
 }
 
 func (w *widgetState) Dispose() {
 	w.viewerState.Dispose()
 	w.mode = dc6WidgetViewer
+}
+
+func (w *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(int32(w.mode))
+	sw.PushInt32(w.controls.direction)
+	sw.PushInt32(w.controls.frame)
+	sw.PushInt32(w.controls.scale)
+
+	return sw.GetBytes()
+}
+
+func (w *widgetState) Decode(data []byte) {
+	sr := d2datautils.CreateStreamReader(data)
+
+	mode, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.mode = widgetMode(mode)
+
+	w.controls.direction, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.controls.frame, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.controls.scale, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
 }
 
 // nolint:structcheck // :-/ linter bug?! thes values are deffinitly used
@@ -46,7 +94,7 @@ func (is *viewerState) Dispose() {
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("DC6Widget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {

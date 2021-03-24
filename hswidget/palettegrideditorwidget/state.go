@@ -2,11 +2,14 @@ package palettegrideditorwidget
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type widgetMode int
+type widgetMode int32
 
 const (
 	widgetModeGrid widgetMode = iota
@@ -24,6 +27,85 @@ func (ws *widgetState) Dispose() {
 	ws.mode = widgetModeGrid
 }
 
+func (ws *widgetState) Encode() []byte {
+	sw := d2datautils.CreateStreamWriter()
+
+	sw.PushInt32(int32(ws.mode))
+	sw.PushInt32(int32(ws.idx))
+	sw.PushBytes(ws.r)
+	sw.PushBytes(ws.g)
+	sw.PushBytes(ws.b)
+	sw.PushBytes(byte(len(ws.hex)))
+	sw.PushBytes([]byte(ws.hex)...)
+
+	return sw.GetBytes()
+}
+
+func (ws *widgetState) Decode(data []byte) {
+	sr := d2datautils.CreateStreamReader(data)
+
+	mode, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.mode = widgetMode(mode)
+
+	idx, err := sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.idx = int(idx)
+
+	ws.r, err = sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.g, err = sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	ws.b, err = sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	l, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	s := make([]rune, int(l))
+
+	for i := 0; i < int(l); i++ {
+		r, err := sr.ReadByte()
+		if err != nil {
+			log.Print(err)
+
+			return
+		}
+
+		s[i] = rune(r)
+	}
+
+	ws.hex = string(s)
+}
+
 type editEntryState struct {
 	idx     int
 	r, g, b uint8
@@ -38,7 +120,7 @@ func (ees *editEntryState) Dispose() {
 }
 
 func (p *PaletteGridEditorWidget) getStateID() string {
-	return fmt.Sprintf("PaletteGridEditorWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *PaletteGridEditorWidget) getState() *widgetState {

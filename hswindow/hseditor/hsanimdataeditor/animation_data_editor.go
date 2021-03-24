@@ -28,14 +28,16 @@ var _ hscommon.EditorWindow = &AnimationDataEditor{}
 // AnimationDataEditor represents a cof editor
 type AnimationDataEditor struct {
 	*hseditor.Editor
-	d2  *d2animdata.AnimationData
-	del *g.Texture
+	d2    *d2animdata.AnimationData
+	del   *g.Texture
+	state []byte
 }
 
 // Create creates a new cof editor
 func Create(_ *hsconfig.Config,
 	tl *hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	d2, err := d2animdata.Load(*data)
 	if err != nil {
@@ -45,6 +47,7 @@ func Create(_ *hsconfig.Config,
 	result := &AnimationDataEditor{
 		Editor: hseditor.New(pathEntry, x, y, project),
 		d2:     d2,
+		state:  state,
 	}
 
 	tl.CreateTextureFromFileAsync(delItemButtonPath, func(texture *g.Texture) {
@@ -57,7 +60,7 @@ func Create(_ *hsconfig.Config,
 // Build builds a D2 editor
 func (e *AnimationDataEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	animDataWidget := animdatawidget.Create(e.del, uid, e.d2)
+	animDataWidget := animdatawidget.Create(e.del, e.state, uid, e.d2)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
