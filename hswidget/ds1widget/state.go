@@ -8,16 +8,16 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
-type ds1EditorMode int
+type widgetMode int32
 
 const (
-	ds1EditorModeViewer ds1EditorMode = iota
-	ds1EditorModeAddFile
-	ds1EditorModeAddObject
-	ds1EditorModeAddPath
-	ds1EditorModeAddFloorShadow
-	ds1EditorModeAddWall
-	ds1EditorModeConfirm
+	widgetModeViewer widgetMode = iota
+	widgetModeAddFile
+	widgetModeAddObject
+	widgetModeAddPath
+	widgetModeAddFloorShadow
+	widgetModeAddWall
+	widgetModeConfirm
 )
 
 type ds1Controls struct {
@@ -57,71 +57,33 @@ func (t *ds1AddPathState) Dispose() {
 	// noop
 }
 
-// ds1AddFloorShadowState contains data used in
-// add floor-shadow record dialog
-type ds1AddFloorShadowState struct {
-	prop1    int32
-	sequence int32
-	unknown1 int32
-	style    int32
-	unknown2 int32
-	hidden   byte
-	cb       func()
-}
-
-// Dispose resets DS1AddFloorShadowState
-func (t ds1AddFloorShadowState) Dispose() {
-	t.prop1 = 0
-	t.sequence = 0
-	t.unknown1 = 0
-	t.style = 0
-	t.unknown2 = 0
-	t.hidden = 0
-}
-
-// ds1AddWallState contains data used in add wall dialog
-type ds1AddWallState struct {
-	tileType int32
-	zero     int32
-	ds1AddFloorShadowState
-}
-
-// Dispose cleans DS1AddWallState
-func (t *ds1AddWallState) Dispose() {
-	t.ds1AddFloorShadowState.Dispose()
-}
-
-// DS1State represents ds1 viewers state
-type DS1State struct {
+// widgetState represents ds1 viewers state
+type widgetState struct {
 	*ds1Controls
-	mode                ds1EditorMode
-	confirmDialog       *hswidget.PopUpConfirmDialog
-	newFilePath         string
-	addObjectState      ds1AddObjectState
-	addPathState        ds1AddPathState
-	addFloorShadowState ds1AddFloorShadowState
-	addWallState        ds1AddWallState
+	mode           widgetMode
+	confirmDialog  *hswidget.PopUpConfirmDialog
+	newFilePath    string
+	addObjectState ds1AddObjectState
+	addPathState   ds1AddPathState
 }
 
 // Dispose clears viewers state
-func (is *DS1State) Dispose() {
+func (is *widgetState) Dispose() {
 	is.addObjectState.Dispose()
 	is.addPathState.Dispose()
-	is.addFloorShadowState.Dispose()
-	is.addWallState.Dispose()
 }
 
 func (p *widget) getStateID() string {
 	return fmt.Sprintf("DS1Widget_%s", p.id)
 }
 
-func (p *widget) getState() *DS1State {
-	var state *DS1State
+func (p *widget) getState() *widgetState {
+	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*DS1State)
+		state = s.(*widgetState)
 	} else {
 		p.initState()
 		state = p.getState()
@@ -135,7 +97,7 @@ func (p *widget) setState(s giu.Disposable) {
 }
 
 func (p *widget) initState() {
-	state := &DS1State{
+	state := &widgetState{
 		ds1Controls: &ds1Controls{},
 	}
 

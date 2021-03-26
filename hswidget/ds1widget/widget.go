@@ -9,7 +9,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
+	//"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
@@ -62,19 +62,15 @@ func (p *widget) Build() {
 	state := p.getState()
 
 	switch state.mode {
-	case ds1EditorModeViewer:
+	case widgetModeViewer:
 		p.makeViewerLayout().Build()
-	case ds1EditorModeAddFile:
+	case widgetModeAddFile:
 		p.makeAddFileLayout().Build()
-	case ds1EditorModeAddObject:
+	case widgetModeAddObject:
 		p.makeAddObjectLayout().Build()
-	case ds1EditorModeAddPath:
+	case widgetModeAddPath:
 		p.makeAddPathLayout().Build()
-	case ds1EditorModeAddFloorShadow:
-		p.makeAddFloorShadowLayout(&state.addFloorShadowState).Build()
-	case ds1EditorModeAddWall:
-		p.makeAddWallLayout().Build()
-	case ds1EditorModeConfirm:
+	case widgetModeConfirm:
 		giu.Layout{
 			giu.Label("Please confirm your decision"),
 			state.confirmDialog,
@@ -123,13 +119,13 @@ func (p *widget) makeDataLayout() giu.Layout {
 						"Continue?",
 					func() {
 						p.ds1.Version = version
-						state.mode = ds1EditorModeViewer
+						state.mode = widgetModeViewer
 					},
 					func() {
-						state.mode = ds1EditorModeViewer
+						state.mode = widgetModeViewer
 					},
 				)
-				state.mode = ds1EditorModeConfirm
+				state.mode = widgetModeConfirm
 			}),
 		),
 		giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
@@ -176,14 +172,14 @@ func (p *widget) makeFilesLayout() giu.Layout {
 		l,
 		giu.Separator(),
 		giu.Button("Add File##"+p.id+"AddFile").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.mode = ds1EditorModeAddFile
+			state.mode = widgetModeAddFile
 		}),
 	}
 }
 
 // makeObjectsLayout creates objects info tab
 // used in p.makeViewerLayout (in objects tab)
-func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
+func (p *widget) makeObjectsLayout(state *widgetState) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
 	l := giu.Layout{}
@@ -208,10 +204,10 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 		giu.Separator(),
 		giu.Line(
 			giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.mode = ds1EditorModeAddObject
+				state.mode = widgetModeAddObject
 			}),
 			giu.Button("Add path to this object...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.mode = ds1EditorModeAddPath
+				state.mode = widgetModeAddPath
 			}),
 			hsutil.MakeImageButton(
 				"##"+p.id+"deleteObject",
@@ -229,7 +225,7 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 
 // makeObjectLayout creates informations about single object
 // used in p.makeObjectsLayout
-func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
+func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 	if objIdx := int(state.object); objIdx >= len(p.ds1.Objects) {
 		state.ds1Controls.object = int32(len(p.ds1.Objects) - 1)
 		p.setState(state)
@@ -337,7 +333,7 @@ func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 }
 
 // makeTilesLayout creates tiles layout (tile x, y)
-func (p *widget) makeTilesLayout(state *DS1State) giu.Layout {
+func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
 	tx, ty := int(state.tileX), int(state.tileY)
@@ -401,7 +397,7 @@ func (p *widget) makeTilesLayout(state *DS1State) giu.Layout {
 
 // makeTileLayout creates tabs for tile types
 // used in p.makeTilesLayout
-func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout {
+func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
 
@@ -492,7 +488,7 @@ func (p *widget) makeTileLayout(state *DS1State, t *d2ds1.TileRecord) giu.Layout
 // makeTileFloorsLayout creates floors tab
 // used in p.makeTileLayout
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *widget) makeTileFloorsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileFloorsLayout(state *widgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -590,7 +586,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 }
 
 // nolint:dupl // could be changed
-func (p *widget) makeTileWallsLayout(state *DS1State, records []d2ds1.WallRecord) giu.Layout {
+func (p *widget) makeTileWallsLayout(state *widgetState, records []d2ds1.WallRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -692,7 +688,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 }
 
 // nolint:dupl // no need to change
-func (p *widget) makeTileShadowsLayout(state *DS1State, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileShadowsLayout(state *widgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -788,7 +784,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 }
 
 // nolint:dupl // it is ok
-func (p *widget) makeTileSubsLayout(state *DS1State, records []d2ds1.SubstitutionRecord) giu.Layout {
+func (p *widget) makeTileSubsLayout(state *widgetState, records []d2ds1.SubstitutionRecord) giu.Layout {
 	l := giu.Layout{}
 
 	if len(records) == 0 {
@@ -830,7 +826,7 @@ func (p *widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout 
 	}
 }
 
-func (p *widget) makeSubstitutionsLayout(state *DS1State) giu.Layout {
+func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
 	recordIdx := int(state.subgroup)
@@ -881,10 +877,10 @@ func (p *widget) makeAddFileLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
-				state.mode = ds1EditorModeViewer
+				state.mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = ds1EditorModeViewer
+				state.mode = widgetModeViewer
 			}),
 		),
 	}
@@ -927,10 +923,10 @@ func (p *widget) makeAddObjectLayout() giu.Layout {
 
 				p.ds1.Objects = append(p.ds1.Objects, newObject)
 
-				state.mode = ds1EditorModeViewer
+				state.mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = ds1EditorModeViewer
+				state.mode = widgetModeViewer
 			}),
 		),
 	}
@@ -966,107 +962,9 @@ func (p *widget) makeAddPathLayout() giu.Layout {
 				p.addPath()
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = ds1EditorModeViewer
+				state.mode = widgetModeViewer
 			}),
 		),
-	}
-}
-
-// output in argument, because we're using this method in a two cases:
-// first for adding floor an shadow
-// second to in p.makeAddWallLayout, so we should specify, wher does
-// we want to save results (in DS1State.addFloorShadowState,
-// or in DS1State.addWallState)
-func (p *widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.Layout {
-	state := p.getState()
-
-	return giu.Layout{
-		giu.Line(
-			giu.Label("Prop 1: "),
-			giu.InputInt("##"+p.id+"addFloorShadowProp1", &output.prop1).Size(inputIntW).OnChange(func() {
-				if output.prop1 > maxByteSize {
-					output.prop1 = maxByteSize
-				}
-			}),
-		),
-		giu.Line(
-			giu.Label("Sequence: "),
-			giu.InputInt("##"+p.id+"addFloorShadowSequence", &output.sequence).Size(inputIntW).OnChange(func() {
-				if output.sequence > maxByteSize {
-					output.sequence = maxByteSize
-				}
-			}),
-		),
-		giu.Line(
-			giu.Label("Unknown 1: "),
-			giu.InputInt("##"+p.id+"addFloorShadowUnknown1", &output.unknown1).Size(inputIntW).OnChange(func() {
-				if output.unknown1 > maxByteSize {
-					output.unknown1 = maxByteSize
-				}
-			}),
-		),
-		giu.Line(
-			giu.Label("Style: "),
-			giu.InputInt("##"+p.id+"addFloorShadowStyle", &output.style).Size(inputIntW).OnChange(func() {
-				if output.style > maxByteSize {
-					output.style = maxByteSize
-				}
-			}),
-		),
-		giu.Line(
-			giu.Label("Unknown 2: "),
-			giu.InputInt("##"+p.id+"addFloorShadowUnknown2", &output.unknown2).Size(inputIntW).OnChange(func() {
-				if output.unknown2 > maxByteSize {
-					output.unknown2 = maxByteSize
-				}
-			}),
-		),
-		giu.Line(
-			giu.Label("Hidden: "),
-			hsutil.MakeCheckboxFromByte(
-				"##"+p.id+"addFloorShadowHidden",
-				&output.hidden,
-			),
-		),
-		giu.Separator(),
-		giu.Line(
-			giu.Button("Save##"+p.id+"AddFloorShadowSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				output.cb()
-				state.mode = ds1EditorModeViewer
-			}),
-			giu.Button("Cancel##"+p.id+"AddFloorShadowCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = ds1EditorModeViewer
-			}),
-		),
-	}
-}
-
-func (p *widget) makeAddWallLayout() giu.Layout {
-	state := p.getState()
-
-	// enumeration of tile types starts from 0, but we must give length (starts from 1) in argument
-	tileTypeList := make([]string, d2enum.TileLowerWallsEquivalentToSouthCornerwall+1)
-	for i := d2enum.TileFloor; i <= d2enum.TileLowerWallsEquivalentToSouthCornerwall; i++ {
-		// this list should be a group of strings, which describes d2enum.TileType
-		tileTypeList[int(i)] = strconv.Itoa(int(i))
-	}
-
-	return giu.Layout{
-		giu.Line(
-			giu.Label("Type: "),
-			giu.Combo("##"+p.id+"AddWallType", tileTypeList[int(state.addWallState.tileType)], tileTypeList,
-				&state.addWallState.tileType).Size(bigListW),
-		),
-		giu.Line(
-			giu.Label("Zero: "),
-			giu.InputInt("##"+p.id+"AddWallZero", &state.addWallState.zero).Size(inputIntW).OnChange(func() {
-				if state.addWallState.zero > maxByteSize {
-					state.addWallState.zero = maxByteSize
-				}
-			}),
-		),
-		// this fields are constant for flor, shadow and wall
-		p.makeAddFloorShadowLayout(&state.addWallState.ds1AddFloorShadowState),
 	}
 }
 
@@ -1096,7 +994,7 @@ func (p *widget) addPath() {
 
 	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
 
-	state.mode = ds1EditorModeViewer
+	state.mode = widgetModeViewer
 }
 
 func (p *widget) deletePath(idx int) {
