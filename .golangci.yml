@@ -41,6 +41,7 @@ linters:
     - dupl
     - errcheck
     - errorlint
+    - exportloopref
     - funlen
     - gochecknoglobals
     - gochecknoinits
@@ -66,7 +67,6 @@ linters:
     - nolintlint
     - prealloc
     - rowserrcheck
-    - scopelint
     - staticcheck
     - structcheck
     - stylecheck
@@ -75,6 +75,7 @@ linters:
     - unparam
     - unused
     - varcheck
+    - wastedassign
     - whitespace
     - wrapcheck
     - wsl
