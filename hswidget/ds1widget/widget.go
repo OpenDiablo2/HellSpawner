@@ -230,9 +230,7 @@ func (p *widget) makeObjectsLayout(state *DS1State) giu.Layout {
 // makeObjectLayout creates informations about single object
 // used in p.makeObjectsLayout
 func (p *widget) makeObjectLayout(state *DS1State) giu.Layout {
-	objIdx := int(state.object)
-
-	if objIdx >= len(p.ds1.Objects) {
+	if objIdx := int(state.object); objIdx >= len(p.ds1.Objects) {
 		state.ds1Controls.object = int32(len(p.ds1.Objects) - 1)
 		p.setState(state)
 	} else if objIdx < 0 {
@@ -1046,7 +1044,7 @@ func (p *widget) makeAddFloorShadowLayout(output *ds1AddFloorShadowState) giu.La
 func (p *widget) makeAddWallLayout() giu.Layout {
 	state := p.getState()
 
-	// nolint:gomnd // enumeration of tile types starts from 0, but we must give length (starts from 1) in argument
+	// enumeration of tile types starts from 0, but we must give length (starts from 1) in argument
 	tileTypeList := make([]string, d2enum.TileLowerWallsEquivalentToSouthCornerwall+1)
 	for i := d2enum.TileFloor; i <= d2enum.TileLowerWallsEquivalentToSouthCornerwall; i++ {
 		// this list should be a group of strings, which describes d2enum.TileType
@@ -1088,7 +1086,7 @@ func (p *widget) addPath() {
 	state := p.getState()
 
 	newPath := d2path.Path{
-		// nolint:gomnd // npc actions starts from 1
+		// npc actions starts from 1
 		Action: int(state.addPathState.pathAction) + 1,
 		Position: d2vector.NewPosition(
 			float64(state.addPathState.pathX),
