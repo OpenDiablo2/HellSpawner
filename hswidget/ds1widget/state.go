@@ -15,8 +15,6 @@ const (
 	widgetModeAddFile
 	widgetModeAddObject
 	widgetModeAddPath
-	widgetModeAddFloorShadow
-	widgetModeAddWall
 	widgetModeConfirm
 )
 

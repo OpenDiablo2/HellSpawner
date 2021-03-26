@@ -9,8 +9,6 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
 
-	//"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
-
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -26,10 +24,6 @@ const (
 	saveCancelButtonW, saveCancelButtonH = 80, 30
 	bigListW                             = 200
 	imageW, imageH                       = 32, 32
-)
-
-const (
-	maxByteSize = 255
 )
 
 const (
