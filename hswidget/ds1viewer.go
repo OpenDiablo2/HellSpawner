@@ -223,9 +223,7 @@ func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 		p.setState(state)
 	}
 
-	numRows, numCols := 0, 0
-
-	numRows = len(p.ds1.Tiles)
+	numRows := len(p.ds1.Tiles)
 	if numRows < 1 {
 		return l
 	}
@@ -235,8 +233,7 @@ func (p *DS1ViewerWidget) makeTilesLayout(state *DS1ViewerState) giu.Layout {
 		p.setState(state)
 	}
 
-	numCols = len(p.ds1.Tiles[0])
-	if tx >= numCols {
+	if numCols := len(p.ds1.Tiles[0]); tx >= numCols {
 		state.ds1Controls.tileX = int32(numCols - 1)
 		p.setState(state)
 	}
