@@ -67,7 +67,12 @@ func (p *PathEntry) GetFileBytes() ([]byte, error) {
 			return nil, fmt.Errorf("cannot get informations about file %s: %w", p.FullPath, err)
 		}
 
-		return ioutil.ReadFile(p.FullPath)
+		data, err := ioutil.ReadFile(p.FullPath)
+		if err != nil {
+			return nil, fmt.Errorf("error reading file: %w", err)
+		}
+
+		return data, nil
 	}
 
 	mpq, err := d2mpq.FromFile(p.MPQFile)
@@ -76,7 +81,10 @@ func (p *PathEntry) GetFileBytes() ([]byte, error) {
 	}
 
 	if mpq.Contains(p.FullPath) {
-		return mpq.ReadFile(p.FullPath)
+		data, err := mpq.ReadFile(p.FullPath)
+		if err != nil {
+			return data, fmt.Errorf("error reading file from mpq: %w", err)
+		}
 	}
 
 	return nil, errors.New("could not locate file in mpq")

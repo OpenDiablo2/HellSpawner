@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	newFilePerms = 0644
+	newFilePerms = 0o644
 )
 
 // Font represents font
@@ -35,7 +35,7 @@ func NewFile(filePath string) (*Font, error) {
 
 // LoadFromJSON loads a new font from json
 func LoadFromJSON(data []byte) (*Font, error) {
-	var font *Font = &Font{}
+	font := &Font{}
 
 	err := json.Unmarshal(data, font)
 	if err != nil {
