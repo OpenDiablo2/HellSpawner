@@ -23,6 +23,12 @@ jobs:
           fetch-depth: 0
           submodules: 'true'
 
+      - if: startsWith(matrix.os,'ubuntu')
+        name: Set up LibGL
+        run: |
+          sudo apt-get update
+	      sudo apt-get -y install libgl1-mesa-dev
+
       - name: Set up Go environment
         uses: actions/setup-go@v2.1.3
 
