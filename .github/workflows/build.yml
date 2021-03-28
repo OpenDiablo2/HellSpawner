@@ -28,7 +28,7 @@ jobs:
         name: Set up LibGL, Mesa & X11 libraries
         run: |
           sudo apt-get update
-          sudo apt-get -y install libgl1-mesa-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev build-essential libasound2-dev golang-github-gotk3-gotk3-dev libxxf86vm-dev
+          sudo apt-get -y install libgl1-mesa-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev build-essential libasound2-dev libxxf86vm-dev
       - name: Set up Go environment
         uses: actions/setup-go@v2.1.3
 
