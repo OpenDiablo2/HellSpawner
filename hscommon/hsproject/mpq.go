@@ -3,6 +3,7 @@ package hsproject
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,7 +26,6 @@ func (p *Project) GetMPQFileNodes(mpq d2interface.Archive, config *hsconfig.Conf
 	}
 
 	files, err := mpq.Listfile()
-
 	if err != nil {
 		files, err = p.searchForMpqFiles(mpq, config)
 		if err != nil {
@@ -94,7 +94,11 @@ func (p *Project) searchForMpqFiles(mpq d2interface.Archive, config *hsconfig.Co
 			}
 		}
 
-		return files, scanner.Err()
+		if err := scanner.Err(); err != nil {
+			return files, fmt.Errorf("error scanning for file: %w", err)
+		}
+
+		return files, nil
 	}
 
 	return files, nil

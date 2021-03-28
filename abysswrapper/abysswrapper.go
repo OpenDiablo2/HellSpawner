@@ -40,7 +40,12 @@ func (a *AbyssWrapper) Read(p []byte) (n int, err error) {
 }
 
 func (a *AbyssWrapper) Write(p []byte) (n int, err error) {
-	return a.output.Write(p)
+	n, err = a.output.Write(p)
+	if err != nil {
+		return n, fmt.Errorf("error writing to output: %w", err)
+	}
+
+	return n, nil
 }
 
 // Launch launchs abyss wrapper
@@ -89,7 +94,11 @@ func (a *AbyssWrapper) Kill() error {
 		return nil
 	}
 
-	return a.cmd.Process.Kill()
+	if err := a.cmd.Process.Kill(); err != nil {
+		return fmt.Errorf("error closing AbyssWrapper: %w", err)
+	}
+
+	return nil
 }
 
 // IsRunning returns true, if AbyssWrapper is running
