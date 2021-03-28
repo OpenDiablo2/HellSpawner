@@ -38,10 +38,6 @@ jobs:
         run: |
           make setup
 
-      - name: make lint
-        run: |
-          make lint
-
       - name: make build
         run: |
           make build
