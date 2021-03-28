@@ -12,28 +12,23 @@ SRC = $(shell find . -type f -name "*.go")
 # The name of the executable (default is current directory name)
 TARGET := $(shell echo $${PWD-`pwd`})
 
-.PHONY: all build setup fmt test cover lint clean run help
+.PHONY: all build setup test cover clean run help
 
 ## all: Default target, now is build
 all: build
 
 ## build: Builds the binary
-build: fmt
+build:
 	@echo "Building..."
 	@$(GOCMD) build -o ${NAME}
 
 ## setup: Runs mod download and generate
 setup:
 	@echo "Downloading tools and dependencies..."
+	@git submodule update --init --recursive
+	@$(GOCMD) get -d
 	@$(GOCMD) mod download -x
 	@$(GOCMD) generate -v ./...
-
-## fmt: Runs go goimports and gofmt
-fmt: setup
-	@echo "Checking the imports..."
-	@$(GOCMD)imports -w ${SRC}
-	@echo "Formatting the go files..."
-	@$(GOCMD)fmt -w -s ${SRC}
 
 ## test: Runs the tests with coverage
 test:
@@ -44,11 +39,10 @@ test:
 cover: test
 	@$(GOCMD) tool cover -html=coverage.txt
 
-## lint: Runs golangci-lint (configuration at .golangci.yml) and misspell
-lint: setup
-	@echo "Running linters..."
-	@golangci-lint run --max-issues-per-linter 0 --max-same-issues 0 ./...
-	@misspell ./...
+## clean: Runs go run
+clean:
+	@echo "Cleaning..."
+	@$(GOCMD) clean
 
 ## run: Runs go run
 run: build
