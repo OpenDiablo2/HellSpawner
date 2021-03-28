@@ -27,7 +27,7 @@ jobs:
         name: Set up LibGL
         run: |
           sudo apt-get update
-	      sudo apt-get -y install libgl1-mesa-dev
+          sudo apt-get -y install libgl1-mesa-dev
 
       - name: Set up Go environment
         uses: actions/setup-go@v2.1.3
