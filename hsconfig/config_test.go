@@ -19,6 +19,7 @@ func Test_Config_AddToRecentProjects(t *testing.T) {
 
 	// second path should be added on index 0
 	config.AddToRecentProjects(path2)
+
 	if config.RecentProjects[0] != path2 {
 		t.Fatal("unexpected project path was added")
 	}
@@ -30,6 +31,7 @@ func Test_Config_AddToRecentProjects(t *testing.T) {
 
 	// when we'll try to add path1 second time, it should be moved to the 'top'
 	config.AddToRecentProjects(path1)
+
 	if config.RecentProjects[0] != path1 {
 		t.Fatal("unexpected project path was added")
 	}

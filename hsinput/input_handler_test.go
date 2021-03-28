@@ -40,7 +40,9 @@ func Test_InputManager_RegisterShortcut(t *testing.T) {
 	cb := func() {}
 
 	im.RegisterShortcut(cb, key, mod, global)
+
 	shortcut, exist := im.shortcuts[combo]
+
 	if !exist {
 		t.Fatal("shortcut wasn't registered")
 	}
