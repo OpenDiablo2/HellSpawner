@@ -1,7 +1,6 @@
 package hsapp
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -124,10 +123,6 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
-	if err := a.checkForDependencies(); err != nil {
-		log.Fatalf("looking for dependencies: %v", err)
-	}
-
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
@@ -439,16 +434,4 @@ func (a *App) Quit() {
 	a.Save()
 
 	a.CloseAllOpenWindows()
-}
-
-func (a *App) checkForDependencies() error {
-	if _, err := os.Stat("3rdparty"); err != nil {
-		return fmt.Errorf(
-			"directory not found: 3rdparty: %w\nDid you forget to %s or %s?", err,
-			"git submodule update --init --recursive",
-			"git clone https://github.com/madmaxms/iconpack-obsidian 3rdparty/iconpack-obsidian",
-		)
-	}
-
-	return nil
 }
