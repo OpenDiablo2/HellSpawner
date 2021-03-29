@@ -1,7 +1,11 @@
 package hscommon
 
 import (
+	"fmt"
 	"image"
+	"image/draw"
+	"image/png"
+	"io"
 	"log"
 	"sync"
 
@@ -99,6 +103,17 @@ func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.
 	t.addTextureToLoadQueue(rgb, callback)
 }
 
+func (t *TextureLoader) CreateTextureFromFile(file io.Reader, cb func(*g.Texture)) {
+	fmt.Println(file)
+	rgba, err := convertToImage(file)
+	fmt.Println(rgba)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t.CreateTextureFromARGB(rgba, cb)
+}
+
 func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.Texture)) {
 	err := t.loadQueue.Enqueue(TextureLoadRequestItem{
 		rgb:      rgb,
@@ -106,5 +121,21 @@ func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.
 	})
 	if err != nil {
 		log.Fatalf("failed to add texture load request to queue: %s", err)
+	}
+}
+
+func convertToImage(file io.Reader) (*image.RGBA, error) {
+	img, err := png.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	switch trueImg := img.(type) {
+	case *image.RGBA:
+		return trueImg, nil
+	default:
+		rgba := image.NewRGBA(trueImg.Bounds())
+		draw.Draw(rgba, trueImg.Bounds(), trueImg, image.Pt(0, 0), draw.Src)
+		return rgba, nil
 	}
 }
