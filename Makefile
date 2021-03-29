@@ -26,11 +26,17 @@ build:
 ## setup: Runs mod download and generate
 setup:
 	@echo "Downloading tools and dependencies..."
+	@echo "Run: git submodule update --init --recursive"
 	@git submodule update --init --recursive
-	@$(GOCMD) get -u
-	@$(GOCMD) mod tidy
+	@echo "Run: go get -d"
 	@$(GOCMD) get -d
+	@echo "Run: go get -u"
+	@$(GOCMD) get -u
+	@echo "Run: go mod tidy"
+	@$(GOCMD) mod tidy
+	@echo "Run: go mod download -x"
 	@$(GOCMD) mod download -x
+	@echo "Run: go generate -v ./..."
 	@$(GOCMD) generate -v ./...
 
 ## test: Runs the tests with coverage
