@@ -15,7 +15,7 @@ TARGET := $(shell echo $${PWD-`pwd`})
 
 .PHONY: all build setup test cover lint clean run race help
 
-## all: Default targe	t, now is build
+## all: Default target, now is 'build'
 all: build
 
 ## build: Builds the binary
