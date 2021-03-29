@@ -52,15 +52,15 @@ func Create(textureLoader *hscommon.TextureLoader, onProjectPropertiesChanged fu
 		mpqSelectDialogVisible:     false,
 	}
 
-	textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.DeleteIcon), func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.removeIconTexture = texture
 	})
 
-	textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.UpArrowIcon), func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.UpArrowIcon, func(texture *g.Texture) {
 		result.upIconTexture = texture
 	})
 
-	textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.DownArrowIcon), func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.DownArrowIcon, func(texture *g.Texture) {
 		result.downIconTexture = texture
 	})
 

@@ -60,7 +60,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 
 	// some type of workaround ;-). SOmetimes we only want to get tree nodes (and don't need textures)
 	if textureLoader != nil {
-		textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.ReloadIcon), func(texture *g.Texture) {
+		textureLoader.CreateTextureFromFile(hsassets.ReloadIcon, func(texture *g.Texture) {
 			result.refreshIconTexture = texture
 		})
 	}

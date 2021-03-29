@@ -1,9 +1,7 @@
 package hsassets
 
 import (
-	"bytes"
 	_ "embed" // this is standard solution for embed
-	"io"
 )
 
 // these variables are links to existing icones used in project
@@ -46,8 +44,3 @@ var (
 //go:embed images/d2logo.png
 // nolint:gochecknoglobals // go-embed
 var HellSpawnerLogo []byte
-
-// MakeReader creates reader from variable
-func MakeReader(data []byte) io.Reader {
-	return bytes.NewReader(data)
-}

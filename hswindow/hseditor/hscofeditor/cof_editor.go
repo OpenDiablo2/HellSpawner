@@ -53,19 +53,19 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 		state:         state,
 	}
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.UpArrowIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.UpArrowIcon, func(texture *g.Texture) {
 		result.textures.up = texture
 	})
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.DownArrowIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DownArrowIcon, func(texture *g.Texture) {
 		result.textures.down = texture
 	})
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.LeftArrowIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.LeftArrowIcon, func(texture *g.Texture) {
 		result.textures.left = texture
 	})
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.RightArrowIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.RightArrowIcon, func(texture *g.Texture) {
 		result.textures.right = texture
 	})
 

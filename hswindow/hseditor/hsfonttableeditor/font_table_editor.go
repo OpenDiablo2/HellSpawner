@@ -55,7 +55,7 @@ func Create(_ *hsconfig.Config,
 		result.Size(mainWindowW, mainWindowH)
 	}
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.DeleteIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
 

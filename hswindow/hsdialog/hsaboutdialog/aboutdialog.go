@@ -47,7 +47,7 @@ func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixed
 		fixedFont:   fixedFont,
 	}
 
-	textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.HellSpawnerLogo), func(t *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.HellSpawnerLogo, func(t *g.Texture) {
 		result.logo = t
 	})
 

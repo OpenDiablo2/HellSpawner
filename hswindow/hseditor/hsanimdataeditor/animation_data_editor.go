@@ -47,7 +47,7 @@ func Create(_ *hsconfig.Config,
 		state:  state,
 	}
 
-	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.DeleteIcon), func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.del = texture
 	})
 

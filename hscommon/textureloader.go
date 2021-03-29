@@ -1,6 +1,7 @@
 package hscommon
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/draw"
@@ -91,8 +92,10 @@ func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.
 }
 
 // CreateTextureFromFile creates a texture using io.Reader given
-func (t *TextureLoader) CreateTextureFromFile(file io.Reader, cb func(*g.Texture)) {
-	rgba, err := convertToImage(file)
+func (t *TextureLoader) CreateTextureFromFile(fileData []byte, cb func(*g.Texture)) {
+	fileReader := bytes.NewReader(fileData)
+
+	rgba, err := convertToImage(fileReader)
 	if err != nil {
 		log.Fatal(err)
 	}
