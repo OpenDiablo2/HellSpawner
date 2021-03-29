@@ -1,6 +1,6 @@
 module github.com/OpenDiablo2/HellSpawner
 
-go 1.15
+go 1.16
 
 require (
 	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210329094534-c8ef8cf2a46d
