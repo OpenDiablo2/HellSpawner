@@ -77,6 +77,14 @@ func (p *widget) Build() {
 		state.controls.tileVariant = 0
 	}
 
+	if len(state.tileGroups) == 0 {
+		giu.Layout{
+			giu.Label("Nothing to display"),
+		}.Build()
+
+		return
+	}
+
 	tiles := state.tileGroups[int(state.controls.tileGroup)]
 	tile := tiles[int(state.controls.tileVariant)]
 
