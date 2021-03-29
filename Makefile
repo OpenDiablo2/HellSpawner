@@ -1,7 +1,7 @@
 NAME=HellSpawner
 GOCMD=LC_ALL=C go
 TIMEOUT=5
-DEBIANOS=$(shell command -v cat /etc/debian_version 2> /dev/null)
+DEBIANOS=$(shell command cat /etc/debian_version 2> /dev/null)
 
 # go tools
 export PATH := ./bin:$(PATH)
@@ -27,8 +27,9 @@ build:
 setup:
 	@echo "Downloading tools and dependencies..."
 ifeq ($(DEBIANOS),)
+	@echo "Downloading packages for Ubuntu..."
 	@sudo apt-get --allow-releaseinfo-change update
-	@apt-get install -y xvfb libgtk-3-dev libasound2-dev libxxf86vm-dev
+	@sudo apt-get install -y libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libsdl2-dev libasound2-dev xvfb libgtk-3-dev libasound2-dev libxxf86vm-dev
 endif
 	@echo "Run: git submodule update --init --recursive"
 	@git submodule update --init --recursive
