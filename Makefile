@@ -26,6 +26,10 @@ build:
 ## setup: Runs mod download and generate
 setup:
 	@echo "Downloading tools and dependencies..."
+ifeq ($(DEBIANOS),)
+	@sudo apt-get --allow-releaseinfo-change update
+	@apt-get install -y xvfb libgtk-3-dev libasound2-dev libxxf86vm-dev
+endif
 	@echo "Run: git submodule update --init --recursive"
 	@git submodule update --init --recursive
 	@echo "Run: go get -d"
