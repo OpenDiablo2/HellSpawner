@@ -10,6 +10,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -58,7 +59,7 @@ func Create(_ *hsconfig.Config,
 		result.Size(mainWindowW, mainWindowH)
 	}
 
-	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.DeleteIcon), func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
 

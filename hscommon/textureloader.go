@@ -1,7 +1,6 @@
 package hscommon
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -85,28 +84,13 @@ func (t *TextureLoader) ProcessTextureLoadRequests() {
 	}()
 }
 
-// CreateTextureFromFileAsync creates an texture
-func (t *TextureLoader) CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
-	var imageData *image.RGBA
-
-	var err error
-
-	if imageData, err = g.LoadImage(fileName); err != nil {
-		log.Fatal(err)
-	}
-
-	t.addTextureToLoadQueue(imageData, callback)
-}
-
 // CreateTextureFromARGB creates a texture fromo color given
 func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
 	t.addTextureToLoadQueue(rgb, callback)
 }
 
 func (t *TextureLoader) CreateTextureFromFile(file io.Reader, cb func(*g.Texture)) {
-	fmt.Println(file)
 	rgba, err := convertToImage(file)
-	fmt.Println(rgba)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -59,19 +60,19 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 		state:         state,
 	}
 
-	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.UpArrowIcon), func(texture *g.Texture) {
 		result.textures.up = texture
 	})
 
-	tl.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.DownArrowIcon), func(texture *g.Texture) {
 		result.textures.down = texture
 	})
 
-	tl.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.LeftArrowIcon), func(texture *g.Texture) {
 		result.textures.left = texture
 	})
 
-	tl.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.MakeReader(hsassets.RightArrowIcon), func(texture *g.Texture) {
 		result.textures.right = texture
 	})
 

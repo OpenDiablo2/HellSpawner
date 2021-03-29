@@ -13,6 +13,7 @@ import (
 
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
@@ -63,7 +64,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 
 	// some type of workaround ;-). SOmetimes we only want to get tree nodes (and don't need textures)
 	if textureLoader != nil {
-		textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
+		textureLoader.CreateTextureFromFile(hsassets.MakeReader(hsassets.ReloadIcon), func(texture *g.Texture) {
 			result.refreshIconTexture = texture
 		})
 	}
