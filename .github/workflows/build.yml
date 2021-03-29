@@ -29,6 +29,9 @@ jobs:
       # setup Go
       - name: Set up Go environment
         uses: actions/setup-go@v2.1.3
+        with:
+          go-version: '^1.16.2'
+      - run: go version
 
       # setup Go modules
       - name: Cache Go modules
