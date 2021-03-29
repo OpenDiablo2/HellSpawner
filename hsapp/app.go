@@ -2,7 +2,6 @@ package hsapp
 
 import (
 	"log"
-	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -23,6 +22,7 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -234,14 +234,12 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	if _, err := os.Stat("hsassets"); err == nil {
-		imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
-		a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
-		a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
-		a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
-		a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
-		imgui.CurrentStyle().ScaleAllSizes(1)
-	}
+	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, 17)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
+	imgui.CurrentStyle().ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)

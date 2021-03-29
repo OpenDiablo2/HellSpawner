@@ -29,6 +29,19 @@ var (
 	RightArrowIcon []byte
 )
 
+// these variables are links to existing fonts used in project
+// nolint:gochecknoglobals // like above: this is ok for go:embed
+var (
+	//go:embed fonts/NotoSans-Regular.ttf
+	FontNotoSansRegular []byte
+	//go:embed fonts/CascadiaCode.ttf
+	FontCascadiaCode []byte
+	//go:embed fonts/DiabloRegular.ttf
+	FontDiabloRegular []byte
+	//go:embed fonts/DiabloBold.ttf
+	FontDiabloBold []byte
+)
+
 // MakeReader creates reader from variable
 func MakeReader(data []byte) io.Reader {
 	return bytes.NewReader(data)
