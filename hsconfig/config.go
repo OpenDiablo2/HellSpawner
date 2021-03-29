@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	newFileMode = 0644
+	newFileMode = 0o644
 )
 
 const (
@@ -152,7 +152,6 @@ func (c *Config) GetAuxMPQs() []string {
 
 		return nil
 	})
-
 	if err != nil {
 		log.Printf("failed to walk path for aux MPQs %s: %s", c.AuxiliaryMpqPath, err)
 	}
