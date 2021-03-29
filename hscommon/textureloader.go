@@ -1,6 +1,7 @@
 package hscommon
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -89,6 +90,7 @@ func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.
 	t.addTextureToLoadQueue(rgb, callback)
 }
 
+// CreateTextureFromFile creates a texture using io.Reader given
 func (t *TextureLoader) CreateTextureFromFile(file io.Reader, cb func(*g.Texture)) {
 	rgba, err := convertToImage(file)
 	if err != nil {
@@ -111,7 +113,7 @@ func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.
 func convertToImage(file io.Reader) (*image.RGBA, error) {
 	img, err := png.Decode(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error decoding png file: %w", err)
 	}
 
 	switch trueImg := img.(type) {
@@ -120,6 +122,7 @@ func convertToImage(file io.Reader) (*image.RGBA, error) {
 	default:
 		rgba := image.NewRGBA(trueImg.Bounds())
 		draw.Draw(rgba, trueImg.Bounds(), trueImg, image.Pt(0, 0), draw.Src)
+
 		return rgba, nil
 	}
 }

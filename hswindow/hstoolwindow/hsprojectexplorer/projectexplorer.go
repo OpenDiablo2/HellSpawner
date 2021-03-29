@@ -33,10 +33,6 @@ const (
 	blackHalfOpacity = 0xffffff20
 )
 
-const (
-	refreshItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/reload.png"
-)
-
 // ProjectExplorerFileSelectedCallback represents callback on project file selected
 type ProjectExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 

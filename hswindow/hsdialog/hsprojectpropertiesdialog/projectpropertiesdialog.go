@@ -28,12 +28,6 @@ const (
 	inputTextSize            = 250
 )
 
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
-)
-
 // ProjectPropertiesDialog represent project properties' dialog
 type ProjectPropertiesDialog struct {
 	*hsdialog.Dialog

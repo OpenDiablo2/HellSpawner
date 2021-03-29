@@ -23,10 +23,6 @@ const (
 	mainWindowW, mainWindowH = 550, 400
 )
 
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-)
-
 // static check, to ensure, if font table editor implemented editoWindow
 var _ hscommon.EditorWindow = &FontTableEditor{}
 

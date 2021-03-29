@@ -19,10 +19,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-const (
-	delItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-)
-
 // static check, to ensure, if D2 editor implemented editoWindow
 var _ hscommon.EditorWindow = &AnimationDataEditor{}
 
