@@ -3,7 +3,7 @@ module github.com/OpenDiablo2/HellSpawner
 go 1.16
 
 require (
-	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210328161547-435fd1a61b0e
+	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210329094534-c8ef8cf2a46d
 	github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f
 	github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d // indirect
 	github.com/enriquebris/goconcurrentqueue v0.6.0
@@ -18,7 +18,6 @@ require (
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/russross/blackfriday v1.6.0
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	golang.org/x/exp v0.0.0-20210220032938-85be41e4509f // indirect

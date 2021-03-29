@@ -106,54 +106,32 @@ func (p *widget) setState(s giu.Disposable) {
 }
 
 func (p *widget) initState() {
-	p.setState(&widgetState{
+	state := &widgetState{
 		mode: modeViewer,
 		viewerState: &viewerState{
-			layer:         &p.cof.CofLayers[0],
 			confirmDialog: &hswidget.PopUpConfirmDialog{},
 		},
 		newLayerFields: &newLayerFields{
 			selectable: true,
 			drawEffect: int32(d2enum.DrawEffectNone),
 		},
-	})
+	}
+
+	if len(p.cof.CofLayers) > 0 {
+		state.viewerState.layer = &p.cof.CofLayers[0]
+	}
+
+	p.setState(state)
 }
 
 func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
-	layerStrings := make([]string, 0)
-	for idx := range p.cof.CofLayers {
-		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
-	}
-
-	currentLayerName := layerStrings[state.viewerState.layerIndex]
-	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
-	layerList.Size(layerListW).OnChange(p.onUpdate)
-
-	directionStrings := make([]string, 0)
-	for idx := range p.cof.Priority {
-		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
-	}
-
-	directionString := directionStrings[state.viewerState.directionIndex]
-	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
-	directionList.Size(layerListW).OnChange(p.onUpdate)
-
-	frameStrings := make([]string, 0)
-	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
-		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
-	}
-
-	frameString := frameStrings[state.viewerState.frameIndex]
-	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
-	frameList.Size(layerListW).OnChange(p.onUpdate)
-
 	return giu.Layout{
 		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
 			giu.TabItem("Animation").Layout(p.makeAnimationTab()),
-			giu.TabItem("Layer").Layout(p.makeLayerTab(state, layerList)),
-			giu.TabItem("Priority").Layout(p.makePriorityTab(state, directionList, frameList)),
+			giu.TabItem("Layer").Layout(p.makeLayerTab(state)),
+			giu.TabItem("Priority").Layout(p.makePriorityTab(state)),
 		}),
 	}
 }
@@ -198,12 +176,25 @@ func (p *widget) makeAnimationTab() giu.Layout {
 	}
 }
 
-func (p *widget) makeLayerTab(state *widgetState, layerList giu.Widget) giu.Layout {
+func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 	addLayerButtonID := fmt.Sprintf("Add a new layer...##%sAddLayer", p.id)
 	addLayerButton := giu.Button(addLayerButtonID).Size(actionButtonW, actionButtonH)
 	addLayerButton.OnClick(func() {
 		p.createNewLayer()
 	})
+
+	if state.viewerState.layer == nil {
+		return giu.Layout{addLayerButton}
+	}
+
+	layerStrings := make([]string, 0)
+	for idx := range p.cof.CofLayers {
+		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
+	}
+
+	currentLayerName := layerStrings[state.viewerState.layerIndex]
+	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
+	layerList.Size(layerListW).OnChange(p.onUpdate)
 
 	deleteLayerButtonID := fmt.Sprintf("Delete current layer...##%sDeleteLayer", p.id)
 	deleteLayerButton := giu.Button(deleteLayerButtonID).Size(actionButtonW, actionButtonH)
@@ -246,7 +237,31 @@ func (p *widget) createNewLayer() {
 	state.mode = modeAddLayer
 }
 
-func (p *widget) makePriorityTab(state *widgetState, directionList, frameList giu.Widget) giu.Layout {
+func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
+	if len(p.cof.Priority) == 0 {
+		return giu.Layout{
+			giu.Label("Nothing here"),
+		}
+	}
+
+	directionStrings := make([]string, 0)
+	for idx := range p.cof.Priority {
+		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
+	}
+
+	directionString := directionStrings[state.viewerState.directionIndex]
+	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
+	directionList.Size(layerListW).OnChange(p.onUpdate)
+
+	frameStrings := make([]string, 0)
+	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
+		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
+	}
+
+	frameString := frameStrings[state.viewerState.frameIndex]
+	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
+	frameList.Size(layerListW).OnChange(p.onUpdate)
+
 	const (
 		strPrompt  = "Do you really want to remove this direction?"
 		strMessage = "If you'll click YES, all data from this direction will be lost. Continue?"
