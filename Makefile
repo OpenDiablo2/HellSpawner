@@ -1,6 +1,7 @@
 NAME=HellSpawner
 GOCMD=LC_ALL=C go
 TIMEOUT=5
+DEBIANOS=$(shell command -v cat /etc/debian_version 2> /dev/null)
 
 # go tools
 export PATH := ./bin:$(PATH)
@@ -12,7 +13,7 @@ SRC = $(shell find . -type f -name "*.go")
 # The name of the executable (default is current directory name)
 TARGET := $(shell echo $${PWD-`pwd`})
 
-.PHONY: all build setup test cover lint clean run help
+.PHONY: all build setup test cover lint clean run race help
 
 ## all: Default targe	t, now is build
 all: build
@@ -47,14 +48,23 @@ lint: setup
 	@golangci-lint run ./...
 	@misspell ./...
 
-## clean: Runs go run
+## clean: Cleans the binaries and the Go module cache
 clean:
 	@echo "Cleaning..."
 	@$(GOCMD) clean
+	@$(GOCMD) clean --modcache
 
 ## run: Runs go run
 run: build
 	@$(GOCMD) run ${TARGET}
+
+## race: headless test with xvfb (runs only on Debian)
+race:
+ifeq ($(DEBIANOS),)
+	@sudo apt-get --allow-releaseinfo-change update
+	@apt-get install -y xvfb
+	/usr/bin/xvfb-run --auto-servernum go test -v -race ./...
+endif
 
 ## help: Prints this help message
 help:
