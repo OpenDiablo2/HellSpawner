@@ -231,7 +231,32 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 	contextMenuLayout := g.Layout{
 		g.Menu("New").Layout(g.Layout{
 			g.MenuItem("Folder").OnClick(func() { m.onNewFolderClicked(pathEntry) }),
+			g.Separator(),
 			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry) }),
+			g.MenuItem("Font table (.tbl)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeTBLFontTable, pathEntry)
+			}),
+			g.MenuItem("String table (.tbl)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeTBLStringTable, pathEntry)
+			}),
+			g.MenuItem("Animation data (.d2)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeAnimationData, pathEntry)
+			}),
+			g.MenuItem("Animation (.cof)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeCOF, pathEntry)
+			}),
+			g.MenuItem("Palette (.dat)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypePalette, pathEntry)
+			}),
+			g.MenuItem("Palette transform (.pl2)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypePL2, pathEntry)
+			}),
+			g.MenuItem("Map tile data (.ds1)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeDS1, pathEntry)
+			}),
+			g.MenuItem("Map tile animation (.dt1)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeDT1, pathEntry)
+			}),
 		}),
 	}
 

@@ -26,8 +26,8 @@ const (
 )
 
 const (
-	newFileMode      = 0644
-	newDirMode       = 0755
+	newFileMode      = 0o644
+	newDirMode       = 0o755
 	maxProjectsCount = 100
 )
 
@@ -273,7 +273,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 		}
 	}
 
-	if err := os.Mkdir(fileName, 0644); err != nil {
+	if err := os.Mkdir(fileName, 0o644); err != nil {
 		dialog.Message("Could not create a new project folder!").Error()
 
 		return
@@ -288,6 +288,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
 func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) {
 	basePath := path.FullPath
 
+	fmt.Println(fileType, ";", fileType.FileExtension())
 	filePathFormat := filepath.Join(basePath, "untitled%d"+fileType.FileExtension())
 
 	var fileName string
@@ -307,10 +308,20 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 		}
 	}
 
-	if fileType == hsfiletypes.FileTypeFont {
+	switch fileType {
+	case hsfiletypes.FileTypeFont:
 		_, err := hsfont.NewFile(fileName)
 		if err != nil {
 			log.Fatalf("failed to save font: %s", err)
+		}
+	default:
+		manager := getFileManager(fileType)
+		if manager == nil {
+			return
+		}
+
+		if err := ioutil.WriteFile(fileName, manager.Marshal(), os.FileMode(newFileMode)); err != nil {
+			log.Fatalf("cannot write to file %s: %v", fileName, err)
 		}
 	}
 
@@ -331,8 +342,8 @@ func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 	for mpqIdx := range p.AuxiliaryMPQs {
 		go func(idx int) {
 			fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
-			data, err := d2mpq.FromFile(fileName)
 
+			data, err := d2mpq.FromFile(fileName)
 			if err != nil {
 				log.Fatal(err)
 			}
