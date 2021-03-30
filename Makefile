@@ -2,7 +2,7 @@ NAME=HellSpawner
 GOCMD=LC_ALL=C go
 TIMEOUT=5
 DEBIANOS:=$(shell command cat /etc/debian_version 2> /dev/null)
-REDHATOS:=$(shell command -v cat /etc/redhat-release 2> /dev/null)
+REDHATOS:=$(shell command cat /etc/redhat-release 2> /dev/null)
 LINUX:=$(shell uname -s)
 
 # go tools
