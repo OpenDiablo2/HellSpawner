@@ -16,17 +16,15 @@ To download code use a following command:
 
 `git clone --recurse-submodules https://github.com/OpenDiablo2/hellspawner`
 
-or after pulling the source, download submodules:
+Then, you need to install [Go](https://golang.org/doc/install) 1.16.2 or higher.
 
-`git submodule update --init --recursive`
+Then you can use the Makefile (try `make help` for more information:
 
-Then, you need to download go's dependencies:
+```shell
+make run # (works for Windows, MacOS, Ubuntu, Fedora)
+```
 
-In root of your project run `go get -d`
-
-Run project by `go run .`
-
-If you're using Unix-based OS, you can build project with included building script: run `./build.sh`
+*Note*: If you're using any other Unix-based OS, you can build project with included building script: run `./build.sh`
 
 ## Contributing
 
@@ -37,8 +35,15 @@ for tasks on our discord server.
 
 ### Lint Errors
 
-We use `golangci-lint` to catch lint errors, and we require all contributors to install and use
-it. Installation instructions can be found [here](https://golangci-lint.run/usage/install/).
+We use `golangci-lint` to catch lint errors.
+To install it use: `make setup` and to run it use: `make lint`.
+
+### Testing
+
+We encourage you to write tests for your code.
+To run the tests, use `make test` and `make race` (this works only for Linux systems)
+
+*Note*: Use `make cover` to check the testing coverage of your code.
 
 ## VS Code Extensions
 
