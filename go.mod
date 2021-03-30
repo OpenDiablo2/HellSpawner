@@ -39,7 +39,7 @@ require (
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb // indirect
 	golang.org/x/mobile v0.0.0-20210220033013-bdb1ca9a1e08 // indirect
 	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/net v0.0.0-20210329181859-df645c7b52b1 // indirect
+	golang.org/x/net v0.0.0-20210330075724-22f4162a9025 // indirect
 	golang.org/x/sys v0.0.0-20210326220804-49726bf1d181 // indirect
 	golang.org/x/tools v0.1.1-0.20210302220138-2ac05c832e1a
 	gopkg.in/ini.v1 v1.62.0 // indirect

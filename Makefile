@@ -15,7 +15,7 @@ SRC = $(shell find . -type f -name "*.go")
 # The name of the executable (default is current directory name)
 TARGET := $(shell echo $${PWD-`pwd`})
 
-.PHONY: all build setup test cover lint clean run race help
+.PHONY: all build setup update-deps test cover lint clean run race help
 
 ## all: Default target, now is 'build'
 all: build
@@ -36,18 +36,17 @@ ifdef REDHATOS
 	@echo "Downloading packages for RedHat based..."
 	@sudo dnf install -y xorg-x11-server-Xvfb libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel alsa-lib-devel libXi-devel
 endif
-	@echo "Run: git submodule update --init --recursive"
 	@git submodule update --init --recursive
-	@echo "Run: go get -d"
 	@$(GOCMD) get -d
-	@echo "Run: go get -u"
-	@$(GOCMD) get -u
-	@echo "Run: go mod tidy"
-	@$(GOCMD) mod tidy
-	@echo "Run: go mod download -x"
 	@$(GOCMD) mod download -x
-	@echo "Run: go generate -v ./..."
 	@$(GOCMD) generate -v ./...
+
+## update-deps: Updates all Go module dependencies ignoring current go.mod
+update-deps:
+	@$(GOCMD) get -u
+	@$(GOCMD) mod tidy
+	@$(GOCMD) mod verify
+	@$(GOCMD) fix ./...
 
 ## test: Runs the tests with coverage
 test:
