@@ -544,6 +544,7 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 
 		// this sets layer index to just added layer
 		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+		state.viewerState.layer = newCofLayer
 
 		state.mode = modeViewer
 	}
