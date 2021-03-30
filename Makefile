@@ -1,7 +1,9 @@
 NAME=HellSpawner
 GOCMD=LC_ALL=C go
 TIMEOUT=5
-DEBIANOS=$(shell command cat /etc/debian_version 2> /dev/null)
+DEBIANOS:=$(shell command cat /etc/debian_version 2> /dev/null)
+REDHATOS:=$(shell command -v cat /etc/redhat-release 2> /dev/null)
+LINUX:=$(shell uname -s)
 
 # go tools
 export PATH := ./bin:$(PATH)
@@ -25,11 +27,14 @@ build:
 
 ## setup: Runs mod download and generate
 setup:
-	@echo "Downloading tools and dependencies..."
-ifeq ($(DEBIANOS),)
-	@echo "Downloading packages for Ubuntu..."
+ifdef DEBIANOS
+	@echo "Downloading packages for Debian based..."
 	@sudo apt-get --allow-releaseinfo-change update
-	@sudo apt-get install -y libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libsdl2-dev libasound2-dev xvfb libgtk-3-dev libasound2-dev libxxf86vm-dev
+	@sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libsdl2-dev libasound2-dev xvfb libgtk-3-dev libasound2-dev libxxf86vm-dev
+endif
+ifdef REDHATOS
+	@echo "Downloading packages for RedHat based..."
+	@sudo dnf install -y xorg-x11-server-Xvfb libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel alsa-lib-devel libXi-devel
 endif
 	@echo "Run: git submodule update --init --recursive"
 	@git submodule update --init --recursive
@@ -69,11 +74,9 @@ clean:
 run: build
 	@$(GOCMD) run ${TARGET}
 
-## race: headless test with xvfb (runs only on Debian)
+## race: headless test with xvfb (runs only on Linux)
 race:
-ifeq ($(DEBIANOS),)
-	@sudo apt-get --allow-releaseinfo-change update
-	@apt-get install -y xvfb
+ifeq ($(LINUX),Linux)
 	/usr/bin/xvfb-run --auto-servernum go test -v -race ./...
 endif
 
