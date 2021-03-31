@@ -341,9 +341,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		p.setState(state)
 	}
 
-	numRows := 0
-
-	numRows = len(p.ds1.Tiles)
+	numRows := len(p.ds1.Tiles)
 	if numRows == 0 {
 		return l
 	}

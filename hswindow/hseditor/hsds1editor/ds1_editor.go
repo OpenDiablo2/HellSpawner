@@ -19,10 +19,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-)
-
 // static check if DS1Editor implemented hscommon.EditorWindow
 var _ hscommon.EditorWindow = &DS1Editor{}
 
