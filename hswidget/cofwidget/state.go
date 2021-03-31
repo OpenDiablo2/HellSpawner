@@ -3,6 +3,8 @@ package cofwidget
 import (
 	"log"
 
+	"github.com/ianling/giu"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
@@ -21,6 +23,14 @@ type widgetState struct {
 	*viewerState
 	*newLayerFields
 	mode
+	textures
+}
+
+type textures struct {
+	up    *giu.Texture
+	down  *giu.Texture
+	left  *giu.Texture
+	right *giu.Texture
 }
 
 // Dispose clear widget's state
