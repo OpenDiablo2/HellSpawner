@@ -10,7 +10,6 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -160,7 +159,7 @@ func (p *widget) makeAnimationTab() giu.Layout {
 	}
 
 	speedLabel := giu.Label(strSpeed)
-	speedInput := hsutil.MakeInputInt(
+	speedInput := hswidget.MakeInputInt(
 		"##"+p.id+"CovViewerSpeedValue",
 		speedInputW,
 		&p.cof.Speed,
@@ -328,9 +327,9 @@ func (p *widget) layoutAnimFrames() *giu.LineWidget {
 	leftButtonID := fmt.Sprintf("##%sDecreaseFramesPerDirection", p.id)
 	rightButtonID := fmt.Sprintf("##%sIncreaseFramesPerDirection", p.id)
 
-	left := hsutil.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
+	left := hswidget.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
-	right := hsutil.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
+	right := hswidget.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
 
 	return giu.Line(label, left, frameCount, right)
 }
@@ -425,8 +424,8 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		fnIncPriority := makeIncPriorityFn(currentIdx)
 		fnDecPriority := makeDecPriorityFn(currentIdx)
 
-		increasePriority := hsutil.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
-		decreasePriority := hsutil.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
+		increasePriority := hswidget.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
+		decreasePriority := hswidget.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
 
 		strLayerName := hsenum.GetLayerName(layers[idx])
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
@@ -496,7 +495,7 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Shadow: "),
-			hsutil.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
+			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),

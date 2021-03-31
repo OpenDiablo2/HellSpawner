@@ -10,7 +10,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
 const (
@@ -75,7 +75,7 @@ func (p *widget) buildAnimationsList() {
 	for idx, name := range keys {
 		currentIdx := idx
 		list[idx] = giu.Line(
-			hsutil.MakeImageButton(
+			hswidget.MakeImageButton(
 				"##"+p.id+"deleteEntry"+strconv.Itoa(currentIdx),
 				13, 13,
 				p.del,

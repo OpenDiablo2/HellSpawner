@@ -9,7 +9,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
 const (
@@ -120,7 +120,7 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 
 	row := giu.Row(
 		giu.Line(
-			hsutil.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
+			hswidget.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
 				delSize, delSize,
 				p.deleteButtonTexture,
 				func() { p.deleteRow(r) },
