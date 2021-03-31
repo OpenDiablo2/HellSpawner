@@ -32,7 +32,7 @@ type AnimationDataEditor struct {
 
 // Create creates a new cof editor
 func Create(_ *hsconfig.Config,
-	tl *hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

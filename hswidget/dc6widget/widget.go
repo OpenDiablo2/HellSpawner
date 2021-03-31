@@ -22,12 +22,12 @@ const (
 type widget struct {
 	id            string
 	dc6           *d2dc6.DC6
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	palette       *[256]d2interface.Color
 }
 
 // Create creates new widget
-func Create(state []byte, palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
+func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
 	result := &widget{
 		id:            id,
 		dc6:           dc6,

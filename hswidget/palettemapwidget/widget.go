@@ -22,11 +22,11 @@ const (
 type widget struct {
 	id            string
 	pl2           *d2pl2.PL2
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new palette map viewer's widget
-func Create(textureLoader *hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
+func Create(textureLoader hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
 	result := &widget{
 		id:            id,
 		pl2:           pl2,

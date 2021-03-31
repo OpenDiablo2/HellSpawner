@@ -47,7 +47,7 @@ type ProjectExplorer struct {
 }
 
 // Create creates a new project explorer
-func Create(textureLoader *hscommon.TextureLoader,
+func Create(textureLoader hscommon.TextureLoader,
 	fileSelectedCallback ProjectExplorerFileSelectedCallback,
 	x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
