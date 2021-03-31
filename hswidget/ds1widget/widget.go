@@ -99,6 +99,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 
 	state := p.getState()
 
+	w, h := int32(p.ds1.Width()), int32(p.ds1.Height())
 	l := giu.Layout{
 		giu.Line(
 			giu.Label("Version: "),
@@ -107,8 +108,8 @@ func (p *widget) makeDataLayout() giu.Layout {
 					"##"+p.id+"confirmVersionChange",
 					"Are you sure, you want to change DS1 Version?",
 					"This value is used while decoding and encoding ds1 file\n"+
-						"Please see github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1/ds1.go\n"+
-						"to get more informations.\n\n"+
+						"Please check github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1/ds1_version.go\n"+
+						"to get more informations what does version determinates.\n\n"+
 						"Continue?",
 					func() {
 						p.ds1.SetVersion(int(version))
@@ -121,7 +122,46 @@ func (p *widget) makeDataLayout() giu.Layout {
 				state.mode = widgetModeConfirm
 			}),
 		),
-		giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
+		// giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
+		giu.Label("Size:"),
+		giu.Line(
+			giu.Label("\tWidth: "),
+			giu.InputInt("##"+p.id+"width", &w).OnChange(func() {
+				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
+					"##"+p.id+"confirmWidthChange",
+					"Are you realy sure, you want to change size of DS1 tiles?",
+					"This will affect all your tiles in Tile tab.\n"+
+						"Continue?",
+					func() {
+						p.ds1.SetWidth(int(w))
+						state.mode = widgetModeViewer
+					},
+					func() {
+						state.mode = widgetModeViewer
+					},
+				)
+				state.mode = widgetModeConfirm
+			}),
+		),
+		giu.Line(
+			giu.Label("\tHeight: "),
+			giu.InputInt("##"+p.id+"height", &h).OnChange(func() {
+				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
+					"##"+p.id+"confirmWidthChange",
+					"Are you realy sure, you want to change size of DS1 tiles?",
+					"This will affect all your tiles in Tile tab.\n"+
+						"Continue?",
+					func() {
+						p.ds1.SetHeight(int(h))
+						state.mode = widgetModeViewer
+					},
+					func() {
+						state.mode = widgetModeViewer
+					},
+				)
+				state.mode = widgetModeConfirm
+			}),
+		),
 		giu.Label(fmt.Sprintf("Substitution Type: %d", p.ds1.SubstitutionType)),
 		giu.Separator(),
 		giu.Label("Number of"),
@@ -360,26 +400,8 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 
 	l = append(
 		l,
-		giu.Line(
-			giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, int32(p.ds1.Width()-1)),
-			giu.Button("Add...##"+p.id+"addTileRow"),
-			hswidget.MakeImageButton(
-				"##"+p.id+"deleteTileRow",
-				deleteButtonSize, deleteButtonSize,
-				p.deleteButtonTexture,
-				func() {},
-			),
-		),
-		giu.Line(
-			giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, int32(p.ds1.Height()-1)),
-			giu.Button("Add...##"+p.id+"addTileCol"),
-			hswidget.MakeImageButton(
-				"##"+p.id+"deleteTileCol",
-				deleteButtonSize, deleteButtonSize,
-				p.deleteButtonTexture,
-				func() {},
-			),
-		),
+		giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, int32(p.ds1.Width()-1)),
+		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, int32(p.ds1.Height()-1)),
 		p.makeTileLayout(state, tx, ty),
 	)
 
