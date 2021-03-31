@@ -81,9 +81,9 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		giu.TabItem("Tiles").Layout(p.makeTilesLayout(state)),
 	}
 
-	if len(p.ds1.SubstitutionGroups) > 0 {
+	/*if len(p.ds1.SubstitutionGroups) > 0 {
 		tabs = append(tabs, giu.TabItem("Substitutions").Layout(p.makeSubstitutionsLayout(state)))
-	}
+	}*/
 
 	return giu.Layout{
 		p.makeDataLayout(),
@@ -95,7 +95,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 // makeDataLayout creates basic data layout
 // used in p.makeViewerLayout
 func (p *widget) makeDataLayout() giu.Layout {
-	var version int32 = p.ds1.Version
+	version := int32(p.ds1.Version())
 
 	state := p.getState()
 
@@ -111,7 +111,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 						"to get more informations.\n\n"+
 						"Continue?",
 					func() {
-						p.ds1.Version = version
+						p.ds1.SetVersion(int(version))
 						state.mode = widgetModeViewer
 					},
 					func() {
@@ -125,10 +125,10 @@ func (p *widget) makeDataLayout() giu.Layout {
 		giu.Label(fmt.Sprintf("Substitution Type: %d", p.ds1.SubstitutionType)),
 		giu.Separator(),
 		giu.Label("Number of"),
-		giu.Label(fmt.Sprintf("\tWall Layers: %d", p.ds1.NumberOfWalls)),
-		giu.Label(fmt.Sprintf("\tFloor Layers: %d", p.ds1.NumberOfFloors)),
-		giu.Label(fmt.Sprintf("\tShadow Layers: %d", p.ds1.NumberOfShadowLayers)),
-		giu.Label(fmt.Sprintf("\tSubstitution Layers: %d", p.ds1.NumberOfSubstitutionLayers)),
+		giu.Label(fmt.Sprintf("\tWall Layers: %d", len(p.ds1.Walls))),
+		giu.Label(fmt.Sprintf("\tFloor Layers: %d", len(p.ds1.Floors))),
+		giu.Label(fmt.Sprintf("\tShadow Layers: %d", len(p.ds1.Shadows))),
+		giu.Label(fmt.Sprintf("\tSubstitution Layers: %d", len(p.ds1.Substitutions))),
 	}
 
 	return l
@@ -341,7 +341,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		p.setState(state)
 	}
 
-	numRows := len(p.ds1.Tiles)
+	numRows := p.ds1.Height()
 	if numRows == 0 {
 		return l
 	}
@@ -351,7 +351,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		p.setState(state)
 	}
 
-	if numCols := len(p.ds1.Tiles[0]); tx >= numCols {
+	if numCols := p.ds1.Width(); tx >= numCols {
 		state.ds1Controls.tileX = int32(numCols - 1)
 		p.setState(state)
 	}
@@ -361,7 +361,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 	l = append(
 		l,
 		giu.Line(
-			giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
+			giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, int32(p.ds1.Width()-1)),
 			giu.Button("Add...##"+p.id+"addTileRow"),
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteTileRow",
@@ -371,7 +371,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 			),
 		),
 		giu.Line(
-			giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
+			giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, int32(p.ds1.Height()-1)),
 			giu.Button("Add...##"+p.id+"addTileCol"),
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteTileCol",
@@ -380,7 +380,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 				func() {},
 			),
 		),
-		p.makeTileLayout(state, &p.ds1.Tiles[ty][tx]),
+		p.makeTileLayout(state, tx, ty),
 	)
 
 	return l
@@ -388,15 +388,15 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 
 // makeTileLayout creates tabs for tile types
 // used in p.makeTilesLayout
-func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Layout {
+func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
 
-	if len(t.Floors) > 0 {
+	if len(p.ds1.Floors) > 0 {
 		tabs = append(
 			tabs,
 			giu.TabItem("Floors").Layout(giu.Layout{
-				p.makeTileFloorsLayout(state, t.Floors),
+				p.makeTileFloorsLayout(state, x, y),
 				giu.Separator(),
 				giu.Line(
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
@@ -421,11 +421,11 @@ func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Lay
 		)
 	}
 
-	if len(t.Walls) > 0 {
+	if len(p.ds1.Walls) > 0 {
 		tabs = append(
 			tabs,
 			giu.TabItem("Walls").Layout(giu.Layout{
-				p.makeTileWallsLayout(state, t.Walls),
+				p.makeTileWallsLayout(state, x, y),
 				giu.Line(
 					giu.Button("Add wall##"+p.id+"addWallIn").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addWall()
@@ -449,17 +449,17 @@ func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Lay
 		})
 	}
 
-	if len(t.Shadows) > 0 {
+	if len(p.ds1.Shadows) > 0 {
 		tabs = append(
 			tabs,
 			giu.TabItem("Shadows").Layout(giu.Layout{
-				p.makeTileShadowsLayout(state, t.Shadows),
+				p.makeTileShadowsLayout(state, x, y),
 			}),
 		)
 	}
 
-	if len(t.Substitutions) > 0 {
-		tabs = append(tabs, giu.TabItem("Subs").Layout(p.makeTileSubsLayout(state, t.Substitutions)))
+	if len(p.ds1.Substitutions) > 0 {
+		tabs = append(tabs, giu.TabItem("Subs").Layout(p.makeTileSubsLayout(state, x, y)))
 	}
 
 	return giu.Layout{
@@ -479,15 +479,15 @@ func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Lay
 // makeTileFloorsLayout creates floors tab
 // used in p.makeTileLayout
 // nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *widget) makeTileFloorsLayout(state *widgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileFloorsLayout(state *widgetState, x, y int) giu.Layout {
 	l := giu.Layout{}
 
-	if len(records) == 0 {
+	if len(p.ds1.Floors) == 0 {
 		return l
 	}
 
 	recordIdx := int(state.tile.floor)
-	numRecords := len(records)
+	numRecords := len(p.ds1.Floors)
 
 	if recordIdx >= numRecords {
 		recordIdx = numRecords - 1
@@ -503,14 +503,14 @@ func (p *widget) makeTileFloorsLayout(state *widgetState, records []d2ds1.FloorS
 		l = append(l, giu.SliderInt("Floor", &state.tile.floor, 0, int32(numRecords-1)))
 	}
 
-	l = append(l, p.makeTileFloorLayout(&records[recordIdx]))
+	l = append(l, p.makeTileFloorLayout(p.ds1.Floors[recordIdx].Tile(x, y)))
 
 	return l
 }
 
 // makeTileFloorLayout makes single floor's layout
 // used in p.makeTileFloorsLayout
-func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileFloorLayout(record *d2ds1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -577,15 +577,15 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 }
 
 // nolint:dupl // could be changed
-func (p *widget) makeTileWallsLayout(state *widgetState, records []d2ds1.WallRecord) giu.Layout {
+func (p *widget) makeTileWallsLayout(state *widgetState, x, y int) giu.Layout {
 	l := giu.Layout{}
 
-	if len(records) == 0 {
+	if len(p.ds1.Walls) == 0 {
 		return l
 	}
 
 	recordIdx := int(state.tile.wall)
-	numRecords := len(records)
+	numRecords := len(p.ds1.Walls)
 
 	if recordIdx >= numRecords {
 		recordIdx = numRecords - 1
@@ -601,12 +601,12 @@ func (p *widget) makeTileWallsLayout(state *widgetState, records []d2ds1.WallRec
 		l = append(l, giu.SliderInt("Wall", &state.tile.wall, 0, int32(numRecords-1)))
 	}
 
-	l = append(l, p.makeTileWallLayout(&records[recordIdx]))
+	l = append(l, p.makeTileWallLayout(p.ds1.Walls[recordIdx].Tile(x, y)))
 
 	return l
 }
 
-func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
+func (p *widget) makeTileWallLayout(record *d2ds1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -679,15 +679,15 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 }
 
 // nolint:dupl // no need to change
-func (p *widget) makeTileShadowsLayout(state *widgetState, records []d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileShadowsLayout(state *widgetState, x, y int) giu.Layout {
 	l := giu.Layout{}
 
-	if len(records) == 0 {
+	if len(p.ds1.Shadows) == 0 {
 		return l
 	}
 
 	recordIdx := int(state.tile.shadow)
-	numRecords := len(records)
+	numRecords := len(p.ds1.Shadows)
 
 	if recordIdx >= numRecords {
 		recordIdx = numRecords - 1
@@ -703,12 +703,12 @@ func (p *widget) makeTileShadowsLayout(state *widgetState, records []d2ds1.Floor
 		l = append(l, giu.SliderInt("Shadow", &state.tile.shadow, 0, int32(numRecords-1)))
 	}
 
-	l = append(l, p.makeTileShadowLayout(&records[recordIdx]))
+	l = append(l, p.makeTileShadowLayout(p.ds1.Shadows[recordIdx].Tile(x, y)))
 
 	return l
 }
 
-func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layout {
+func (p *widget) makeTileShadowLayout(record *d2ds1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
@@ -775,15 +775,15 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 }
 
 // nolint:dupl // it is ok
-func (p *widget) makeTileSubsLayout(state *widgetState, records []d2ds1.SubstitutionRecord) giu.Layout {
+func (p *widget) makeTileSubsLayout(state *widgetState, x, y int) giu.Layout {
 	l := giu.Layout{}
 
-	if len(records) == 0 {
+	if len(p.ds1.Substitutions) == 0 {
 		return l
 	}
 
 	recordIdx := int(state.tile.sub)
-	numRecords := len(records)
+	numRecords := len(p.ds1.Substitutions)
 
 	if recordIdx >= numRecords {
 		recordIdx = numRecords - 1
@@ -799,24 +799,25 @@ func (p *widget) makeTileSubsLayout(state *widgetState, records []d2ds1.Substitu
 		l = append(l, giu.SliderInt("Substitution", &state.tile.sub, 0, int32(numRecords-1)))
 	}
 
-	l = append(l, p.makeTileSubLayout(&records[recordIdx]))
+	l = append(l, p.makeTileSubLayout(p.ds1.Substitutions[recordIdx].Tile(x, y)))
 
 	return l
 }
 
-func (p *widget) makeTileSubLayout(record *d2ds1.SubstitutionRecord) giu.Layout {
-	unknown32 := int32(record.Unknown)
+func (p *widget) makeTileSubLayout(record *d2ds1.Tile) giu.Layout {
+	unknown32 := int32(record.Substitution)
 
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Unknown: "),
 			giu.InputInt("##"+p.id+"subUnknown", &unknown32).Size(inputIntW).OnChange(func() {
-				record.Unknown = uint32(unknown32)
+				record.Substitution = uint32(unknown32)
 			}),
 		),
 	}
 }
 
+/*
 func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
@@ -845,6 +846,7 @@ func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 
 	return l
 }
+*/
 
 func (p *widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
 	l := giu.Layout{
@@ -1003,22 +1005,6 @@ func (p *widget) deletePath(idx int) {
 }
 
 func (p *widget) deleteObject(idx int32) {
-	// first, we check if index (idx) exist in NpcIndexes
-	for n, i := range p.ds1.NpcIndexes {
-		if i == int(idx) {
-			p.ds1.NpcIndexes = append(p.ds1.NpcIndexes[:n], p.ds1.NpcIndexes[n+1:]...)
-
-			// decrease all indexes in npc list
-			for n, i := range p.ds1.NpcIndexes {
-				if i > int(idx) {
-					p.ds1.NpcIndexes[n]--
-				}
-			}
-
-			break
-		}
-	}
-
 	// delete object
 	p.ds1.Objects = append(p.ds1.Objects[:idx], p.ds1.Objects[idx+1:]...)
 }
