@@ -22,10 +22,9 @@ const (
 type ds1Controls struct {
 	tileX, tileY int32
 	object       int32
-	// nolint:structcheck // will be used
+	// nolint:structcheck,unused // will be used
 	subgroup int32
-	// nolint:structcheck // will be used
-	tile struct {
+	tile     struct {
 		floor, wall, shadow, sub int32
 	}
 	noObjectsImageTexture *giu.Texture

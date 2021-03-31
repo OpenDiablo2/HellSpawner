@@ -132,7 +132,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 			giu.InputInt("##"+p.id+"width", &w).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
-					"Are you realy sure, you want to change size of DS1 tiles?",
+					"Are you really sure, you want to change size of DS1 tiles?",
 					"This will affect all your tiles in Tile tab.\n"+
 						"Continue?",
 					func() {
@@ -151,7 +151,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 			giu.InputInt("##"+p.id+"height", &h).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
-					"Are you realy sure, you want to change size of DS1 tiles?",
+					"Are you really sure, you want to change size of DS1 tiles?",
 					"This will affect all your tiles in Tile tab.\n"+
 						"Continue?",
 					func() {
