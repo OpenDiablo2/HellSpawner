@@ -1,4 +1,4 @@
-package hsutil
+package hswidget
 
 import (
 	"fmt"
