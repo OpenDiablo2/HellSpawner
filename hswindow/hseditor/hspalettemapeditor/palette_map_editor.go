@@ -25,12 +25,12 @@ var _ hscommon.EditorWindow = &PaletteMapEditor{}
 type PaletteMapEditor struct {
 	*hseditor.Editor
 	pl2           *d2pl2.PL2
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new palette map editor
 func Create(_ *hsconfig.Config,
-	textureLoader *hscommon.TextureLoader,
+	textureLoader hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

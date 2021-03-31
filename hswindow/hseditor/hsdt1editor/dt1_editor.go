@@ -27,7 +27,7 @@ var _ hscommon.EditorWindow = &DT1Editor{}
 type DT1Editor struct {
 	*hseditor.Editor
 	dt1                 *d2dt1.DT1
-	textureLoader       *hscommon.TextureLoader
+	textureLoader       hscommon.TextureLoader
 	config              *hsconfig.Config
 	selectPalette       bool
 	palette             *[256]d2interface.Color
@@ -37,7 +37,7 @@ type DT1Editor struct {
 
 // Create creates new dt1 editor
 func Create(config *hsconfig.Config,
-	textureLoader *hscommon.TextureLoader,
+	textureLoader hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

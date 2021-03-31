@@ -29,7 +29,7 @@ type DS1Editor struct {
 
 // Create creates a new ds1 editor
 func Create(_ *hsconfig.Config,
-	_ *hscommon.TextureLoader,
+	_ hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

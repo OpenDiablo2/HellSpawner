@@ -20,13 +20,13 @@ const (
 type PaletteGridEditorWidget struct {
 	id            string
 	colors        *[]palettegridwidget.PaletteColor
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	onChange      func()
 }
 
 // Create creates a new palette grid editor widget
 func Create(state []byte,
-	textureLoader *hscommon.TextureLoader,
+	textureLoader hscommon.TextureLoader,
 	id string,
 	colors *[]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{

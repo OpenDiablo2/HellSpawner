@@ -8,6 +8,8 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
+
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 )
 
 type widgetMode int32
@@ -18,10 +20,11 @@ const (
 )
 
 type widgetState struct {
-	mode      widgetMode
-	mapKeys   []string
-	mapIndex  int32
-	recordIdx int32
+	mode       widgetMode
+	mapKeys    []string
+	mapIndex   int32
+	recordIdx  int32
+	deleteIcon *giu.Texture
 	addEntryState
 }
 
@@ -32,6 +35,7 @@ func (ws *widgetState) Dispose() {
 	ws.mapIndex = 0
 	ws.recordIdx = 0
 	ws.addEntryState.Dispose()
+	ws.deleteIcon = nil
 }
 
 type addEntryState struct {
@@ -104,6 +108,11 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{}
+
+	p.textureLoader.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *giu.Texture) {
+		state.deleteIcon = texture
+	})
+
 	p.setState(state)
 
 	p.reloadMapKeys()

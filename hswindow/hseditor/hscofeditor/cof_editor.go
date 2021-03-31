@@ -26,7 +26,7 @@ var _ hscommon.EditorWindow = &COFEditor{}
 type COFEditor struct {
 	*hseditor.Editor
 	cof           *d2cof.COF
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	state         []byte
 	textures      struct {
 		up    *g.Texture
@@ -37,7 +37,7 @@ type COFEditor struct {
 }
 
 // Create creates a new cof editor
-func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
+func Create(config *hsconfig.Config, tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

@@ -16,12 +16,12 @@ const (
 type PaletteGridWidget struct {
 	id            string
 	colors        *[]PaletteColor
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	onClick       func(idx int)
 }
 
 // Create creates a new palette grid widget
-func Create(tl *hscommon.TextureLoader, id string, colors *[]PaletteColor) *PaletteGridWidget {
+func Create(tl hscommon.TextureLoader, id string, colors *[]PaletteColor) *PaletteGridWidget {
 	result := &PaletteGridWidget{
 		id:            id,
 		colors:        colors,

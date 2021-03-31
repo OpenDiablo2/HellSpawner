@@ -26,7 +26,7 @@ var _ hscommon.EditorWindow = &DC6Editor{}
 type DC6Editor struct {
 	*hseditor.Editor
 	dc6                 *d2dc6.DC6
-	textureLoader       *hscommon.TextureLoader
+	textureLoader       hscommon.TextureLoader
 	config              *hsconfig.Config
 	selectPalette       bool
 	palette             *[256]d2interface.Color
@@ -36,7 +36,7 @@ type DC6Editor struct {
 
 // Create creates a new dc6 editor
 func Create(config *hsconfig.Config,
-	textureLoader *hscommon.TextureLoader,
+	textureLoader hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
