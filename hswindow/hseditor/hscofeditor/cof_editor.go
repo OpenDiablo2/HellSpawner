@@ -12,17 +12,11 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
-)
-
-const (
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
-	leftArrowButtonPath  = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png"
-	rightArrowButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png"
 )
 
 // static check, to ensure, if cof editor implemented editoWindow
@@ -59,19 +53,19 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 		state:         state,
 	}
 
-	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.UpArrowIcon, func(texture *g.Texture) {
 		result.textures.up = texture
 	})
 
-	tl.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DownArrowIcon, func(texture *g.Texture) {
 		result.textures.down = texture
 	})
 
-	tl.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.LeftArrowIcon, func(texture *g.Texture) {
 		result.textures.left = texture
 	})
 
-	tl.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.RightArrowIcon, func(texture *g.Texture) {
 		result.textures.right = texture
 	})
 

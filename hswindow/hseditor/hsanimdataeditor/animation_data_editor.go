@@ -11,15 +11,12 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/animdatawidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
-)
-
-const (
-	delItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
 )
 
 // static check, to ensure, if D2 editor implemented editoWindow
@@ -50,7 +47,7 @@ func Create(_ *hsconfig.Config,
 		state:  state,
 	}
 
-	tl.CreateTextureFromFileAsync(delItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.del = texture
 	})
 
