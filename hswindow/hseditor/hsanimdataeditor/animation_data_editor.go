@@ -11,7 +11,6 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -25,9 +24,9 @@ var _ hscommon.EditorWindow = &AnimationDataEditor{}
 // AnimationDataEditor represents a cof editor
 type AnimationDataEditor struct {
 	*hseditor.Editor
-	d2    *d2animdata.AnimationData
-	del   *g.Texture
-	state []byte
+	d2            *d2animdata.AnimationData
+	state         []byte
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new cof editor
@@ -42,14 +41,11 @@ func Create(_ *hsconfig.Config,
 	}
 
 	result := &AnimationDataEditor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		d2:     d2,
-		state:  state,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		d2:            d2,
+		state:         state,
+		textureLoader: tl,
 	}
-
-	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
-		result.del = texture
-	})
 
 	return result, nil
 }
@@ -57,7 +53,7 @@ func Create(_ *hsconfig.Config,
 // Build builds a D2 editor
 func (e *AnimationDataEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	animDataWidget := animdatawidget.Create(e.del, e.state, uid, e.d2)
+	animDataWidget := animdatawidget.Create(e.textureLoader, e.state, uid, e.d2)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
