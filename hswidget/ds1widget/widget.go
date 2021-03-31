@@ -11,7 +11,6 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -149,7 +148,7 @@ func (p *widget) makeFilesLayout() giu.Layout {
 
 		l = append(l, giu.Layout{
 			giu.Line(
-				hsutil.MakeImageButton(
+				hswidget.MakeImageButton(
 					"##"+p.id+"DeleteFile"+strconv.Itoa(currentIdx),
 					deleteButtonSize, deleteButtonSize,
 					p.deleteButtonTexture,
@@ -203,7 +202,7 @@ func (p *widget) makeObjectsLayout(state *widgetState) giu.Layout {
 			giu.Button("Add path to this object...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
 				state.mode = widgetModeAddPath
 			}),
-			hsutil.MakeImageButton(
+			hswidget.MakeImageButton(
 				"##"+p.id+"deleteObject",
 				layerDeleteButtonSize, layerDeleteButtonSize,
 				p.deleteButtonTexture,
@@ -233,7 +232,7 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{
 		giu.Line(
 			giu.Label("Type: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"objType",
 				inputIntW,
 				&obj.Type,
@@ -242,7 +241,7 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("ID: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"objID",
 				inputIntW,
 				&obj.ID,
@@ -252,7 +251,7 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Label("Position (tiles): "),
 		giu.Line(
 			giu.Label("\tX: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"objX",
 				inputIntW,
 				&obj.X,
@@ -261,7 +260,7 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("\tY: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"objY",
 				inputIntW,
 				&obj.Y,
@@ -270,7 +269,7 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Flags: 0x"),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"objFlags",
 				inputIntW,
 				&obj.Flags,
@@ -309,7 +308,7 @@ func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 			giu.Label(fmt.Sprintf("%d", idx)),
 			giu.Label(fmt.Sprintf("(%d, %d)", int(x), int(y))),
 			giu.Label(fmt.Sprintf("%d", obj.Paths[idx].Action)),
-			hsutil.MakeImageButton(
+			hswidget.MakeImageButton(
 				"##"+p.id+"deletePath"+strconv.Itoa(currentIdx),
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
@@ -342,7 +341,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		p.setState(state)
 	}
 
-	numRows, numCols := 0, 0
+	numRows := 0
 
 	numRows = len(p.ds1.Tiles)
 	if numRows == 0 {
@@ -366,7 +365,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		giu.Line(
 			giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, p.ds1.Width-1),
 			giu.Button("Add...##"+p.id+"addTileRow"),
-			hsutil.MakeImageButton(
+			hswidget.MakeImageButton(
 				"##"+p.id+"deleteTileRow",
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
@@ -376,7 +375,7 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		giu.Line(
 			giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, p.ds1.Height-1),
 			giu.Button("Add...##"+p.id+"addTileCol"),
-			hsutil.MakeImageButton(
+			hswidget.MakeImageButton(
 				"##"+p.id+"deleteTileCol",
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
@@ -405,7 +404,7 @@ func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Lay
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addFloor()
 					}),
-					hsutil.MakeImageButton(
+					hswidget.MakeImageButton(
 						"##"+p.id+"deleteFloor",
 						layerDeleteButtonSize, layerDeleteButtonSize,
 						p.deleteButtonTexture,
@@ -433,7 +432,7 @@ func (p *widget) makeTileLayout(state *widgetState, t *d2ds1.TileRecord) giu.Lay
 					giu.Button("Add wall##"+p.id+"addWallIn").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addWall()
 					}),
-					hsutil.MakeImageButton(
+					hswidget.MakeImageButton(
 						"##"+p.id+"deleteWall",
 						layerDeleteButtonSize, layerDeleteButtonSize,
 						p.deleteButtonTexture,
@@ -517,7 +516,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorProp1",
 				inputIntW,
 				&record.Prop1,
@@ -526,7 +525,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorSequence",
 				inputIntW,
 				&record.Sequence,
@@ -535,7 +534,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorUnknown1",
 				inputIntW,
 				&record.Unknown1,
@@ -544,7 +543,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorStyle",
 				inputIntW,
 				&record.Style,
@@ -553,7 +552,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorUnknown2",
 				inputIntW,
 				&record.Unknown2,
@@ -562,7 +561,7 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.FloorShadowRecord) giu.Layout
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			hsutil.MakeCheckboxFromByte(
+			hswidget.MakeCheckboxFromByte(
 				"##"+p.id+"floorHidden",
 				&record.HiddenBytes,
 			),
@@ -613,7 +612,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallProp1",
 				inputIntW,
 				&record.Prop1,
@@ -622,7 +621,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Zero: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallZero",
 				inputIntW,
 				&record.Zero,
@@ -631,7 +630,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallSequence",
 				inputIntW,
 				&record.Sequence,
@@ -640,7 +639,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallUnknown1",
 				inputIntW,
 				&record.Unknown1,
@@ -649,7 +648,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallStyle",
 				inputIntW,
 				&record.Style,
@@ -658,7 +657,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"wallUnknown2",
 				inputIntW,
 				&record.Unknown2,
@@ -667,7 +666,7 @@ func (p *widget) makeTileWallLayout(record *d2ds1.WallRecord) giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			hsutil.MakeCheckboxFromByte(
+			hswidget.MakeCheckboxFromByte(
 				"##"+p.id+"wallHidden",
 				&record.HiddenBytes,
 			),
@@ -715,7 +714,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorProp1",
 				inputIntW,
 				&record.Prop1,
@@ -724,7 +723,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 		),
 		giu.Line(
 			giu.Label("Sequence: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorSequence",
 				inputIntW,
 				&record.Sequence,
@@ -733,7 +732,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 		),
 		giu.Line(
 			giu.Label("Unknown1: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorUnknown1",
 				inputIntW,
 				&record.Unknown1,
@@ -742,7 +741,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 		),
 		giu.Line(
 			giu.Label("Style: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorStyle",
 				inputIntW,
 				&record.Style,
@@ -751,7 +750,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 		),
 		giu.Line(
 			giu.Label("Unknown2: "),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				"##"+p.id+"floorUnknown2",
 				inputIntW,
 				&record.Unknown2,
@@ -760,7 +759,7 @@ func (p *widget) makeTileShadowLayout(record *d2ds1.FloorShadowRecord) giu.Layou
 		),
 		giu.Line(
 			giu.Label("Hidden: "),
-			hsutil.MakeCheckboxFromByte(
+			hswidget.MakeCheckboxFromByte(
 				"##"+p.id+"floorHidden",
 				&record.HiddenBytes,
 			),

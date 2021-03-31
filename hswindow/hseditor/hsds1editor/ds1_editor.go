@@ -11,6 +11,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -50,7 +51,7 @@ func Create(_ *hsconfig.Config,
 
 	result.Path = pathEntry
 
-	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
 
