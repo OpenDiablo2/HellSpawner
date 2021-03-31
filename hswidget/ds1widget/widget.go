@@ -11,6 +11,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -38,14 +39,16 @@ type widget struct {
 	id                  string
 	ds1                 *d2ds1.DS1
 	deleteButtonTexture *giu.Texture
+	textureLoader       *hscommon.TextureLoader
 }
 
 // Create creates a new ds1 viewer
-func Create(id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
+func Create(textureLoader *hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
 	result := &widget{
 		id:                  id,
 		ds1:                 ds1,
 		deleteButtonTexture: dbt,
+		textureLoader:       textureLoader,
 	}
 
 	return result
@@ -126,7 +129,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 		giu.Label("Size:"),
 		giu.Line(
 			giu.Label("\tWidth: "),
-			giu.InputInt("##"+p.id+"width", &w).OnChange(func() {
+			giu.InputInt("##"+p.id+"width", &w).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
 					"Are you realy sure, you want to change size of DS1 tiles?",
@@ -145,7 +148,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("\tHeight: "),
-			giu.InputInt("##"+p.id+"height", &h).OnChange(func() {
+			giu.InputInt("##"+p.id+"height", &h).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
 					"Are you realy sure, you want to change size of DS1 tiles?",

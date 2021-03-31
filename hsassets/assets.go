@@ -44,3 +44,6 @@ var (
 //go:embed images/d2logo.png
 // nolint:gochecknoglobals // go-embed
 var HellSpawnerLogo []byte
+
+//go:embed images/shrug.png
+var ImageShrug []byte

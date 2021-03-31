@@ -5,6 +5,7 @@ import (
 
 	"github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -27,6 +28,7 @@ type ds1Controls struct {
 	tile struct {
 		floor, wall, shadow, sub int32
 	}
+	noObjectsImageTexture *giu.Texture
 }
 
 // ds1AddObjectState represents state of new object
@@ -98,6 +100,10 @@ func (p *widget) initState() {
 	state := &widgetState{
 		ds1Controls: &ds1Controls{},
 	}
+
+	p.textureLoader.CreateTextureFromFile(hsassets.ImageShrug, func(t *giu.Texture) {
+		state.ds1Controls.noObjectsImageTexture = t
+	})
 
 	p.setState(state)
 }
