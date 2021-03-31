@@ -85,6 +85,8 @@ func (p *PathEntry) GetFileBytes() ([]byte, error) {
 		if err != nil {
 			return data, fmt.Errorf("error reading file from mpq: %w", err)
 		}
+
+		return data, nil
 	}
 
 	return nil, errors.New("could not locate file in mpq")
