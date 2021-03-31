@@ -425,7 +425,7 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 				giu.Separator(),
 				giu.Line(
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.addFloor()
+						p.addFloor(int(state.ds1Controls.tile.floor))
 					}),
 					hswidget.MakeImageButton(
 						"##"+p.id+"deleteFloor",
@@ -441,7 +441,7 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 	} else {
 		editionButtons = append(editionButtons,
 			giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.addFloor()
+				p.ds1.PushFloor(nil)
 			}),
 		)
 	}
