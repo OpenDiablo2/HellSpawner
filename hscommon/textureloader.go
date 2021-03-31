@@ -1,7 +1,12 @@
 package hscommon
 
 import (
+	"bytes"
+	"fmt"
 	"image"
+	"image/draw"
+	"image/png"
+	"io"
 	"log"
 	"sync"
 
@@ -81,22 +86,21 @@ func (t *TextureLoader) ProcessTextureLoadRequests() {
 	}()
 }
 
-// CreateTextureFromFileAsync creates an texture
-func (t *TextureLoader) CreateTextureFromFileAsync(fileName string, callback func(*g.Texture)) {
-	var imageData *image.RGBA
-
-	var err error
-
-	if imageData, err = g.LoadImage(fileName); err != nil {
-		log.Fatal(err)
-	}
-
-	t.addTextureToLoadQueue(imageData, callback)
-}
-
 // CreateTextureFromARGB creates a texture fromo color given
 func (t *TextureLoader) CreateTextureFromARGB(rgb *image.RGBA, callback func(*g.Texture)) {
 	t.addTextureToLoadQueue(rgb, callback)
+}
+
+// CreateTextureFromFile creates a texture using io.Reader given
+func (t *TextureLoader) CreateTextureFromFile(fileData []byte, cb func(*g.Texture)) {
+	fileReader := bytes.NewReader(fileData)
+
+	rgba, err := convertToImage(fileReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t.CreateTextureFromARGB(rgba, cb)
 }
 
 func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.Texture)) {
@@ -106,5 +110,22 @@ func (t *TextureLoader) addTextureToLoadQueue(rgb *image.RGBA, callback func(*g.
 	})
 	if err != nil {
 		log.Fatalf("failed to add texture load request to queue: %s", err)
+	}
+}
+
+func convertToImage(file io.Reader) (*image.RGBA, error) {
+	img, err := png.Decode(file)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding png file: %w", err)
+	}
+
+	switch trueImg := img.(type) {
+	case *image.RGBA:
+		return trueImg, nil
+	default:
+		rgba := image.NewRGBA(trueImg.Bounds())
+		draw.Draw(rgba, trueImg.Bounds(), trueImg, image.Pt(0, 0), draw.Src)
+
+		return rgba, nil
 	}
 }

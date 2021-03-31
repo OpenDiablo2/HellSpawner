@@ -10,6 +10,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -20,10 +21,6 @@ import (
 
 const (
 	mainWindowW, mainWindowH = 550, 400
-)
-
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
 )
 
 // static check, to ensure, if font table editor implemented editoWindow
@@ -58,7 +55,7 @@ func Create(_ *hsconfig.Config,
 		result.Size(mainWindowW, mainWindowH)
 	}
 
-	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.deleteButtonTexture = texture
 	})
 
