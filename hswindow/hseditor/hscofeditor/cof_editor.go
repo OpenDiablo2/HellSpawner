@@ -12,7 +12,6 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -28,16 +27,11 @@ type COFEditor struct {
 	cof           *d2cof.COF
 	textureLoader hscommon.TextureLoader
 	state         []byte
-	textures      struct {
-		up    *g.Texture
-		down  *g.Texture
-		right *g.Texture
-		left  *g.Texture
-	}
 }
 
 // Create creates a new cof editor
-func Create(config *hsconfig.Config, tl hscommon.TextureLoader,
+func Create(config *hsconfig.Config,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -53,29 +47,13 @@ func Create(config *hsconfig.Config, tl hscommon.TextureLoader,
 		state:         state,
 	}
 
-	tl.CreateTextureFromFile(hsassets.UpArrowIcon, func(texture *g.Texture) {
-		result.textures.up = texture
-	})
-
-	tl.CreateTextureFromFile(hsassets.DownArrowIcon, func(texture *g.Texture) {
-		result.textures.down = texture
-	})
-
-	tl.CreateTextureFromFile(hsassets.LeftArrowIcon, func(texture *g.Texture) {
-		result.textures.left = texture
-	})
-
-	tl.CreateTextureFromFile(hsassets.RightArrowIcon, func(texture *g.Texture) {
-		result.textures.right = texture
-	})
-
 	return result, nil
 }
 
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	cofWidget := cofwidget.Create(e.state, e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
+	cofWidget := cofwidget.Create(e.state, e.textureLoader, uid, e.cof)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
