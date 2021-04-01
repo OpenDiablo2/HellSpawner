@@ -93,6 +93,9 @@ func (p *widget) getState() *widgetState {
 
 	if s != nil {
 		state = s.(*widgetState)
+		if len(p.cof.CofLayers) > 0 {
+			state.viewerState.layer = &p.cof.CofLayers[state.viewerState.layerIndex]
+		}
 	} else {
 		p.initState()
 		state = p.getState()
@@ -544,7 +547,7 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 
 		// this sets layer index to just added layer
 		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
-
+		state.viewerState.layer = newCofLayer
 		state.mode = modeViewer
 	}
 
