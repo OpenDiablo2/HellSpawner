@@ -7,6 +7,8 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
+
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 )
 
 type widgetMode int32
@@ -18,9 +20,10 @@ const (
 )
 
 type widgetState struct {
-	mode          widgetMode
-	editRuneState editRuneState
-	addItemState  addItemState
+	mode                widgetMode
+	editRuneState       editRuneState
+	addItemState        addItemState
+	deleteButtonTexture *giu.Texture
 }
 
 // Dispose cleans state
@@ -135,9 +138,15 @@ func (p *widget) getState() *widgetState {
 }
 
 func (p *widget) initState() {
-	p.setState(&widgetState{
+	state := &widgetState{
 		mode: modeViewer,
+	}
+
+	p.textureLoader.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *giu.Texture) {
+		state.deleteButtonTexture = texture
 	})
+
+	p.setState(state)
 }
 
 func (p *widget) setState(s giu.Disposable) {
