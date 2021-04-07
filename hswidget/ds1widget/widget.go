@@ -421,18 +421,18 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 		tabs = append(
 			tabs,
 			giu.TabItem("Floors").Layout(giu.Layout{
-				p.makeTileFloorsLayout(state, x, y),
+				p.makeTilesTabLayout(state, x, y, d2ds1.FloorLayerGroup),
 				giu.Separator(),
 				giu.Line(
 					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.addFloor(int(state.ds1Controls.tile.floor))
+						p.addFloor(state.ds1Controls.tile.floor)
 					}),
 					hswidget.MakeImageButton(
 						"##"+p.id+"deleteFloor",
 						layerDeleteButtonSize, layerDeleteButtonSize,
 						p.deleteButtonTexture,
 						func() {
-							p.deleteFloorRecord()
+							p.deleteFloorRecord(state.ds1Controls.tile.floor)
 						},
 					),
 				),
@@ -450,7 +450,8 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 		tabs = append(
 			tabs,
 			giu.TabItem("Walls").Layout(giu.Layout{
-				p.makeTileWallsLayout(state, x, y),
+				// p.makeTileWallsLayout(state, x, y),
+				p.makeTilesTabLayout(state, x, y, d2ds1.WallLayerGroup),
 				giu.Line(
 					giu.Button("Add wall##"+p.id+"addWallIn").Size(actionButtonW, actionButtonH).OnClick(func() {
 						p.addWall()
@@ -478,13 +479,16 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 		tabs = append(
 			tabs,
 			giu.TabItem("Shadows").Layout(giu.Layout{
-				p.makeTileShadowsLayout(state, x, y),
+				// p.makeTileShadowsLayout(state, x, y),
+				p.makeTilesTabLayout(state, x, y, d2ds1.ShadowLayerGroup),
 			}),
 		)
 	}
 
 	if len(p.ds1.Substitutions) > 0 {
-		tabs = append(tabs, giu.TabItem("Subs").Layout(p.makeTileSubsLayout(state, x, y)))
+		tabs = append(tabs, giu.TabItem("Subs").Layout(
+			p.makeTilesTabLayout(state, x, y, d2ds1.SubstitutionLayerGroup),
+		))
 	}
 
 	return giu.Layout{
@@ -501,42 +505,58 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 	}
 }
 
-// makeTileFloorsLayout creates floors tab
-// used in p.makeTileLayout
-// nolint:dupl // yah, thats duplication of makeTileWallLayout but it isn't complete and can be changed
-func (p *widget) makeTileFloorsLayout(state *widgetState, x, y int) giu.Layout {
+func (p *widget) makeTilesTabLayout(state *widgetState, x, y int, t d2ds1.LayerGroupType) giu.Layout {
 	l := giu.Layout{}
+	group := p.ds1.GetLayersGroup(t)
+	numRecords := len(*group)
 
-	if len(p.ds1.Floors) == 0 {
+	if numRecords == 0 {
 		return l
 	}
 
-	recordIdx := int(state.tile.floor)
-	numRecords := len(p.ds1.Floors)
+	// this is a pointer to appropriate record index
+	var recordIdx *int32
 
-	if recordIdx >= numRecords {
-		recordIdx = numRecords - 1
-		state.tile.floor = int32(recordIdx)
+	switch t {
+	case d2ds1.FloorLayerGroup:
+		recordIdx = &state.tile.floor
+	case d2ds1.WallLayerGroup:
+		recordIdx = &state.tile.wall
+	case d2ds1.ShadowLayerGroup:
+		recordIdx = &state.tile.shadow
+	case d2ds1.SubstitutionLayerGroup:
+		recordIdx = &state.tile.sub
+	}
+
+	// checks, if record index is correct
+	if int(*recordIdx) >= numRecords {
+		*recordIdx = int32(numRecords - 1)
+
 		p.setState(state)
-	} else if recordIdx < 0 {
-		recordIdx = 0
-		state.tile.floor = int32(recordIdx)
+	} else if *recordIdx < 0 {
+		*recordIdx = 0
 		p.setState(state)
 	}
 
 	if numRecords > 1 {
-		l = append(l, giu.SliderInt("Floor", &state.tile.floor, 0, int32(numRecords-1)))
+		l = append(l, giu.SliderInt(t.String(), &state.tile.floor, 0, int32(numRecords-1)))
 	}
 
-	l = append(l, p.makeTileFloorLayout(p.ds1.Floors[recordIdx].Tile(x, y)))
+	if p.ds1.Floors[*recordIdx] != nil { // this happens, if we're removeing the last layer index
+		l = append(l, p.makeTabTileLayout((*group)[*recordIdx].Tile(x, y), t))
+	}
 
 	return l
 }
 
-// makeTileFloorLayout makes single floor's layout
-// used in p.makeTileFloorsLayout
-func (p *widget) makeTileFloorLayout(record *d2ds1.Tile) giu.Layout {
-	return giu.Layout{
+func (p *widget) makeTabTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.Layout {
+	// for substitutions, only unknown bytes should be displayed
+	if t == d2ds1.SubstitutionLayerGroup {
+		return p.makeTileSubLayout(record)
+	}
+
+	// common for shadows/walls/floors (like d2ds1.tileCommonFields)
+	l := giu.Layout{
 		giu.Line(
 			giu.Label("Prop1: "),
 			hswidget.MakeInputInt(
@@ -593,238 +613,29 @@ func (p *widget) makeTileFloorLayout(record *d2ds1.Tile) giu.Layout {
 			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
 		),
 		giu.Line(
-			giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
-		),
-		giu.Line(
 			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
 		),
 	}
-}
 
-// nolint:dupl // could be changed
-func (p *widget) makeTileWallsLayout(state *widgetState, x, y int) giu.Layout {
-	l := giu.Layout{}
-
-	if len(p.ds1.Walls) == 0 {
-		return l
+	if t == d2ds1.WallLayerGroup {
+		l = append(l,
+			giu.Line(
+				giu.Label("Zero: "),
+				hswidget.MakeInputInt(
+					"##"+p.id+"wallZero",
+					inputIntW,
+					&record.Zero,
+					nil,
+				),
+			),
+		)
+	} else {
+		l = append(l,
+			giu.Line(
+				giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
+			),
+		)
 	}
-
-	recordIdx := int(state.tile.wall)
-	numRecords := len(p.ds1.Walls)
-
-	if recordIdx >= numRecords {
-		recordIdx = numRecords - 1
-		state.tile.wall = int32(recordIdx)
-		p.setState(state)
-	} else if recordIdx < 0 {
-		recordIdx = 0
-		state.tile.wall = int32(recordIdx)
-		p.setState(state)
-	}
-
-	if numRecords > 1 {
-		l = append(l, giu.SliderInt("Wall", &state.tile.wall, 0, int32(numRecords-1)))
-	}
-
-	l = append(l, p.makeTileWallLayout(p.ds1.Walls[recordIdx].Tile(x, y)))
-
-	return l
-}
-
-func (p *widget) makeTileWallLayout(record *d2ds1.Tile) giu.Layout {
-	return giu.Layout{
-		giu.Line(
-			giu.Label("Prop1: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallProp1",
-				inputIntW,
-				&record.Prop1,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Zero: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallZero",
-				inputIntW,
-				&record.Zero,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Sequence: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallSequence",
-				inputIntW,
-				&record.Sequence,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Unknown1: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallUnknown1",
-				inputIntW,
-				&record.Unknown1,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Style: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallStyle",
-				inputIntW,
-				&record.Style,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Unknown2: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"wallUnknown2",
-				inputIntW,
-				&record.Unknown2,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Hidden: "),
-			hswidget.MakeCheckboxFromByte(
-				"##"+p.id+"wallHidden",
-				&record.HiddenBytes,
-			),
-		),
-		giu.Line(
-			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
-		),
-		giu.Line(
-			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
-		),
-	}
-}
-
-// nolint:dupl // no need to change
-func (p *widget) makeTileShadowsLayout(state *widgetState, x, y int) giu.Layout {
-	l := giu.Layout{}
-
-	if len(p.ds1.Shadows) == 0 {
-		return l
-	}
-
-	recordIdx := int(state.tile.shadow)
-	numRecords := len(p.ds1.Shadows)
-
-	if recordIdx >= numRecords {
-		recordIdx = numRecords - 1
-		state.tile.shadow = int32(recordIdx)
-		p.setState(state)
-	} else if recordIdx < 0 {
-		recordIdx = 0
-		state.tile.shadow = int32(recordIdx)
-		p.setState(state)
-	}
-
-	if numRecords > 1 {
-		l = append(l, giu.SliderInt("Shadow", &state.tile.shadow, 0, int32(numRecords-1)))
-	}
-
-	l = append(l, p.makeTileShadowLayout(p.ds1.Shadows[recordIdx].Tile(x, y)))
-
-	return l
-}
-
-func (p *widget) makeTileShadowLayout(record *d2ds1.Tile) giu.Layout {
-	return giu.Layout{
-		giu.Line(
-			giu.Label("Prop1: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"floorProp1",
-				inputIntW,
-				&record.Prop1,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Sequence: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"floorSequence",
-				inputIntW,
-				&record.Sequence,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Unknown1: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"floorUnknown1",
-				inputIntW,
-				&record.Unknown1,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Style: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"floorStyle",
-				inputIntW,
-				&record.Style,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Unknown2: "),
-			hswidget.MakeInputInt(
-				"##"+p.id+"floorUnknown2",
-				inputIntW,
-				&record.Unknown2,
-				nil,
-			),
-		),
-		giu.Line(
-			giu.Label("Hidden: "),
-			hswidget.MakeCheckboxFromByte(
-				"##"+p.id+"floorHidden",
-				&record.HiddenBytes,
-			),
-		),
-		giu.Line(
-			giu.Label(fmt.Sprintf("RandomIndex: %v", record.RandomIndex)),
-		),
-		giu.Line(
-			giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
-		),
-		giu.Line(
-			giu.Label(fmt.Sprintf("YAdjust: %v", record.YAdjust)),
-		),
-	}
-}
-
-// nolint:dupl // it is ok
-func (p *widget) makeTileSubsLayout(state *widgetState, x, y int) giu.Layout {
-	l := giu.Layout{}
-
-	if len(p.ds1.Substitutions) == 0 {
-		return l
-	}
-
-	recordIdx := int(state.tile.sub)
-	numRecords := len(p.ds1.Substitutions)
-
-	if recordIdx >= numRecords {
-		recordIdx = numRecords - 1
-		state.tile.sub = int32(recordIdx)
-		p.setState(state)
-	} else if recordIdx < 0 {
-		recordIdx = 0
-		state.tile.sub = int32(recordIdx)
-		p.setState(state)
-	}
-
-	if numRecords > 1 {
-		l = append(l, giu.SliderInt("Substitution", &state.tile.sub, 0, int32(numRecords-1)))
-	}
-
-	l = append(l, p.makeTileSubLayout(p.ds1.Substitutions[recordIdx].Tile(x, y)))
 
 	return l
 }

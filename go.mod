@@ -3,7 +3,7 @@ module github.com/OpenDiablo2/HellSpawner
 go 1.16
 
 require (
-	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210331085407-59114a72ed48
+	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210331191920-f880c693990d
 	github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f
 	github.com/TheTitanrain/w32 v0.0.0-20200114052255-2654d97dbd3d // indirect
 	github.com/enriquebris/goconcurrentqueue v0.6.0

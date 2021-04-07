@@ -38,7 +38,7 @@ func Create(_ *hsconfig.Config,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.Unmarshal(*data)
 	if err != nil {
-		return nil, fmt.Errorf("error loading DS1 file")
+		return nil, fmt.Errorf("error loading DS1 file: %w", err)
 	}
 
 	result := &DS1Editor{
