@@ -34,7 +34,7 @@ type StringTableEditor struct {
 
 // Create creates a new string table editor
 func Create(_ *hsconfig.Config,
-	_ *hscommon.TextureLoader,
+	_ hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

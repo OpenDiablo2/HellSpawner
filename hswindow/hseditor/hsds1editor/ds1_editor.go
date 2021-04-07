@@ -27,12 +27,12 @@ type DS1Editor struct {
 	*hseditor.Editor
 	ds1                 *d2ds1.DS1
 	deleteButtonTexture *g.Texture
-	textureLoader       *hscommon.TextureLoader
+	textureLoader       hscommon.TextureLoader
 }
 
 // Create creates a new ds1 editor
 func Create(_ *hsconfig.Config,
-	tl *hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {

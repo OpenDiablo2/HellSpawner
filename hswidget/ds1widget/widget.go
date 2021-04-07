@@ -39,11 +39,11 @@ type widget struct {
 	id                  string
 	ds1                 *d2ds1.DS1
 	deleteButtonTexture *giu.Texture
-	textureLoader       *hscommon.TextureLoader
+	textureLoader       hscommon.TextureLoader
 }
 
 // Create creates a new ds1 viewer
-func Create(textureLoader *hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
+func Create(textureLoader hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
 	result := &widget{
 		id:                  id,
 		ds1:                 ds1,

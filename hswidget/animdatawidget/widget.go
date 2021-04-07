@@ -10,6 +10,7 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -21,17 +22,17 @@ const (
 )
 
 type widget struct {
-	id  string
-	d2  *d2animdata.AnimationData
-	del *giu.Texture
+	id            string
+	d2            *d2animdata.AnimationData
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new widget
-func Create(del *giu.Texture, state []byte, id string, d2 *d2animdata.AnimationData) giu.Widget {
+func Create(textureLoader hscommon.TextureLoader, state []byte, id string, d2 *d2animdata.AnimationData) giu.Widget {
 	result := &widget{
-		id:  id,
-		d2:  d2,
-		del: del,
+		id:            id,
+		d2:            d2,
+		textureLoader: textureLoader,
 	}
 
 	if state != nil && giu.Context.GetState(result.getStateID()) == nil {
@@ -78,7 +79,7 @@ func (p *widget) buildAnimationsList() {
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteEntry"+strconv.Itoa(currentIdx),
 				13, 13,
-				p.del,
+				state.deleteIcon,
 				func() {
 					p.deleteEntry(state.mapKeys[currentIdx])
 				},

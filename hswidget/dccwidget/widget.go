@@ -9,6 +9,8 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
 
 const (
@@ -21,17 +23,19 @@ const (
 )
 
 type widget struct {
-	id      string
-	dcc     *d2dcc.DCC
-	palette *[256]d2interface.Color
+	id            string
+	dcc           *d2dcc.DCC
+	palette       *[256]d2interface.Color
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new dcc widget
-func Create(state []byte, palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
+func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
 	result := &widget{
-		id:      id,
-		dcc:     dcc,
-		palette: palette,
+		id:            id,
+		dcc:           dcc,
+		palette:       palette,
+		textureLoader: tl,
 	}
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {

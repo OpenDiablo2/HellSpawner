@@ -45,7 +45,7 @@ type ProjectPropertiesDialog struct {
 }
 
 // Create creates a new project properties' dialog
-func Create(textureLoader *hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
+func Create(textureLoader hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,

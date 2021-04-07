@@ -39,7 +39,7 @@ type AboutDialog struct {
 }
 
 // Create creates a new AboutDialog
-func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
+func Create(textureLoader hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
 		Dialog:      hsdialog.New("About HellSpawner"),
 		titleFont:   titleFont,

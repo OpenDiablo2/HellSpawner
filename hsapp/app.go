@@ -75,7 +75,7 @@ type App struct {
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(
 		config *hsconfig.Config,
-		textureLoader *hscommon.TextureLoader,
+		textureLoader hscommon.TextureLoader,
 		pathEntry *hscommon.PathEntry,
 		state []byte,
 		data *[]byte,
@@ -92,7 +92,7 @@ type App struct {
 	diabloRegularFont imgui.Font
 
 	InputManager  *hsinput.InputManager
-	TextureLoader *hscommon.TextureLoader
+	TextureLoader hscommon.TextureLoader
 }
 
 // Create creates new app instance
@@ -102,7 +102,7 @@ func Create() (*App, error) {
 		editors: make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]func(
 			config *hsconfig.Config,
-			textureLoader *hscommon.TextureLoader,
+			textureLoader hscommon.TextureLoader,
 			pathEntry *hscommon.PathEntry,
 			state []byte,
 			data *[]byte,
