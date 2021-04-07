@@ -84,9 +84,9 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		giu.TabItem("Tiles").Layout(p.makeTilesLayout(state)),
 	}
 
-	/*if len(p.ds1.SubstitutionGroups) > 0 {
+	if len(p.ds1.SubstitutionGroups) > 0 {
 		tabs = append(tabs, giu.TabItem("Substitutions").Layout(p.makeSubstitutionsLayout(state)))
-	}*/
+	}
 
 	return giu.Layout{
 		p.makeDataLayout(),
@@ -653,7 +653,6 @@ func (p *widget) makeTileSubLayout(record *d2ds1.Tile) giu.Layout {
 	}
 }
 
-/*
 func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
@@ -682,7 +681,6 @@ func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 
 	return l
 }
-*/
 
 func (p *widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layout {
 	l := giu.Layout{
