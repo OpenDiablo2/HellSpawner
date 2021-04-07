@@ -81,7 +81,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	tabs := giu.Layout{
 		giu.TabItem("Files").Layout(p.makeFilesLayout()),
 		giu.TabItem("Objects").Layout(p.makeObjectsLayout(state)),
-		giu.TabItem("Tiles").Layout(p.makeTilesLayout(state)),
+		giu.TabItem("Tiles").Layout(p.makeTilesTabLayout(state)),
 	}
 
 	if len(p.ds1.SubstitutionGroups) > 0 {
@@ -210,6 +210,25 @@ func (p *widget) makeFilesLayout() giu.Layout {
 		giu.Button("Add File##"+p.id+"AddFile").Size(actionButtonW, actionButtonH).OnClick(func() {
 			state.mode = widgetModeAddFile
 		}),
+	}
+}
+
+func (p *widget) makeAddFileLayout() giu.Layout {
+	state := p.getState()
+
+	return giu.Layout{
+		giu.Label("File path:"),
+		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(filePathW),
+		giu.Separator(),
+		giu.Line(
+			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
+				state.mode = widgetModeViewer
+			}),
+			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
+				state.mode = widgetModeViewer
+			}),
+		),
 	}
 }
 
@@ -368,8 +387,8 @@ func (p *widget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 	}
 }
 
-// makeTilesLayout creates tiles layout (tile x, y)
-func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
+// makeTilesTabLayout creates tiles layout (tile x, y)
+func (p *widget) makeTilesTabLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
 	tx, ty := int(state.tileX), int(state.tileY)
@@ -405,91 +424,25 @@ func (p *widget) makeTilesLayout(state *widgetState) giu.Layout {
 		l,
 		giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, int32(p.ds1.Width()-1)),
 		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, int32(p.ds1.Height()-1)),
-		p.makeTileLayout(state, tx, ty),
+		p.makeTileTabLayout(state, tx, ty),
 	)
 
 	return l
 }
 
-// makeTileLayout creates tabs for tile types
+// makeTileTabLayout creates tabs for tile types
 // used in p.makeTilesLayout
-func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
+func (p *widget) makeTileTabLayout(state *widgetState, x, y int) giu.Layout {
 	tabs := giu.Layout{}
 	editionButtons := giu.Layout{}
 
-	if len(p.ds1.Floors) > 0 {
-		tabs = append(
-			tabs,
-			giu.TabItem("Floors").Layout(giu.Layout{
-				p.makeTilesTabLayout(state, x, y, d2ds1.FloorLayerGroup),
-				giu.Separator(),
-				giu.Line(
-					giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.addFloor(state.ds1Controls.tile.floor)
-					}),
-					hswidget.MakeImageButton(
-						"##"+p.id+"deleteFloor",
-						layerDeleteButtonSize, layerDeleteButtonSize,
-						p.deleteButtonTexture,
-						func() {
-							p.deleteFloorRecord(state.ds1Controls.tile.floor)
-						},
-					),
-				),
-			}),
-		)
-	} else {
-		editionButtons = append(editionButtons,
-			giu.Button("Add floor##"+p.id+"addFloor").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.ds1.PushFloor(nil)
-			}),
-		)
-	}
-
-	if len(p.ds1.Walls) > 0 {
-		tabs = append(
-			tabs,
-			giu.TabItem("Walls").Layout(giu.Layout{
-				// p.makeTileWallsLayout(state, x, y),
-				p.makeTilesTabLayout(state, x, y, d2ds1.WallLayerGroup),
-				giu.Line(
-					giu.Button("Add wall##"+p.id+"addWallIn").Size(actionButtonW, actionButtonH).OnClick(func() {
-						p.addWall()
-					}),
-					hswidget.MakeImageButton(
-						"##"+p.id+"deleteWall",
-						layerDeleteButtonSize, layerDeleteButtonSize,
-						p.deleteButtonTexture,
-						func() {
-							p.deleteWall()
-						},
-					),
-				),
-			}),
-		)
-	} else {
-		editionButtons = append(editionButtons, giu.Layout{
-			giu.Button("Add wall##"+p.id+"addWallOut").Size(actionButtonW, actionButtonH).OnClick(func() {
-				p.addWall()
-			}),
-		})
-	}
-
-	if len(p.ds1.Shadows) > 0 {
-		tabs = append(
-			tabs,
-			giu.TabItem("Shadows").Layout(giu.Layout{
-				// p.makeTileShadowsLayout(state, x, y),
-				p.makeTilesTabLayout(state, x, y, d2ds1.ShadowLayerGroup),
-			}),
-		)
-	}
-
-	if len(p.ds1.Substitutions) > 0 {
-		tabs = append(tabs, giu.TabItem("Subs").Layout(
-			p.makeTilesTabLayout(state, x, y, d2ds1.SubstitutionLayerGroup),
-		))
-	}
+	tabs = append(
+		tabs,
+		p.makeTileLayout(state, x, y, d2ds1.FloorLayerGroup),
+		p.makeTileLayout(state, x, y, d2ds1.WallLayerGroup),
+		p.makeTileLayout(state, x, y, d2ds1.ShadowLayerGroup),
+		p.makeTileLayout(state, x, y, d2ds1.SubstitutionLayerGroup),
+	)
 
 	return giu.Layout{
 		giu.TabBar("##TabBar_ds1_tiles" + p.id).Layout(tabs),
@@ -505,54 +458,101 @@ func (p *widget) makeTileLayout(state *widgetState, x, y int) giu.Layout {
 	}
 }
 
-func (p *widget) makeTilesTabLayout(state *widgetState, x, y int, t d2ds1.LayerGroupType) giu.Layout {
+func (p *widget) makeTileLayout(state *widgetState, x, y int, t d2ds1.LayerGroupType) giu.Layout {
 	l := giu.Layout{}
 	group := p.ds1.GetLayersGroup(t)
 	numRecords := len(*group)
 
-	if numRecords == 0 {
-		return l
-	}
-
 	// this is a pointer to appropriate record index
 	var recordIdx *int32
+	// addCb is a callback for layer-add button
+	var addCb func(int32)
+	// delCb is a callback for layer-delete button
+	var deleteCb func(int32)
 
+	// sets "everything" ;-)
 	switch t {
 	case d2ds1.FloorLayerGroup:
 		recordIdx = &state.tile.floor
+		addCb = p.addFloor
+		deleteCb = p.deleteFloor
 	case d2ds1.WallLayerGroup:
 		recordIdx = &state.tile.wall
+		addCb = p.addWall
+		deleteCb = p.deleteWall
 	case d2ds1.ShadowLayerGroup:
 		recordIdx = &state.tile.shadow
 	case d2ds1.SubstitutionLayerGroup:
 		recordIdx = &state.tile.sub
 	}
 
-	// checks, if record index is correct
-	if int(*recordIdx) >= numRecords {
-		*recordIdx = int32(numRecords - 1)
-
-		p.setState(state)
-	} else if *recordIdx < 0 {
-		*recordIdx = 0
-		p.setState(state)
+	var addBtn *giu.ButtonWidget
+	if addCb != nil {
+		addBtn = giu.Button("Add "+t.String()+" ##"+p.id+"addButton").
+			Size(actionButtonW, actionButtonH).
+			OnClick(func() { addCb(*recordIdx) })
 	}
 
-	if numRecords > 1 {
-		l = append(l, giu.SliderInt(t.String(), &state.tile.floor, 0, int32(numRecords-1)))
+	var deleteBtn giu.Layout
+	if deleteCb != nil {
+		deleteBtn = hswidget.MakeImageButton(
+			"##"+p.id+"delete"+t.String(),
+			layerDeleteButtonSize, layerDeleteButtonSize,
+			p.deleteButtonTexture,
+			func() {
+				deleteCb(*recordIdx)
+			},
+		)
 	}
 
-	if p.ds1.Floors[*recordIdx] != nil { // this happens, if we're removeing the last layer index
+	if numRecords > 0 {
+		// checks, if record index is correct
+		if int(*recordIdx) >= numRecords {
+			*recordIdx = int32(numRecords - 1)
+
+			p.setState(state)
+		} else if *recordIdx < 0 {
+			*recordIdx = 0
+
+			p.setState(state)
+		}
+
+		if numRecords > 1 {
+			l = append(l, giu.SliderInt(t.String(), recordIdx, 0, int32(numRecords-1)))
+		}
+
 		l = append(l, p.makeTabTileLayout((*group)[*recordIdx].Tile(x, y), t))
 	}
 
-	return l
+	return giu.Layout{giu.TabItem(t.String()).Layout(giu.Layout{
+		l,
+		giu.Separator(),
+		giu.Custom(func() {
+			var l giu.Layout
+			if btn := addBtn; btn != nil {
+				l = append(l, btn)
+			}
+			if btn := deleteBtn; btn != nil && numRecords > 0 {
+				l = append(l, btn)
+			}
+			giu.Line(l...).Build()
+		}),
+	})}
 }
 
 func (p *widget) makeTabTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.Layout {
 	// for substitutions, only unknown bytes should be displayed
 	if t == d2ds1.SubstitutionLayerGroup {
-		return p.makeTileSubLayout(record)
+		unknown32 := int32(record.Substitution)
+
+		return giu.Layout{
+			giu.Line(
+				giu.Label("Unknown: "),
+				giu.InputInt("##"+p.id+"subUnknown", &unknown32).Size(inputIntW).OnChange(func() {
+					record.Substitution = uint32(unknown32)
+				}),
+			),
+		}
 	}
 
 	// common for shadows/walls/floors (like d2ds1.tileCommonFields)
@@ -629,7 +629,7 @@ func (p *widget) makeTabTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) g
 				),
 			),
 		)
-	} else {
+	} else if t == d2ds1.FloorLayerGroup || t == d2ds1.ShadowLayerGroup {
 		l = append(l,
 			giu.Line(
 				giu.Label(fmt.Sprintf("Animated: %v", record.Animated)),
@@ -638,19 +638,6 @@ func (p *widget) makeTabTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) g
 	}
 
 	return l
-}
-
-func (p *widget) makeTileSubLayout(record *d2ds1.Tile) giu.Layout {
-	unknown32 := int32(record.Substitution)
-
-	return giu.Layout{
-		giu.Line(
-			giu.Label("Unknown: "),
-			giu.InputInt("##"+p.id+"subUnknown", &unknown32).Size(inputIntW).OnChange(func() {
-				record.Substitution = uint32(unknown32)
-			}),
-		),
-	}
 }
 
 func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
@@ -692,25 +679,6 @@ func (p *widget) makeSubstitutionLayout(group *d2ds1.SubstitutionGroup) giu.Layo
 	}
 
 	return l
-}
-
-func (p *widget) makeAddFileLayout() giu.Layout {
-	state := p.getState()
-
-	return giu.Layout{
-		giu.Label("File path:"),
-		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(filePathW),
-		giu.Separator(),
-		giu.Line(
-			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
-				state.mode = widgetModeViewer
-			}),
-			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = widgetModeViewer
-			}),
-		),
-	}
 }
 
 func (p *widget) makeAddObjectLayout() giu.Layout {
@@ -787,6 +755,7 @@ func (p *widget) makeAddPathLayout() giu.Layout {
 		giu.Line(
 			giu.Button("Save##"+p.id+"AddPathSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				p.addPath()
+				state.mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				state.mode = widgetModeViewer
@@ -796,15 +765,7 @@ func (p *widget) makeAddPathLayout() giu.Layout {
 }
 
 func (p *widget) deleteFile(idx int) {
-	newFiles := make([]string, 0)
-
-	for n, file := range p.ds1.Files {
-		if n != idx {
-			newFiles = append(newFiles, file)
-		}
-	}
-
-	p.ds1.Files = newFiles
+	p.ds1.Files = append(p.ds1.Files[:idx], p.ds1.Files[idx+1:]...)
 }
 
 func (p *widget) addPath() {
@@ -820,25 +781,13 @@ func (p *widget) addPath() {
 	}
 
 	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
-
-	state.mode = widgetModeViewer
 }
 
 func (p *widget) deletePath(idx int) {
 	state := p.getState()
-
-	newPaths := make([]d2path.Path, 0)
-
-	for n, path := range p.ds1.Objects[state.object].Paths {
-		if n != idx {
-			newPaths = append(newPaths, path)
-		}
-	}
-
-	p.ds1.Objects[state.object].Paths = newPaths
+	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths[:idx], p.ds1.Objects[state.object].Paths[idx+1:]...)
 }
 
 func (p *widget) deleteObject(idx int32) {
-	// delete object
 	p.ds1.Objects = append(p.ds1.Objects[:idx], p.ds1.Objects[idx+1:]...)
 }
