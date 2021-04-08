@@ -6,7 +6,7 @@ import (
 )
 
 func Test_Config_AddToRecentProjects(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig("/path/to/somewhere")
 
 	path1 := "/path/to/project1"
 	path2 := "/path/to/project2"
@@ -47,7 +47,7 @@ func Test_Config_AddToRecentProjects(t *testing.T) {
 }
 
 func Test_Config_GetAuxMPQs(t *testing.T) {
-	config := generateDefaultConfig()
+	config := generateDefaultConfig("/path/to/config")
 
 	if len(config.GetAuxMPQs()) != 0 {
 		t.Fatal("Wrong mpqs list len on start")
