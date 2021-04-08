@@ -1,14 +1,20 @@
 package hsapp
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
-
-	"github.com/OpenDiablo2/dialog"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+	"runtime"
+	"strings"
 
 	g "github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/dialog"
+	"github.com/pkg/browser"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 )
 
 func (a *App) renderMainMenuBar() {
@@ -70,6 +76,8 @@ func (a *App) renderMainMenuBar() {
 		}),
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
+			g.Separator(),
+			g.MenuItem("Report Bug##MainMenuHelpBug").OnClick(a.onReportBugClicked),
 		}),
 	}
 
@@ -168,5 +176,52 @@ func (a *App) onProjectRunClicked() {
 }
 
 func (a *App) onProjectExportMPQClicked() {
+}
 
+func (a *App) onReportBugClicked() {
+	osInfo := hscommon.NewOS()
+
+	config, err := json.MarshalIndent(a.config, " ", "   ")
+	if err != nil {
+		log.Printf("Unable to Marshal config file: %v", err)
+	}
+	// issue's body (from bug_report.md)
+	body := []string{
+		"**Describe the bug**",
+		"A clear and concise description of what the bug is.",
+		"",
+		"**To Reproduce**",
+		"Steps to reproduce the behavior:",
+		"1. Go to '...'",
+		"2. Click on '....'",
+		"3. Scroll down to '....'",
+		"4. See error",
+		"",
+		"**Expected behavior**",
+		"A clear and concise description of what you expected to happen.",
+		"",
+		"**Screenshots**",
+		"If applicable, add screenshots to help explain your problem.",
+		"",
+		"**Desktop (please complete the following information):**",
+		"- OS: " + osInfo.Name,
+		"- Version: " + osInfo.Version,
+		"- Arch: " + osInfo.Arch,
+		"",
+		"**Additional context**",
+		"Add any other context about the problem here.",
+		"",
+		"**Config (your config file)**",
+		"<details><summary>config file</summary><br><pre>",
+		strings.ReplaceAll(string(config), "\n", "%0D"),
+		"</pre></details>",
+		"",
+		"**Go version**",
+		runtime.Version(),
+	}
+
+	err = browser.OpenURL("https://github.com/OpenDiablo2/HellSpawner/issues/new?body=" + strings.Join(body, "%0D"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
