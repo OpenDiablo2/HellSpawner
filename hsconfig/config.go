@@ -24,12 +24,12 @@ const (
 
 // Config represents HellSpawner's config
 type Config struct {
-	RecentProjects          []string
-	AbyssEnginePath         string
-	AuxiliaryMpqPath        string
-	ExternalListFile        string
-	OpenMostRecentOnStartup bool
-	ProjectStates           map[string]hsstate.AppState
+	RecentProjects          []string                    `json:"recentProjects`
+	AbyssEnginePath         string                      `json:"AbyssEnginePath"`
+	AuxiliaryMpqPath        string                      `json:"AuxiliaryMpqPath"`
+	ExternalListFile        string                      `json:"ExternalListFile"`
+	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
+	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
 }
 
 func getConfigPath() string {
@@ -85,7 +85,8 @@ func (c *Config) Save() error {
 
 	var data []byte
 
-	if data, err = json.MarshalIndent(c, "", "   "); err != nil {
+	// if data, err = json.MarshalIndent(c, "", "   "); err != nil {
+	if data, err = json.Marshal(c); err != nil {
 		return fmt.Errorf("cannot marshal config: %w", err)
 	}
 
