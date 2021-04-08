@@ -24,7 +24,8 @@ type ds1Controls struct {
 	object       int32
 	// nolint:structcheck // will be used
 	subgroup int32
-	tile     struct {
+	// nolint:structcheck // linter's bug: this is used
+	tile struct {
 		floor, wall, shadow, sub int32
 	}
 	noObjectsImageTexture *giu.Texture
