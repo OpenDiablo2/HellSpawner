@@ -45,7 +45,7 @@ var (
 // nolint:gochecknoglobals // go-embed
 var HellSpawnerLogo []byte
 
-// ImageShrug is an imig, which is displayed in ds1 editor, when no objects are there
+// ImageShrug is an image, which is displayed in ds1 editor, when no objects are there
 //go:embed images/shrug.png
-// nolint:gochecknoglobals // the same resan as above
+// nolint:gochecknoglobals // the same reson as above
 var ImageShrug []byte

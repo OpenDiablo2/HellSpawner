@@ -9,8 +9,6 @@ func (p *widget) addFloor(idx int32) {
 }
 
 func (p *widget) deleteFloor(idx int32) {
-	// state := p.getState()
-	// here p.ds1.DeleteFloor(state.object)
 	p.ds1.DeleteFloor(int(idx))
 }
 
@@ -19,7 +17,5 @@ func (p *widget) addWall(idx int32) {
 }
 
 func (p *widget) deleteWall(idx int32) {
-	// state := p.getState()
-	// here p.ds1.DeleteFloor(state.object)
 	p.ds1.DeleteWall(int(idx))
 }
