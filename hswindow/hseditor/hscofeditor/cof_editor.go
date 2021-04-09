@@ -18,13 +18,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
-const (
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
-	leftArrowButtonPath  = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png"
-	rightArrowButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png"
-)
-
 // static check, to ensure, if cof editor implemented editoWindow
 var _ hscommon.EditorWindow = &COFEditor{}
 
@@ -32,18 +25,13 @@ var _ hscommon.EditorWindow = &COFEditor{}
 type COFEditor struct {
 	*hseditor.Editor
 	cof           *d2cof.COF
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	state         []byte
-	textures      struct {
-		up    *g.Texture
-		down  *g.Texture
-		right *g.Texture
-		left  *g.Texture
-	}
 }
 
 // Create creates a new cof editor
-func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
+func Create(config *hsconfig.Config,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -59,29 +47,13 @@ func Create(config *hsconfig.Config, tl *hscommon.TextureLoader,
 		state:         state,
 	}
 
-	tl.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
-		result.textures.up = texture
-	})
-
-	tl.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
-		result.textures.down = texture
-	})
-
-	tl.CreateTextureFromFileAsync(leftArrowButtonPath, func(texture *g.Texture) {
-		result.textures.left = texture
-	})
-
-	tl.CreateTextureFromFileAsync(rightArrowButtonPath, func(texture *g.Texture) {
-		result.textures.right = texture
-	})
-
 	return result, nil
 }
 
 // Build builds a cof editor
 func (e *COFEditor) Build() {
 	uid := e.Path.GetUniqueID()
-	cofWidget := cofwidget.Create(e.state, e.textures.up, e.textures.down, e.textures.right, e.textures.left, uid, e.cof)
+	cofWidget := cofwidget.Create(e.state, e.textureLoader, uid, e.cof)
 
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)

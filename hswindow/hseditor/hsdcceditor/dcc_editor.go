@@ -32,11 +32,12 @@ type DCCEditor struct {
 	palette             *[256]d2interface.Color
 	selectPaletteWidget g.Widget
 	state               []byte
+	textureLoader       hscommon.TextureLoader
 }
 
 // Create creates a new dcc editor
 func Create(config *hsconfig.Config,
-	_ *hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -51,6 +52,7 @@ func Create(config *hsconfig.Config,
 		config:        config,
 		selectPalette: false,
 		state:         state,
+		textureLoader: tl,
 	}
 
 	return result, nil
@@ -63,7 +65,7 @@ func (e *DCCEditor) Build() {
 
 	if !e.selectPalette {
 		e.Layout(g.Layout{
-			dccwidget.Create(e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
+			dccwidget.Create(e.textureLoader, e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
 		})
 
 		return

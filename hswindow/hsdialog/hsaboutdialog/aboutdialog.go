@@ -11,6 +11,7 @@ import (
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
@@ -34,16 +35,21 @@ type AboutDialog struct {
 	credits     string
 	license     string
 	readme      string
+	logo        *g.Texture
 }
 
 // Create creates a new AboutDialog
-func Create(textureLoader *hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
+func Create(textureLoader hscommon.TextureLoader, regularFont, titleFont, fixedFont imgui.Font) (*AboutDialog, error) {
 	result := &AboutDialog{
 		Dialog:      hsdialog.New("About HellSpawner"),
 		titleFont:   titleFont,
 		regularFont: regularFont,
 		fixedFont:   fixedFont,
 	}
+
+	textureLoader.CreateTextureFromFile(hsassets.HellSpawnerLogo, func(t *g.Texture) {
+		result.logo = t
+	})
 
 	var err error
 
@@ -85,7 +91,7 @@ func (a *AboutDialog) Build() {
 	colorWhite := hsutil.Color(white)
 	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
-			g.ImageWithFile("hsassets/images/d2logo.png").Size(mainWindowW, mainWindowH),
+			g.Image(a.logo).Size(mainWindowW, mainWindowH),
 			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(g.Layout{
 				g.Label("HellSpawner").Color(&colorWhite).Font(&a.titleFont),
 				g.Label("The OpenDiablo 2 Toolset").Color(&colorWhite).Font(&a.regularFont),

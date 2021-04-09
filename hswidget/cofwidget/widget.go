@@ -9,8 +9,8 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -23,34 +23,23 @@ const (
 	speedInputW                          = 40
 )
 
-type textures struct {
-	up    *giu.Texture
-	down  *giu.Texture
-	left  *giu.Texture
-	right *giu.Texture
-}
-
 type widget struct {
-	id  string
-	cof *d2cof.COF
-	textures
+	id            string
+	cof           *d2cof.COF
+	textureLoader hscommon.TextureLoader
 }
 
 // Create a new COF widget
 func Create(
 	state []byte,
-	up, down, right, left *giu.Texture,
+	textureLoader hscommon.TextureLoader,
 	id string, cof *d2cof.COF,
 ) giu.Widget {
 	result := &widget{
-		id:  id,
-		cof: cof,
+		id:            id,
+		cof:           cof,
+		textureLoader: textureLoader,
 	}
-
-	result.textures.up = up
-	result.textures.down = down
-	result.textures.left = left
-	result.textures.right = right
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := &widgetState{
@@ -132,14 +121,14 @@ func (p *widget) makeViewerLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
-			giu.TabItem("Animation").Layout(p.makeAnimationTab()),
+			giu.TabItem("Animation").Layout(p.makeAnimationTab(state)),
 			giu.TabItem("Layer").Layout(p.makeLayerTab(state)),
 			giu.TabItem("Priority").Layout(p.makePriorityTab(state)),
 		}),
 	}
 }
 
-func (p *widget) makeAnimationTab() giu.Layout {
+func (p *widget) makeAnimationTab(state *widgetState) giu.Layout {
 	const (
 		fmtFPS        = "FPS: %.1f"
 		fmtDuration   = "Duration: %.2fms"
@@ -163,7 +152,7 @@ func (p *widget) makeAnimationTab() giu.Layout {
 	}
 
 	speedLabel := giu.Label(strSpeed)
-	speedInput := hsutil.MakeInputInt(
+	speedInput := hswidget.MakeInputInt(
 		"##"+p.id+"CovViewerSpeedValue",
 		speedInputW,
 		&p.cof.Speed,
@@ -172,7 +161,7 @@ func (p *widget) makeAnimationTab() giu.Layout {
 
 	return giu.Layout{
 		giu.Label(strLabelDirections),
-		p.layoutAnimFrames(),
+		p.layoutAnimFrames(state),
 		giu.Line(speedLabel, speedInput),
 		giu.Label(strLabelFPS),
 		giu.Label(strLabelDuration),
@@ -309,7 +298,7 @@ func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
 // the layout ends up looking like this:
 // Frames (x6):  <- 10 ->
 // you use the arrows to set the number of frames per direction
-func (p *widget) layoutAnimFrames() *giu.LineWidget {
+func (p *widget) layoutAnimFrames(state *widgetState) *giu.LineWidget {
 	numFrames := p.cof.FramesPerDirection
 	numDirs := p.cof.NumberOfDirections
 
@@ -331,9 +320,9 @@ func (p *widget) layoutAnimFrames() *giu.LineWidget {
 	leftButtonID := fmt.Sprintf("##%sDecreaseFramesPerDirection", p.id)
 	rightButtonID := fmt.Sprintf("##%sIncreaseFramesPerDirection", p.id)
 
-	left := hsutil.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
+	left := hswidget.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, state.textures.left, fnDecrease)
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
-	right := hsutil.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
+	right := hswidget.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, state.textures.right, fnIncrease)
 
 	return giu.Line(label, left, frameCount, right)
 }
@@ -428,8 +417,8 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		fnIncPriority := makeIncPriorityFn(currentIdx)
 		fnDecPriority := makeDecPriorityFn(currentIdx)
 
-		increasePriority := hsutil.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
-		decreasePriority := hsutil.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
+		increasePriority := hswidget.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, state.textures.up, fnIncPriority)
+		decreasePriority := hswidget.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, state.textures.down, fnDecPriority)
 
 		strLayerName := hsenum.GetLayerName(layers[idx])
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
@@ -499,7 +488,7 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Shadow: "),
-			hsutil.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
+			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),

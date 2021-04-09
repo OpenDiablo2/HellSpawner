@@ -27,14 +27,14 @@ var _ hscommon.EditorWindow = &PaletteEditor{}
 type PaletteEditor struct {
 	*hseditor.Editor
 	palette       d2interface.Palette
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	state         []byte
 }
 
 // Create creates a new palette editor
 func Create(
 	_ *hsconfig.Config,
-	tl *hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -55,7 +55,7 @@ func Create(
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
-	var col = make([]palettegridwidget.PaletteColor, 256)
+	col := make([]palettegridwidget.PaletteColor, 256)
 	for n, i := range e.palette.GetColors() {
 		col[n] = palettegridwidget.PaletteColor(i)
 	}
