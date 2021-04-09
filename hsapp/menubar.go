@@ -178,11 +178,10 @@ func (a *App) onProjectRunClicked() {
 func (a *App) onProjectExportMPQClicked() {
 }
 
+// NOTE: some characters in URLs cannot be dirrectly written, because they have
+// another meaning (e.g. #). Instead we need to use ASCII code (for # %23).
+// for ascii codes see https://www.w3schools.com/tags/ref_urlencode.ASP
 func (a *App) onReportBugClicked() {
-	// NOTE: some characters in URLs cannot be dirrectly writen, because they have
-	// another meaning (e.g. #). Instead we need to use ASCII code (for # %23).
-	// for ascii codes see https://www.w3schools.com/tags/ref_urlencode.ASP
-
 	osInfo := hscommon.NewOS()
 
 	config, err := json.MarshalIndent(a.config, " ", "   ")
