@@ -84,5 +84,6 @@ Feel free to contribute!
 
 ## Screenshots
 
-![Screenshot](docs/overview.png)
-![Screenshot](docs/palette-and-dc6-editors.png)
+![Palette map, palette transfer and DC6 editor](docs/palette-and-dc6-editors.png)
+![Font and String tables editor and animation data editor](docs/tables-editors.png)
+![DT1, WAV and DCC editors](docs/dt1-wav-dcc-editors.png)
