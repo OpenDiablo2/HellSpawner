@@ -413,7 +413,8 @@ func (p *widget) makePathLayout(state *widgetState, obj *d2ds1.Object) giu.Layou
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
-					p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths[:currentIdx], p.ds1.Objects[state.object].Paths[currentIdx+1:]...)
+					p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths[:currentIdx],
+						p.ds1.Objects[state.object].Paths[currentIdx+1:]...)
 				},
 			),
 		))
