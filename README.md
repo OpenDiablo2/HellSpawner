@@ -85,3 +85,4 @@ Feel free to contribute!
 ## Screenshots
 
 ![Screenshot](docs/overview.png)
+![Screenshot](docs/palette-and-dc6-editors.png)

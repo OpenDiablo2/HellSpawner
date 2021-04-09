@@ -120,12 +120,10 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 	height32 := int32(h)
 
 	row := giu.Row(
-		giu.Line(
-			hswidget.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
-				delSize, delSize,
-				state.deleteButtonTexture,
-				func() { p.deleteRow(r) },
-			),
+		hswidget.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
+			delSize, delSize,
+			state.deleteButtonTexture,
+			func() { p.deleteRow(r) },
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
