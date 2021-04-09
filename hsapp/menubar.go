@@ -77,7 +77,7 @@ func (a *App) renderMainMenuBar() {
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
 			g.Separator(),
-			g.MenuItem("Report Bug##MainMenuHelpBug").OnClick(a.onReportBugClicked),
+			g.MenuItem("Report Bug on GitHub##MainMenuHelpBug").OnClick(a.onReportBugClicked),
 		}),
 	}
 
