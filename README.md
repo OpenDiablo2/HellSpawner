@@ -59,7 +59,7 @@ then clicking on `Edit in settings.json`. Just paste that section where appropri
 
 ## Status
 
-For now (start of march 2021) we can use HellSpawner to:
+For now (start of april 2021) we can use HellSpawner to:
 
 *   create projects
 *   browse MPQ archives
