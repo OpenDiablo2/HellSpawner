@@ -179,12 +179,17 @@ func (a *App) onProjectExportMPQClicked() {
 }
 
 func (a *App) onReportBugClicked() {
+	// NOTE: some characters in URLs cannot be dirrectly writen, because they have
+	// another meaning (e.g. #). Instead we need to use ASCII code (for # %23).
+	// for ascii codes see https://www.w3schools.com/tags/ref_urlencode.ASP
+
 	osInfo := hscommon.NewOS()
 
 	config, err := json.MarshalIndent(a.config, " ", "   ")
 	if err != nil {
 		log.Printf("Unable to Marshal config file: %v", err)
 	}
+
 	// issue's body (from bug_report.md)
 	body := []string{
 		"%23%23 Describe the bug",
