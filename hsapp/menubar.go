@@ -2,13 +2,22 @@ package hsapp
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	g "github.com/ianling/giu"
+	"github.com/pkg/browser"
 
 	"github.com/OpenDiablo2/dialog"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
+)
 
-	g "github.com/ianling/giu"
+const (
+	githubURL            = "https://github.com/OpenDiablo2/HellSpawner"
+	discordInvitationURL = "https://discord.gg/pRy8tdc"
+	twitchURL            = "https://www.twitch.tv/essial/"
+	supportURL           = "https://www.patreon.com/bePatron?u=37261055"
 )
 
 func (a *App) renderMainMenuBar() {
@@ -70,6 +79,27 @@ func (a *App) renderMainMenuBar() {
 		}),
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
+			g.Separator(),
+			g.MenuItem("GitHub repository").OnClick(func() {
+				if err := browser.OpenURL(githubURL); err != nil {
+					log.Print(err)
+				}
+			}),
+			g.MenuItem("Join Discord server").OnClick(func() {
+				if err := browser.OpenURL(discordInvitationURL); err != nil {
+					log.Print(err)
+				}
+			}),
+			g.MenuItem("Development live stream").OnClick(func() {
+				if err := browser.OpenURL(twitchURL); err != nil {
+					log.Print(err)
+				}
+			}),
+			g.MenuItem("Support us").OnClick(func() {
+				if err := browser.OpenURL(supportURL); err != nil {
+					log.Print(err)
+				}
+			}),
 		}),
 	}
 
@@ -168,5 +198,4 @@ func (a *App) onProjectRunClicked() {
 }
 
 func (a *App) onProjectExportMPQClicked() {
-
 }
