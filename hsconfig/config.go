@@ -93,8 +93,7 @@ func (c *Config) Save() error {
 
 	var data []byte
 
-	// if data, err = json.MarshalIndent(c, "", "   "); err != nil {
-	if data, err = json.MarshalIndent(c, " ", "   "); err != nil {
+	if data, err = json.MarshalIndent(c, "", "   "); err != nil {
 		return fmt.Errorf("cannot marshal config: %w", err)
 	}
 
