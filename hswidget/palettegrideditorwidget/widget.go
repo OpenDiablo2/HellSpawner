@@ -7,6 +7,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
@@ -19,13 +20,13 @@ const (
 type PaletteGridEditorWidget struct {
 	id            string
 	colors        *[]palettegridwidget.PaletteColor
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 	onChange      func()
 }
 
 // Create creates a new palette grid editor widget
 func Create(state []byte,
-	textureLoader *hscommon.TextureLoader,
+	textureLoader hscommon.TextureLoader,
 	id string,
 	colors *[]palettegridwidget.PaletteColor) *PaletteGridEditorWidget {
 	result := &PaletteGridEditorWidget{
@@ -123,7 +124,7 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 	return giu.Layout{
 		giu.Line(
 			giu.Label(label),
-			hsutil.MakeInputInt(
+			hswidget.MakeInputInt(
 				id,
 				inputIntW,
 				field,
@@ -144,7 +145,7 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 				p.onChange()
 			}
 			state.hex = RGB2Hex(state.r, state.g, state.b)
-			hsutil.SetByteToInt(f32, field)
+			hswidget.SetByteToInt(f32, field)
 		}),
 	}
 }

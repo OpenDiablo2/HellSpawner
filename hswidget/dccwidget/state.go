@@ -121,12 +121,10 @@ func (p *widget) initState() {
 		textures := make([]*giu.Texture, totalFrames)
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
-			var err error
-
-			textures[frameIndex], err = giu.NewTextureFromRgba(images[frameIndex])
-			if err != nil {
-				log.Fatal(err)
-			}
+			frameIndex := frameIndex
+			p.textureLoader.CreateTextureFromARGB(images[frameIndex], func(t *giu.Texture) {
+				textures[frameIndex] = t
+			})
 		}
 
 		s := p.getState()

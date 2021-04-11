@@ -22,24 +22,20 @@ const (
 	mainWindowW, mainWindowH = 550, 400
 )
 
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-)
-
 // static check, to ensure, if font table editor implemented editoWindow
 var _ hscommon.EditorWindow = &FontTableEditor{}
 
 // FontTableEditor represents font table editor
 type FontTableEditor struct {
 	*hseditor.Editor
-	fontTable           *d2font.Font
-	deleteButtonTexture *g.Texture
-	state               []byte
+	fontTable     *d2font.Font
+	state         []byte
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new font table editor
 func Create(_ *hsconfig.Config,
-	tl *hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -49,18 +45,15 @@ func Create(_ *hsconfig.Config,
 	}
 
 	result := &FontTableEditor{
-		Editor:    hseditor.New(pathEntry, x, y, project),
-		fontTable: table,
-		state:     state,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		fontTable:     table,
+		state:         state,
+		textureLoader: tl,
 	}
 
 	if w, h := result.CurrentSize(); w == 0 || h == 0 {
 		result.Size(mainWindowW, mainWindowH)
 	}
-
-	tl.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
-		result.deleteButtonTexture = texture
-	})
 
 	return result, nil
 }
@@ -69,7 +62,7 @@ func Create(_ *hsconfig.Config,
 func (e *FontTableEditor) Build() {
 	e.IsOpen(&e.Visible).Flags(g.WindowFlagsHorizontalScrollbar).
 		Layout(g.Layout{
-			fonttablewidget.Create(e.state, e.deleteButtonTexture, e.Path.GetUniqueID(), e.fontTable),
+			fonttablewidget.Create(e.state, e.textureLoader, e.Path.GetUniqueID(), e.fontTable),
 		})
 }
 

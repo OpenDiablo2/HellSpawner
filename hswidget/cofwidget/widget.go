@@ -9,8 +9,8 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -23,40 +23,26 @@ const (
 	speedInputW                          = 40
 )
 
-type textures struct {
-	up    *giu.Texture
-	down  *giu.Texture
-	left  *giu.Texture
-	right *giu.Texture
-}
-
 type widget struct {
-	id  string
-	cof *d2cof.COF
-	textures
+	id            string
+	cof           *d2cof.COF
+	textureLoader hscommon.TextureLoader
 }
 
 // Create a new COF widget
 func Create(
 	state []byte,
-	up, down, right, left *giu.Texture,
+	textureLoader hscommon.TextureLoader,
 	id string, cof *d2cof.COF,
 ) giu.Widget {
 	result := &widget{
-		id:  id,
-		cof: cof,
+		id:            id,
+		cof:           cof,
+		textureLoader: textureLoader,
 	}
 
-	result.textures.up = up
-	result.textures.down = down
-	result.textures.left = left
-	result.textures.right = right
-
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
-		s := &widgetState{
-			viewerState:    &viewerState{},
-			newLayerFields: &newLayerFields{},
-		}
+		s := result.getState()
 		s.Decode(state)
 		result.setState(s)
 	}
@@ -82,83 +68,19 @@ func (p *widget) Build() {
 	}
 }
 
-func (p *widget) getStateID() string {
-	return fmt.Sprintf("widget_%s", p.id)
-}
-
-func (p *widget) getState() *widgetState {
-	var state *widgetState
-
-	s := giu.Context.GetState(p.getStateID())
-
-	if s != nil {
-		state = s.(*widgetState)
-	} else {
-		p.initState()
-		state = p.getState()
-	}
-
-	return state
-}
-
-func (p *widget) setState(s giu.Disposable) {
-	giu.Context.SetState(p.getStateID(), s)
-}
-
-func (p *widget) initState() {
-	p.setState(&widgetState{
-		mode: modeViewer,
-		viewerState: &viewerState{
-			layer:         &p.cof.CofLayers[0],
-			confirmDialog: &hswidget.PopUpConfirmDialog{},
-		},
-		newLayerFields: &newLayerFields{
-			selectable: true,
-			drawEffect: int32(d2enum.DrawEffectNone),
-		},
-	})
-}
-
 func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
-	layerStrings := make([]string, 0)
-	for idx := range p.cof.CofLayers {
-		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
-	}
-
-	currentLayerName := layerStrings[state.viewerState.layerIndex]
-	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
-	layerList.Size(layerListW).OnChange(p.onUpdate)
-
-	directionStrings := make([]string, 0)
-	for idx := range p.cof.Priority {
-		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
-	}
-
-	directionString := directionStrings[state.viewerState.directionIndex]
-	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
-	directionList.Size(layerListW).OnChange(p.onUpdate)
-
-	frameStrings := make([]string, 0)
-	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
-		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
-	}
-
-	frameString := frameStrings[state.viewerState.frameIndex]
-	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
-	frameList.Size(layerListW).OnChange(p.onUpdate)
-
 	return giu.Layout{
 		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
-			giu.TabItem("Animation").Layout(p.makeAnimationTab()),
-			giu.TabItem("Layer").Layout(p.makeLayerTab(state, layerList)),
-			giu.TabItem("Priority").Layout(p.makePriorityTab(state, directionList, frameList)),
+			giu.TabItem("Animation").Layout(p.makeAnimationTab(state)),
+			giu.TabItem("Layer").Layout(p.makeLayerTab(state)),
+			giu.TabItem("Priority").Layout(p.makePriorityTab(state)),
 		}),
 	}
 }
 
-func (p *widget) makeAnimationTab() giu.Layout {
+func (p *widget) makeAnimationTab(state *widgetState) giu.Layout {
 	const (
 		fmtFPS        = "FPS: %.1f"
 		fmtDuration   = "Duration: %.2fms"
@@ -182,7 +104,7 @@ func (p *widget) makeAnimationTab() giu.Layout {
 	}
 
 	speedLabel := giu.Label(strSpeed)
-	speedInput := hsutil.MakeInputInt(
+	speedInput := hswidget.MakeInputInt(
 		"##"+p.id+"CovViewerSpeedValue",
 		speedInputW,
 		&p.cof.Speed,
@@ -191,19 +113,32 @@ func (p *widget) makeAnimationTab() giu.Layout {
 
 	return giu.Layout{
 		giu.Label(strLabelDirections),
-		p.layoutAnimFrames(),
+		p.layoutAnimFrames(state),
 		giu.Line(speedLabel, speedInput),
 		giu.Label(strLabelFPS),
 		giu.Label(strLabelDuration),
 	}
 }
 
-func (p *widget) makeLayerTab(state *widgetState, layerList giu.Widget) giu.Layout {
+func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 	addLayerButtonID := fmt.Sprintf("Add a new layer...##%sAddLayer", p.id)
 	addLayerButton := giu.Button(addLayerButtonID).Size(actionButtonW, actionButtonH)
 	addLayerButton.OnClick(func() {
 		p.createNewLayer()
 	})
+
+	if state.viewerState.layer == nil {
+		return giu.Layout{addLayerButton}
+	}
+
+	layerStrings := make([]string, 0)
+	for idx := range p.cof.CofLayers {
+		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
+	}
+
+	currentLayerName := layerStrings[state.viewerState.layerIndex]
+	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
+	layerList.Size(layerListW).OnChange(p.onUpdate)
 
 	deleteLayerButtonID := fmt.Sprintf("Delete current layer...##%sDeleteLayer", p.id)
 	deleteLayerButton := giu.Button(deleteLayerButtonID).Size(actionButtonW, actionButtonH)
@@ -246,7 +181,31 @@ func (p *widget) createNewLayer() {
 	state.mode = modeAddLayer
 }
 
-func (p *widget) makePriorityTab(state *widgetState, directionList, frameList giu.Widget) giu.Layout {
+func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
+	if len(p.cof.Priority) == 0 {
+		return giu.Layout{
+			giu.Label("Nothing here"),
+		}
+	}
+
+	directionStrings := make([]string, 0)
+	for idx := range p.cof.Priority {
+		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
+	}
+
+	directionString := directionStrings[state.viewerState.directionIndex]
+	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
+	directionList.Size(layerListW).OnChange(p.onUpdate)
+
+	frameStrings := make([]string, 0)
+	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
+		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
+	}
+
+	frameString := frameStrings[state.viewerState.frameIndex]
+	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
+	frameList.Size(layerListW).OnChange(p.onUpdate)
+
 	const (
 		strPrompt  = "Do you really want to remove this direction?"
 		strMessage = "If you'll click YES, all data from this direction will be lost. Continue?"
@@ -291,7 +250,7 @@ func (p *widget) makePriorityTab(state *widgetState, directionList, frameList gi
 // the layout ends up looking like this:
 // Frames (x6):  <- 10 ->
 // you use the arrows to set the number of frames per direction
-func (p *widget) layoutAnimFrames() *giu.LineWidget {
+func (p *widget) layoutAnimFrames(state *widgetState) *giu.LineWidget {
 	numFrames := p.cof.FramesPerDirection
 	numDirs := p.cof.NumberOfDirections
 
@@ -313,9 +272,9 @@ func (p *widget) layoutAnimFrames() *giu.LineWidget {
 	leftButtonID := fmt.Sprintf("##%sDecreaseFramesPerDirection", p.id)
 	rightButtonID := fmt.Sprintf("##%sIncreaseFramesPerDirection", p.id)
 
-	left := hsutil.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.left, fnDecrease)
+	left := hswidget.MakeImageButton(leftButtonID, buttonWidthHeight, buttonWidthHeight, state.textures.left, fnDecrease)
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
-	right := hsutil.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, p.textures.right, fnIncrease)
+	right := hswidget.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, state.textures.right, fnIncrease)
 
 	return giu.Line(label, left, frameCount, right)
 }
@@ -410,8 +369,8 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		fnIncPriority := makeIncPriorityFn(currentIdx)
 		fnDecPriority := makeDecPriorityFn(currentIdx)
 
-		increasePriority := hsutil.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, p.textures.up, fnIncPriority)
-		decreasePriority := hsutil.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, p.textures.down, fnDecPriority)
+		increasePriority := hswidget.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, state.textures.up, fnIncPriority)
+		decreasePriority := hswidget.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, state.textures.down, fnDecPriority)
 
 		strLayerName := hsenum.GetLayerName(layers[idx])
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
@@ -481,7 +440,7 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 		),
 		giu.Line(
 			giu.Label("Shadow: "),
-			hsutil.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
+			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
 		),
 		giu.Line(
 			giu.Label("Selectable: "),
@@ -529,6 +488,7 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 
 		// this sets layer index to just added layer
 		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+		state.viewerState.layer = newCofLayer
 
 		state.mode = modeViewer
 	}

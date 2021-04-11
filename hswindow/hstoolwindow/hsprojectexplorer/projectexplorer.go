@@ -13,6 +13,7 @@ import (
 
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
@@ -32,10 +33,6 @@ const (
 	blackHalfOpacity = 0xffffff20
 )
 
-const (
-	refreshItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/reload.png"
-)
-
 // ProjectExplorerFileSelectedCallback represents callback on project file selected
 type ProjectExplorerFileSelectedCallback func(path *hscommon.PathEntry)
 
@@ -50,7 +47,7 @@ type ProjectExplorer struct {
 }
 
 // Create creates a new project explorer
-func Create(textureLoader *hscommon.TextureLoader,
+func Create(textureLoader hscommon.TextureLoader,
 	fileSelectedCallback ProjectExplorerFileSelectedCallback,
 	x, y float32) (*ProjectExplorer, error) {
 	result := &ProjectExplorer{
@@ -63,7 +60,7 @@ func Create(textureLoader *hscommon.TextureLoader,
 
 	// some type of workaround ;-). SOmetimes we only want to get tree nodes (and don't need textures)
 	if textureLoader != nil {
-		textureLoader.CreateTextureFromFileAsync(refreshItemButtonPath, func(texture *g.Texture) {
+		textureLoader.CreateTextureFromFile(hsassets.ReloadIcon, func(texture *g.Texture) {
 			result.refreshIconTexture = texture
 		})
 	}
@@ -234,7 +231,32 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 	contextMenuLayout := g.Layout{
 		g.Menu("New").Layout(g.Layout{
 			g.MenuItem("Folder").OnClick(func() { m.onNewFolderClicked(pathEntry) }),
+			g.Separator(),
 			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry) }),
+			g.MenuItem("Font table (.tbl)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeTBLFontTable, pathEntry)
+			}),
+			g.MenuItem("String table (.tbl)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeTBLStringTable, pathEntry)
+			}),
+			g.MenuItem("Animation data (.d2)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeAnimationData, pathEntry)
+			}),
+			g.MenuItem("Animation (.cof)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeCOF, pathEntry)
+			}),
+			g.MenuItem("Palette (.dat)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypePalette, pathEntry)
+			}),
+			g.MenuItem("Palette transform (.pl2)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypePL2, pathEntry)
+			}),
+			g.MenuItem("Map tile data (.ds1)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeDS1, pathEntry)
+			}),
+			g.MenuItem("Map tile animation (.dt1)").OnClick(func() {
+				m.project.CreateNewFile(hsfiletypes.FileTypeDT1, pathEntry)
+			}),
 		}),
 	}
 

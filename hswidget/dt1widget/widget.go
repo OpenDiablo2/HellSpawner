@@ -42,11 +42,11 @@ type widget struct {
 	id            string
 	dt1           *d2dt1.DT1
 	palette       *[256]d2interface.Color
-	textureLoader *hscommon.TextureLoader
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new dt1 viewers widget
-func Create(state []byte, palette *[256]d2interface.Color, textureLoader *hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
+func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
 	result := &widget{
 		id:            id,
 		dt1:           dt1,
@@ -75,6 +75,14 @@ func (p *widget) Build() {
 	if state.lastTileGroup != state.controls.tileGroup {
 		state.lastTileGroup = state.controls.tileGroup
 		state.controls.tileVariant = 0
+	}
+
+	if len(state.tileGroups) == 0 {
+		giu.Layout{
+			giu.Label("Nothing to display"),
+		}.Build()
+
+		return
 	}
 
 	tiles := state.tileGroups[int(state.controls.tileGroup)]

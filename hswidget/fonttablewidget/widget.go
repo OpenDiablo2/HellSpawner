@@ -9,7 +9,8 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
 const (
@@ -21,21 +22,21 @@ const (
 )
 
 type widget struct {
-	fontTable           *d2font.Font
-	id                  string
-	deleteButtonTexture *giu.Texture
+	fontTable     *d2font.Font
+	id            string
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new FontTable widget
 func Create(
 	state []byte,
-	del *giu.Texture,
+	tl hscommon.TextureLoader,
 	id string, fontTable *d2font.Font,
 ) giu.Widget {
 	result := &widget{
-		fontTable:           fontTable,
-		id:                  id,
-		deleteButtonTexture: del,
+		fontTable:     fontTable,
+		id:            id,
+		textureLoader: tl,
 	}
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
@@ -119,12 +120,10 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 	height32 := int32(h)
 
 	row := giu.Row(
-		giu.Line(
-			hsutil.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
-				delSize, delSize,
-				p.deleteButtonTexture,
-				func() { p.deleteRow(r) },
-			),
+		hswidget.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
+			delSize, delSize,
+			state.deleteButtonTexture,
+			func() { p.deleteRow(r) },
 		),
 		giu.Line(
 			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),

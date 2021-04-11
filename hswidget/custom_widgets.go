@@ -1,35 +1,28 @@
-package hsutil
+package hswidget
 
 import (
-	"fmt"
-
 	"github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 )
 
 // MakeImageButton is a hack for giu.ImageButton that creates image button
 // as a giu.child
-func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Layout {
-	const (
-		childIDSuffix = "child"
-		padding       = 8 // pixels
-	)
-
+func MakeImageButton(id string, w, h int, t *giu.Texture, fn func()) giu.Widget {
 	// the image button
 	btnW, btnH := float32(w), float32(h)
 	button := giu.Layout{
 		giu.ImageButton(t).Size(btnW, btnH).OnClick(fn),
 	}
 
-	// the container; needs to be padded to be larger than the button
-	childW, childH := btnW+padding, btnH+padding
-	childID := fmt.Sprintf("%s%s", id, childIDSuffix)
-	con := giu.Child(childID).
-		Border(false).
-		Size(childW, childH).
-		Layout(button).
-		Flags(giu.WindowFlagsNoDecoration)
-
-	return giu.Layout{con}
+	return giu.Layout{
+		giu.Custom(func() {
+			imgui.PushID(id)
+		}),
+		button,
+		giu.Custom(func() {
+			imgui.PopID()
+		}),
+	}
 }
 
 // SetByteToInt sets byte given to intager

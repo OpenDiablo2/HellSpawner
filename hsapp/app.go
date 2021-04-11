@@ -1,9 +1,7 @@
 package hsapp
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -24,6 +22,7 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -61,6 +60,7 @@ const (
 
 // App represents an app
 type App struct {
+	*Flags
 	project      *hsproject.Project
 	config       *hsconfig.Config
 	abyssWrapper *abysswrapper.AbyssWrapper
@@ -76,7 +76,7 @@ type App struct {
 	editors            []hscommon.EditorWindow
 	editorConstructors map[hsfiletypes.FileType]func(
 		config *hsconfig.Config,
-		textureLoader *hscommon.TextureLoader,
+		textureLoader hscommon.TextureLoader,
 		pathEntry *hscommon.PathEntry,
 		state []byte,
 		data *[]byte,
@@ -93,24 +93,24 @@ type App struct {
 	diabloRegularFont imgui.Font
 
 	InputManager  *hsinput.InputManager
-	TextureLoader *hscommon.TextureLoader
+	TextureLoader hscommon.TextureLoader
 }
 
 // Create creates new app instance
 func Create() (*App, error) {
 	tl := hscommon.NewTextureLoader()
 	result := &App{
+		Flags:   &Flags{},
 		editors: make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]func(
 			config *hsconfig.Config,
-			textureLoader *hscommon.TextureLoader,
+			textureLoader hscommon.TextureLoader,
 			pathEntry *hscommon.PathEntry,
 			state []byte,
 			data *[]byte,
 			x, y float32,
 			project *hsproject.Project) (hscommon.EditorWindow, error)),
 
-		config:        hsconfig.Load(),
 		TextureLoader: tl,
 	}
 
@@ -119,15 +119,15 @@ func Create() (*App, error) {
 
 	result.abyssWrapper = abysswrapper.Create()
 
+	result.parseArgs()
+
+	result.config = hsconfig.Load(*result.Flags.optionalConfigPath)
+
 	return result, nil
 }
 
 // Run runs an app instance
 func (a *App) Run() {
-	if err := a.checkForDependencies(); err != nil {
-		log.Fatalf("looking for dependencies: %v", err)
-	}
-
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
@@ -239,14 +239,12 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	if _, err := os.Stat("hsassets"); err == nil {
-		imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/NotoSans-Regular.ttf", 17)
-		a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 15)
-		a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/CascadiaCode.ttf", 12)
-		a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloRegular.ttf", 15)
-		a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromFileTTF("hsassets/fonts/DiabloBold.ttf", 30)
-		imgui.CurrentStyle().ScaleAllSizes(1)
-	}
+	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, 17)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
+	imgui.CurrentStyle().ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
@@ -439,16 +437,4 @@ func (a *App) Quit() {
 	a.Save()
 
 	a.CloseAllOpenWindows()
-}
-
-func (a *App) checkForDependencies() error {
-	if _, err := os.Stat("3rdparty"); err != nil {
-		return fmt.Errorf(
-			"directory not found: 3rdparty: %w\nDid you forget to %s or %s?", err,
-			"git submodule update --init --recursive",
-			"git clone https://github.com/madmaxms/iconpack-obsidian 3rdparty/iconpack-obsidian",
-		)
-	}
-
-	return nil
 }

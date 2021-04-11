@@ -14,6 +14,7 @@ import (
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
@@ -25,12 +26,6 @@ const (
 	imgBtnW, imgBtnH         = 16, 16
 	dummyW, dummyH           = 8, 0
 	inputTextSize            = 250
-)
-
-const (
-	removeItemButtonPath = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png"
-	upItemButtonPath     = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png"
-	downItemButtonPath   = "3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png"
 )
 
 // ProjectPropertiesDialog represent project properties' dialog
@@ -50,22 +45,22 @@ type ProjectPropertiesDialog struct {
 }
 
 // Create creates a new project properties' dialog
-func Create(textureLoader *hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
+func Create(textureLoader hscommon.TextureLoader, onProjectPropertiesChanged func(project *hsproject.Project)) *ProjectPropertiesDialog {
 	result := &ProjectPropertiesDialog{
 		Dialog:                     hsdialog.New("Project Properties"),
 		onProjectPropertiesChanged: onProjectPropertiesChanged,
 		mpqSelectDialogVisible:     false,
 	}
 
-	textureLoader.CreateTextureFromFileAsync(removeItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
 		result.removeIconTexture = texture
 	})
 
-	textureLoader.CreateTextureFromFileAsync(upItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.UpArrowIcon, func(texture *g.Texture) {
 		result.upIconTexture = texture
 	})
 
-	textureLoader.CreateTextureFromFileAsync(downItemButtonPath, func(texture *g.Texture) {
+	textureLoader.CreateTextureFromFile(hsassets.DownArrowIcon, func(texture *g.Texture) {
 		result.downIconTexture = texture
 	})
 
