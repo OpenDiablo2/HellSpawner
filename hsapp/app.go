@@ -60,6 +60,7 @@ const (
 
 // App represents an app
 type App struct {
+	*Flags
 	project      *hsproject.Project
 	config       *hsconfig.Config
 	abyssWrapper *abysswrapper.AbyssWrapper
@@ -99,6 +100,7 @@ type App struct {
 func Create() (*App, error) {
 	tl := hscommon.NewTextureLoader()
 	result := &App{
+		Flags:   &Flags{},
 		editors: make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]func(
 			config *hsconfig.Config,
@@ -109,7 +111,6 @@ func Create() (*App, error) {
 			x, y float32,
 			project *hsproject.Project) (hscommon.EditorWindow, error)),
 
-		config:        hsconfig.Load(),
 		TextureLoader: tl,
 	}
 
@@ -117,6 +118,10 @@ func Create() (*App, error) {
 	result.InputManager = im
 
 	result.abyssWrapper = abysswrapper.Create()
+
+	result.parseArgs()
+
+	result.config = hsconfig.Load(*result.Flags.optionalConfigPath)
 
 	return result, nil
 }
