@@ -42,10 +42,7 @@ func Create(
 	}
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
-		s := &widgetState{
-			viewerState:    &viewerState{},
-			newLayerFields: &newLayerFields{},
-		}
+		s := result.getState()
 		s.Decode(state)
 		result.setState(s)
 	}

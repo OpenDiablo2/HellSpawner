@@ -24,15 +24,17 @@ const (
 
 // Config represents HellSpawner's config
 type Config struct {
-	RecentProjects          []string
-	AbyssEnginePath         string
-	AuxiliaryMpqPath        string
-	ExternalListFile        string
-	OpenMostRecentOnStartup bool
-	ProjectStates           map[string]hsstate.AppState
+	Path                    string                      `json:"-"`
+	RecentProjects          []string                    `json:"RecentProjects"`
+	AbyssEnginePath         string                      `json:"AbyssEnginePath"`
+	AuxiliaryMpqPath        string                      `json:"AuxiliaryMpqPath"`
+	ExternalListFile        string                      `json:"ExternalListFile"`
+	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
+	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
 }
 
-func getConfigPath() string {
+// GetConfigPath returns default config path
+func GetConfigPath() string {
 	configPath := configdir.LocalConfig("hellspawner")
 	if err := configdir.MakePath(configPath); err != nil {
 		log.Fatal(err)
@@ -41,8 +43,9 @@ func getConfigPath() string {
 	return filepath.Join(configPath, "environment.json")
 }
 
-func generateDefaultConfig() *Config {
+func generateDefaultConfig(path string) *Config {
 	result := &Config{
+		Path:                    path,
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
@@ -56,11 +59,16 @@ func generateDefaultConfig() *Config {
 }
 
 // Load loads config
-func Load() *Config {
-	configFile := getConfigPath()
+func Load(optionalPath string) *Config {
+	var configFile string
+	if optionalPath == "" {
+		configFile = GetConfigPath()
+	} else {
+		configFile = optionalPath
+	}
 
 	if _, err := os.Stat(configFile); os.IsNotExist(err) {
-		return generateDefaultConfig()
+		return generateDefaultConfig(configFile)
 	}
 
 	var err error
@@ -68,12 +76,12 @@ func Load() *Config {
 	var data []byte
 
 	if data, err = ioutil.ReadFile(filepath.Clean(configFile)); err != nil {
-		return generateDefaultConfig()
+		return generateDefaultConfig(configFile)
 	}
 
-	result := generateDefaultConfig()
+	result := generateDefaultConfig(configFile)
 	if err = json.Unmarshal(data, &result); err != nil {
-		return generateDefaultConfig()
+		return generateDefaultConfig(configFile)
 	}
 
 	return result
@@ -89,9 +97,8 @@ func (c *Config) Save() error {
 		return fmt.Errorf("cannot marshal config: %w", err)
 	}
 
-	path := getConfigPath()
-	if err := ioutil.WriteFile(path, data, os.FileMode(newFileMode)); err != nil {
-		return fmt.Errorf("cannot write config at %s: %w", path, err)
+	if err := ioutil.WriteFile(c.Path, data, os.FileMode(newFileMode)); err != nil {
+		return fmt.Errorf("cannot write config at %s: %w", c.Path, err)
 	}
 
 	return nil
