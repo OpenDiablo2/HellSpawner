@@ -80,17 +80,17 @@ type viewerState struct {
 		frame     int32
 		scale     int32
 	}
-	loadingTexture     bool
+
 	lastFrame          int32
 	lastDirection      int32
 	framesPerDirection uint32
-	texture            *giu.Texture
-	rgb                []*image2.RGBA
+
+	textures []*giu.Texture
 }
 
 // Dispose cleans state content
 func (is *viewerState) Dispose() {
-	is.texture = nil
+	is.textures = nil
 }
 
 func (p *widget) getStateID() string {
@@ -123,10 +123,11 @@ func (p *widget) initState() {
 		},
 	}
 
-	newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
+	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
+	rgb := make([]*image2.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -149,7 +150,7 @@ func (p *widget) initState() {
 					r, g, b = val, val, val
 				}
 
-				newState.rgb[frameIndex].Set(
+				rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
 						R: r,
@@ -163,6 +164,21 @@ func (p *widget) initState() {
 	}
 
 	p.setState(newState)
+
+	go func() {
+		textures := make([]*giu.Texture, totalFrames)
+
+		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
+			frameIndex := frameIndex
+			p.textureLoader.CreateTextureFromARGB(rgb[frameIndex], func(t *giu.Texture) {
+				textures[frameIndex] = t
+			})
+		}
+
+		s := p.getState()
+		s.textures = textures
+		p.setState(s)
+	}()
 }
 
 func (p *widget) setState(s giu.Disposable) {

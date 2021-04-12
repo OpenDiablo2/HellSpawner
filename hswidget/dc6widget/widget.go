@@ -58,30 +58,11 @@ func (p *widget) Build() {
 func (p *widget) makeViewerLayout() giu.Layout {
 	viewerState := p.getState()
 
-	vs := (viewerState.lastDirection != viewerState.controls.direction || viewerState.lastFrame != viewerState.controls.frame)
-	if !viewerState.loadingTexture && vs {
-		// Control values have changed, need to regenerate the texture
-		viewerState.lastDirection = viewerState.controls.direction
-		viewerState.lastFrame = viewerState.controls.frame
-		viewerState.loadingTexture = true
-		viewerState.texture = nil
-
-		p.setState(viewerState)
-
-		p.textureLoader.CreateTextureFromARGB(
-			viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))],
-			func(tex *giu.Texture,
-			) {
-				newState := p.getState()
-
-				newState.texture = tex
-				newState.loadingTexture = false
-				p.setState(newState)
-			})
-	}
-
 	imageScale := uint32(viewerState.controls.scale)
 	curFrameIndex := int(viewerState.controls.frame) + (int(viewerState.controls.direction) * int(p.dc6.FramesPerDirection))
+	dirIdx := int(viewerState.controls.direction)
+
+	textureIdx := dirIdx*int(p.dc6.FramesPerDirection) + int(viewerState.controls.frame)
 
 	if imageScale < 1 {
 		imageScale = 1
@@ -92,15 +73,15 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		log.Print(err)
 	}
 
-	var widget *giu.ImageWidget
-
 	w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
 	h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
 
-	if viewerState.texture == nil {
+	var widget *giu.ImageWidget
+	if viewerState.textures == nil || len(viewerState.textures) <= int(viewerState.controls.frame) ||
+		viewerState.textures[curFrameIndex] == nil {
 		widget = giu.Image(nil).Size(w, h)
 	} else {
-		widget = giu.Image(viewerState.texture).Size(w, h)
+		widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
 	}
 
 	return giu.Layout{
