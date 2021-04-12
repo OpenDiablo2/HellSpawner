@@ -3,6 +3,7 @@ package dc6widget
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
@@ -11,6 +12,13 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
+)
+
+const (
+	comboW              = 125
+	inputIntW           = 30
+	playPauseButtonSize = 15
 )
 
 const (
@@ -58,30 +66,11 @@ func (p *widget) Build() {
 func (p *widget) makeViewerLayout() giu.Layout {
 	viewerState := p.getState()
 
-	vs := (viewerState.lastDirection != viewerState.controls.direction || viewerState.lastFrame != viewerState.controls.frame)
-	if !viewerState.loadingTexture && vs {
-		// Control values have changed, need to regenerate the texture
-		viewerState.lastDirection = viewerState.controls.direction
-		viewerState.lastFrame = viewerState.controls.frame
-		viewerState.loadingTexture = true
-		viewerState.texture = nil
-
-		p.setState(viewerState)
-
-		p.textureLoader.CreateTextureFromARGB(
-			viewerState.rgb[viewerState.lastFrame+(viewerState.lastDirection*int32(viewerState.framesPerDirection))],
-			func(tex *giu.Texture,
-			) {
-				newState := p.getState()
-
-				newState.texture = tex
-				newState.loadingTexture = false
-				p.setState(newState)
-			})
-	}
-
 	imageScale := uint32(viewerState.controls.scale)
 	curFrameIndex := int(viewerState.controls.frame) + (int(viewerState.controls.direction) * int(p.dc6.FramesPerDirection))
+	dirIdx := int(viewerState.controls.direction)
+
+	textureIdx := dirIdx*int(p.dc6.FramesPerDirection) + int(viewerState.controls.frame)
 
 	if imageScale < 1 {
 		imageScale = 1
@@ -92,15 +81,15 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		log.Print(err)
 	}
 
-	var widget *giu.ImageWidget
-
 	w := float32(p.dc6.Frames[curFrameIndex].Width * imageScale)
 	h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
 
-	if viewerState.texture == nil {
+	var widget *giu.ImageWidget
+	if viewerState.textures == nil || len(viewerState.textures) <= int(viewerState.controls.frame) ||
+		viewerState.textures[curFrameIndex] == nil {
 		widget = giu.Image(nil).Size(w, h)
 	} else {
-		widget = giu.Image(viewerState.texture).Size(w, h)
+		widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
 	}
 
 	return giu.Layout{
@@ -126,6 +115,35 @@ func (p *widget) makeViewerLayout() giu.Layout {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
+		// NOTE: most of DC6 animations arent `playable`
+		// they are sprites, however exists some animations
+		// for example monsters' animations, where `play`
+		// feature is useful
+		p.makePlayerLayout(viewerState),
+		giu.Separator(),
 		widget,
+	}
+}
+
+func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
+	playModeList := make([]string, 0)
+	for i := playModeForward; i <= playModePingPong; i++ {
+		playModeList = append(playModeList, i.String())
+	}
+
+	pm := int32(state.playMode)
+
+	return giu.Layout{
+		giu.Line(
+			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
+			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
+				state.playMode = animationPlayMode(pm)
+			}).Size(comboW),
+			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.tickTime).Size(inputIntW).OnChange(func() {
+				state.ticker.Reset(time.Second * time.Duration(state.tickTime) / miliseconds)
+			}),
+			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
+				Size(playPauseButtonSize, playPauseButtonSize),
+		),
 	}
 }
