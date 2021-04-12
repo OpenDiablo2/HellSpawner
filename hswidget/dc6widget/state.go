@@ -5,11 +5,42 @@ import (
 	image2 "image"
 	"image/color"
 	"log"
+	"time"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
+
+const (
+	miliseconds     = 1000
+	defaultTickTime = 100
+)
+
+type animationPlayMode byte
+
+const (
+	playModeForward animationPlayMode = iota
+	playModeBackword
+	playModePingPong
+)
+
+func (a animationPlayMode) String() string {
+	s := map[animationPlayMode]string{
+		playModeForward:  "Forwards",
+		playModeBackword: "Backwords",
+		playModePingPong: "Ping-Pong",
+	}
+
+	k, ok := s[a]
+	if !ok {
+		return "Unknown"
+	}
+
+	return k
+}
 
 type widgetMode int32
 
@@ -21,11 +52,23 @@ const (
 type widgetState struct {
 	viewerState
 	mode widgetMode
+
+	isPlaying bool
+	repeat    bool
+	tickTime  int32
+	playMode  animationPlayMode
+
+	// cache - will not be saved
+	textures []*giu.Texture
+
+	isForward bool
+	ticker    *time.Ticker
 }
 
 func (w *widgetState) Dispose() {
 	w.viewerState.Dispose()
 	w.mode = dc6WidgetViewer
+	w.textures = nil
 }
 
 func (w *widgetState) Encode() []byte {
@@ -35,6 +78,11 @@ func (w *widgetState) Encode() []byte {
 	sw.PushInt32(w.controls.direction)
 	sw.PushInt32(w.controls.frame)
 	sw.PushInt32(w.controls.scale)
+
+	sw.PushBytes(byte(hsutil.BoolToInt(w.isPlaying)))
+	sw.PushBytes(byte(hsutil.BoolToInt(w.repeat)))
+	sw.PushInt32(w.tickTime)
+	sw.PushBytes(byte(w.playMode))
 
 	return sw.GetBytes()
 }
@@ -71,6 +119,43 @@ func (w *widgetState) Decode(data []byte) {
 
 		return
 	}
+
+	isPlaying, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.isPlaying = isPlaying == 1
+
+	repeat, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.repeat = repeat == 1
+
+	w.tickTime, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	playMode, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.playMode = animationPlayMode(playMode)
+
+	// update ticker
+	w.ticker.Reset(time.Second * time.Duration(w.tickTime) / miliseconds)
 }
 
 // nolint:structcheck // :-/ linter bug?! thes values are deffinitly used
@@ -80,17 +165,15 @@ type viewerState struct {
 		frame     int32
 		scale     int32
 	}
-	loadingTexture     bool
+
 	lastFrame          int32
 	lastDirection      int32
 	framesPerDirection uint32
-	texture            *giu.Texture
-	rgb                []*image2.RGBA
 }
 
-// Dispose cleans state content
-func (is *viewerState) Dispose() {
-	is.texture = nil
+// Dispose disposes state
+func (s *viewerState) Dispose() {
+	// noop
 }
 
 func (p *widget) getStateID() string {
@@ -121,12 +204,24 @@ func (p *widget) initState() {
 			lastDirection:      -1,
 			framesPerDirection: p.dc6.FramesPerDirection,
 		},
+
+		isPlaying: false,
+		repeat:    false,
+		tickTime:  defaultTickTime,
+		playMode:  playModeForward,
 	}
 
-	newState.rgb = make([]*image2.RGBA, p.dc6.Directions*p.dc6.FramesPerDirection)
+	newState.ticker = time.NewTicker(time.Second * time.Duration(newState.tickTime) / miliseconds)
+
+	go p.runPlayer(newState)
+
+	p.setState(newState)
+
+	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
+	rgb := make([]*image2.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -149,7 +244,7 @@ func (p *widget) initState() {
 					r, g, b = val, val, val
 				}
 
-				newState.rgb[frameIndex].Set(
+				rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
 						R: r,
@@ -162,9 +257,61 @@ func (p *widget) initState() {
 		}
 	}
 
-	p.setState(newState)
+	go func() {
+		textures := make([]*giu.Texture, totalFrames)
+
+		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
+			frameIndex := frameIndex
+			p.textureLoader.CreateTextureFromARGB(rgb[frameIndex], func(t *giu.Texture) {
+				textures[frameIndex] = t
+			})
+		}
+
+		s := p.getState()
+		s.textures = textures
+		p.setState(s)
+	}()
 }
 
 func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
+}
+
+func (p *widget) runPlayer(state *widgetState) {
+	for range state.ticker.C {
+		if !state.isPlaying {
+			continue
+		}
+
+		numFrames := int32(p.dc6.FramesPerDirection - 1)
+		isLastFrame := state.controls.frame == numFrames
+
+		// update play direction
+		switch state.playMode {
+		case playModeForward:
+			state.isForward = true
+		case playModeBackword:
+			state.isForward = false
+		case playModePingPong:
+			if isLastFrame || state.controls.frame == 0 {
+				state.isForward = !state.isForward
+			}
+		}
+
+		// now update the frame number
+		if state.isForward {
+			state.controls.frame++
+		} else {
+			state.controls.frame--
+		}
+
+		state.controls.frame = int32(hsutil.Wrap(int(state.controls.frame), int(p.dc6.FramesPerDirection)))
+
+		// next, check for stopping/repeat
+		isStoppingFrame := (state.controls.frame == 0) || (state.controls.frame == numFrames)
+
+		if isStoppingFrame && !state.repeat {
+			state.isPlaying = false
+		}
+	}
 }
