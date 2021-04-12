@@ -72,17 +72,8 @@ func (s *widgetState) Encode() []byte {
 	sw.PushInt32(s.controls.frame)
 	sw.PushInt32(s.controls.scale)
 
-	if s.isPlaying {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
-
-	if s.repeat {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
+	sw.PushBytes(byte(hsutil.BoolToInt(s.isPlaying)))
+	sw.PushBytes(byte(hsutil.BoolToInt(s.repeat)))
 
 	sw.PushInt32(s.tickTime)
 	sw.PushBytes(byte(s.playMode))
