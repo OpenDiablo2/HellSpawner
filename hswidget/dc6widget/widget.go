@@ -115,6 +115,10 @@ func (p *widget) makeViewerLayout() giu.Layout {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
+		// NOTE: most of DC6 animations arent `playable`
+		// they are sprites, however exists some animations
+		// for example monsters' animations, where `play`
+		// feature is useful
 		p.makePlayerLayout(viewerState),
 		giu.Separator(),
 		widget,
