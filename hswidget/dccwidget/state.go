@@ -24,9 +24,9 @@ const (
 
 func (a animationPlayMode) String() string {
 	s := map[animationPlayMode]string{
-		playModeForward:   "Play Forward",
-		playModeBackword:  "Play Backword",
-		playModeLeftRight: "Play forward and than backword",
+		playModeForward:   "Forwards",
+		playModeBackword:  "Backwords",
+		playModeLeftRight: "Ping-Pong",
 	}
 
 	k, ok := s[a]
