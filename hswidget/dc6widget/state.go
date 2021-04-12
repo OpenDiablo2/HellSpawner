@@ -79,6 +79,11 @@ func (w *widgetState) Encode() []byte {
 	sw.PushInt32(w.controls.frame)
 	sw.PushInt32(w.controls.scale)
 
+	sw.PushBytes(byte(hsutil.BoolToInt(w.isPlaying)))
+	sw.PushBytes(byte(hsutil.BoolToInt(w.repeat)))
+	sw.PushInt32(w.tickTime)
+	sw.PushBytes(byte(w.playMode))
+
 	return sw.GetBytes()
 }
 
@@ -114,6 +119,43 @@ func (w *widgetState) Decode(data []byte) {
 
 		return
 	}
+
+	isPlaying, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.isPlaying = isPlaying == 1
+
+	repeat, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.repeat = repeat == 1
+
+	w.tickTime, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	playMode, err := sr.ReadByte()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.playMode = animationPlayMode(playMode)
+
+	// update ticker
+	w.ticker.Reset(time.Second * time.Duration(w.tickTime) / miliseconds)
 }
 
 // nolint:structcheck // :-/ linter bug?! thes values are deffinitly used
