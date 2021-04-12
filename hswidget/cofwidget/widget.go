@@ -71,51 +71,6 @@ func (p *widget) Build() {
 	}
 }
 
-func (p *widget) getStateID() string {
-	return fmt.Sprintf("widget_%s", p.id)
-}
-
-func (p *widget) getState() *widgetState {
-	var state *widgetState
-
-	s := giu.Context.GetState(p.getStateID())
-
-	if s != nil {
-		state = s.(*widgetState)
-		if len(p.cof.CofLayers) > 0 {
-			state.viewerState.layer = &p.cof.CofLayers[state.viewerState.layerIndex]
-		}
-	} else {
-		p.initState()
-		state = p.getState()
-	}
-
-	return state
-}
-
-func (p *widget) setState(s giu.Disposable) {
-	giu.Context.SetState(p.getStateID(), s)
-}
-
-func (p *widget) initState() {
-	state := &widgetState{
-		mode: modeViewer,
-		viewerState: &viewerState{
-			confirmDialog: &hswidget.PopUpConfirmDialog{},
-		},
-		newLayerFields: &newLayerFields{
-			selectable: true,
-			drawEffect: int32(d2enum.DrawEffectNone),
-		},
-	}
-
-	if len(p.cof.CofLayers) > 0 {
-		state.viewerState.layer = &p.cof.CofLayers[0]
-	}
-
-	p.setState(state)
-}
-
 func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
