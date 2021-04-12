@@ -5,11 +5,40 @@ import (
 	image2 "image"
 	"image/color"
 	"log"
+	"time"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
+
+const (
+	miliseconds     = 1000
+	defaultTickTime = 100
+)
+
+type animationPlayMode byte
+
+const (
+	playModeForward animationPlayMode = iota
+	playModeBackword
+	playModeLeftRight
+)
+
+func (a animationPlayMode) String() string {
+	s := map[animationPlayMode]string{
+		playModeForward:   "Forwards",
+		playModeBackword:  "Backwords",
+		playModeLeftRight: "Ping-Pong",
+	}
+
+	k, ok := s[a]
+	if !ok {
+		return "Unknown"
+	}
+
+	return k
+}
 
 type widgetMode int32
 
@@ -21,11 +50,23 @@ const (
 type widgetState struct {
 	viewerState
 	mode widgetMode
+
+	isPlaying bool
+	repeat    bool
+	tickTime  int32
+	playMode  animationPlayMode
+
+	// cache - will not be saved
+	textures []*giu.Texture
+
+	leftRightDirection bool
+	ticker             *time.Ticker
 }
 
 func (w *widgetState) Dispose() {
 	w.viewerState.Dispose()
 	w.mode = dc6WidgetViewer
+	w.textures = nil
 }
 
 func (w *widgetState) Encode() []byte {
@@ -84,13 +125,11 @@ type viewerState struct {
 	lastFrame          int32
 	lastDirection      int32
 	framesPerDirection uint32
-
-	textures []*giu.Texture
 }
 
-// Dispose cleans state content
-func (is *viewerState) Dispose() {
-	is.textures = nil
+// Dispose disposes state
+func (s *viewerState) Dispose() {
+	// noop
 }
 
 func (p *widget) getStateID() string {
@@ -121,7 +160,18 @@ func (p *widget) initState() {
 			lastDirection:      -1,
 			framesPerDirection: p.dc6.FramesPerDirection,
 		},
+
+		isPlaying: false,
+		repeat:    false,
+		tickTime:  defaultTickTime,
+		playMode:  playModeForward,
 	}
+
+	newState.ticker = time.NewTicker(time.Second * time.Duration(newState.tickTime) / miliseconds)
+
+	go p.runPlayer(newState)
+
+	p.setState(newState)
 
 	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
 	rgb := make([]*image2.RGBA, totalFrames)
@@ -163,8 +213,6 @@ func (p *widget) initState() {
 		}
 	}
 
-	p.setState(newState)
-
 	go func() {
 		textures := make([]*giu.Texture, totalFrames)
 
@@ -183,4 +231,53 @@ func (p *widget) initState() {
 
 func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
+}
+
+// nolint:gocognit,gocyclo // will cut later
+func (p *widget) runPlayer(state *widgetState) {
+	for range state.ticker.C {
+		if state.isPlaying {
+			switch state.playMode {
+			case playModeForward:
+				if state.controls.frame < int32(p.dc6.FramesPerDirection-1) {
+					state.controls.frame++
+				} else {
+					if state.repeat {
+						state.controls.frame = 0
+					} else {
+						state.isPlaying = false
+					}
+				}
+			case playModeBackword:
+				if state.controls.frame > 0 {
+					state.controls.frame--
+				} else {
+					if state.repeat {
+						state.controls.frame = int32(p.dc6.FramesPerDirection)
+					} else {
+						state.isPlaying = false
+					}
+				}
+			case playModeLeftRight:
+				if state.leftRightDirection {
+					if fpd := int32(p.dc6.FramesPerDirection) - 1; state.controls.frame < fpd {
+						state.controls.frame++
+						if state.controls.frame == fpd {
+							state.leftRightDirection = false
+						}
+					}
+				} else {
+					if state.controls.frame > 0 {
+						state.controls.frame--
+						if state.controls.frame == 0 {
+							state.leftRightDirection = true
+							if !state.repeat {
+								state.isPlaying = false
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
