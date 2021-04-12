@@ -18,15 +18,17 @@ import (
 	"github.com/faiface/beep/wav"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 
 	g "github.com/ianling/giu"
 )
 
 const (
-	mainWindowW, mainWindowH  = 300, 100
+	mainWindowW, mainWindowH  = 300, 70
 	progressIndicatorModifier = 60
 	progressTimeModifier      = 22050
+	btnSize                   = 20
 )
 
 // static check, to ensure, if sound editor implemented editoWindow
@@ -36,15 +38,16 @@ var _ hscommon.EditorWindow = &SoundEditor{}
 type SoundEditor struct {
 	*hseditor.Editor
 
-	streamer beep.StreamSeekCloser
-	control  *beep.Ctrl
-	format   beep.Format
-	file     string
+	streamer      beep.StreamSeekCloser
+	control       *beep.Ctrl
+	format        beep.Format
+	file          string
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new sound editor
 func Create(_ *hsconfig.Config,
-	_ hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
@@ -59,11 +62,12 @@ func Create(_ *hsconfig.Config,
 	}
 
 	result := &SoundEditor{
-		Editor:   hseditor.New(pathEntry, x, y, project),
-		file:     filepath.Base(pathEntry.FullPath),
-		streamer: streamer,
-		control:  control,
-		format:   format,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		file:          filepath.Base(pathEntry.FullPath),
+		streamer:      streamer,
+		control:       control,
+		format:        format,
+		textureLoader: tl,
 	}
 
 	result.Path = pathEntry
@@ -75,6 +79,8 @@ func Create(_ *hsconfig.Config,
 
 // Build builds a sound editor
 func (s *SoundEditor) Build() {
+	isPlaying := !s.control.Paused
+
 	secondsCurrent := s.streamer.Position() / progressTimeModifier
 	secondsTotal := s.streamer.Len() / progressTimeModifier
 
@@ -82,17 +88,16 @@ func (s *SoundEditor) Build() {
 		Flags(g.WindowFlagsNoResize).
 		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
-			g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
-				Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
-					secondsCurrent/progressIndicatorModifier,
-					secondsCurrent%progressIndicatorModifier,
-					secondsTotal/progressIndicatorModifier,
-					secondsTotal%progressIndicatorModifier,
-				)),
-			g.Separator(),
 			g.Line(
-				g.Button("Play").OnClick(s.play),
-				g.Button("Stop").OnClick(s.stop),
+				hswidget.PlayPauseButton("##"+s.Path.GetUniqueID()+"playPause", &isPlaying, s.textureLoader).
+					OnPlayClicked(s.play).OnPauseClicked(s.stop).Size(btnSize, btnSize),
+				g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
+					Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
+						secondsCurrent/progressIndicatorModifier,
+						secondsCurrent%progressIndicatorModifier,
+						secondsTotal/progressIndicatorModifier,
+						secondsTotal%progressIndicatorModifier,
+					)),
 			),
 		})
 }
