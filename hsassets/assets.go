@@ -25,6 +25,12 @@ var (
 
 	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png
 	RightArrowIcon []byte
+
+	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/player_play.png
+	PlayButtonIcon []byte
+
+	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/player_pause.png
+	PauseButtonIcon []byte
 )
 
 // these variables are links to existing fonts used in project
