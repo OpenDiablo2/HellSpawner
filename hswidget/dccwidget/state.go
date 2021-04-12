@@ -238,12 +238,6 @@ func (p *widget) initState() {
 		s.textures = textures
 		p.setState(s)
 	}()
-
-	firstFrame := p.dcc.Directions[0].Frames[0]
-	sw := float32(firstFrame.Width)
-	sh := float32(firstFrame.Height)
-	widget := giu.Image(nil).Size(sw, sh)
-	widget.Build()
 }
 
 func (p *widget) setState(s giu.Disposable) {

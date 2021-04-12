@@ -86,7 +86,6 @@ func (p *widget) Build() {
 	}
 
 	giu.Layout{
-		giu.Separator(),
 		giu.Line(
 			giu.Label(fmt.Sprintf("Signature: %v", p.dcc.Signature)),
 			giu.Label(fmt.Sprintf("Version: %v", p.dcc.Version)),
