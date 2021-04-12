@@ -10,8 +10,6 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
-
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
 )
 
 const miliseconds = 1000
@@ -57,8 +55,6 @@ type widgetState struct {
 	textures []*giu.Texture
 
 	leftRightDirection bool
-	playButtonTexture  *giu.Texture
-	pauseButtonTexture *giu.Texture
 	ticker             *time.Ticker
 }
 
@@ -181,13 +177,6 @@ func (p *widget) initState() {
 	}
 
 	state.ticker = time.NewTicker(time.Second * time.Duration(state.tickTime) / miliseconds)
-
-	p.textureLoader.CreateTextureFromFile(hsassets.PlayButtonIcon, func(t *giu.Texture) {
-		state.playButtonTexture = t
-	})
-	p.textureLoader.CreateTextureFromFile(hsassets.PauseButtonIcon, func(t *giu.Texture) {
-		state.pauseButtonTexture = t
-	})
 
 	p.setState(state)
 
