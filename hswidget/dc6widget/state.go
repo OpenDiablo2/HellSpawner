@@ -22,14 +22,14 @@ type animationPlayMode byte
 const (
 	playModeForward animationPlayMode = iota
 	playModeBackword
-	playModeLeftRight
+	playModePingPong
 )
 
 func (a animationPlayMode) String() string {
 	s := map[animationPlayMode]string{
-		playModeForward:   "Forwards",
-		playModeBackword:  "Backwords",
-		playModeLeftRight: "Ping-Pong",
+		playModeForward:  "Forwards",
+		playModeBackword: "Backwords",
+		playModePingPong: "Ping-Pong",
 	}
 
 	k, ok := s[a]
@@ -258,7 +258,7 @@ func (p *widget) runPlayer(state *widgetState) {
 						state.isPlaying = false
 					}
 				}
-			case playModeLeftRight:
+			case playModePingPong:
 				if state.leftRightDirection {
 					if fpd := int32(p.dc6.FramesPerDirection) - 1; state.controls.frame < fpd {
 						state.controls.frame++

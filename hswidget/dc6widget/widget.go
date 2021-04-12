@@ -123,7 +123,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 
 func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 	playModeList := make([]string, 0)
-	for i := playModeForward; i <= playModeLeftRight; i++ {
+	for i := playModeForward; i <= playModePingPong; i++ {
 		playModeList = append(playModeList, i.String())
 	}
 
