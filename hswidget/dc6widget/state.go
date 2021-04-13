@@ -2,12 +2,14 @@ package dc6widget
 
 import (
 	"fmt"
+	"image"
 	image2 "image"
 	"image/color"
 	"log"
 	"time"
 
 	"github.com/ianling/giu"
+	gim "github.com/ozankasikci/go-image-merge"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 
@@ -46,11 +48,13 @@ type widgetMode int32
 
 const (
 	dc6WidgetViewer widgetMode = iota
+	dc6WidgetMerge
 )
 
 // widgetState represents dc6 viewer's state
 type widgetState struct {
 	viewerState
+	mergeState
 	mode widgetMode
 
 	isPlaying bool
@@ -59,6 +63,7 @@ type widgetState struct {
 	playMode  animationPlayMode
 
 	// cache - will not be saved
+	rgb      []*image2.RGBA
 	textures []*giu.Texture
 
 	isForward bool
@@ -83,6 +88,9 @@ func (w *widgetState) Encode() []byte {
 	sw.PushBytes(byte(hsutil.BoolToInt(w.repeat)))
 	sw.PushInt32(w.tickTime)
 	sw.PushBytes(byte(w.playMode))
+
+	sw.PushInt32(w.width)
+	sw.PushInt32(w.height)
 
 	return sw.GetBytes()
 }
@@ -154,6 +162,20 @@ func (w *widgetState) Decode(data []byte) {
 
 	w.playMode = animationPlayMode(playMode)
 
+	w.width, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
+	w.height, err = sr.ReadInt32()
+	if err != nil {
+		log.Print(err)
+
+		return
+	}
+
 	// update ticker
 	w.ticker.Reset(time.Second * time.Duration(w.tickTime) / miliseconds)
 }
@@ -174,6 +196,19 @@ type viewerState struct {
 // Dispose disposes state
 func (s *viewerState) Dispose() {
 	// noop
+}
+
+type mergeState struct {
+	width,
+	height int32
+	merged *giu.Texture
+	imgw,  // nolint:structcheck // linter's bug - it is used
+	imgh int
+}
+
+func (s *mergeState) Dispose() {
+	s.width, s.height = 0, 0
+	s.merged = nil
 }
 
 func (p *widget) getStateID() string {
@@ -204,6 +239,10 @@ func (p *widget) initState() {
 			lastDirection:      -1,
 			framesPerDirection: p.dc6.FramesPerDirection,
 		},
+		mergeState: mergeState{
+			width:  int32(p.dc6.FramesPerDirection),
+			height: 1,
+		},
 
 		isPlaying: false,
 		repeat:    false,
@@ -215,13 +254,11 @@ func (p *widget) initState() {
 
 	go p.runPlayer(newState)
 
-	p.setState(newState)
-
 	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
-	rgb := make([]*image2.RGBA, totalFrames)
+	newState.rgb = make([]*image2.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -244,7 +281,7 @@ func (p *widget) initState() {
 					r, g, b = val, val, val
 				}
 
-				rgb[frameIndex].Set(
+				newState.rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
 						R: r,
@@ -257,12 +294,14 @@ func (p *widget) initState() {
 		}
 	}
 
+	p.setState(newState)
+
 	go func() {
 		textures := make([]*giu.Texture, totalFrames)
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 			frameIndex := frameIndex
-			p.textureLoader.CreateTextureFromARGB(rgb[frameIndex], func(t *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(newState.rgb[frameIndex], func(t *giu.Texture) {
 				textures[frameIndex] = t
 			})
 		}
@@ -314,4 +353,38 @@ func (p *widget) runPlayer(state *widgetState) {
 			state.isPlaying = false
 		}
 	}
+}
+
+func (p *widget) recalculateMergeWidth(state *widgetState) {
+	// the area of our rectangle must be less or equal than FramesPerDirection
+	state.width = int32(p.dc6.FramesPerDirection) / state.height
+	p.createImage(state)
+}
+
+func (p *widget) recalculateMergeHeight(state *widgetState) {
+	// the area of our rectangle must be less or equal than FramesPerDirection
+	state.height = int32(p.dc6.FramesPerDirection) / state.width
+	p.createImage(state)
+}
+
+func (p *widget) createImage(state *widgetState) {
+	firstFrame := state.controls.direction * int32(p.dc6.FramesPerDirection)
+
+	grids := make([]*gim.Grid, 0)
+	for j := int32(0); j < state.height*state.width; j++ {
+		// https://github.com/ozankasikci/go-image-merge/pull/9
+		img := image.Image(state.rgb[firstFrame+j])
+		grids = append(grids, &gim.Grid{Image: &img})
+	}
+
+	newimg, err := gim.New(grids, int(state.width), int(state.height)).Merge()
+	if err != nil {
+		log.Print(err)
+	}
+
+	p.textureLoader.CreateTextureFromARGB(newimg, func(t *giu.Texture) {
+		state.merged = t
+	})
+
+	state.imgw, state.imgh = newimg.Bounds().Dx(), newimg.Bounds().Dy()
 }

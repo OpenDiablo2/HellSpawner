@@ -19,6 +19,7 @@ const (
 	comboW              = 125
 	inputIntW           = 30
 	playPauseButtonSize = 15
+	buttonW, buttonH    = 200, 30
 )
 
 const (
@@ -46,6 +47,11 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
 		s.Decode(state)
+
+		if s.mode == dc6WidgetMerge {
+			result.createImage(s)
+		}
+
 		result.setState(s)
 	}
 
@@ -56,10 +62,11 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 func (p *widget) Build() {
 	state := p.getState()
 
-	// nolint:gocritic // that's for now, will be more cases
 	switch state.mode {
 	case dc6WidgetViewer:
 		p.makeViewerLayout().Build()
+	case dc6WidgetMerge:
+		p.makeMergeLayout(state).Build()
 	}
 }
 
@@ -115,13 +122,14 @@ func (p *widget) makeViewerLayout() giu.Layout {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
-		// NOTE: most of DC6 animations arent `playable`
-		// they are sprites, however exists some animations
-		// for example monsters' animations, where `play`
-		// feature is useful
 		p.makePlayerLayout(viewerState),
 		giu.Separator(),
 		widget,
+		giu.Separator(),
+		giu.Button("Merge##"+p.id+"mergebutton").Size(buttonW, buttonH).OnClick(func() {
+			viewerState.mode = dc6WidgetMerge
+			p.createImage(viewerState)
+		}),
 	}
 }
 
@@ -145,5 +153,23 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
 				Size(playPauseButtonSize, playPauseButtonSize),
 		),
+	}
+}
+
+func (p *widget) makeMergeLayout(state *widgetState) giu.Layout {
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Merge Frames:"),
+			giu.InputInt("Width##"+p.id+"mergeWidth", &state.width).Size(inputIntW).OnChange(func() {
+				p.recalculateMergeHeight(state)
+			}),
+			giu.InputInt("Height##"+p.id+"mergeHeight", &state.height).Size(inputIntW).OnChange(func() {
+				p.recalculateMergeWidth(state)
+			}),
+		),
+		giu.Image(state.merged).Size(float32(state.imgw), float32(state.imgh)),
+		giu.Button("Back##"+p.id+"mergeBack").Size(buttonW, buttonH).OnClick(func() {
+			state.mode = dc6WidgetViewer
+		}),
 	}
 }
