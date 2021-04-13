@@ -3,7 +3,6 @@ package dc6widget
 import (
 	"fmt"
 	"image"
-	image2 "image"
 	"image/color"
 	"log"
 	"time"
@@ -63,7 +62,7 @@ type widgetState struct {
 	playMode  animationPlayMode
 
 	// cache - will not be saved
-	rgb      []*image2.RGBA
+	rgb      []*image.RGBA
 	textures []*giu.Texture
 
 	isForward bool
@@ -255,10 +254,10 @@ func (p *widget) initState() {
 	go p.runPlayer(newState)
 
 	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
-	newState.rgb = make([]*image2.RGBA, totalFrames)
+	newState.rgb = make([]*image.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		newState.rgb[frameIndex] = image.NewRGBA(image.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -371,9 +370,11 @@ func (p *widget) createImage(state *widgetState) {
 	firstFrame := state.controls.direction * int32(p.dc6.FramesPerDirection)
 
 	grids := make([]*gim.Grid, 0)
+
 	for j := int32(0); j < state.height*state.width; j++ {
 		// https://github.com/ozankasikci/go-image-merge/pull/9
 		img := image.Image(state.rgb[firstFrame+j])
+
 		grids = append(grids, &gim.Grid{Image: &img})
 	}
 
