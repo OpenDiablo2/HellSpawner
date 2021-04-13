@@ -2,7 +2,7 @@ package dccwidget
 
 import (
 	"fmt"
-	image2 "image"
+	"image"
 	"image/color"
 	"log"
 	"time"
@@ -54,6 +54,7 @@ type widgetState struct {
 	playMode  animationPlayMode
 
 	// cache - will not be saved
+	images   []*image.RGBA
 	textures []*giu.Texture
 
 	isForward bool // determines a direction of animation
@@ -176,7 +177,7 @@ func (p *widget) initState() {
 	go p.runPlayer(state)
 
 	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
-	images := make([]*image2.RGBA, totalFrames)
+	state.images = make([]*image.RGBA, totalFrames)
 
 	for dirIdx := range p.dcc.Directions {
 		fw := p.dcc.Directions[dirIdx].Box.Width
@@ -188,7 +189,7 @@ func (p *widget) initState() {
 			frame := p.dcc.Directions[dirIdx].Frames[frameIdx]
 			pixels := frame.PixelData
 
-			images[absoluteFrameIdx] = image2.NewRGBA(image2.Rect(0, 0, fw, fh))
+			state.images[absoluteFrameIdx] = image.NewRGBA(image.Rect(0, 0, fw, fh))
 
 			for y := 0; y < fh; y++ {
 				for x := 0; x < fw; x++ {
@@ -200,7 +201,7 @@ func (p *widget) initState() {
 					val := pixels[idx]
 
 					RGBAColor := p.makeImagePixel(val)
-					images[absoluteFrameIdx].Set(x, y, RGBAColor)
+					state.images[absoluteFrameIdx].Set(x, y, RGBAColor)
 				}
 			}
 		}
@@ -211,7 +212,7 @@ func (p *widget) initState() {
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 			frameIndex := frameIndex
-			p.textureLoader.CreateTextureFromARGB(images[frameIndex], func(t *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(state.images[frameIndex], func(t *giu.Texture) {
 				textures[frameIndex] = t
 			})
 		}

@@ -1,10 +1,16 @@
 package dccwidget
 
 import (
+	"bytes"
 	"fmt"
+	"image"
+	"image/gif"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
+	"github.com/OpenDiablo2/dialog"
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
@@ -134,6 +140,67 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 			}),
 			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
 				Size(playPauseButtonSize, playPauseButtonSize),
+			giu.Button("Export GIF##"+p.id+"exportGif").OnClick(func() {
+				err := p.exportGif(state)
+				if err != nil {
+					dialog.Message(fmt.Sprintf("error while creating gif %v", err)).Error()
+				}
+			}),
 		),
 	}
+}
+
+// tutorial: http://tech.nitoyon.com/en/blog/2016/01/07/go-animated-gif-gen/
+func (p *widget) exportGif(state *widgetState) error {
+	filePath, err := dialog.File().Title("Save").Filter("gif images", "gif").Save()
+	if err != nil {
+		return fmt.Errorf("error reading filepath: %w", err)
+	}
+
+	fpd := int32(p.dcc.FramesPerDirection)
+	firstFrame := state.controls.direction * fpd
+	images := state.images[firstFrame : firstFrame+fpd]
+
+	outGif := &gif.GIF{}
+
+	// reload static image and construct outGif
+	for _, img := range images {
+		// FROM TUTORIAL:
+		// Read each frame GIF image with gif.Decode. If we read JPEG images, we have to convert them programatically
+		// (goanigiffy does this by calling gif.Encode and gif.Decode).
+		g := bytes.NewBuffer([]byte{})
+
+		err := gif.Encode(g, img, nil) // nolint:govet // I want to reuse this ;-)
+		if err != nil {
+			return fmt.Errorf("error encoding gif: %w", err)
+		}
+
+		inGif, err := gif.Decode(g)
+		if err != nil {
+			return fmt.Errorf("error decoding gif image: %w", err)
+		}
+
+		outGif.Image = append(outGif.Image, inGif.(*image.Paletted))
+		outGif.Delay = append(outGif.Delay, int(state.tickTime/miliseconds))
+	}
+
+	// save gif image
+	file, err := os.OpenFile(filepath.Clean(filePath), os.O_WRONLY|os.O_CREATE, 0o600)
+	if err != nil {
+		return fmt.Errorf("error creating a new file: %w", err)
+	}
+
+	defer func() {
+		err := file.Close() // nolint:govet // I want to re-use err
+		if err != nil {
+			log.Fatalf("Error closing file %s: %v", filePath, err)
+		}
+	}()
+
+	err = gif.EncodeAll(file, outGif)
+	if err != nil {
+		return fmt.Errorf("error saving to output gif: %w", err)
+	}
+
+	return nil
 }
