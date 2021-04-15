@@ -3,6 +3,7 @@ package dccwidget
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
@@ -11,6 +12,13 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
+)
+
+const (
+	inputIntW           = 30
+	playPauseButtonSize = 15
+	comboW              = 125
 )
 
 const (
@@ -101,6 +109,31 @@ func (p *widget) Build() {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
+		p.makePlayerLayout(viewerState),
+		giu.Separator(),
 		widget,
 	}.Build()
+}
+
+func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
+	playModeList := make([]string, 0)
+	for i := playModeForward; i <= playModePingPong; i++ {
+		playModeList = append(playModeList, i.String())
+	}
+
+	pm := int32(state.playMode)
+
+	return giu.Layout{
+		giu.Line(
+			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
+			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
+				state.playMode = animationPlayMode(pm)
+			}).Size(comboW),
+			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.tickTime).Size(inputIntW).OnChange(func() {
+				state.ticker.Reset(time.Second * time.Duration(state.tickTime) / miliseconds)
+			}),
+			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
+				Size(playPauseButtonSize, playPauseButtonSize),
+		),
+	}
 }

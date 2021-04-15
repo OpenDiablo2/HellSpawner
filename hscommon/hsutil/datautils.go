@@ -9,3 +9,14 @@ func BoolToInt(b bool) int32 {
 
 	return 0
 }
+
+// Wrap integer to max: wrap(450, 360) == 90
+func Wrap(x, max int) int {
+	wrapped := x % max
+
+	if wrapped < 0 {
+		return max + wrapped
+	}
+
+	return wrapped
+}
