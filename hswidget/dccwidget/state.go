@@ -10,6 +10,8 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
+
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
 const miliseconds = 1000
@@ -54,8 +56,8 @@ type widgetState struct {
 	// cache - will not be saved
 	textures []*giu.Texture
 
-	leftRightDirection bool
-	ticker             *time.Ticker
+	isForward bool // determines a direction of animation
+	ticker    *time.Ticker
 }
 
 // Dispose cleans viewers state
@@ -70,17 +72,8 @@ func (s *widgetState) Encode() []byte {
 	sw.PushInt32(s.controls.frame)
 	sw.PushInt32(s.controls.scale)
 
-	if s.isPlaying {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
-
-	if s.repeat {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
+	sw.PushBytes(byte(hsutil.BoolToInt(s.isPlaying)))
+	sw.PushBytes(byte(hsutil.BoolToInt(s.repeat)))
 
 	sw.PushInt32(s.tickTime)
 	sw.PushBytes(byte(s.playMode))
@@ -259,51 +252,41 @@ func (p *widget) makeImagePixel(val byte) color.RGBA {
 	return RGBAColor
 }
 
-// nolint:gocognit,gocyclo // will cut later
 func (p *widget) runPlayer(state *widgetState) {
 	for range state.ticker.C {
-		if state.isPlaying {
-			switch state.playMode {
-			case playModeForward:
-				if state.controls.frame < int32(p.dcc.FramesPerDirection-1) {
-					state.controls.frame++
-				} else {
-					if state.repeat {
-						state.controls.frame = 0
-					} else {
-						state.isPlaying = false
-					}
-				}
-			case playModeBackword:
-				if state.controls.frame > 0 {
-					state.controls.frame--
-				} else {
-					if state.repeat {
-						state.controls.frame = int32(p.dcc.FramesPerDirection)
-					} else {
-						state.isPlaying = false
-					}
-				}
-			case playModePingPong:
-				if state.leftRightDirection {
-					if fpd := int32(p.dcc.FramesPerDirection) - 1; state.controls.frame < fpd {
-						state.controls.frame++
-						if state.controls.frame == fpd {
-							state.leftRightDirection = false
-						}
-					}
-				} else {
-					if state.controls.frame > 0 {
-						state.controls.frame--
-						if state.controls.frame == 0 {
-							state.leftRightDirection = true
-							if !state.repeat {
-								state.isPlaying = false
-							}
-						}
-					}
-				}
+		if !state.isPlaying {
+			continue
+		}
+
+		numFrames := int32(p.dcc.FramesPerDirection - 1)
+		isLastFrame := state.controls.frame == numFrames
+
+		// update play direction
+		switch state.playMode {
+		case playModeForward:
+			state.isForward = true
+		case playModeBackword:
+			state.isForward = false
+		case playModePingPong:
+			if isLastFrame || state.controls.frame == 0 {
+				state.isForward = !state.isForward
 			}
+		}
+
+		// now update the frame number
+		if state.isForward {
+			state.controls.frame++
+		} else {
+			state.controls.frame--
+		}
+
+		state.controls.frame = int32(hsutil.Wrap(int(state.controls.frame), p.dcc.FramesPerDirection))
+
+		// next, check for stopping/repeat
+		isStoppingFrame := (state.controls.frame == 0) || (state.controls.frame == numFrames)
+
+		if isStoppingFrame && !state.repeat {
+			state.isPlaying = false
 		}
 	}
 }
