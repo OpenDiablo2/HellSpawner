@@ -39,7 +39,7 @@ test:
 cover: test
 	@$(GOCMD) tool cover -html=coverage.txt
 
-## clean: Runs go run
+## clean: Runs go clean
 clean:
 	@echo "Cleaning..."
 	@$(GOCMD) clean
