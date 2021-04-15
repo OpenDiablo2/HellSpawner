@@ -11,10 +11,11 @@ import (
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2ds1"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/ds1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -24,26 +25,33 @@ var _ hscommon.EditorWindow = &DS1Editor{}
 // DS1Editor represents ds1 editor
 type DS1Editor struct {
 	*hseditor.Editor
-	ds1 *d2ds1.DS1
+	ds1                 *d2ds1.DS1
+	deleteButtonTexture *g.Texture
+	textureLoader       hscommon.TextureLoader
 }
 
 // Create creates a new ds1 editor
 func Create(_ *hsconfig.Config,
-	_ hscommon.TextureLoader,
+	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	_ []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
-	ds1, err := d2ds1.LoadDS1(*data)
+	ds1, err := d2ds1.Unmarshal(*data)
 	if err != nil {
-		return nil, fmt.Errorf("error loading DS1 file")
+		return nil, fmt.Errorf("error loading DS1 file: %w", err)
 	}
 
 	result := &DS1Editor{
-		Editor: hseditor.New(pathEntry, x, y, project),
-		ds1:    ds1,
+		Editor:        hseditor.New(pathEntry, x, y, project),
+		ds1:           ds1,
+		textureLoader: tl,
 	}
 
 	result.Path = pathEntry
+
+	tl.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *g.Texture) {
+		result.deleteButtonTexture = texture
+	})
 
 	return result, nil
 }
@@ -53,7 +61,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			hswidget.DS1Viewer(e.Path.GetUniqueID(), e.ds1),
+			ds1widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
 		})
 }
 
