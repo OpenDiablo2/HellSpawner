@@ -2,8 +2,8 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0 h1:tDnuU0igiBiQFjsvq1Bi7DpoUjqI76VVvW045vpeFeM=
 github.com/JoshVarga/blast v0.0.0-20180421040937-681c804fb9f0/go.mod h1:h/5OEGj4G+fpYxluLjSMZbFY011ZxAntO98nCl8mrCs=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210329094534-c8ef8cf2a46d h1:/TVqPFmzqUO9hYKaaEqy3g0eRGw2kenSUn7cEyk3/4s=
-github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210329094534-c8ef8cf2a46d/go.mod h1:IzC2iZNeFCs35eOl/wdvzqSGkHs30d94zomUoaA9QT0=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210407164247-7ce4583fe18e h1:d52Ska0HlV+Y9eG9ihaUE65cOX2BTCZ6a9SnI/F6YT8=
+github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210407164247-7ce4583fe18e/go.mod h1:IzC2iZNeFCs35eOl/wdvzqSGkHs30d94zomUoaA9QT0=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f h1:pvMvvC9qn9EaHDbiCgblnrL4iyvwchcMKO81kSnlEsc=
 github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f/go.mod h1:pVhjsSdbHVR9+2HBRkrfvlZCmjC+jRhGjjKM3uYlfWY=
 github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf h1:FPsprx82rdrX2jiKyS17BH6IrTmUBYqZa/CXT4uvb+I=
