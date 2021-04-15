@@ -511,7 +511,7 @@ func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.Laye
 			OnClick(func() { addCb(*recordIdx) })
 	}
 
-	var deleteBtn giu.Layout
+	var deleteBtn giu.Widget
 	if deleteCb != nil {
 		deleteBtn = hswidget.MakeImageButton(
 			"##"+p.id+"delete"+t.String(),
