@@ -44,19 +44,23 @@ const (
 	mpqExplorerDefaultY     = 30
 	consoleDefaultX         = 10
 	consoleDefaultY         = 500
-)
 
-const (
 	sampleRate = 22050
-)
 
-const (
 	bgColor = 0x0a0a0aff
-)
 
-const (
 	autoSaveTimer = 120
 )
+
+type editorConstructor func(
+	config *hsconfig.Config,
+	textureLoader hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	state []byte,
+	data *[]byte,
+	x, y float32,
+	project *hsproject.Project,
+) (hscommon.EditorWindow, error)
 
 // App represents an app
 type App struct {
@@ -74,15 +78,7 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(
-		config *hsconfig.Config,
-		textureLoader hscommon.TextureLoader,
-		pathEntry *hscommon.PathEntry,
-		state []byte,
-		data *[]byte,
-		x, y float32,
-		project *hsproject.Project,
-	) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]editorConstructor
 
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
@@ -100,18 +96,10 @@ type App struct {
 func Create() (*App, error) {
 	tl := hscommon.NewTextureLoader()
 	result := &App{
-		Flags:   &Flags{},
-		editors: make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(
-			config *hsconfig.Config,
-			textureLoader hscommon.TextureLoader,
-			pathEntry *hscommon.PathEntry,
-			state []byte,
-			data *[]byte,
-			x, y float32,
-			project *hsproject.Project) (hscommon.EditorWindow, error)),
-
-		TextureLoader: tl,
+		Flags:              &Flags{},
+		editors:            make([]hscommon.EditorWindow, 0),
+		editorConstructors: make(map[hsfiletypes.FileType]editorConstructor),
+		TextureLoader:      tl,
 	}
 
 	im := hsinput.NewInputManager()
