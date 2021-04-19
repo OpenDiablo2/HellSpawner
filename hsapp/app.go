@@ -35,17 +35,18 @@ import (
 )
 
 const (
-	baseWindowTitle         = "HellSpawner"
-	editorWindowDefaultX    = 320
-	editorWindowDefaultY    = 30
-	projectExplorerDefaultX = 0
-	projectExplorerDefaultY = 25
-	mpqExplorerDefaultX     = 30
-	mpqExplorerDefaultY     = 30
-	consoleDefaultX         = 10
-	consoleDefaultY         = 500
+	baseWindowTitle          = "HellSpawner"
+	baseWindowW, baseWindowH = 1280, 720
+	editorWindowDefaultX     = 320
+	editorWindowDefaultY     = 30
+	projectExplorerDefaultX  = 0
+	projectExplorerDefaultY  = 25
+	mpqExplorerDefaultX      = 30
+	mpqExplorerDefaultY      = 30
+	consoleDefaultX          = 10
+	consoleDefaultY          = 500
 
-	sampleRate = 22050
+	samplesPerSecond = 22050
 
 	bgColor = 0x0a0a0aff
 
@@ -116,10 +117,10 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
-	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
+	wnd := g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
-	sampleRate := beep.SampleRate(sampleRate)
+	sampleRate := beep.SampleRate(samplesPerSecond)
 
 	// nolint:gomnd // this is 0.1 of second
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
