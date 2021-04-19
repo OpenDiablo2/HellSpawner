@@ -51,10 +51,6 @@ const (
 )
 
 const (
-	bgColor = 0x0a0a0aff
-)
-
-const (
 	autoSaveTimer = 120
 )
 
@@ -128,8 +124,12 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
+	color := a.config.BGColor
+	if bg := uint32(*a.Flags.bgColor); bg != 0 {
+		color = bg
+	}
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
-	wnd.SetBgColor(hsutil.Color(bgColor))
+	wnd.SetBgColor(hsutil.Color(color))
 
 	sampleRate := beep.SampleRate(sampleRate)
 

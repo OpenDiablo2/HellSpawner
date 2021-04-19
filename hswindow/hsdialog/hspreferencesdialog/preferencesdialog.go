@@ -36,6 +36,7 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 
 // Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
+	color := int32(p.config.BGColor)
 	p.IsOpen(&p.Visible).Layout(g.Layout{
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
@@ -57,6 +58,13 @@ func (p *PreferencesDialog) Build() {
 			),
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
+			g.Separator(),
+			g.Line(
+				g.Label("Background color: "),
+				g.InputInt("##AppPreferencesColor", &color).OnChange(func() {
+					p.config.BGColor = uint32(color)
+				}),
+			),
 		}),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),

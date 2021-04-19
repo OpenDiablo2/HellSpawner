@@ -15,6 +15,10 @@ import (
 )
 
 const (
+	bgColor = 0x0a0a0aff
+)
+
+const (
 	newFileMode = 0o644
 )
 
@@ -31,6 +35,7 @@ type Config struct {
 	ExternalListFile        string                      `json:"ExternalListFile"`
 	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
+	BGColor                 uint32                      `json:"BGColor"`
 }
 
 // GetConfigPath returns default config path
@@ -49,6 +54,7 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
+		BGColor:                 bgColor,
 	}
 
 	if err := result.Save(); err != nil {
