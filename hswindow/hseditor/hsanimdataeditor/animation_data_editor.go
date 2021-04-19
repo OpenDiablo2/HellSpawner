@@ -4,8 +4,9 @@ package hsanimdataeditor
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/dialog"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
 
@@ -84,7 +85,7 @@ func (e *AnimationDataEditor) RegisterKeyboardShortcuts(inputManager *hsinput.In
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
 		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
+	}, g.KeyS, glfw.ModShift+glfw.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved

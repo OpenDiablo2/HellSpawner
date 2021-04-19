@@ -9,6 +9,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
 	g "github.com/AllenDang/giu"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
@@ -77,17 +78,17 @@ func (a *App) setup() error {
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
-	a.InputManager.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
-	a.InputManager.RegisterShortcut(a.Save, g.KeyS, g.ModControl, true)
-	a.InputManager.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
-	a.InputManager.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
-	a.InputManager.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
+	a.InputManager.RegisterShortcut(a.onNewProjectClicked, g.KeyN, glfw.ModControl+glfw.ModShift, true)
+	a.InputManager.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, glfw.ModControl, true)
+	a.InputManager.RegisterShortcut(a.Save, g.KeyS, glfw.ModControl, true)
+	a.InputManager.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, glfw.ModAlt, true)
+	a.InputManager.RegisterShortcut(a.Quit, g.KeyQ, glfw.ModAlt, true)
+	a.InputManager.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, 0, true)
 
-	a.InputManager.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)
-	a.InputManager.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, g.ModNone, true)
+	a.InputManager.RegisterShortcut(a.closeActiveEditor, g.KeyW, glfw.ModControl, true)
+	a.InputManager.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, 0, true)
 
-	a.InputManager.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.toggleConsole, g.KeyC, g.ModControl+g.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, glfw.ModControl+glfw.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, glfw.ModControl+glfw.ModShift, true)
+	a.InputManager.RegisterShortcut(a.toggleConsole, g.KeyC, glfw.ModControl+glfw.ModShift, true)
 }

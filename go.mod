@@ -3,7 +3,7 @@ module github.com/OpenDiablo2/HellSpawner
 go 1.16
 
 require (
-	github.com/AllenDang/giu v0.5.3
+	github.com/AllenDang/giu v0.5.4-0.20210418055937-61568fbf282a
 	github.com/AllenDang/imgui-go v1.12.1-0.20210418170346-f9d0cdc984ea
 	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210407164247-7ce4583fe18e
 	github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f

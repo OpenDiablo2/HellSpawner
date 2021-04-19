@@ -88,14 +88,17 @@ func Create(textureLoader hscommon.TextureLoader, regularFont, titleFont, fixedF
 
 // Build build an about dialog
 func (a *AboutDialog) Build() {
-	colorWhite := hsutil.Color(white)
+	// colorWhite := hsutil.Color(white)
 	a.IsOpen(&a.Visible).Layout(g.Layout{
 		g.Line(
 			g.Image(a.logo).Size(mainWindowW, mainWindowH),
 			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(g.Layout{
-				g.Label("HellSpawner").Color(&colorWhite).Font(&a.titleFont),
-				g.Label("The OpenDiablo 2 Toolset").Color(&colorWhite).Font(&a.regularFont),
-				g.Label("Local Build").Color(&colorWhite).Font(&a.fixedFont),
+				// TODO: fix - use style
+				g.Label("HellSpawner"). /*Color(&colorWhite).*/ Font(&a.titleFont),
+				// TODO: fix - use style
+				g.Label("The OpenDiablo 2 Toolset"). /*Color(&colorWhite).*/ Font(&a.regularFont),
+				// TODO: fix - use style
+				g.Label("Local Build"). /*Color(&colorWhite).*/ Font(&a.fixedFont),
 				g.Separator(),
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
 					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{

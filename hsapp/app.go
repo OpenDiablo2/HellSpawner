@@ -15,7 +15,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/imgui-go"
+	"github.com/AllenDang/giu/imgui"
 
 	"github.com/OpenDiablo2/dialog"
 	"github.com/faiface/beep"
@@ -154,7 +154,8 @@ func (a *App) Run() {
 
 	defer a.Quit()
 
-	wnd.SetInputCallback(a.InputManager.HandleInput)
+	// TODO: find substitution for this :D
+	// wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
 }
 

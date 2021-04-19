@@ -4,8 +4,9 @@ package hsdc6editor
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/dialog"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
@@ -115,7 +116,7 @@ func (e *DC6Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
 		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
+	}, g.KeyS, glfw.ModShift+glfw.ModControl, false)
 }
 
 // GenerateSaveData generates save data

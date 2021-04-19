@@ -4,8 +4,9 @@ package hsds1editor
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/dialog"
 	g "github.com/AllenDang/giu"
+	"github.com/OpenDiablo2/dialog"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 
@@ -89,7 +90,7 @@ func (e *DS1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
 		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
+	}, g.KeyS, glfw.ModShift+glfw.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved

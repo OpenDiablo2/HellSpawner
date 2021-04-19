@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	g "github.com/AllenDang/giu"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -125,7 +126,7 @@ func (e *TextEditor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManage
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
 		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
+	}, g.KeyS, glfw.ModShift+glfw.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved

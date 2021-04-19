@@ -75,3 +75,18 @@ func (t *Window) SetVisible(visible bool) {
 func (t *Window) Cleanup() {
 	t.Visible = false
 }
+
+// FIXME: https://github.com/AllenDang/giu/pull/167
+func (e Window) BringToFront() {
+	// noop
+}
+
+// FIXME: https://github.com/AllenDang/giu/pull/167
+func (e Window) HasFocus() bool {
+	return false
+}
+
+// FIXME: https://github.com/AllenDang/giu/pull/167
+func (e Window) CurrentSize() (float32, float32) {
+	return 0, 0
+}

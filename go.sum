@@ -1,6 +1,8 @@
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 github.com/AllenDang/giu v0.5.3 h1:XFQdiiGWGulYen8Ebvri3Oe3DMFl5gY/7bKNtJxhOjM=
 github.com/AllenDang/giu v0.5.3/go.mod h1:s8+ELvV41d5N5oB7N51qmAUukz4dDNT1dVHDp4m/w2g=
+github.com/AllenDang/giu v0.5.4-0.20210418055937-61568fbf282a h1:vmSASjUjpTAlmbMYwfhKhk2+0sWsXiGPw5WwBx3MP08=
+github.com/AllenDang/giu v0.5.4-0.20210418055937-61568fbf282a/go.mod h1:s8+ELvV41d5N5oB7N51qmAUukz4dDNT1dVHDp4m/w2g=
 github.com/AllenDang/imgui-go v1.12.1-0.20210418170346-f9d0cdc984ea h1:XcTcCAO/lQrWBvhfFytU4PB4bQrNMHo5ETbhpr9HJ4s=
 github.com/AllenDang/imgui-go v1.12.1-0.20210418170346-f9d0cdc984ea/go.mod h1:pj6CDn6j3092uZ+8Q7+3kBfbah6jnE2jQN6BWzecVZo=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=

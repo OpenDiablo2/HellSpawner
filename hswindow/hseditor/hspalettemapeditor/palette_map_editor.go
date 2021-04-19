@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	g "github.com/AllenDang/giu"
+	"github.com/go-gl/glfw/v3.3/glfw"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -83,7 +84,7 @@ func (e *PaletteMapEditor) RegisterKeyboardShortcuts(inputManager *hsinput.Input
 	// Ctrl+Shift+S saves file
 	inputManager.RegisterShortcut(func() {
 		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
+	}, g.KeyS, glfw.ModShift+glfw.ModControl, false)
 }
 
 // GenerateSaveData creates data to be saved
