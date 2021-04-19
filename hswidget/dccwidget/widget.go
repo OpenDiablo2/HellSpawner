@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/OpenDiablo2/dialog"
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -134,6 +136,25 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 			}),
 			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
 				Size(playPauseButtonSize, playPauseButtonSize),
+			giu.Button("Export GIF##"+p.id+"exportGif").OnClick(func() {
+				err := p.exportGif(state)
+				if err != nil {
+					dialog.Message(err.Error()).Error()
+				}
+			}),
 		),
 	}
+}
+
+func (p *widget) exportGif(state *widgetState) error {
+	fpd := int32(p.dcc.FramesPerDirection)
+	firstFrame := state.controls.direction * fpd
+	images := state.images[firstFrame : firstFrame+fpd]
+
+	err := hsutil.ExportToGif(images, state.tickTime)
+	if err != nil {
+		return fmt.Errorf("error creating gif file: %w", err)
+	}
+
+	return nil
 }
