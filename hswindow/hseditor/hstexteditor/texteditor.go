@@ -4,7 +4,7 @@ package hstexteditor
 import (
 	"strings"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -29,7 +29,7 @@ type TextEditor struct {
 
 	text      string
 	tableView bool
-	tableRows g.Rows
+	tableRows []*g.RowWidget
 	columns   int
 }
 
@@ -88,14 +88,14 @@ func (e *TextEditor) Build() {
 		e.IsOpen(&e.Visible).
 			Layout(g.Layout{
 				g.InputTextMultiline("", &e.text).
-					Flags(g.InputTextFlagsAllowTabInput),
+					Flags(g.InputTextFlags_AllowTabInput),
 			})
 	} else {
 		e.IsOpen(&e.Visible).
 			Flags(g.WindowFlagsHorizontalScrollbar).
 			Layout(g.Layout{
 				g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
-					g.FastTable("").Border(true).Rows(e.tableRows),
+					g.Table("").FastMode(true).Rows(e.tableRows...),
 				}),
 			})
 	}

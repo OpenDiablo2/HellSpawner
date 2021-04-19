@@ -2,8 +2,8 @@
 package hsconsole
 
 import (
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
@@ -44,7 +44,7 @@ func (c *Console) Build() {
 			}),
 			g.InputTextMultiline("", &c.outputText).
 				Size(lineW, lineH).
-				Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoUndoRedo),
+				Flags(g.InputTextFlags_ReadOnly | g.InputTextFlags_NoUndoRedo),
 			g.Custom(func() {
 				g.PopFont()
 			}),

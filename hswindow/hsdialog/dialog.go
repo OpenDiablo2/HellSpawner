@@ -2,8 +2,8 @@
 package hsdialog
 
 import (
-	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	"github.com/AllenDang/giu"
+	"github.com/inkyblackness/imgui-go"
 )
 
 // Dialog represents HellSpawner's dialog

@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/giu/imgui"
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
@@ -101,19 +101,19 @@ func (a *AboutDialog) Build() {
 					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
 						g.InputTextMultiline("##AboutHellSpawnerReadme", &a.readme).
-							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly | g.InputTextFlags_NoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 					g.TabItem("Credits##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
 						g.InputTextMultiline("##AboutHellSpawnerCredits", &a.credits).
-							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly | g.InputTextFlags_NoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 					g.TabItem("Licenses##AboutHellSpawner").Layout(g.Layout{
 						g.Custom(func() { g.PushFont(a.fixedFont) }),
 						g.InputTextMultiline("##AboutHellSpawnerLicense", &a.license).
-							Size(-1, -1).Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoHorizontalScroll),
+							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly | g.InputTextFlags_NoHorizontalScroll),
 						g.Custom(func() { g.PopFont() }),
 					}),
 				}),

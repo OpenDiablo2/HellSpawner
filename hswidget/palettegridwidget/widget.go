@@ -1,7 +1,7 @@
 package palettegridwidget
 
 import (
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )

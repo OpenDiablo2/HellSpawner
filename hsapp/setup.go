@@ -8,7 +8,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"

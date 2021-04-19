@@ -3,13 +3,16 @@ module github.com/OpenDiablo2/HellSpawner
 go 1.16
 
 require (
+	github.com/AllenDang/giu v0.5.3
+	github.com/AllenDang/imgui-go v1.12.1-0.20210418170346-f9d0cdc984ea // indirect
 	github.com/OpenDiablo2/OpenDiablo2 v0.0.0-20210407164247-7ce4583fe18e
 	github.com/OpenDiablo2/dialog v0.0.0-20201230220514-26162241209f
 	github.com/enriquebris/goconcurrentqueue v0.6.0
 	github.com/faiface/beep v1.0.2
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb
 	github.com/ianling/giu v0.5.1-0.20210318165044-d964e9e54891
 	github.com/ianling/imgui-go v1.12.1-0.20210115050955-434395a2da82
+	github.com/inkyblackness/imgui-go v1.12.0
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/olekukonko/tablewriter v0.0.5 // indirect

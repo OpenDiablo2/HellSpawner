@@ -2,8 +2,8 @@
 package hspreferencesdialog
 
 import (
+	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/dialog"
-	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
@@ -40,19 +40,19 @@ func (p *PreferencesDialog) Build() {
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAuxMpqPathClicked),
 			),
 			g.Separator(),
 			g.Label("External MPQ listfile Path"),
 			g.Line(
-				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseExternalListfileClicked),
 			),
 			g.Separator(),
 			g.Label("Abyss Engine Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAbyssEngineClicked),
 			),
 			g.Separator(),

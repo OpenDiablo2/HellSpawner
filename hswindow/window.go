@@ -1,7 +1,7 @@
 package hswindow
 
 import (
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
@@ -22,8 +22,9 @@ func New(title string, x, y float32) *Window {
 
 // State returns window's state
 func (t *Window) State() hsstate.WindowState {
-	x, y := t.CurrentPosition()
-	w, h := t.CurrentSize()
+	var x, y, w, h float32
+	// x, y := t.CurrentPosition()
+	// w, h := t.CurrentSize()
 
 	return hsstate.WindowState{
 		Visible: t.Visible,
@@ -51,7 +52,8 @@ func (t *Window) Build() {
 
 // Render renders window
 func (t *Window) Render() {
-	t.WindowWidget.Build()
+	// noop
+	// t.WindowWidget.Build()
 }
 
 // RegisterKeyboardShortcuts registers a keyboard shortcut

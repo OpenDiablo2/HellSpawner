@@ -3,7 +3,7 @@ package hswidget
 import (
 	"log"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 const (

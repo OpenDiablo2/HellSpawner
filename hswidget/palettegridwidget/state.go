@@ -3,7 +3,7 @@ package palettegridwidget
 import (
 	"fmt"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 // PaletteGridState represents palette grid's state

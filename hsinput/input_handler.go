@@ -11,8 +11,8 @@
 package hsinput
 
 import (
+	"github.com/AllenDang/giu"
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/ianling/giu"
 )
 
 const (
@@ -49,15 +49,15 @@ type KeyCombo struct {
 	Modifier glfw.ModifierKey
 }
 
-func createKeyCombo(key giu.Key, modifier giu.Modifier) KeyCombo {
+func createKeyCombo(key giu.Key, modifier glfw.ModifierKey) KeyCombo {
 	return KeyCombo{
 		Key:      glfw.Key(key),
-		Modifier: glfw.ModifierKey(modifier),
+		Modifier: modifier,
 	}
 }
 
 // RegisterShortcut registers a new shortcut
-func (im *InputManager) RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier giu.Modifier, isGlobal bool) {
+func (im *InputManager) RegisterShortcut(callbackFunc InputCallbackFunc, key giu.Key, modifier glfw.ModifierKey, isGlobal bool) {
 	combo := createKeyCombo(key, modifier)
 
 	shortcut, alreadyRegistered := im.shortcuts[combo]

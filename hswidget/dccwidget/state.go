@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/OpenDiablo2/dialog"
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 	"github.com/pkg/browser"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
