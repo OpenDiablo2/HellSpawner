@@ -128,6 +128,7 @@ func (a *App) Run() {
 	if bg := uint32(*a.Flags.bgColor); bg != 0 {
 		color = bg
 	}
+
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(color))
 
