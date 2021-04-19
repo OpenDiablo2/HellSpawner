@@ -60,6 +60,7 @@ type widgetState struct {
 
 	// cache - will not be saved
 	textures []*giu.Texture
+	rgb      []*image2.RGBA
 
 	isForward bool
 	ticker    *time.Ticker
@@ -215,13 +216,11 @@ func (p *widget) initState() {
 
 	go p.runPlayer(newState)
 
-	p.setState(newState)
-
 	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
-	rgb := make([]*image2.RGBA, totalFrames)
+	newState.rgb = make([]*image2.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		newState.rgb[frameIndex] = image2.NewRGBA(image2.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -244,7 +243,7 @@ func (p *widget) initState() {
 					r, g, b = val, val, val
 				}
 
-				rgb[frameIndex].Set(
+				newState.rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
 						R: r,
@@ -257,12 +256,14 @@ func (p *widget) initState() {
 		}
 	}
 
+	p.setState(newState)
+
 	go func() {
 		textures := make([]*giu.Texture, totalFrames)
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 			frameIndex := frameIndex
-			p.textureLoader.CreateTextureFromARGB(rgb[frameIndex], func(t *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(newState.rgb[frameIndex], func(t *giu.Texture) {
 				textures[frameIndex] = t
 			})
 		}
