@@ -9,6 +9,6 @@ type Renderable interface {
 	Build()
 	Render()
 	Cleanup()
-	HasFocus() (hasFocus bool)
 	RegisterKeyboardShortcuts(inputManager *hsinput.InputManager)
+	IsVisible() bool
 }

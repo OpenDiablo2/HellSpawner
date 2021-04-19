@@ -2,6 +2,7 @@
 package hsdialog
 
 import (
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 )
@@ -37,7 +38,7 @@ func (d *Dialog) Render() {
 }
 
 // RegisterKeyboardShortcuts registers a new shortcut
-func (d *Dialog) RegisterKeyboardShortcuts() {
+func (d *Dialog) RegisterKeyboardShortcuts(_ *hsinput.InputManager) {
 	// noop
 }
 

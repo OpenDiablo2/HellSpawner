@@ -141,7 +141,7 @@ func (a *App) Run() {
 
 	a.TextureLoader.ProcessTextureLoadRequests()
 
-	defer a.Quit()
+	defer a.Quit() // force-close and save everything (in case of crash)
 
 	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
@@ -184,34 +184,20 @@ func (a *App) render() {
 		idx++
 	}
 
-	if a.projectExplorer.IsVisible() {
-		a.projectExplorer.Build()
-		a.projectExplorer.Render()
+	windows := []hscommon.Renderable{
+		a.projectExplorer,
+		a.mpqExplorer,
+		a.console,
+		a.preferencesDialog,
+		a.aboutDialog,
+		a.projectPropertiesDialog,
 	}
 
-	if a.mpqExplorer.IsVisible() {
-		a.mpqExplorer.Build()
-		a.mpqExplorer.Render()
-	}
-
-	if a.preferencesDialog.IsVisible() {
-		a.preferencesDialog.Build()
-		a.preferencesDialog.Render()
-	}
-
-	if a.aboutDialog.IsVisible() {
-		a.aboutDialog.Build()
-		a.aboutDialog.Render()
-	}
-
-	if a.projectPropertiesDialog.IsVisible() {
-		a.projectPropertiesDialog.Build()
-		a.projectPropertiesDialog.Render()
-	}
-
-	if a.console.IsVisible() {
-		a.console.Build()
-		a.console.Render()
+	for _, tw := range windows {
+		if tw.IsVisible() {
+			tw.Build()
+			tw.Render()
+		}
 	}
 
 	g.Update()
