@@ -9,7 +9,7 @@ import (
 
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/AllenDang/giu/imgui"
+	"github.com/AllenDang/imgui-go"
 
 	g "github.com/AllenDang/giu"
 

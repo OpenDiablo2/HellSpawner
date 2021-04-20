@@ -3,7 +3,7 @@ package hsconsole
 
 import (
 	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"

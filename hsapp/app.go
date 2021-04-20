@@ -15,7 +15,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/dialog"
 	"github.com/faiface/beep"

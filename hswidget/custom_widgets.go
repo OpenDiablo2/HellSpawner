@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/AllenDang/giu"
-	"github.com/inkyblackness/imgui-go"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"

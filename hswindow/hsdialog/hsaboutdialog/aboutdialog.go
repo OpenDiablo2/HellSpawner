@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	g "github.com/AllenDang/giu"
-	"github.com/AllenDang/giu/imgui"
+	"github.com/AllenDang/imgui-go"
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
