@@ -96,6 +96,7 @@ func (a *AboutDialog) Build() {
 				g.Label("HellSpawner").Color(&colorWhite).Font(&a.titleFont),
 				g.Label("The OpenDiablo 2 Toolset").Color(&colorWhite).Font(&a.regularFont),
 				g.Label("Local Build").Color(&colorWhite).Font(&a.fixedFont),
+				g.Label("铁憨憨你好").Color(&colorWhite).Font(&a.fixedFont),
 				g.Separator(),
 				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(g.Layout{
 					g.TabItem("README##AboutHellSpawner").Layout(g.Layout{

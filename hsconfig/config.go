@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 
 	"github.com/kirsle/configdir"
@@ -31,6 +32,7 @@ type Config struct {
 	ExternalListFile        string                      `json:"ExternalListFile"`
 	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
+	Locale                  hsenum.Locale               `json:"Locale"`
 }
 
 // GetConfigPath returns default config path
@@ -49,6 +51,7 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
+		Locale:                  hsenum.LocaleEnglish,
 	}
 
 	if err := result.Save(); err != nil {

@@ -43,8 +43,8 @@ func (c *Console) Build() {
 				g.PushFont(c.fontFixed)
 			}),
 			g.InputTextMultiline("", &c.outputText).
-				Size(lineW, lineH).
-				Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoUndoRedo),
+				Size(lineW, lineH),
+			// Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoUndoRedo),
 			g.Custom(func() {
 				g.PopFont()
 			}),

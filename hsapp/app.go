@@ -231,20 +231,43 @@ func (a *App) render() {
 
 func (a *App) setupFonts() {
 	// Note: To support other languages we'll have to do something with glyph ranges here...
-	// ranges := imgui.NewGlyphRanges()
-	// rb := imgui.NewFontGlyphRangesBuilder()
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
+	// ranges := imgui.EmptyGlyphRanges
+	//rb := &imgui.GlyphRangesBuilder{}
+	/*switch a.config.Locale {
+	case hsenum.LocaleChinaTraditional:
+		// rb.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
+		fmt.Println("Load china")
+		imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
+		imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
+	}*/
+	//rb.AddExisiting(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesCyrillic())
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
-	// rb.BuildRanges(ranges)
+	// rb.Build()
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
+	var builder imgui.GlyphRangesBuilder
+	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesDefault())
+	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
+	/*	builder.AddExisting(fontAtlas.GlyphRangesKorean())
+		builder.AddExisting(fontAtlas.GlyphRangesChinese())*/
+	ranges := builder.Build()
+	/*fontAtlas.AddFontFromFileTTFV("lihei.ttf", 16, imgui.DefaultFontConfig, ranges.GlyphRanges)
+	fontAtlas.SetTexDesiredWidth(8192)*/
+
+	imgui.CurrentIO().AddInputCharacters("ą")
 	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, 17)
 	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontCascadiaCode, 15, imgui.DefaultFontConfig, ranges.GlyphRanges)
+	imgui.CurrentIO().Fonts().SetTexDesiredWidth(8192)
 	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 12, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
 	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
 	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
 	imgui.CurrentStyle().ScaleAllSizes(1)
+
+	// a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 15, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
+	// a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 15, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
