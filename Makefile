@@ -26,7 +26,7 @@ build:
 setup:
 	@echo "Downloading tools and dependencies..."
 	@git submodule update --init --recursive
-	@$(GOCMD) get -d
+	@$(GOCMD) get -v -t -d ./...
 	@$(GOCMD) mod download -x
 	@$(GOCMD) generate -v ./...
 
