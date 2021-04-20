@@ -204,7 +204,7 @@ func (p *DS1ViewerWidget) makePathLayout(obj *d2ds1.Object) giu.Layout {
 
 	return giu.Layout{
 		giu.Label("Path Points:"),
-		giu.FastTable("").Border(true).Rows(rowWidgets),
+		giu.Table("").FastMode(true).Rows(rowWidgets...),
 	}
 }
 
