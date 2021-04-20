@@ -2,7 +2,6 @@ package hsapp
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 
@@ -64,7 +63,7 @@ func (a *App) setup() error {
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("error creating an about dialog: %w", err)
 	}
 
 	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
