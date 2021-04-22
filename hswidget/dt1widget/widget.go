@@ -535,11 +535,11 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
-		giu.Table("##" + p.id + "materialFlags").FastMode(true).
+		giu.Table("##"+p.id+"materialFlags").FastMode(true).
 			Rows(giu.Row(
-					giu.Checkbox("Other", &tile.MaterialFlags.Other),
-					giu.Checkbox("Water", &tile.MaterialFlags.Water),
-				),
+				giu.Checkbox("Other", &tile.MaterialFlags.Other),
+				giu.Checkbox("Water", &tile.MaterialFlags.Water),
+			),
 				giu.Row(
 					giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
 					giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),

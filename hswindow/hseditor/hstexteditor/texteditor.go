@@ -2,6 +2,7 @@
 package hstexteditor
 
 import (
+	"log"
 	"strings"
 
 	g "github.com/ianling/giu"
@@ -18,6 +19,7 @@ import (
 const (
 	mainWindowW, mainWindowH = 400, 300
 	tableViewModW            = 80
+	maxTableColumns          = 64
 )
 
 // static check, to ensure, if text editor implemented editoWindow
@@ -59,8 +61,17 @@ func Create(_ *hsconfig.Config,
 	result.tableRows = make([]*g.RowWidget, len(lines))
 
 	columns := strings.Split(firstLine, "\t")
+
 	result.columns = len(columns)
-	columnWidgets := make([]g.Widget, len(columns))
+	if result.columns > maxTableColumns {
+		result.columns = maxTableColumns
+		columns = columns[:maxTableColumns]
+
+		log.Print("Waring: Table is too wide (more than 64 columns)! Only first 64 columns will be displayed" +
+			"See: https://github.com/ocornut/imgui/issues/3572")
+	}
+
+	columnWidgets := make([]g.Widget, result.columns)
 
 	for idx := range columns {
 		columnWidgets[idx] = g.Label(columns[idx])
@@ -86,18 +97,18 @@ func Create(_ *hsconfig.Config,
 func (e *TextEditor) Build() {
 	if !e.tableView {
 		e.IsOpen(&e.Visible).
-			Layout(g.Layout{
+			Layout(
 				g.InputTextMultiline("", &e.text).
 					Flags(g.InputTextFlags_AllowTabInput),
-			})
+			)
 	} else {
 		e.IsOpen(&e.Visible).
 			Flags(g.WindowFlagsHorizontalScrollbar).
-			Layout(g.Layout{
-				g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(g.Layout{
-					g.Table("").FastMode(true).Rows(e.tableRows...),
-				}),
-			})
+			Layout(
+				g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(
+					g.Table("").FastMode(true).Freeze(0, 1).Rows(e.tableRows...),
+				),
+			)
 	}
 }
 
