@@ -1,0 +1,27 @@
+name: golangci-lint
+on:
+    push:
+        tags:
+            - v*
+        branches:
+            - master
+            - main
+    pull_request:
+jobs:
+    golangci:
+        name: lint
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+              with:
+                fetch-depth: 0
+                submodules: 'true'
+            - name: Set up LibGL, Mesa & X11 libraries
+              run: |
+                sudo apt-get --allow-releaseinfo-change update
+                sudo apt-get install -y libgtk-3-dev libasound2-dev libxxf86vm-dev
+            - name: golangci-lint
+              uses: golangci/golangci-lint-action@v2
+              with:
+                  # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+                  version: 'v1.39.0'
