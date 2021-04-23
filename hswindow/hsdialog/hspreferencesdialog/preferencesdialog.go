@@ -5,6 +5,7 @@ import (
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
@@ -36,8 +37,14 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 
 // Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
+	locales := make([]string, 0)
+	for i := hsenum.LocaleEnglish; i <= hsenum.LocalePolish; i++ {
+		locales = append(locales, i.String())
+	}
+	locale := int32(p.config.Locale)
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
+			g.Label("ą"),
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
@@ -57,6 +64,10 @@ func (p *PreferencesDialog) Build() {
 			),
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
+			g.Separator(),
+			g.Combo("locale", locales[locale], locales, &locale).OnChange(func() {
+				p.config.Locale = hsenum.Locale(locale)
+			}),
 		),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),

@@ -6,6 +6,7 @@ const (
 	LocaleEnglish Locale = iota
 	LocaleChinaTraditional
 	LocaleKorean
+	LocalePolish
 )
 
 func (l Locale) String() string {
@@ -13,6 +14,7 @@ func (l Locale) String() string {
 		LocaleEnglish:          "English",
 		LocaleChinaTraditional: "China (Traditional)",
 		LocaleKorean:           "Korean",
+		LocalePolish:           "Polish",
 	}
 
 	value, ok := lookup[l]

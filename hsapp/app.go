@@ -12,6 +12,7 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	g "github.com/ianling/giu"
@@ -32,6 +33,10 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
+)
+
+const (
+	polishSpecialCharacters = "ąęłńóśźż"
 )
 
 const (
@@ -239,28 +244,38 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.Build()
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	var builder imgui.GlyphRangesBuilder
+	/*var builder imgui.GlyphRangesBuilder
 	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesDefault())
 	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
 	/*	builder.AddExisting(fontAtlas.GlyphRangesKorean())
-		builder.AddExisting(fontAtlas.GlyphRangesChinese())*/
-	ranges := builder.Build()
+	builder.AddExisting(fontAtlas.GlyphRangesChinese())*/
+	//ranges := builder.Build()
 	/*fontAtlas.AddFontFromFileTTFV("lihei.ttf", 16, imgui.DefaultFontConfig, ranges.GlyphRanges)
 	fontAtlas.SetTexDesiredWidth(8192)*/
 
-	imgui.CurrentIO().AddInputCharacters("ą")
-	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, 17)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontCascadiaCode, 15, imgui.DefaultFontConfig, ranges.GlyphRanges)
-	imgui.CurrentIO().Fonts().SetTexDesiredWidth(8192)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 12, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
-	imgui.CurrentStyle().ScaleAllSizes(1)
+	fonts := g.Context.IO().Fonts()
 
-	// a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 15, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	// a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontDiabloRegular, 15, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
+	ranges := imgui.NewGlyphRanges()
+
+	builder := imgui.NewFontGlyphRangesBuilder()
+
+	builder.AddRanges(fonts.GlyphRangesDefault())
+
+	// add special ranges
+	switch a.config.Locale {
+	case hsenum.LocaleChinaTraditional:
+		// builder.AddRanges(fonts.GlyphRangesChineseFull())
+	case hsenum.LocalePolish:
+		builder.AddText(polishSpecialCharacters)
+	}
+	builder.BuildRanges(ranges)
+
+	fonts.AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, ranges.Data())
+	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
+	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
+	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
+	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
+	// fonts.ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
