@@ -22,6 +22,7 @@ type PreferencesDialog struct {
 
 	config          *hsconfig.Config
 	onConfigChanged func(config *hsconfig.Config)
+	restartPrompt   bool
 }
 
 // Create creates a new preferences dialog
@@ -29,6 +30,7 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 	result := &PreferencesDialog{
 		Dialog:          hsdialog.New("Preferences"),
 		onConfigChanged: onConfigChanged,
+		restartPrompt:   false,
 	}
 	result.Visible = false
 
@@ -44,10 +46,6 @@ func (p *PreferencesDialog) Build() {
 	locale := int32(p.config.Locale)
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
-			g.Label("polish / chinese: ą小"),
-			g.Label("french : éàèùâêîôûçëïü"),
-			g.Label("spanish: ÀÈÉÌÒÙàèéìòù"),
-			g.Label("korean: 엑스 "),
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
@@ -68,7 +66,18 @@ func (p *PreferencesDialog) Build() {
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 			g.Separator(),
+			g.Custom(func() {
+				if !p.restartPrompt {
+					return
+				}
+
+				g.Layout{
+					g.Label("WARNING: to introduce this changes"),
+					g.Label("you need to restart HellSpawner"),
+				}.Build()
+			}),
 			g.Combo("locale", locales[locale], locales, &locale).OnChange(func() {
+				p.restartPrompt = true
 				p.config.Locale = hsenum.Locale(locale)
 			}),
 		),
