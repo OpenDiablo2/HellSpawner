@@ -43,7 +43,9 @@ func (p *PreferencesDialog) Build() {
 	for i := hsenum.LocaleEnglish; i <= hsenum.LocalePolish; i++ {
 		locales = append(locales, i.String())
 	}
+
 	locale := int32(p.config.Locale)
+
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
 			g.Label("Auxiliary MPQ Path"),

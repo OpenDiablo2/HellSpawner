@@ -223,11 +223,10 @@ func (a *App) render() {
 	a.TextureLoader.ResumeLoadingTextures()
 }
 
+// please note, that this steps will not affect app language
+// it will only load an appropriate glyph ranges for
+// displayed text (e.g. for string/font table editors)
 func (a *App) setupFonts() {
-	// please note, that this steps will not affect app language
-	// it will only load an appropriate glyph ranges for
-	// displayed text (e.g. for string/font table editors)
-
 	// get font manager
 	fonts := g.Context.IO().Fonts()
 
@@ -250,9 +249,11 @@ func (a *App) setupFonts() {
 		// noop
 	case hsenum.LocaleChinaTraditional:
 		font = hsassets.FontSourceHanSerif
+
 		builder.AddRanges(fonts.GlyphRangesChineseFull())
 	case hsenum.LocaleKorean:
 		font = hsassets.FontSourceHanSerif
+
 		builder.AddRanges(fonts.GlyphRangesKorean())
 	case hsenum.LocalePolish:
 		builder.AddText(hsenum.PolishSpecialCharacters)
