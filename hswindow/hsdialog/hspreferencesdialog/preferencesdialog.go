@@ -44,7 +44,10 @@ func (p *PreferencesDialog) Build() {
 	locale := int32(p.config.Locale)
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
-			g.Label("ą"),
+			g.Label("polish / chinese: ą小"),
+			g.Label("french : éàèùâêîôûçëïü"),
+			g.Label("spanish: ÀÈÉÌÒÙàèéìòù"),
+			g.Label("korean: 엑스 "),
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),

@@ -36,10 +36,6 @@ import (
 )
 
 const (
-	polishSpecialCharacters = "ąęłńóśźż"
-)
-
-const (
 	baseWindowTitle         = "HellSpawner"
 	editorWindowDefaultX    = 320
 	editorWindowDefaultY    = 30
@@ -228,54 +224,53 @@ func (a *App) render() {
 }
 
 func (a *App) setupFonts() {
-	// Note: To support other languages we'll have to do something with glyph ranges here...
-	// ranges := imgui.EmptyGlyphRanges
-	//rb := &imgui.GlyphRangesBuilder{}
-	/*switch a.config.Locale {
-	case hsenum.LocaleChinaTraditional:
-		// rb.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
-		fmt.Println("Load china")
-		imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseFull())
-		imgui.CurrentIO().Fonts().AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	}*/
-	//rb.AddExisiting(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesCyrillic())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
-	// rb.Build()
-	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	/*var builder imgui.GlyphRangesBuilder
-	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesDefault())
-	builder.AddExisting(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	/*	builder.AddExisting(fontAtlas.GlyphRangesKorean())
-	builder.AddExisting(fontAtlas.GlyphRangesChinese())*/
-	//ranges := builder.Build()
-	/*fontAtlas.AddFontFromFileTTFV("lihei.ttf", 16, imgui.DefaultFontConfig, ranges.GlyphRanges)
-	fontAtlas.SetTexDesiredWidth(8192)*/
+	// please note, that this steps will not affect app language
+	// it will only load an appropriate glyph ranges for
+	// displayed text (e.g. for string/font table editors)
 
+	// get font manager
 	fonts := g.Context.IO().Fonts()
 
+	// create glyph ranges
 	ranges := imgui.NewGlyphRanges()
 
+	// create glyph ranges builder
 	builder := imgui.NewFontGlyphRangesBuilder()
 
+	// add default ranges
 	builder.AddRanges(fonts.GlyphRangesDefault())
 
+	var font []byte = hsassets.FontNotoSansRegular
 	// add special ranges
 	switch a.config.Locale {
+	// glyphs supported by default
+	case hsenum.LocaleEnglish, hsenum.LocaleGerman,
+		hsenum.LocaleFrench, hsenum.LocaleItalien,
+		hsenum.LocaleSpanish:
+		// noop
 	case hsenum.LocaleChinaTraditional:
-		// builder.AddRanges(fonts.GlyphRangesChineseFull())
+		font = hsassets.FontSourceHanSerif
+		builder.AddRanges(fonts.GlyphRangesChineseFull())
+	case hsenum.LocaleKorean:
+		font = hsassets.FontSourceHanSerif
+		builder.AddRanges(fonts.GlyphRangesKorean())
 	case hsenum.LocalePolish:
-		builder.AddText(polishSpecialCharacters)
+		builder.AddText(hsenum.PolishSpecialCharacters)
 	}
+
+	// build ranges
 	builder.BuildRanges(ranges)
 
-	fonts.AddFontFromMemoryTTFV(hsassets.FontNotoSansRegular, 17, 0, ranges.Data())
+	// setup default font
+	fonts.AddFontFromMemoryTTFV(font, 17, 0, ranges.Data())
+
+	// please note, that the following fonts will not use
+	// previously generated glyph ranges.
+	// they'll have a default range
 	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
 	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
 	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
 	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
-	// fonts.ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
 		log.Fatal(err)
