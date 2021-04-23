@@ -54,3 +54,9 @@ jobs:
       - name: make test
         run: |
           make test
+
+      - name: headless test
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          # this is running only on Ubuntu: /usr/bin/xvfb-run --auto-servernum go test -v -race ./...
+          run: go test -v -race ./...
