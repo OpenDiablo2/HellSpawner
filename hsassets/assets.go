@@ -8,28 +8,28 @@ import (
 // nolint:gochecknoglobals // go:embed directive works only for globals
 // https://github.com/golangci/golangci-lint/issues/1727
 var (
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/reload.png
+	//go:embed icons/reload.png
 	ReloadIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_delete.png
+	//go:embed icons/stock_delete.png
 	DeleteIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_down.png
+	//go:embed icons/stock_down.png
 	DownArrowIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_up.png
+	//go:embed icons/stock_up.png
 	UpArrowIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_left.png
+	//go:embed icons/stock_left.png
 	LeftArrowIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/stock_right.png
+	//go:embed icons/stock_right.png
 	RightArrowIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/player_play.png
+	//go:embed icons/player_play.png
 	PlayButtonIcon []byte
 
-	//go:embed 3rdparty/iconpack-obsidian/Obsidian/actions/16/player_pause.png
+	//go:embed icons/player_pause.png
 	PauseButtonIcon []byte
 )
 
