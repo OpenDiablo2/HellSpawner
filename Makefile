@@ -26,7 +26,7 @@ build:
 setup:
 	@echo "Downloading tools and dependencies..."
 	@git submodule update --init --recursive
-	@$(GOCMD) get -d
+	@$(GOCMD) get -v -t -d ./...
 	@$(GOCMD) mod download -x
 	@$(GOCMD) generate -v ./...
 
@@ -39,7 +39,7 @@ test:
 cover: test
 	@$(GOCMD) tool cover -html=coverage.txt
 
-## clean: Runs go run
+## clean: Runs go clean
 clean:
 	@echo "Cleaning..."
 	@$(GOCMD) clean
