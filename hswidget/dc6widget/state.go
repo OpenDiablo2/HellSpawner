@@ -64,7 +64,6 @@ type widgetState struct {
 	// cache - will not be saved
 	rgb      []*image.RGBA
 	textures []*giu.Texture
-	rgb      []*image2.RGBA
 
 	isForward bool
 	ticker    *time.Ticker
