@@ -53,6 +53,14 @@ const (
 	autoSaveTimer = 120
 )
 
+const (
+	baseFontSize          = 17
+	fixedFontSize         = 15
+	fixedSmallFontSize    = 12
+	diabloRegularFontSize = 15
+	diabloBoldFontSize    = 30
+)
+
 type editorConstructor func(
 	config *hsconfig.Config,
 	textureLoader hscommon.TextureLoader,
@@ -214,11 +222,11 @@ func (a *App) setupFonts() {
 	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
 	// rb.BuildRanges(ranges)
 	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, 17)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
+	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, baseFontSize)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
 	imgui.CurrentStyle().ScaleAllSizes(1)
 
 	if err := a.setup(); err != nil {
