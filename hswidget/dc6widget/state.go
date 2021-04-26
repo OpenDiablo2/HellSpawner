@@ -372,10 +372,7 @@ func (p *widget) createImage(state *widgetState) {
 	grids := make([]*gim.Grid, 0)
 
 	for j := int32(0); j < state.height*state.width; j++ {
-		// https://github.com/ozankasikci/go-image-merge/pull/9
-		img := image.Image(state.rgb[firstFrame+j])
-
-		grids = append(grids, &gim.Grid{Image: &img})
+		grids = append(grids, &gim.Grid{Image: image.Image(state.rgb[firstFrame+j])})
 	}
 
 	newimg, err := gim.New(grids, int(state.width), int(state.height)).Merge()
