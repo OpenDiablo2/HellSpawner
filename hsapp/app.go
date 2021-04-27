@@ -22,7 +22,6 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -143,13 +142,17 @@ func (a *App) Run() {
 		a.Save()
 	}()
 
-	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
-		a.loadProjectFromFile(a.config.RecentProjects[0])
-	}
-
 	a.TextureLoader.ProcessTextureLoadRequests()
 
 	defer a.Quit() // force-close and save everything (in case of crash)
+
+	if err := a.setup(); err != nil {
+		log.Fatal(err)
+	}
+
+	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
+		a.loadProjectFromFile(a.config.RecentProjects[0])
+	}
 
 	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
@@ -210,28 +213,6 @@ func (a *App) render() {
 
 	g.Update()
 	a.TextureLoader.ResumeLoadingTextures()
-}
-
-func (a *App) setupFonts() {
-	// Note: To support other languages we'll have to do something with glyph ranges here...
-	// ranges := imgui.NewGlyphRanges()
-	// rb := imgui.NewFontGlyphRangesBuilder()
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesCyrillic())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
-	// rb.BuildRanges(ranges)
-	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, baseFontSize)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
-	imgui.CurrentStyle().ScaleAllSizes(1)
-
-	if err := a.setup(); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
