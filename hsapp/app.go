@@ -147,7 +147,7 @@ func (a *App) Run() {
 	defer a.Quit() // force-close and save everything (in case of crash)
 
 	if err := a.setup(); err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
