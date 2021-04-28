@@ -16,6 +16,7 @@ import (
 	"github.com/kirsle/configdir"
 )
 
+// default background color value
 const (
 	DefaultBGColor = 0x0a0a0aff
 )
