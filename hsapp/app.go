@@ -126,11 +126,11 @@ func Create() (*App, error) {
 func (a *App) Run() {
 	color := a.config.BGColor
 	if bg := uint32(*a.Flags.bgColor); bg != 0 {
-		color = bg
+		color = hsutil.Color(bg)
 	}
 
 	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
-	wnd.SetBgColor(hsutil.Color(color))
+	wnd.SetBgColor(color)
 
 	sampleRate := beep.SampleRate(sampleRate)
 

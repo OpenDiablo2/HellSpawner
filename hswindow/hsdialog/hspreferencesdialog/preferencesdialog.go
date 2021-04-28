@@ -19,15 +19,17 @@ const (
 type PreferencesDialog struct {
 	*hsdialog.Dialog
 
-	config          *hsconfig.Config
-	onConfigChanged func(config *hsconfig.Config)
+	config            *hsconfig.Config
+	onConfigChanged   func(config *hsconfig.Config)
+	colorChangePrompt bool
 }
 
 // Create creates a new preferences dialog
 func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 	result := &PreferencesDialog{
-		Dialog:          hsdialog.New("Preferences"),
-		onConfigChanged: onConfigChanged,
+		Dialog:            hsdialog.New("Preferences"),
+		onConfigChanged:   onConfigChanged,
+		colorChangePrompt: false,
 	}
 	result.Visible = false
 
@@ -36,7 +38,6 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 
 // Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
-	color := int32(p.config.BGColor)
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
 			g.Label("Auxiliary MPQ Path"),
@@ -59,12 +60,16 @@ func (p *PreferencesDialog) Build() {
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 			g.Separator(),
-			g.Line(
-				g.Label("Background color: "),
-				g.InputInt("##AppPreferencesColor", &color).OnChange(func() {
-					p.config.BGColor = uint32(color)
-				}),
-			),
+			g.Label("Background color:"),
+			g.Custom(func() {
+				if p.colorChangePrompt {
+					g.Label("WARNING: to aply your changes, you'll need to restart HellSpawner").Build()
+				}
+			}),
+			g.ColorEdit("##BackgroundColor", &p.config.BGColor).
+				Flags(g.ColorEditFlagsNoAlpha).OnChange(func() {
+				p.colorChangePrompt = true
+			}),
 		),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
