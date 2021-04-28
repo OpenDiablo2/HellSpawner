@@ -5,6 +5,7 @@ import (
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog"
 )
@@ -66,10 +67,16 @@ func (p *PreferencesDialog) Build() {
 					g.Label("WARNING: to aply your changes, you'll need to restart HellSpawner").Build()
 				}
 			}),
-			g.ColorEdit("##BackgroundColor", &p.config.BGColor).
-				Flags(g.ColorEditFlagsNoAlpha).OnChange(func() {
-				p.colorChangePrompt = true
-			}),
+			g.Line(
+				g.ColorEdit("##BackgroundColor", &p.config.BGColor).
+					Flags(g.ColorEditFlagsNoAlpha).OnChange(func() {
+					p.colorChangePrompt = true
+				}),
+				g.Button("Default##BackgroundColorDefault").OnClick(func() {
+					p.config.BGColor = hsutil.Color(hsconfig.DefaultBGColor)
+					p.colorChangePrompt = true
+				}),
+			),
 		),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),

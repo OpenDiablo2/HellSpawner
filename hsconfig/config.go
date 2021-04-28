@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	bgColor = 0x0a0a0aff
+	DefaultBGColor = 0x0a0a0aff
 )
 
 const (
@@ -56,7 +56,7 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
-		BGColor:                 hsutil.Color(bgColor),
+		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
 
 	if err := result.Save(); err != nil {
