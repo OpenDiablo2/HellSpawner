@@ -70,6 +70,7 @@ type editorConstructor func(
 
 // App represents an app
 type App struct {
+	masterWindow *g.MasterWindow
 	*Flags
 	project      *hsproject.Project
 	config       *hsconfig.Config
@@ -127,8 +128,8 @@ func (a *App) Run() {
 		color = hsutil.Color(bg)
 	}
 
-	wnd := g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
-	wnd.SetBgColor(color)
+	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
+	a.masterWindow.SetBgColor(color)
 
 	sampleRate := beep.SampleRate(samplesPerSecond)
 
@@ -157,8 +158,8 @@ func (a *App) Run() {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
 
-	wnd.SetInputCallback(a.InputManager.HandleInput)
-	wnd.Run(a.render)
+	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
+	a.masterWindow.Run(a.render)
 }
 
 func (a *App) render() {

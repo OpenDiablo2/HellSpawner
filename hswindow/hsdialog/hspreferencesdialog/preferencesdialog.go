@@ -2,6 +2,8 @@
 package hspreferencesdialog
 
 import (
+	"image/color"
+
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -20,17 +22,17 @@ const (
 type PreferencesDialog struct {
 	*hsdialog.Dialog
 
-	config            *hsconfig.Config
-	onConfigChanged   func(config *hsconfig.Config)
-	colorChangePrompt bool
+	config             *hsconfig.Config
+	onConfigChanged    func(config *hsconfig.Config)
+	windowColorChanger func(c color.RGBA)
 }
 
 // Create creates a new preferences dialog
-func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
+func Create(onConfigChanged func(config *hsconfig.Config), windowColorChanger func(c color.RGBA)) *PreferencesDialog {
 	result := &PreferencesDialog{
-		Dialog:            hsdialog.New("Preferences"),
-		onConfigChanged:   onConfigChanged,
-		colorChangePrompt: false,
+		Dialog:             hsdialog.New("Preferences"),
+		onConfigChanged:    onConfigChanged,
+		windowColorChanger: windowColorChanger,
 	}
 	result.Visible = false
 
@@ -62,19 +64,14 @@ func (p *PreferencesDialog) Build() {
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 			g.Separator(),
 			g.Label("Background color:"),
-			g.Custom(func() {
-				if p.colorChangePrompt {
-					g.Label("WARNING: to aply your changes, you'll need to restart HellSpawner").Build()
-				}
-			}),
 			g.Line(
 				g.ColorEdit("##BackgroundColor", &p.config.BGColor).
 					Flags(g.ColorEditFlagsNoAlpha).OnChange(func() {
-					p.colorChangePrompt = true
+					p.windowColorChanger(p.config.BGColor)
 				}),
 				g.Button("Default##BackgroundColorDefault").OnClick(func() {
 					p.config.BGColor = hsutil.Color(hsconfig.DefaultBGColor)
-					p.colorChangePrompt = true
+					p.windowColorChanger(p.config.BGColor)
 				}),
 			),
 		),
