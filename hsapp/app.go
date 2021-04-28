@@ -124,7 +124,7 @@ func Create() (*App, error) {
 // Run runs an app instance
 func (a *App) Run() {
 	color := a.config.BGColor
-	if bg := uint32(*a.Flags.bgColor); bg != 0 {
+	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
 		color = hsutil.Color(bg)
 	}
 
