@@ -12,7 +12,6 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 
 	g "github.com/ianling/giu"
@@ -23,7 +22,6 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -36,28 +34,41 @@ import (
 )
 
 const (
-	baseWindowTitle         = "HellSpawner"
-	editorWindowDefaultX    = 320
-	editorWindowDefaultY    = 30
-	projectExplorerDefaultX = 0
-	projectExplorerDefaultY = 25
-	mpqExplorerDefaultX     = 30
-	mpqExplorerDefaultY     = 30
-	consoleDefaultX         = 10
-	consoleDefaultY         = 500
-)
+	baseWindowTitle          = "HellSpawner"
+	baseWindowW, baseWindowH = 1280, 720
+	editorWindowDefaultX     = 320
+	editorWindowDefaultY     = 30
+	projectExplorerDefaultX  = 0
+	projectExplorerDefaultY  = 25
+	mpqExplorerDefaultX      = 30
+	mpqExplorerDefaultY      = 30
+	consoleDefaultX          = 10
+	consoleDefaultY          = 500
 
-const (
-	sampleRate = 22050
-)
+	samplesPerSecond = 22050
 
-const (
 	bgColor = 0x0a0a0aff
-)
 
-const (
 	autoSaveTimer = 120
 )
+
+const (
+	baseFontSize          = 17
+	fixedFontSize         = 15
+	fixedSmallFontSize    = 12
+	diabloRegularFontSize = 15
+	diabloBoldFontSize    = 30
+)
+
+type editorConstructor func(
+	config *hsconfig.Config,
+	textureLoader hscommon.TextureLoader,
+	pathEntry *hscommon.PathEntry,
+	state []byte,
+	data *[]byte,
+	x, y float32,
+	project *hsproject.Project,
+) (hscommon.EditorWindow, error)
 
 // App represents an app
 type App struct {
@@ -75,15 +86,7 @@ type App struct {
 	console         *hsconsole.Console
 
 	editors            []hscommon.EditorWindow
-	editorConstructors map[hsfiletypes.FileType]func(
-		config *hsconfig.Config,
-		textureLoader hscommon.TextureLoader,
-		pathEntry *hscommon.PathEntry,
-		state []byte,
-		data *[]byte,
-		x, y float32,
-		project *hsproject.Project,
-	) (hscommon.EditorWindow, error)
+	editorConstructors map[hsfiletypes.FileType]editorConstructor
 
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
@@ -101,18 +104,10 @@ type App struct {
 func Create() (*App, error) {
 	tl := hscommon.NewTextureLoader()
 	result := &App{
-		Flags:   &Flags{},
-		editors: make([]hscommon.EditorWindow, 0),
-		editorConstructors: make(map[hsfiletypes.FileType]func(
-			config *hsconfig.Config,
-			textureLoader hscommon.TextureLoader,
-			pathEntry *hscommon.PathEntry,
-			state []byte,
-			data *[]byte,
-			x, y float32,
-			project *hsproject.Project) (hscommon.EditorWindow, error)),
-
-		TextureLoader: tl,
+		Flags:              &Flags{},
+		editors:            make([]hscommon.EditorWindow, 0),
+		editorConstructors: make(map[hsfiletypes.FileType]editorConstructor),
+		TextureLoader:      tl,
 	}
 
 	im := hsinput.NewInputManager()
@@ -129,10 +124,10 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
-	wnd := g.NewMasterWindow(baseWindowTitle, 1280, 720, 0, a.setupFonts)
+	wnd := g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
-	sampleRate := beep.SampleRate(sampleRate)
+	sampleRate := beep.SampleRate(samplesPerSecond)
 
 	// nolint:gomnd // this is 0.1 of second
 	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
@@ -147,13 +142,17 @@ func (a *App) Run() {
 		a.Save()
 	}()
 
+	a.TextureLoader.ProcessTextureLoadRequests()
+
+	defer a.Quit() // force-close and save everything (in case of crash)
+
+	if err := a.setup(); err != nil {
+		log.Panic(err)
+	}
+
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
-
-	a.TextureLoader.ProcessTextureLoadRequests()
-
-	defer a.Quit()
 
 	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)
@@ -195,110 +194,54 @@ func (a *App) render() {
 		idx++
 	}
 
-	if a.projectExplorer.IsVisible() {
-		a.projectExplorer.Build()
+	windows := []hscommon.Renderable{
+		a.projectExplorer,
+		a.mpqExplorer,
+		a.console,
+		a.preferencesDialog,
+		a.aboutDialog,
+		a.projectPropertiesDialog,
 	}
 
-	if a.mpqExplorer.IsVisible() {
-		a.mpqExplorer.Build()
-	}
-
-	if a.preferencesDialog.IsVisible() {
-		a.preferencesDialog.Build()
-	}
-
-	if a.aboutDialog.IsVisible() {
-		a.aboutDialog.Build()
-	}
-
-	if a.projectPropertiesDialog.IsVisible() {
-		a.projectPropertiesDialog.Build()
-	}
-
-	if a.console.IsVisible() {
-		a.console.Build()
+	for _, tw := range windows {
+		if tw.IsVisible() {
+			tw.Build()
+		}
 	}
 
 	g.Update()
 	a.TextureLoader.ResumeLoadingTextures()
 }
 
-// please note, that this steps will not affect app language
-// it will only load an appropriate glyph ranges for
-// displayed text (e.g. for string/font table editors)
-func (a *App) setupFonts() {
-	// get font manager
-	fonts := g.Context.IO().Fonts()
-
-	// create glyph ranges
-	ranges := imgui.NewGlyphRanges()
-
-	// create glyph ranges builder
-	builder := imgui.NewFontGlyphRangesBuilder()
-
-	// add default ranges
-	builder.AddRanges(fonts.GlyphRangesDefault())
-
-	var font []byte = hsassets.FontNotoSansRegular
-	// add special ranges
-	switch a.config.Locale {
-	// glyphs supported by default
-	case hsenum.LocaleEnglish, hsenum.LocaleGerman,
-		hsenum.LocaleFrench, hsenum.LocaleItalien,
-		hsenum.LocaleSpanish:
-		// noop
-	case hsenum.LocaleChinaTraditional:
-		font = hsassets.FontSourceHanSerif
-
-		builder.AddRanges(fonts.GlyphRangesChineseFull())
-	case hsenum.LocaleKorean:
-		font = hsassets.FontSourceHanSerif
-
-		builder.AddRanges(fonts.GlyphRangesKorean())
-	case hsenum.LocalePolish:
-		builder.AddText(hsenum.PolishSpecialCharacters)
-	}
-
-	// build ranges
-	builder.BuildRanges(ranges)
-
-	// setup default font
-	fonts.AddFontFromMemoryTTFV(font, 17, 0, ranges.Data())
-
-	// please note, that the following fonts will not use
-	// previously generated glyph ranges.
-	// they'll have a default range
-	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 15)
-	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, 12)
-	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, 15)
-	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, 30)
-
-	if err := a.setup(); err != nil {
-		log.Fatal(err)
-	}
-}
-
 func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
+		log.Printf("Could not load file: %v", err)
 		dialog.Message("Could not load file!").Error()
+
 		return
 	}
 
 	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &data)
 	if err != nil {
+		log.Printf("Error reading file type: %v", err)
 		dialog.Message("No file type is defined for this extension!").Error()
+
 		return
 	}
 
 	if a.editorConstructors[fileType] == nil {
+		log.Printf("Error loading editor: %v", err)
 		dialog.Message("No editor is defined for this file type!").Error()
+
 		return
 	}
 
 	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, state, &data, x, y, a.project)
 	if err != nil {
+		log.Printf("Error creating editor: %v", err)
 		dialog.Message("Error creating editor: %s", err).Error()
+
 		return
 	}
 
@@ -338,12 +281,16 @@ func (a *App) loadProjectFromFile(file string) {
 	var err error
 
 	if project, err = hsproject.LoadFromFile(file); err != nil {
+		log.Printf("Error loading project: %v", err)
 		dialog.Message("Could not load project.").Title("Load HellSpawner Project Error").Error()
+
 		return
 	}
 
 	if !project.ValidateAuxiliaryMPQs(a.config) {
+		log.Printf("Error loading mpqs: %v", err)
 		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
+
 		return
 	}
 

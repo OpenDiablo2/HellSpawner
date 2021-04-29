@@ -2,19 +2,21 @@ package hsapp
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
 	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsstringtableeditor"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
@@ -64,7 +66,7 @@ func (a *App) setup() error {
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("error creating an about dialog: %w", err)
 	}
 
 	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
@@ -74,6 +76,51 @@ func (a *App) setup() error {
 	a.registerGlobalKeyboardShortcuts()
 
 	return nil
+}
+
+// please note, that this steps will not affect app language
+// it will only load an appropriate glyph ranges for
+// displayed text (e.g. for string/font table editors)
+func (a *App) setupFonts() {
+	fonts := g.Context.IO().Fonts()
+	ranges := imgui.NewGlyphRanges()
+	builder := imgui.NewFontGlyphRangesBuilder()
+
+	builder.AddRanges(fonts.GlyphRangesDefault())
+
+	var font []byte = hsassets.FontNotoSansRegular
+
+	switch a.config.Locale {
+	// glyphs supported by default
+	case hsenum.LocaleEnglish, hsenum.LocaleGerman,
+		hsenum.LocaleFrench, hsenum.LocaleItalien,
+		hsenum.LocaleSpanish:
+		// noop
+	case hsenum.LocaleChinaTraditional:
+		font = hsassets.FontSourceHanSerif
+
+		builder.AddRanges(fonts.GlyphRangesChineseFull())
+	case hsenum.LocaleKorean:
+		font = hsassets.FontSourceHanSerif
+
+		builder.AddRanges(fonts.GlyphRangesKorean())
+	case hsenum.LocalePolish:
+		builder.AddText(hsenum.PolishSpecialCharacters)
+	}
+
+	// build ranges
+	builder.BuildRanges(ranges)
+
+	// setup default font
+	fonts.AddFontFromMemoryTTFV(font, baseFontSize, 0, ranges.Data())
+
+	// please note, that the following fonts will not use
+	// previously generated glyph ranges.
+	// they'll have a default range
+	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
+	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
+	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
+	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
