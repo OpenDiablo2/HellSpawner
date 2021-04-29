@@ -2,13 +2,14 @@ package hsapp
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 
 	g "github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
@@ -68,7 +69,7 @@ func (a *App) setup() error {
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("error creating an about dialog: %w", err)
 	}
 
 	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
@@ -78,6 +79,24 @@ func (a *App) setup() error {
 	a.registerGlobalKeyboardShortcuts()
 
 	return nil
+}
+
+func (a *App) setupFonts() {
+	// Note: To support other languages we'll have to do something with glyph ranges here...
+	// ranges := imgui.NewGlyphRanges()
+	// rb := imgui.NewFontGlyphRangesBuilder()
+	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
+	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
+	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesCyrillic())
+	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
+	// rb.BuildRanges(ranges)
+	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
+	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, baseFontSize)
+	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
+	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
+	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
+	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
+	imgui.CurrentStyle().ScaleAllSizes(1)
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
