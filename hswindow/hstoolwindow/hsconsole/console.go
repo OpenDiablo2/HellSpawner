@@ -66,9 +66,9 @@ func (c *Console) Write(p []byte) (n int, err error) {
 
 	n, err = c.logFile.Write(p) // print to file
 	if err != nil {
-		return n, fmt.Errorf("Error writting to log file: %w", err)
+		return n, fmt.Errorf("error writing to log file: %w", err)
 	} else if n != len(p) {
-		return n, fmt.Errorf("Invalid data writen to log file")
+		return n, fmt.Errorf("invalid data written to log file")
 	}
 
 	return len(p), nil

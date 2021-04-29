@@ -1,7 +1,6 @@
 package hsapp
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -54,6 +53,7 @@ const (
 	autoSaveTimer = 120
 
 	logFileSeparator = "-----%v-----\n"
+	logFilePerms     = 0o600
 )
 
 const (
@@ -137,7 +137,7 @@ func (a *App) Run() {
 	sampleRate := beep.SampleRate(samplesPerSecond)
 
 	// nolint:gomnd // this is 0.1 of second
-	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
+	if err = speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}
 
@@ -153,14 +153,17 @@ func (a *App) Run() {
 
 	defer a.Quit() // force-close and save everything (in case of crash)
 
-	a.logFile, err = os.OpenFile(a.config.LogFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o755)
+	a.logFile, err = os.OpenFile(a.config.LogFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
 	if err != nil {
 		log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
 	}
 
-	defer a.logFile.Close()
-
-	a.logFile.WriteString(fmt.Sprintf(logFileSeparator, time.Now()))
+	defer func() {
+		err := a.logFile.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	if err := a.setup(); err != nil {
 		log.Panic(err)
