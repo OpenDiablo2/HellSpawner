@@ -11,12 +11,12 @@ type EditorWindow interface {
 	Renderable
 	MainMenuUpdater
 
+	// HasFocus returns true if editor is focused
+	HasFocus() (hasFocus bool)
 	// GetWindowTitle controls what the window title for this editor appears as
 	GetWindowTitle() string
 	// Show sets Visible to true
 	Show()
-	// IsVisible returns true if the editor has not been closed
-	IsVisible() bool
 	// SetVisible can be used to set Visible to false if the editor should be closed
 	SetVisible(bool)
 	// GetID returns a unique identifier for this editor window
