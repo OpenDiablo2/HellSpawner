@@ -62,6 +62,10 @@ func (a *App) setup() error {
 
 	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
 
+	log.SetFlags(log.Lshortfile)
+	log.SetOutput(a.console)
+	log.Print("Welcome to HellSpawner")
+
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
 		log.Fatal(err)

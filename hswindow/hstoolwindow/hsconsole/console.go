@@ -2,6 +2,8 @@
 package hsconsole
 
 import (
+	"fmt"
+
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
@@ -53,7 +55,11 @@ func (c *Console) Build() {
 
 // Write writes input on console
 func (c *Console) Write(p []byte) (n int, err error) {
-	c.outputText = string(p) + c.outputText
+	msg := string(p) // convert message from byte slice into string
+
+	c.outputText = msg + c.outputText // append message
+
+	fmt.Print(msg) // print to terminal
 
 	return len(p), nil
 }
