@@ -59,19 +59,19 @@ func (e *FontEditor) Build() {
 		Layout(g.Layout{
 			g.Label("DC6 Path"),
 			g.Line(
-				g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##FontEditorDC6Path", &e.SpriteFile).Size(pathSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##FontEditorDC6Browse").Size(browseW, browseH).OnClick(e.onBrowseDC6PathClicked),
 			),
 			g.Separator(),
 			g.Label("TBL Path"),
 			g.Line(
-				g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##FontEditorTBLPath", &e.TableFile).Size(pathSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##FontEditorTBLBrowse").Size(browseW, browseH).OnClick(e.onBrowseTBLPathClicked),
 			),
 			g.Separator(),
 			g.Label("PL2 Path"),
 			g.Line(
-				g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##FontEditorPL2Path", &e.PaletteFile).Size(pathSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##FontEditorPL2Browse").Size(browseW, browseH).OnClick(e.onBrowsePL2PathClicked),
 			),
 		})
