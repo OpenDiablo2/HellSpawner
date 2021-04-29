@@ -180,7 +180,6 @@ func (a *App) render() {
 		hadFocus := editor.HasFocus()
 
 		editor.Build()
-		editor.Render()
 
 		// if this window didn't have focus before, but it does now,
 		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
@@ -207,7 +206,6 @@ func (a *App) render() {
 	for _, tw := range windows {
 		if tw.IsVisible() {
 			tw.Build()
-			tw.Render()
 		}
 	}
 

@@ -36,33 +36,33 @@ func Create(onConfigChanged func(config *hsconfig.Config)) *PreferencesDialog {
 
 // Build builds a preferences dialog
 func (p *PreferencesDialog) Build() {
-	p.IsOpen(&p.Visible).Layout(g.Layout{
-		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
+	p.IsOpen(&p.Visible).Layout(
+		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
 			g.Label("Auxiliary MPQ Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAuxMpqPathClicked),
 			),
 			g.Separator(),
 			g.Label("External MPQ listfile Path"),
 			g.Line(
-				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseExternalListfileClicked),
 			),
 			g.Separator(),
 			g.Label("Abyss Engine Path"),
 			g.Line(
-				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
+				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAbyssEngineClicked),
 			),
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
-		}),
+		),
 		g.Line(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
 			g.Button("Cancel##AppPreferencesCancel").OnClick(p.onCancelClicked),
 		),
-	})
+	).Build()
 }
 
 // Show switch preferences dialog to visible state
