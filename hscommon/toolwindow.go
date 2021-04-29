@@ -10,8 +10,8 @@ import (
 type ToolWindow interface {
 	Renderable
 
+	HasFocus() (hasFocus bool)
 	Show()
-	IsVisible() bool
 	SetVisible(bool)
 	BringToFront()
 	State() hsstate.ToolWindowState
