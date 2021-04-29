@@ -3,7 +3,6 @@ package hsdialog
 
 import (
 	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
 )
 
 // Dialog represents HellSpawner's dialog
@@ -16,7 +15,7 @@ type Dialog struct {
 // New creates a new dialog
 func New(title string) *Dialog {
 	return &Dialog{
-		PopupModalWidget: giu.PopupModal(title).Flags(imgui.WindowFlagsNoResize + imgui.WindowFlagsAlwaysAutoResize),
+		PopupModalWidget: giu.PopupModal(title),
 		title:            title,
 	}
 }
@@ -29,11 +28,6 @@ func (d *Dialog) ToggleVisibility() {
 // Show shows dialog
 func (d *Dialog) Show() {
 	d.Visible = true
-}
-
-// Render renders dialog
-func (d *Dialog) Render() {
-	d.PopupModalWidget.Build()
 }
 
 // RegisterKeyboardShortcuts registers a new shortcut
