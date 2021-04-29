@@ -84,7 +84,7 @@ func (e *DC6Editor) Build() {
 		)
 	}
 
-	e.Layout(g.Layout{e.selectPaletteWidget})
+	e.Layout(e.selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu

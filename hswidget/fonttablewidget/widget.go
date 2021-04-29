@@ -64,7 +64,7 @@ func (p *widget) Build() {
 func (p *widget) makeTableLayout() giu.Layout {
 	state := p.getState()
 
-	rows := make(giu.Rows, 0)
+	rows := make([]*giu.RowWidget, 0)
 
 	rows = append(rows, giu.Row(
 		giu.Label("Delete"),
@@ -101,7 +101,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 		}),
 		giu.Separator(),
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
-			giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
+			giu.Table("##" + p.id + "table").FastMode(true).Rows(rows...),
 		}),
 	}
 }
