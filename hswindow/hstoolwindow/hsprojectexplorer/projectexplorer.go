@@ -190,7 +190,7 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 			g.Custom(func() {
 				imgui.SetKeyboardFocusHere()
 				if imgui.InputTextV("##RenameField_"+pathEntry.FullPath, &pathEntry.Name,
-					int(g.InputTextFlagsAutoSelectAll|g.InputTextFlagsEnterReturnsTrue), nil) {
+					imgui.InputTextFlagsAutoSelectAll|imgui.InputTextFlagsEnterReturnsTrue, nil) {
 					pathEntry.IsRenaming = false
 					m.onFileRenamed(pathEntry)
 				}
@@ -220,7 +220,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 			g.Custom(func() {
 				imgui.SetKeyboardFocusHere()
 				if imgui.InputTextV("##RenameField_"+pathEntry.FullPath, &pathEntry.Name,
-					int(g.InputTextFlagsAutoSelectAll|g.InputTextFlagsEnterReturnsTrue), nil) {
+					imgui.InputTextFlagsAutoSelectAll|imgui.InputTextFlagsEnterReturnsTrue, nil) {
 					pathEntry.IsRenaming = false
 					m.onFileRenamed(pathEntry)
 				}

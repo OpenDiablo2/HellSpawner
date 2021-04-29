@@ -535,13 +535,11 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
-		giu.FastTable("##" + p.id + "materialFlags").
-			Border(false).
-			Rows(giu.Rows{
-				giu.Row(
-					giu.Checkbox("Other", &tile.MaterialFlags.Other),
-					giu.Checkbox("Water", &tile.MaterialFlags.Water),
-				),
+		giu.Table("##"+p.id+"materialFlags").FastMode(true).
+			Rows(giu.Row(
+				giu.Checkbox("Other", &tile.MaterialFlags.Other),
+				giu.Checkbox("Water", &tile.MaterialFlags.Water),
+			),
 				giu.Row(
 					giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
 					giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),
@@ -558,7 +556,7 @@ func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 					giu.Checkbox("Lava", &tile.MaterialFlags.Lava),
 					giu.Checkbox("Snow", &tile.MaterialFlags.Snow),
 				),
-			}),
+			),
 	}
 }
 
@@ -667,7 +665,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
 
 					if hasFlag {
-						canvas.AddCircle(flagPoint, 3, col, 1, 0)
+						canvas.AddCircle(flagPoint, 3, col, 1)
 					}
 				}
 

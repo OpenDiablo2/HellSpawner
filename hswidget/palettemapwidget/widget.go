@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ianling/giu"
+	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 
@@ -166,7 +167,9 @@ func (p *widget) buildEditor(state *widgetState) {
 	})
 	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indices[state.idx]].RGBA())
 	giu.Layout{
-		giu.Label("Select color from base palette").Color(&labelColor),
+		giu.Style().SetColor(imgui.StyleColorText, labelColor).To(
+			giu.Label("Select color from base palette"),
+		),
 		grid,
 		giu.Separator(),
 		// if height > 0, then pushItemHeight
