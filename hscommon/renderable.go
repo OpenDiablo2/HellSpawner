@@ -8,6 +8,6 @@ import (
 type Renderable interface {
 	Build()
 	Cleanup()
-	HasFocus() (hasFocus bool)
 	RegisterKeyboardShortcuts(inputManager *hsinput.InputManager)
+	IsVisible() bool
 }
