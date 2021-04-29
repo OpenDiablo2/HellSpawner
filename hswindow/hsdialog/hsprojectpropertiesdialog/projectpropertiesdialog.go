@@ -86,8 +86,8 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
-	p.IsOpen(&p.mpqSelectDialogVisible).Layout(g.Layout{
-		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(mainWindowW, mainWindowH).Layout(g.Layout{
+	p.IsOpen(&p.mpqSelectDialogVisible).Layout(
+		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(mainWindowW, mainWindowH).Layout(
 			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
 				p.mpqSelectDlgIndex = selectedIndex
 			}).OnDClick(func(selectedIndex int) {
@@ -95,7 +95,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				p.onProjectPropertiesChanged(&p.project)
 				p.mpqSelectDialogVisible = false
 			}),
-		}),
+		),
 		g.Line(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				// checks if aux MPQs list isn't empty
@@ -110,22 +110,22 @@ func (p *ProjectPropertiesDialog) Build() {
 				p.mpqSelectDialogVisible = false
 			}),
 		),
-	})
+	)
 
 	if !p.mpqSelectDialogVisible {
-		p.IsOpen(&p.Visible).Layout(g.Layout{
+		p.IsOpen(&p.Visible).Layout(
 			g.Line(
-				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(g.Layout{
+				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Project Name:"),
 					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(inputTextSize),
 					g.Label("Description:"),
 					g.InputText("##ProjectPropertiesDialogDescription", &p.project.Description).Size(inputTextSize),
 					g.Label("Author:"),
 					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(inputTextSize),
-				}),
-				g.Child("ProjectPropertiesLayout2").Size(mpqSelectW, mpqSelectH).Layout(g.Layout{
+				),
+				g.Child("ProjectPropertiesLayout2").Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Auxiliary MPQs:"),
-					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(mpqGroupW, mpqGroupH).Layout(g.Layout{
+					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(mpqGroupW, mpqGroupH).Layout(
 						g.Custom(func() {
 							imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})
@@ -179,9 +179,9 @@ func (p *ProjectPropertiesDialog) Build() {
 							// nolint:gomnd // const
 							imgui.PopStyleColorV(2)
 						}),
-					}),
+					),
 					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq").OnClick(p.onAddAuxMpqClicked),
-				}),
+				),
 			),
 			g.Line(
 				g.Custom(func() {
@@ -197,9 +197,10 @@ func (p *ProjectPropertiesDialog) Build() {
 				}),
 				g.Button("Cancel##ProjectPropertiesDialogCancel").OnClick(p.onCancelClicked),
 			),
-		},
 		)
 	}
+
+	p.Dialog.Build()
 }
 
 func (p *ProjectPropertiesDialog) onSaveClicked() {

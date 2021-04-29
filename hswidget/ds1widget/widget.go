@@ -422,7 +422,7 @@ func (p *widget) makePathLayout(state *widgetState, obj *d2ds1.Object) giu.Layou
 
 	return giu.Layout{
 		giu.Label("Path Points:"),
-		giu.FastTable("").Border(true).Rows(rowWidgets),
+		giu.Table("").FastMode(true).Rows(rowWidgets...),
 	}
 }
 
