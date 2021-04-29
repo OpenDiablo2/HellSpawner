@@ -227,7 +227,6 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 				state.mode = modeViewer
 			}, state.editRuneState.editedRune),
 		),
-		giu.Label("是"),
 	}
 }
 

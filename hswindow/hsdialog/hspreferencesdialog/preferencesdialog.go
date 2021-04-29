@@ -74,7 +74,7 @@ func (p *PreferencesDialog) Build() {
 				}
 
 				g.Layout{
-					g.Label("WARNING: to introduce this changes"),
+					g.Label("WARNING: to introduce there changes"),
 					g.Label("you need to restart HellSpawner"),
 				}.Build()
 			}),
