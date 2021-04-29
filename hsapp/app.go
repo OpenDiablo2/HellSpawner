@@ -220,24 +220,32 @@ func (a *App) render() {
 func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
+		log.Printf("Could not load file: %v", err)
 		dialog.Message("Could not load file!").Error()
+
 		return
 	}
 
 	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &data)
 	if err != nil {
+		log.Printf("Error reading file type: %v", err)
 		dialog.Message("No file type is defined for this extension!").Error()
+
 		return
 	}
 
 	if a.editorConstructors[fileType] == nil {
+		log.Printf("Error loading editor: %v", err)
 		dialog.Message("No editor is defined for this file type!").Error()
+
 		return
 	}
 
 	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, state, &data, x, y, a.project)
 	if err != nil {
+		log.Printf("Error creating editor: %v", err)
 		dialog.Message("Error creating editor: %s", err).Error()
+
 		return
 	}
 
@@ -277,12 +285,16 @@ func (a *App) loadProjectFromFile(file string) {
 	var err error
 
 	if project, err = hsproject.LoadFromFile(file); err != nil {
+		log.Printf("Error loading project: %v", err)
 		dialog.Message("Could not load project.").Title("Load HellSpawner Project Error").Error()
+
 		return
 	}
 
 	if !project.ValidateAuxiliaryMPQs(a.config) {
+		log.Printf("Error loading mpqs: %v", err)
 		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
+
 		return
 	}
 
