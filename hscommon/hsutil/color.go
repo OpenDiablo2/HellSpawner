@@ -4,10 +4,13 @@ import "image/color"
 
 // Color converts an rgba uint32 to a colorEnabled.RGBA
 func Color(rgba uint32) color.RGBA {
+	const (
+		a, b, g, r = 0, 1, 2, 3
+		byteWidth  = 8
+		byteMask   = 0xff
+	)
+
 	result := color.RGBA{}
-	a, b, g, r := 0, 1, 2, 3
-	byteWidth := 8
-	byteMask := 0xff
 
 	for idx := 0; idx < 4; idx++ {
 		shift := idx * byteWidth
