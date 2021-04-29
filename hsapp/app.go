@@ -1,7 +1,9 @@
 package hsapp
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -50,6 +52,8 @@ const (
 	bgColor = 0x0a0a0aff
 
 	autoSaveTimer = 120
+
+	logFileSeparator = "-----%v-----\n"
 )
 
 const (
@@ -76,6 +80,7 @@ type App struct {
 	project      *hsproject.Project
 	config       *hsconfig.Config
 	abyssWrapper *abysswrapper.AbyssWrapper
+	logFile      *os.File
 
 	aboutDialog             *hsaboutdialog.AboutDialog
 	preferencesDialog       *hspreferencesdialog.PreferencesDialog
@@ -124,6 +129,8 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
+	var err error
+
 	wnd := g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
 	wnd.SetBgColor(hsutil.Color(bgColor))
 
@@ -146,6 +153,15 @@ func (a *App) Run() {
 
 	defer a.Quit() // force-close and save everything (in case of crash)
 
+	a.logFile, err = os.OpenFile(a.config.LogFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o755)
+	if err != nil {
+		log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
+	}
+
+	defer a.logFile.Close()
+
+	a.logFile.WriteString(fmt.Sprintf(logFileSeparator, time.Now()))
+
 	if err := a.setup(); err != nil {
 		log.Panic(err)
 	}
@@ -153,6 +169,8 @@ func (a *App) Run() {
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
+
+	a.TextureLoader.ProcessTextureLoadRequests()
 
 	wnd.SetInputCallback(a.InputManager.HandleInput)
 	wnd.Run(a.render)

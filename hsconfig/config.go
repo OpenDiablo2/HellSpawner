@@ -31,6 +31,7 @@ type Config struct {
 	ExternalListFile        string                      `json:"ExternalListFile"`
 	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
+	LogFilePath             string                      `json:"logFile"`
 }
 
 // GetConfigPath returns default config path
@@ -49,6 +50,7 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
+		LogFilePath:             filepath.Join(filepath.Dir(path), "output.txt"),
 	}
 
 	if err := result.Save(); err != nil {

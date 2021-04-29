@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
@@ -61,7 +62,7 @@ func (a *App) setup() error {
 		return fmt.Errorf("error creating a project explorer: %w", err)
 	}
 
-	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
+	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY, a.logFile)
 
 	log.SetFlags(log.Lshortfile)
 	log.SetOutput(a.console)
