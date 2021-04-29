@@ -99,7 +99,7 @@ func (m *MPQExplorer) Build() {
 			g.Child("MpqExplorerContent").
 				Border(false).
 				Flags(g.WindowFlagsHorizontalScrollbar).
-				Layout(m.GetMpqTreeNodes()),
+				Layout(m.GetMpqTreeNodes()...),
 		})
 }
 
@@ -167,7 +167,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 
 	wg.Wait()
 
-	return g.TreeNode(pathEntry.Name).Layout(widgets)
+	return g.TreeNode(pathEntry.Name).Layout(widgets...)
 }
 
 func (m *MPQExplorer) copyToProject(pathEntry *hscommon.PathEntry) {
