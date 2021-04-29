@@ -50,7 +50,7 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		s := result.getState()
 		s.Decode(state)
 
-		if s.mode == dc6WidgetMerge {
+		if s.mode == dc6WidgetTiledView {
 			result.createImage(s)
 		}
 
@@ -67,8 +67,8 @@ func (p *widget) Build() {
 	switch state.mode {
 	case dc6WidgetViewer:
 		p.makeViewerLayout().Build()
-	case dc6WidgetMerge:
-		p.makeMergeLayout(state).Build()
+	case dc6WidgetTiledView:
+		p.makeTiledViewLayout(state).Build()
 	}
 }
 
@@ -128,8 +128,8 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		giu.Separator(),
 		widget,
 		giu.Separator(),
-		giu.Button("Merge##"+p.id+"mergebutton").Size(buttonW, buttonH).OnClick(func() {
-			viewerState.mode = dc6WidgetMerge
+		giu.Button("Tiled View##"+p.id+"mergebutton").Size(buttonW, buttonH).OnClick(func() {
+			viewerState.mode = dc6WidgetTiledView
 			p.createImage(viewerState)
 		}),
 	}
@@ -164,15 +164,15 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 	}
 }
 
-func (p *widget) makeMergeLayout(state *widgetState) giu.Layout {
+func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Line(
-			giu.Label("Merge Frames:"),
+			giu.Label("Tiled view:"),
 			giu.InputInt("Width##"+p.id+"mergeWidth", &state.width).Size(inputIntW).OnChange(func() {
-				p.recalculateMergeHeight(state)
+				p.recalculateTiledViewHeight(state)
 			}),
 			giu.InputInt("Height##"+p.id+"mergeHeight", &state.height).Size(inputIntW).OnChange(func() {
-				p.recalculateMergeWidth(state)
+				p.recalculateTiledViewWidth(state)
 			}),
 		),
 		giu.Image(state.merged).Size(float32(state.imgw), float32(state.imgh)),

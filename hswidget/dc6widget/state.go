@@ -47,7 +47,7 @@ type widgetMode int32
 
 const (
 	dc6WidgetViewer widgetMode = iota
-	dc6WidgetMerge
+	dc6WidgetTiledView
 )
 
 // widgetState represents dc6 viewer's state
@@ -354,13 +354,13 @@ func (p *widget) runPlayer(state *widgetState) {
 	}
 }
 
-func (p *widget) recalculateMergeWidth(state *widgetState) {
+func (p *widget) recalculateTiledViewWidth(state *widgetState) {
 	// the area of our rectangle must be less or equal than FramesPerDirection
 	state.width = int32(p.dc6.FramesPerDirection) / state.height
 	p.createImage(state)
 }
 
-func (p *widget) recalculateMergeHeight(state *widgetState) {
+func (p *widget) recalculateTiledViewHeight(state *widgetState) {
 	// the area of our rectangle must be less or equal than FramesPerDirection
 	state.height = int32(p.dc6.FramesPerDirection) / state.width
 	p.createImage(state)
