@@ -180,7 +180,6 @@ func (a *App) render() {
 		hadFocus := editor.HasFocus()
 
 		editor.Build()
-		editor.Render()
 
 		// if this window didn't have focus before, but it does now,
 		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
@@ -197,32 +196,26 @@ func (a *App) render() {
 
 	if a.projectExplorer.IsVisible() {
 		a.projectExplorer.Build()
-		a.projectExplorer.Render()
 	}
 
 	if a.mpqExplorer.IsVisible() {
 		a.mpqExplorer.Build()
-		a.mpqExplorer.Render()
 	}
 
 	if a.preferencesDialog.IsVisible() {
 		a.preferencesDialog.Build()
-		a.preferencesDialog.Render()
 	}
 
 	if a.aboutDialog.IsVisible() {
 		a.aboutDialog.Build()
-		a.aboutDialog.Render()
 	}
 
 	if a.projectPropertiesDialog.IsVisible() {
 		a.projectPropertiesDialog.Build()
-		a.projectPropertiesDialog.Render()
 	}
 
 	if a.console.IsVisible() {
 		a.console.Build()
-		a.console.Render()
 	}
 
 	g.Update()

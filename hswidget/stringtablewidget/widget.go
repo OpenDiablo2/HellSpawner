@@ -84,7 +84,7 @@ func (p *widget) buildTableLayout() {
 			}
 			giu.Layout{
 				giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
-					giu.FastTable("##" + p.id + "table").Border(true).Rows(rows),
+					giu.Table("##" + p.id + "table").FastMode(true).Rows(rows...),
 				}),
 			}.Build()
 		}),
