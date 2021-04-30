@@ -53,7 +53,7 @@ const (
 // widgetState represents dc6 viewer's state
 type widgetState struct {
 	viewerState
-	mergeState
+	tiledState
 	mode widgetMode
 
 	isPlaying bool
@@ -197,17 +197,17 @@ func (s *viewerState) Dispose() {
 	// noop
 }
 
-type mergeState struct {
+type tiledState struct {
 	width,
 	height int32
-	merged *giu.Texture
-	imgw,  // nolint:structcheck // linter's bug - it is used
+	tiled *giu.Texture
+	imgw, // nolint:structcheck // linter's bug - it is used
 	imgh int
 }
 
-func (s *mergeState) Dispose() {
+func (s *tiledState) Dispose() {
 	s.width, s.height = 0, 0
-	s.merged = nil
+	s.tiled = nil
 }
 
 func (p *widget) getStateID() string {
@@ -238,7 +238,7 @@ func (p *widget) initState() {
 			lastDirection:      -1,
 			framesPerDirection: p.dc6.FramesPerDirection,
 		},
-		mergeState: mergeState{
+		tiledState: tiledState{
 			width:  int32(p.dc6.FramesPerDirection),
 			height: 1,
 		},
@@ -377,11 +377,12 @@ func (p *widget) createImage(state *widgetState) {
 
 	newimg, err := gim.New(grids, int(state.width), int(state.height)).Merge()
 	if err != nil {
-		log.Print(err)
+		log.Printf("merging image error: %v", err)
+		return
 	}
 
 	p.textureLoader.CreateTextureFromARGB(newimg, func(t *giu.Texture) {
-		state.merged = t
+		state.tiled = t
 	})
 
 	state.imgw, state.imgh = newimg.Bounds().Dx(), newimg.Bounds().Dy()

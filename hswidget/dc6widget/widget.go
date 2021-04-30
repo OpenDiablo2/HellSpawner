@@ -128,7 +128,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		giu.Separator(),
 		widget,
 		giu.Separator(),
-		giu.Button("Tiled View##"+p.id+"mergebutton").Size(buttonW, buttonH).OnClick(func() {
+		giu.Button("Tiled View##"+p.id+"tiledViewButton").Size(buttonW, buttonH).OnClick(func() {
 			viewerState.mode = dc6WidgetTiledView
 			p.createImage(viewerState)
 		}),
@@ -168,15 +168,15 @@ func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Line(
 			giu.Label("Tiled view:"),
-			giu.InputInt("Width##"+p.id+"mergeWidth", &state.width).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Width##"+p.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewHeight(state)
 			}),
-			giu.InputInt("Height##"+p.id+"mergeHeight", &state.height).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Height##"+p.id+"tiledHeight", &state.height).Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewWidth(state)
 			}),
 		),
-		giu.Image(state.merged).Size(float32(state.imgw), float32(state.imgh)),
-		giu.Button("Back##"+p.id+"mergeBack").Size(buttonW, buttonH).OnClick(func() {
+		giu.Image(state.tiled).Size(float32(state.imgw), float32(state.imgh)),
+		giu.Button("Back##"+p.id+"tiledBack").Size(buttonW, buttonH).OnClick(func() {
 			state.mode = dc6WidgetViewer
 		}),
 	}
