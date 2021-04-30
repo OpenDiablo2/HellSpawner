@@ -11,11 +11,13 @@ import (
 // Flags specifies app flags
 type Flags struct {
 	optionalConfigPath *string
+	bgColor            *uint
 }
 
 func (a *App) parseArgs() {
 	configDescr := fmt.Sprintf("specify a custom config path. Default is: %s", hsconfig.GetConfigPath())
 	a.Flags.optionalConfigPath = flag.String("config", "", configDescr)
+	a.Flags.bgColor = flag.Uint("bgColor", hsconfig.DefaultBGColor, "custom background color")
 	showHelp := flag.Bool("h", false, "Show help")
 
 	flag.Usage = func() {
