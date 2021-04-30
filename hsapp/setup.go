@@ -70,7 +70,7 @@ func (a *App) setup() error {
 	}
 
 	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
-	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged)
+	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged, a.masterWindow.SetBgColor)
 
 	// Set up keyboard shortcuts
 	a.registerGlobalKeyboardShortcuts()
