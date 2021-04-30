@@ -48,8 +48,6 @@ const (
 
 	samplesPerSecond = 22050
 
-	bgColor = 0x0a0a0aff
-
 	autoSaveTimer = 120
 
 	logFileSeparator = "-----%v-----\n"
@@ -76,6 +74,7 @@ type editorConstructor func(
 
 // App represents an app
 type App struct {
+	masterWindow *g.MasterWindow
 	*Flags
 	project      *hsproject.Project
 	config       *hsconfig.Config
@@ -131,8 +130,13 @@ func Create() (*App, error) {
 func (a *App) Run() {
 	var err error
 
-	wnd := g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
-	wnd.SetBgColor(hsutil.Color(bgColor))
+	color := a.config.BGColor
+	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
+		color = hsutil.Color(bg)
+	}
+
+	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
+	a.masterWindow.SetBgColor(color)
 
 	sampleRate := beep.SampleRate(samplesPerSecond)
 
@@ -173,10 +177,8 @@ func (a *App) Run() {
 		a.loadProjectFromFile(a.config.RecentProjects[0])
 	}
 
-	a.TextureLoader.ProcessTextureLoadRequests()
-
-	wnd.SetInputCallback(a.InputManager.HandleInput)
-	wnd.Run(a.render)
+	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
+	a.masterWindow.Run(a.render)
 }
 
 func (a *App) render() {

@@ -3,6 +3,7 @@ package hsconfig
 import (
 	"encoding/json"
 	"fmt"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,8 +11,14 @@ import (
 	"strings"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 
 	"github.com/kirsle/configdir"
+)
+
+// default background color value
+const (
+	DefaultBGColor = 0x0a0a0aff
 )
 
 const (
@@ -32,6 +39,7 @@ type Config struct {
 	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
 	LogFilePath             string                      `json:"logFile"`
+	BGColor                 color.RGBA                  `json:"BGColor"`
 }
 
 // GetConfigPath returns default config path
@@ -51,6 +59,7 @@ func generateDefaultConfig(path string) *Config {
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
 		LogFilePath:             filepath.Join(filepath.Dir(path), "output.txt"),
+		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
 
 	if err := result.Save(); err != nil {
