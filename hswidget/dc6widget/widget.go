@@ -21,6 +21,7 @@ const (
 	comboW              = 125
 	inputIntW           = 30
 	playPauseButtonSize = 15
+	buttonW, buttonH    = 200, 30
 )
 
 const (
@@ -48,6 +49,11 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
 		s.Decode(state)
+
+		if s.mode == dc6WidgetTiledView {
+			result.createImage(s)
+		}
+
 		result.setState(s)
 	}
 
@@ -58,10 +64,11 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 func (p *widget) Build() {
 	state := p.getState()
 
-	// nolint:gocritic // that's for now, will be more cases
 	switch state.mode {
 	case dc6WidgetViewer:
 		p.makeViewerLayout().Build()
+	case dc6WidgetTiledView:
+		p.makeTiledViewLayout(state).Build()
 	}
 }
 
@@ -117,13 +124,14 @@ func (p *widget) makeViewerLayout() giu.Layout {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
-		// NOTE: most of DC6 animations arent `playable`
-		// they are sprites, however exists some animations
-		// for example monsters' animations, where `play`
-		// feature is useful
 		p.makePlayerLayout(viewerState),
 		giu.Separator(),
 		widget,
+		giu.Separator(),
+		giu.Button("Tiled View##"+p.id+"tiledViewButton").Size(buttonW, buttonH).OnClick(func() {
+			viewerState.mode = dc6WidgetTiledView
+			p.createImage(viewerState)
+		}),
 	}
 }
 
@@ -153,6 +161,24 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 				}
 			}),
 		),
+	}
+}
+
+func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
+	return giu.Layout{
+		giu.Line(
+			giu.Label("Tiled view:"),
+			giu.InputInt("Width##"+p.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
+				p.recalculateTiledViewHeight(state)
+			}),
+			giu.InputInt("Height##"+p.id+"tiledHeight", &state.height).Size(inputIntW).OnChange(func() {
+				p.recalculateTiledViewWidth(state)
+			}),
+		),
+		giu.Image(state.tiled).Size(float32(state.imgw), float32(state.imgh)),
+		giu.Button("Back##"+p.id+"tiledBack").Size(buttonW, buttonH).OnClick(func() {
+			state.mode = dc6WidgetViewer
+		}),
 	}
 }
 
