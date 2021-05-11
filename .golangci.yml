@@ -71,6 +71,7 @@ linters:
     - staticcheck
     - structcheck
     - stylecheck
+    - tagliatelle
     - typecheck
     - unconvert
     - unparam
