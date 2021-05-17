@@ -20,8 +20,6 @@ linters-settings:
     min-complexity: 15
   goimports:
     local-prefixes: github.com/OpenDiablo2/OpenDiablo2
-  golint:
-    min-confidence: 0.8
   govet:
     check-shadowing: true
   lll:
@@ -52,7 +50,6 @@ linters:
     - godox
     - gofmt
     - goimports
-    - golint
     - gomnd
     - goprintffuncname
     - gosec
