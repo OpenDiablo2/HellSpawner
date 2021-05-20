@@ -96,7 +96,7 @@ func (a *App) setupFonts() {
 		hsenum.LocaleFrench, hsenum.LocaleItalien,
 		hsenum.LocaleSpanish:
 		// noop
-	case hsenum.LocaleChinaTraditional:
+	case hsenum.LocaleChineseTraditional:
 		font = hsassets.FontSourceHanSerif
 
 		builder.AddRanges(fonts.GlyphRangesChineseFull())
