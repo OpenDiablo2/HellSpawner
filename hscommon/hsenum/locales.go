@@ -5,36 +5,17 @@ package hsenum
 const PolishSpecialCharacters = "ĄąĘęŁłŃńÓóŚśŹźŻż"
 
 // Locale represents an app locale
+//go:generate stringer -linecomment -type Locale -output locales_string.go
 type Locale byte
 
 // this is a list of locales supported by Diablo II
 const (
-	LocaleEnglish Locale = iota
-	LocaleGerman
-	LocaleFrench
-	LocaleKorean
-	LocaleChinaTraditional
-	LocaleSpanish
-	LocaleItalien
-	LocalePolish
+	LocaleEnglish            Locale = iota // English
+	LocaleGerman                           // German
+	LocaleFrench                           // French
+	LocaleKorean                           // Korean
+	LocaleChineseTraditional               // Chinese (Traditional)
+	LocaleSpanish                          // Spanish
+	LocaleItalien                          // Italien
+	LocalePolish                           // Polish
 )
-
-func (l Locale) String() string {
-	lookup := map[Locale]string{
-		LocaleEnglish:          "English",
-		LocaleGerman:           "German",
-		LocaleFrench:           "French",
-		LocaleKorean:           "Korean",
-		LocaleChinaTraditional: "Chinese (Traditional)",
-		LocaleSpanish:          "Spanish",
-		LocaleItalien:          "Italien",
-		LocalePolish:           "Polish",
-	}
-
-	value, ok := lookup[l]
-	if !ok {
-		return "Unknown"
-	}
-
-	return value
-}
