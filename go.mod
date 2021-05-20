@@ -19,4 +19,5 @@ require (
 	github.com/russross/blackfriday v1.6.0
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	golang.org/x/net v0.0.0-20210420072503-d25e30425868 // indirect
+	golang.org/x/tools v0.1.1 // indirect
 )
