@@ -9,6 +9,7 @@ require (
 	github.com/faiface/beep v1.0.2
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20210410170116-ea3d685f79fb
 	github.com/go-resty/resty/v2 v2.6.0 // indirect
+	github.com/gravestench/osinfo v0.0.0-20210525170338-34eb1ac010f7
 	github.com/ianling/giu v0.5.1-0.20210428184235-269d9885a8ce
 	github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
