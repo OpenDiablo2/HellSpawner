@@ -5,7 +5,7 @@ package hsstate
 
 // AppState holds information related to the running state of HellSpawner.
 type AppState struct {
-	ProjectPath   string            `json:"project_path"`
-	EditorWindows []EditorState     `json:"editor_windows"`
-	ToolWindows   []ToolWindowState `json:"tool_windows"`
+	ProjectPath   string            `json:"projectPath"`
+	EditorWindows []EditorState     `json:"editorWindows"`
+	ToolWindows   []ToolWindowState `json:"toolWindows"`
 }
