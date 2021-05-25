@@ -33,14 +33,14 @@ const (
 // Config represents HellSpawner's config
 type Config struct {
 	Path                    string                      `json:"-"`
-	RecentProjects          []string                    `json:"RecentProjects"`
-	AbyssEnginePath         string                      `json:"AbyssEnginePath"`
-	AuxiliaryMpqPath        string                      `json:"AuxiliaryMpqPath"`
-	ExternalListFile        string                      `json:"ExternalListFile"`
-	OpenMostRecentOnStartup bool                        `json:"OpenMostRecentOnStartup"`
-	ProjectStates           map[string]hsstate.AppState `json:"ProjectStates"`
-	Locale                  hsenum.Locale               `json:"Locale"`
-	BGColor                 color.RGBA                  `json:"BGColor"`
+	RecentProjects          []string                    `json:"recentProjects"`
+	AbyssEnginePath         string                      `json:"abyssEnginePath"`
+	AuxiliaryMpqPath        string                      `json:"auxiliaryMpqPath"`
+	ExternalListFile        string                      `json:"externalListFile"`
+	OpenMostRecentOnStartup bool                        `json:"openMostRecentOnStartup"`
+	ProjectStates           map[string]hsstate.AppState `json:"projectStates"`
+	Locale                  hsenum.Locale               `json:"locale"`
+	BGColor                 color.RGBA                  `json:"bgColor"`
 }
 
 // GetConfigPath returns default config path
