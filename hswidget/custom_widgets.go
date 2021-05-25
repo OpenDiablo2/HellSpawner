@@ -2,6 +2,7 @@ package hswidget
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
@@ -150,13 +151,8 @@ func (p *PlayPauseButtonWidget) Build() {
 // SetByteToInt sets byte given to intager
 // if intager > max possible byte size, sets to 255
 func SetByteToInt(input int32, output *byte) {
-	const (
-		// nolint:gomnd // constant
-		maxByteSize = byte(255)
-	)
-
-	if input > int32(maxByteSize) {
-		*output = maxByteSize
+	if input > int32(math.MaxUint8) {
+		*output = math.MaxUint8
 
 		return
 	}
