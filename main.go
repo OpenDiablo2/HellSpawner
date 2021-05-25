@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-	app, err := hsapp.Create()
+	log.SetFlags(log.Lshortfile)
 
+	app, err := hsapp.Create()
 	if err != nil {
 		log.Fatal(err)
 	}
