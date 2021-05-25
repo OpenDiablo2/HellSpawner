@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/OpenDiablo2/dialog"
+	"github.com/gravestench/osinfo"
 	g "github.com/ianling/giu"
 	"github.com/pkg/browser"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 )
 
@@ -209,7 +209,7 @@ func (a *App) onProjectExportMPQClicked() {
 // another meaning (e.g. #). Instead we need to use ASCII code (for # %23).
 // for ascii codes see https://www.w3schools.com/tags/ref_urlencode.ASP
 func (a *App) onReportBugClicked() {
-	osInfo := hscommon.NewOS()
+	osInfo := osinfo.NewOS()
 
 	config, err := json.MarshalIndent(a.config, " ", "   ")
 	if err != nil {
