@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	osinfo "gist.github.com/2335e953b45f46591839a21c502588ea.git"
 	"github.com/OpenDiablo2/dialog"
+	"github.com/gravestench/osinfo"
 	g "github.com/ianling/giu"
 	"github.com/pkg/browser"
 
