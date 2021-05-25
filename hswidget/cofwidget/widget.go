@@ -114,7 +114,7 @@ func (p *widget) makeAnimationTab(state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Label(strLabelDirections),
 		p.layoutAnimFrames(state),
-		giu.Line(speedLabel, speedInput),
+		giu.Row(speedLabel, speedInput),
 		giu.Label(strLabelFPS),
 		giu.Label(strLabelDuration),
 	}
@@ -164,7 +164,7 @@ func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 	})
 
 	layout := giu.Layout{
-		giu.Line(giu.Label("Selected Layer: "), layerList),
+		giu.Row(giu.Label("Selected Layer: "), layerList),
 		giu.Separator(),
 		p.makeLayerLayout(),
 		giu.Separator(),
@@ -236,7 +236,7 @@ func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
 	})
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label("Direction: "), directionList,
 			giu.Label("Frame: "), frameList,
 		),
@@ -250,7 +250,7 @@ func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
 // the layout ends up looking like this:
 // Frames (x6):  <- 10 ->
 // you use the arrows to set the number of frames per direction
-func (p *widget) layoutAnimFrames(state *widgetState) *giu.LineWidget {
+func (p *widget) layoutAnimFrames(state *widgetState) *giu.RowWidget {
 	numFrames := p.cof.FramesPerDirection
 	numDirs := p.cof.NumberOfDirections
 
@@ -276,7 +276,7 @@ func (p *widget) layoutAnimFrames(state *widgetState) *giu.LineWidget {
 	frameCount := giu.Label(fmt.Sprintf("%d", numFrames))
 	right := hswidget.MakeImageButton(rightButtonID, buttonWidthHeight, buttonWidthHeight, state.textures.right, fnIncrease)
 
-	return giu.Line(label, left, frameCount, right)
+	return giu.Row(label, left, frameCount, right)
 }
 
 func (p *widget) onUpdate() {
@@ -360,7 +360,7 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 	// each layer line looks like:
 	// <- -> 0: Name
 	// the left/right buttons use the callbacks created by the previous funcs for index=0
-	buildLayerPriorityLine := func(idx int) {
+	buildLayerPriorityRow := func(idx int) {
 		currentIdx := idx
 
 		strIncPri := fmt.Sprintf(fmtIncreasePriority, currentIdx)
@@ -377,19 +377,19 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 
 		layerNameLabel := giu.Label(strLayerLabel)
 
-		giu.Line(increasePriority, decreasePriority, layerNameLabel).Build()
+		giu.Row(increasePriority, decreasePriority, layerNameLabel).Build()
 	}
 
 	// finally, a func that we can pass to giu.Custom
-	buildLayerLines := func() {
+	buildLayerRows := func() {
 		for idx := range layers {
-			buildLayerPriorityLine(idx)
+			buildLayerPriorityRow(idx)
 		}
 	}
 
 	return giu.Layout{
 		giu.Label(strRenderOrderLabel),
-		giu.Custom(buildLayerLines),
+		giu.Custom(buildLayerRows),
 	}
 }
 
@@ -433,39 +433,39 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 	return giu.Layout{
 		giu.Label("Select new COF's Layer parameters:"),
 		giu.Separator(),
-		giu.Line(
+		giu.Row(
 			giu.Label("Type: "),
 			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.newLayerFields.layerType],
 				compositeTypeList, &state.newLayerFields.layerType).Size(bigListW),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Shadow: "),
 			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Selectable: "),
 			giu.Checkbox("##"+p.id+"AddLayerSelectable", &state.newLayerFields.selectable),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Transparent: "),
 			giu.Checkbox("##"+p.id+"AddLayerTransparent", &state.newLayerFields.transparent),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Draw effect: "),
 			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.newLayerFields.drawEffect],
 				drawEffectList, &state.newLayerFields.drawEffect).Size(bigListW),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Weapon class: "),
 			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.newLayerFields.weaponClass],
 				weaponClassList, &state.newLayerFields.weaponClass).Size(bigListW),
 		),
 		giu.Separator(),
-		p.makeSaveCancelButtonLine(available, state),
+		p.makeSaveCancelButtonRow(available, state),
 	}
 }
 
-func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, state *widgetState) *giu.LineWidget {
+func (p *widget) makeSaveCancelButtonRow(available []d2enum.CompositeType, state *widgetState) *giu.RowWidget {
 	fnSave := func() {
 		newCofLayer := &d2cof.CofLayer{
 			Type:        available[state.newLayerFields.layerType],
@@ -499,7 +499,7 @@ func (p *widget) makeSaveCancelButtonLine(available []d2enum.CompositeType, stat
 	buttonSave := giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnSave)
 	buttonCancel := giu.Button("Cancel##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnCancel)
 
-	return giu.Line(buttonSave, buttonCancel)
+	return giu.Row(buttonSave, buttonCancel)
 }
 
 func (p *widget) deleteCurrentLayer(index int32) {

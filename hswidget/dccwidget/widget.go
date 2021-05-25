@@ -88,11 +88,11 @@ func (p *widget) Build() {
 	}
 
 	giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label(fmt.Sprintf("Signature: %v", p.dcc.Signature)),
 			giu.Label(fmt.Sprintf("Version: %v", p.dcc.Version)),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label(fmt.Sprintf("Directions: %v", p.dcc.NumberOfDirections)),
 			giu.Label(fmt.Sprintf("Frames per Direction: %v", p.dcc.FramesPerDirection)),
 		),
@@ -126,7 +126,7 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 	pm := int32(state.playMode)
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
 			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
 				state.playMode = animationPlayMode(pm)

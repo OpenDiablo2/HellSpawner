@@ -96,7 +96,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				p.mpqSelectDialogVisible = false
 			}),
 		),
-		g.Line(
+		g.Row(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				// checks if aux MPQs list isn't empty
 				if len(p.auxMPQs) > 0 {
@@ -114,7 +114,7 @@ func (p *ProjectPropertiesDialog) Build() {
 
 	if !p.mpqSelectDialogVisible {
 		p.IsOpen(&p.Visible).Layout(
-			g.Line(
+			g.Row(
 				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Project Name:"),
 					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(inputTextSize),
@@ -137,7 +137,7 @@ func (p *ProjectPropertiesDialog) Build() {
 									break
 								}
 
-								g.Line(
+								g.Row(
 									g.Custom(func() {
 										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", currentIdx))
 									}),
@@ -183,7 +183,7 @@ func (p *ProjectPropertiesDialog) Build() {
 					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq").OnClick(p.onAddAuxMpqClicked),
 				),
 			),
-			g.Line(
+			g.Row(
 				g.Custom(func() {
 					if !canSave {
 						imgui.PushStyleVarFloat(imgui.StyleVarAlpha, 0.5)

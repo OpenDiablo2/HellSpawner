@@ -44,19 +44,19 @@ func (p *PreferencesDialog) Build() {
 	p.IsOpen(&p.Visible).Layout(
 		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
 			g.Label("Auxiliary MPQ Path"),
-			g.Line(
+			g.Row(
 				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAuxMpqPathClicked),
 			),
 			g.Separator(),
 			g.Label("External MPQ listfile Path"),
-			g.Line(
+			g.Row(
 				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseExternalListfileClicked),
 			),
 			g.Separator(),
 			g.Label("Abyss Engine Path"),
-			g.Line(
+			g.Row(
 				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAbyssEngineClicked),
 			),
@@ -64,7 +64,7 @@ func (p *PreferencesDialog) Build() {
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 			g.Separator(),
 			g.Label("Background color:"),
-			g.Line(
+			g.Row(
 				g.ColorEdit("##BackgroundColor", &p.config.BGColor).
 					Flags(g.ColorEditFlagsNoAlpha).OnChange(func() {
 					p.windowColorChanger(p.config.BGColor)
@@ -75,7 +75,7 @@ func (p *PreferencesDialog) Build() {
 				}),
 			),
 		),
-		g.Line(
+		g.Row(
 			g.Button("Save##AppPreferencesSave").OnClick(p.onSaveClicked),
 			g.Button("Cancel##AppPreferencesCancel").OnClick(p.onCancelClicked),
 		),
