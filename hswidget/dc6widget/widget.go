@@ -25,7 +25,6 @@ const (
 )
 
 const (
-	// nolint:gomnd // it was constant
 	maxAlpha = uint8(255)
 )
 
