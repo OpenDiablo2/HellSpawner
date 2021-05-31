@@ -16,6 +16,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsstringtableeditor"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
@@ -77,22 +78,49 @@ func (a *App) setup() error {
 	return nil
 }
 
+// please note, that this steps will not affect app language
+// it will only load an appropriate glyph ranges for
+// displayed text (e.g. for string/font table editors)
 func (a *App) setupFonts() {
-	// Note: To support other languages we'll have to do something with glyph ranges here...
-	// ranges := imgui.NewGlyphRanges()
-	// rb := imgui.NewFontGlyphRangesBuilder()
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesChineseSimplifiedCommon())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesCyrillic())
-	// rb.AddRanges(imgui.CurrentIO().Fonts().GlyphRangesKorean())
-	// rb.BuildRanges(ranges)
-	// imgui.CurrentIO().Fonts().AddFontFromFileTTFV("NotoSans-Regular.ttf", 17, 0, imgui.CurrentIO().Fonts().GlyphRangesJapanese())
-	imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontNotoSansRegular, baseFontSize)
-	a.fontFixed = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
-	a.fontFixedSmall = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
-	a.diabloRegularFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
-	a.diabloBoldFont = imgui.CurrentIO().Fonts().AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
-	imgui.CurrentStyle().ScaleAllSizes(1)
+	fonts := g.Context.IO().Fonts()
+	ranges := imgui.NewGlyphRanges()
+	builder := imgui.NewFontGlyphRangesBuilder()
+
+	builder.AddRanges(fonts.GlyphRangesDefault())
+
+	var font []byte = hsassets.FontNotoSansRegular
+
+	switch a.config.Locale {
+	// glyphs supported by default
+	case hsenum.LocaleEnglish, hsenum.LocaleGerman,
+		hsenum.LocaleFrench, hsenum.LocaleItalien,
+		hsenum.LocaleSpanish:
+		// noop
+	case hsenum.LocaleChineseTraditional:
+		font = hsassets.FontSourceHanSerif
+
+		builder.AddRanges(fonts.GlyphRangesChineseFull())
+	case hsenum.LocaleKorean:
+		font = hsassets.FontSourceHanSerif
+
+		builder.AddRanges(fonts.GlyphRangesKorean())
+	case hsenum.LocalePolish:
+		builder.AddText(hsenum.PolishSpecialCharacters)
+	}
+
+	// build ranges
+	builder.BuildRanges(ranges)
+
+	// setup default font
+	fonts.AddFontFromMemoryTTFV(font, baseFontSize, 0, ranges.Data())
+
+	// please note, that the following fonts will not use
+	// previously generated glyph ranges.
+	// they'll have a default range
+	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
+	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
+	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
+	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
