@@ -44,6 +44,8 @@ var (
 	FontDiabloRegular []byte
 	//go:embed fonts/DiabloBold.ttf
 	FontDiabloBold []byte
+	//go:embed fonts/source-han-serif/SourceHanSerifTC-Regular.otf
+	FontSourceHanSerif []byte
 )
 
 // HellSpawnerLogo is a logo image from about dialog
