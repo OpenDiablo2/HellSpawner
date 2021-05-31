@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 
@@ -39,6 +40,7 @@ type Config struct {
 	OpenMostRecentOnStartup bool                        `json:"openMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"projectStates"`
 	LogFilePath             string                      `json:"logFile"`
+	Locale                  hsenum.Locale               `json:"locale"`
 	BGColor                 color.RGBA                  `json:"bgColor"`
 }
 
@@ -59,6 +61,7 @@ func generateDefaultConfig(path string) *Config {
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
 		LogFilePath:             filepath.Join(filepath.Dir(path), "output.txt"),
+		Locale:                  hsenum.LocaleEnglish,
 		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
 
