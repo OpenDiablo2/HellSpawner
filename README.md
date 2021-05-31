@@ -28,10 +28,13 @@ Run project by `go run .`
 
 If you're using Unix-based OS, you can build project with included building script: run `./build.sh`
 
-Windows users must have minGW compiler installed (x32 or x64 depending on processor bit capacity and Windows build version)
-and put path to minGW/bin folder to system PATH variable.
+Windows users must have minGW compiler installed (x32 or x64 depending on processor bit capacity and Windows build version) and put path to minGW/bin folder to system PATH variable.
+
 mingw-x64 installer: https://sourceforge.net/projects/mingw-w64/files/latest/download
+
 mingw for x32/x64 installer: https://sourceforge.net/projects/mingw-w64/
+
+See steps 3 and 4 of this [guide](https://code.visualstudio.com/docs/cpp/config-mingw).
 
 ## Contributing
 
