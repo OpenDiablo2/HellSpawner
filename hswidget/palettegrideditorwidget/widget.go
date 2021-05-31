@@ -57,7 +57,6 @@ func (p *PaletteGridEditorWidget) Build() {
 	state := p.getState()
 
 	colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
-
 	for n := range *(p.colors) {
 		colors[n] = (*p.colors)[n]
 	}
