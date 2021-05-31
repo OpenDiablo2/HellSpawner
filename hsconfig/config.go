@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 
@@ -38,6 +39,7 @@ type Config struct {
 	ExternalListFile        string                      `json:"externalListFile"`
 	OpenMostRecentOnStartup bool                        `json:"openMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"projectStates"`
+	Locale                  hsenum.Locale               `json:"locale"`
 	BGColor                 color.RGBA                  `json:"bgColor"`
 }
 
@@ -57,6 +59,7 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
+		Locale:                  hsenum.LocaleEnglish,
 		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
 
