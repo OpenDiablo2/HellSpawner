@@ -157,17 +157,24 @@ func (a *App) Run() {
 
 	defer a.Quit() // force-close and save everything (in case of crash)
 
-	a.logFile, err = os.OpenFile(a.config.LogFilePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
-	if err != nil {
-		log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
-	}
-
-	defer func() {
-		err := a.logFile.Close()
-		if err != nil {
-			log.Fatal(err)
+	if a.config.LoggingToFile || *a.Flags.logFile != "" {
+		var path string = a.config.LogFilePath
+		if *a.Flags.logFile != "" {
+			path = *a.Flags.logFile
 		}
-	}()
+
+		a.logFile, err = os.OpenFile(filepath.Clean(path), os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
+		if err != nil {
+			log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
+		}
+
+		defer func() {
+			err := a.logFile.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}()
+	}
 
 	if err := a.setup(); err != nil {
 		log.Panic(err)

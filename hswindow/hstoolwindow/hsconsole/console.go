@@ -64,11 +64,13 @@ func (c *Console) Write(p []byte) (n int, err error) {
 
 	fmt.Print(msg) // print to terminal
 
-	n, err = c.logFile.Write(p) // print to file
-	if err != nil {
-		return n, fmt.Errorf("error writing to log file: %w", err)
-	} else if n != len(p) {
-		return n, fmt.Errorf("invalid data written to log file")
+	if c.logFile != nil {
+		n, err = c.logFile.Write(p) // print to file
+		if err != nil {
+			return n, fmt.Errorf("error writing to log file: %w", err)
+		} else if n != len(p) {
+			return n, fmt.Errorf("invalid data written to log file")
+		}
 	}
 
 	return len(p), nil
