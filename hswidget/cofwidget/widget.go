@@ -10,7 +10,6 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 )
 
@@ -295,18 +294,18 @@ func (p *widget) makeLayerLayout() giu.Layout {
 		p.onUpdate()
 	}
 
-	layerName := hsenum.GetLayerName(state.viewerState.layer.Type)
+	layerName := state.viewerState.layer.Type.Name()
 
 	strType := fmt.Sprintf("Type: %s (%s)", state.viewerState.layer.Type, layerName)
 	strShadow := fmt.Sprintf("Shadow: %t", state.viewerState.layer.Shadow > 0)
 	strSelectable := fmt.Sprintf("Selectable: %t", state.viewerState.layer.Selectable)
 	strTransparent := fmt.Sprintf("Transparent: %t", state.viewerState.layer.Transparent)
 
-	effect := hsenum.GetDrawEffectName(state.viewerState.layer.DrawEffect)
+	effect := state.viewerState.layer.DrawEffect.String()
 
 	strEffect := fmt.Sprintf("Draw Effect: %s", effect)
 
-	weapon := hsenum.GetWeaponClassString(state.viewerState.layer.WeaponClass)
+	weapon := state.viewerState.layer.WeaponClass.String()
 
 	strWeaponClass := fmt.Sprintf("Weapon Class: (%s) %s", state.viewerState.layer.WeaponClass, weapon)
 
@@ -372,7 +371,7 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 		increasePriority := hswidget.MakeImageButton(strIncPri, buttonWidthHeight, buttonWidthHeight, state.textures.up, fnIncPriority)
 		decreasePriority := hswidget.MakeImageButton(strDecPri, buttonWidthHeight, buttonWidthHeight, state.textures.down, fnDecPriority)
 
-		strLayerName := hsenum.GetLayerName(layers[idx])
+		strLayerName := layers[idx].Name()
 		strLayerLabel := fmt.Sprintf(fmtLayerLabel, idx, strLayerName)
 
 		layerNameLabel := giu.Label(strLayerLabel)
@@ -417,17 +416,17 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 
 	compositeTypeList := make([]string, len(available))
 	for n, i := range available {
-		compositeTypeList[n] = i.String() + " (" + hsenum.GetLayerName(i) + ")"
+		compositeTypeList[n] = i.String() + " (" + i.Name() + ")"
 	}
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
 	for i := d2enum.DrawEffectPctTransparency25; i <= d2enum.DrawEffectNone; i++ {
-		drawEffectList[int(i)] = strconv.Itoa(int(i)) + " (" + hsenum.GetDrawEffectName(i) + ")"
+		drawEffectList[int(i)] = strconv.Itoa(int(i)) + " (" + i.String() + ")"
 	}
 
 	weaponClassList := make([]string, d2enum.WeaponClassTwoHandToHand+1)
 	for i := d2enum.WeaponClassNone; i <= d2enum.WeaponClassTwoHandToHand; i++ {
-		weaponClassList[int(i)] = i.String() + " (" + hsenum.GetWeaponClassString(i) + ")"
+		weaponClassList[int(i)] = i.String() + " (" + i.Name() + ")"
 	}
 
 	return giu.Layout{

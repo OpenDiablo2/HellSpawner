@@ -28,6 +28,7 @@ setup:
 	@git submodule update --init --recursive
 	@$(GOCMD) get -v -t -d ./...
 	@$(GOCMD) mod download -x
+	@$(GOCMD) install golang.org/x/tools/cmd/stringer
 	@$(GOCMD) generate -v ./...
 
 ## test: Runs the tests with coverage
