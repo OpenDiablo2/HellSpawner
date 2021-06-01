@@ -74,7 +74,7 @@ func (p *PaletteGridWidget) Build() {
 					)
 				}
 
-				grid = append(grid, giu.Line(line...))
+				grid = append(grid, giu.Row(line...))
 			}
 
 			grid.Build()

@@ -323,7 +323,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 		wallTexture = variant["wall"]
 	}
 
-	imageControls := giu.Line(
+	imageControls := giu.Row(
 		giu.Checkbox("Show Grid", &state.controls.showGrid),
 		giu.Checkbox("Show Floor", &state.controls.showFloor),
 		giu.Checkbox("Show Wall", &state.controls.showWall),
@@ -457,7 +457,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
 
 	tileTypeInfo := giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label("Type: "),
 			giu.InputInt("##"+p.id+"tileTypeInt", &tile.Type).Size(inputIntW),
 			giu.Combo("##"+p.id+"tileTypeList", tileTypeList[tileTypeIdx], tileTypeList, &tile.Type),
@@ -478,7 +478,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	roofHeight := int32(tile.RoofHeight)
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.InputInt("##"+p.id+"inputWidth", &w).Size(inputIntW).OnChange(func() {
 				tile.Width = w
 			}),
@@ -490,13 +490,13 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		),
 		giu.Dummy(1, 4),
 
-		giu.Line(
+		giu.Row(
 			giu.Label("Direction: "),
 			giu.InputInt("##"+p.id+"tileDirection", &tile.Direction).Size(inputIntW),
 		),
 		giu.Dummy(1, 4),
 
-		giu.Line(
+		giu.Row(
 			giu.Label("RoofHeight:"),
 			giu.InputInt("##"+p.id+"roofHeight", &roofHeight).Size(inputIntW).OnChange(func() {
 				tile.RoofHeight = int16(roofHeight)
@@ -507,26 +507,26 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		tileTypeInfo,
 		giu.Dummy(1, 4),
 
-		giu.Line(
+		giu.Row(
 			giu.Label("Style:"),
 			giu.InputInt("##"+p.id+"style", &tile.Style).Size(inputIntW),
 		),
 		giu.Dummy(1, 4),
 
-		giu.Line(
+		giu.Row(
 			giu.Label("Sequence:"),
 			giu.InputInt("##"+p.id+"sequence", &tile.Sequence).Size(inputIntW),
 		),
 		giu.Dummy(1, 4),
 
-		giu.Line(
+		giu.Row(
 			giu.Label("RarityFrameIndex:"),
 			giu.InputInt("##"+p.id+"rarityFrameIndex", &tile.RarityFrameIndex).Size(inputIntW),
 		),
-		// giu.Line(
+		// giu.Row(
 		//	giu.Label(fmt.Sprintf("SubTileFlags: %v", tile.SubTileFlags)),
 		// ),
-		// giu.Line(
+		// giu.Row(
 		//	giu.Label(fmt.Sprintf("Blocks: %v", tile.Blocks)),
 		// ),
 	}
@@ -536,23 +536,23 @@ func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
 		giu.Table("##"+p.id+"materialFlags").FastMode(true).
-			Rows(giu.Row(
+			Rows(giu.TableRow(
 				giu.Checkbox("Other", &tile.MaterialFlags.Other),
 				giu.Checkbox("Water", &tile.MaterialFlags.Water),
 			),
-				giu.Row(
+				giu.TableRow(
 					giu.Checkbox("WoodObject", &tile.MaterialFlags.WoodObject),
 					giu.Checkbox("InsideStone", &tile.MaterialFlags.InsideStone),
 				),
-				giu.Row(
+				giu.TableRow(
 					giu.Checkbox("OutsideStone", &tile.MaterialFlags.OutsideStone),
 					giu.Checkbox("Dirt", &tile.MaterialFlags.Dirt),
 				),
-				giu.Row(
+				giu.TableRow(
 					giu.Checkbox("Sand", &tile.MaterialFlags.Sand),
 					giu.Checkbox("Wood", &tile.MaterialFlags.Wood),
 				),
-				giu.Row(
+				giu.TableRow(
 					giu.Checkbox("Lava", &tile.MaterialFlags.Lava),
 					giu.Checkbox("Snow", &tile.MaterialFlags.Snow),
 				),
@@ -598,7 +598,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 					)
 				}
 
-				giu.Line(layout...).Build()
+				giu.Row(layout...).Build()
 			}
 		}),
 		giu.Dummy(0, 4),

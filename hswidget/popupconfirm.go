@@ -43,7 +43,7 @@ func (p *PopUpConfirmDialog) Build() {
 		giu.PopupModal(p.header + "##" + p.id).IsOpen(&open).Layout(giu.Layout{
 			giu.Label(p.message),
 			giu.Separator(),
-			giu.Line(
+			giu.Row(
 				giu.Button("YES##"+p.id+"ConfirmDialog").Size(yesNoButtonW, yesNoButtonH).OnClick(p.yCB),
 				giu.Button("NO##"+p.id+"confirmDialog").Size(yesNoButtonW, yesNoButtonH).OnClick(p.nCB),
 			),

@@ -12,18 +12,21 @@ import (
 type Flags struct {
 	optionalConfigPath *string
 	bgColor            *uint
+	logFile            *string
 }
 
 func (a *App) parseArgs() {
 	configDescr := fmt.Sprintf("specify a custom config path. Default is: %s", hsconfig.GetConfigPath())
 	a.Flags.optionalConfigPath = flag.String("config", "", configDescr)
 	a.Flags.bgColor = flag.Uint("bgColor", hsconfig.DefaultBGColor, "custom background color")
+	a.Flags.logFile = flag.String("log", "", "path to the output log file")
 	showHelp := flag.Bool("h", false, "Show help")
 
 	flag.Usage = func() {
 		fmt.Printf("usage: %s [<flags>]\n\nFlags:\n", os.Args[0])
 		flag.PrintDefaults()
 	}
+
 	flag.Parse()
 
 	if *showHelp {
