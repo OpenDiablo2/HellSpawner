@@ -73,6 +73,19 @@ func (p *PreferencesDialog) Build() {
 			g.Separator(),
 			g.Checkbox("Open most recent project on start-up", &p.config.OpenMostRecentOnStartup),
 			g.Separator(),
+			g.Checkbox("Save log output in a log file", &p.config.LoggingToFile),
+			g.Custom(func() {
+				if p.config.LoggingToFile {
+					g.Layout{
+						g.Label("Log file path"),
+						g.Line(
+							g.InputText("##AppPreferencesLogFilePath", &p.config.LogFilePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
+							g.Button("...##AppPreferencesLogFilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseLogFilePathClicked),
+						),
+					}.Build()
+				}
+			}),
+			g.Separator(),
 			g.Custom(func() {
 				if !p.restartPrompt {
 					return
@@ -133,6 +146,15 @@ func (p *PreferencesDialog) onBrowseExternalListfileClicked() {
 	}
 
 	p.config.ExternalListFile = filePath
+}
+
+func (p *PreferencesDialog) onBrowseLogFilePathClicked() {
+	path, err := dialog.Directory().Browse()
+	if err != nil || path == "" {
+		return
+	}
+
+	p.config.LogFilePath = path
 }
 
 func (p *PreferencesDialog) onSaveClicked() {
