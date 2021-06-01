@@ -20,12 +20,13 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 300, 200
-	mpqSelectW, mpqSelectH   = 300, 250
-	mpqGroupW, mpqGroupH     = 0, 180
-	imgBtnW, imgBtnH         = 16, 16
-	dummyW, dummyH           = 8, 0
-	inputTextSize            = 250
+	mainWindowW, mainWindowH   = 300, 200
+	mpqSelectW, mpqSelectH     = 300, 250
+	mpqGroupW, mpqGroupH       = 0, 180
+	imgBtnW, imgBtnH           = 16, 16
+	dummyW, dummyH             = 8, 0
+	inputTextSize              = 250
+	descriptionW, descriptionH = inputTextSize, 100
 )
 
 // ProjectPropertiesDialog represent project properties' dialog
@@ -96,7 +97,7 @@ func (p *ProjectPropertiesDialog) Build() {
 				p.mpqSelectDialogVisible = false
 			}),
 		),
-		g.Line(
+		g.Row(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				// checks if aux MPQs list isn't empty
 				if len(p.auxMPQs) > 0 {
@@ -114,12 +115,12 @@ func (p *ProjectPropertiesDialog) Build() {
 
 	if !p.mpqSelectDialogVisible {
 		p.IsOpen(&p.Visible).Layout(
-			g.Line(
+			g.Row(
 				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Project Name:"),
 					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(inputTextSize),
 					g.Label("Description:"),
-					g.InputText("##ProjectPropertiesDialogDescription", &p.project.Description).Size(inputTextSize),
+					g.InputTextMultiline("##ProjectPropertiesDialogDescription", &p.project.Description).Size(descriptionW, descriptionH),
 					g.Label("Author:"),
 					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(inputTextSize),
 				),
@@ -137,7 +138,7 @@ func (p *ProjectPropertiesDialog) Build() {
 									break
 								}
 
-								g.Line(
+								g.Row(
 									g.Custom(func() {
 										imgui.PushID(fmt.Sprintf("ProjectPropertiesAddAuxMpqRemove_%d", currentIdx))
 									}),
@@ -183,7 +184,7 @@ func (p *ProjectPropertiesDialog) Build() {
 					g.Button("Add Auxiliary MPQ...##ProjectPropertiesAddAuxMpq").OnClick(p.onAddAuxMpqClicked),
 				),
 			),
-			g.Line(
+			g.Row(
 				g.Custom(func() {
 					if !canSave {
 						imgui.PushStyleVarFloat(imgui.StyleVarAlpha, 0.5)
