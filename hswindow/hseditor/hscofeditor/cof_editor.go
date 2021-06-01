@@ -4,7 +4,6 @@ package hscofeditor
 import (
 	"fmt"
 
-	"github.com/OpenDiablo2/HellSpawner/hswidget/cofwidget"
 	"github.com/OpenDiablo2/dialog"
 	g "github.com/ianling/giu"
 
@@ -16,6 +15,8 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
+
+	"github.com/OpenDiablo2/HellSpawner/hswidget/cofwidget"
 )
 
 // static check, to ensure, if cof editor implemented editoWindow
