@@ -2,6 +2,7 @@ package hsapp
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"sync"
 	"time"
@@ -48,6 +49,9 @@ const (
 	samplesPerSecond = 22050
 
 	autoSaveTimer = 120
+
+	logFileSeparator = "-----%v-----\n"
+	logFilePerms     = 0o600
 )
 
 const (
@@ -75,6 +79,7 @@ type App struct {
 	project      *hsproject.Project
 	config       *hsconfig.Config
 	abyssWrapper *abysswrapper.AbyssWrapper
+	logFile      *os.File
 
 	aboutDialog             *hsaboutdialog.AboutDialog
 	preferencesDialog       *hspreferencesdialog.PreferencesDialog
@@ -123,6 +128,8 @@ func Create() (*App, error) {
 
 // Run runs an app instance
 func (a *App) Run() {
+	var err error
+
 	color := a.config.BGColor
 	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
 		color = hsutil.Color(bg)
@@ -134,7 +141,7 @@ func (a *App) Run() {
 	sampleRate := beep.SampleRate(samplesPerSecond)
 
 	// nolint:gomnd // this is 0.1 of second
-	if err := speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
+	if err = speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
 		log.Fatal(err)
 	}
 
@@ -149,6 +156,25 @@ func (a *App) Run() {
 	a.TextureLoader.ProcessTextureLoadRequests()
 
 	defer a.Quit() // force-close and save everything (in case of crash)
+
+	if a.config.LoggingToFile || *a.Flags.logFile != "" {
+		var path string = a.config.LogFilePath
+		if *a.Flags.logFile != "" {
+			path = *a.Flags.logFile
+		}
+
+		a.logFile, err = os.OpenFile(filepath.Clean(path), os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
+		if err != nil {
+			log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
+		}
+
+		defer func() {
+			err := a.logFile.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}()
+	}
 
 	if err := a.setup(); err != nil {
 		log.Panic(err)
