@@ -56,7 +56,7 @@ func (c *Console) Build() {
 		})
 }
 
-// Write writes input on console
+// Write writes input on console, stdout and (if exists) to the log file
 func (c *Console) Write(p []byte) (n int, err error) {
 	msg := string(p) // convert message from byte slice into string
 
