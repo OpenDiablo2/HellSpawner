@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -12,6 +13,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
 	g "github.com/ianling/giu"
+
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
@@ -40,8 +42,8 @@ type ProjectPropertiesDialog struct {
 	config                     *hsconfig.Config
 	onProjectPropertiesChanged func(project *hsproject.Project)
 	auxMPQs, auxMPQNames       []string
+	mpqsToAdd                  []int
 
-	mpqSelectDlgIndex      int
 	mpqSelectDialogVisible bool
 }
 
@@ -79,29 +81,75 @@ func (p *ProjectPropertiesDialog) Show(project *hsproject.Project, config *hscon
 		p.auxMPQNames[idx] = filepath.Base(p.auxMPQs[idx])
 	}
 
+	p.mpqsToAdd = make([]int, 0)
+
 	p.Dialog.Show()
 }
 
 // Build builds a dialog
-// nolint:funlen // no need to change
+// nolint:gocognit,funlen,gocyclo // no need to change
 func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
 	p.IsOpen(&p.mpqSelectDialogVisible).Layout(
 		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(mainWindowW, mainWindowH).Layout(
-			g.ListBox("ProjectPropertiesSelectAuxMPQDialogItems", p.auxMPQNames).Border(false).OnChange(func(selectedIndex int) {
-				p.mpqSelectDlgIndex = selectedIndex
-			}).OnDClick(func(selectedIndex int) {
-				p.addAuxMpq(p.auxMPQs[selectedIndex])
-				p.onProjectPropertiesChanged(&p.project)
-				p.mpqSelectDialogVisible = false
+			g.Custom(func() {
+				addMPQ := func(i int) {
+					p.mpqsToAdd = append(p.mpqsToAdd, i)
+				}
+				removeMPQ := func(i int) {
+					for n, idx := range p.mpqsToAdd {
+						if i == idx {
+							p.mpqsToAdd = append(p.mpqsToAdd[:n], p.mpqsToAdd[n+1:]...)
+						}
+					}
+				}
+
+				isInMpqList := func(i int) bool {
+					for _, idx := range p.mpqsToAdd {
+						if i == idx {
+							return true
+						}
+					}
+
+					return false
+				}
+				// list of `Selectable widgets`;
+				for i, mpq := range p.auxMPQNames {
+					i := i
+					isSelected := isInMpqList(i)
+					g.Row(
+						g.Checkbox(
+							"##"+"ProjectPropertiesSelectAuxMPQDialogCheckbox"+strconv.Itoa(i),
+							&isSelected,
+						).OnChange(func() {
+							// opposite, because giu.Checkbox already changed this value
+							if !isSelected {
+								removeMPQ(i)
+							} else {
+								addMPQ(i)
+							}
+						}),
+						g.Selectable(mpq+"##"+"ProjectPropertiesSelectAuxMPQDialogIdx"+strconv.Itoa(i)).
+							Selected(isSelected).
+							Size(mainWindowW, 20).OnClick(func() {
+							if isSelected {
+								removeMPQ(i)
+							} else {
+								addMPQ(i)
+							}
+						}),
+					).Build()
+				}
 			}),
 		),
 		g.Row(
 			g.Button("Add Selected...##ProjectPropertiesSelectAuxMPQDialogAddSelected").OnClick(func() {
 				// checks if aux MPQs list isn't empty
 				if len(p.auxMPQs) > 0 {
-					p.addAuxMpq(p.auxMPQs[p.mpqSelectDlgIndex])
+					for _, idx := range p.mpqsToAdd {
+						p.addAuxMpq(p.auxMPQs[idx])
+					}
 					p.onProjectPropertiesChanged(&p.project)
 				}
 
