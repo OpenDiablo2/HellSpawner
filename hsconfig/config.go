@@ -62,7 +62,7 @@ func generateDefaultConfig(path string) *Config {
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
 		LoggingToFile:           false,
-		LogFilePath:             filepath.Join(filepath.Dir(path), "output.txt"),
+		LogFilePath:             filepath.Join(filepath.Dir(path), "output.log"),
 		Locale:                  hsenum.LocaleEnglish,
 		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
