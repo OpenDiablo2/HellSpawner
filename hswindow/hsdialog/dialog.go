@@ -2,8 +2,9 @@
 package hsdialog
 
 import (
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 )
 
 // Dialog represents HellSpawner's dialog
