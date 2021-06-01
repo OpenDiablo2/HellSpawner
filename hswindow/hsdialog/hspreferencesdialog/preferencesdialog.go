@@ -78,7 +78,7 @@ func (p *PreferencesDialog) Build() {
 				if p.config.LoggingToFile {
 					g.Layout{
 						g.Label("Log file path"),
-						g.Line(
+						g.Row(
 							g.InputText("##AppPreferencesLogFilePath", &p.config.LogFilePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
 							g.Button("...##AppPreferencesLogFilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseLogFilePathClicked),
 						),
