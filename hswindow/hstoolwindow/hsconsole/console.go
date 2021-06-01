@@ -2,6 +2,9 @@
 package hsconsole
 
 import (
+	"fmt"
+	"os"
+
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
@@ -19,13 +22,15 @@ type Console struct {
 	*hstoolwindow.ToolWindow
 	outputText string
 	fontFixed  imgui.Font
+	logFile    *os.File
 }
 
 // Create creates a new console
-func Create(fontFixed imgui.Font, x, y float32) *Console {
+func Create(fontFixed imgui.Font, x, y float32, logFile *os.File) *Console {
 	result := &Console{
 		fontFixed:  fontFixed,
 		ToolWindow: hstoolwindow.New("Console", hsstate.ToolWindowTypeConsole, x, y),
+		logFile:    logFile,
 	}
 
 	if w, h := result.CurrentSize(); w == 0 || h == 0 {
@@ -51,9 +56,22 @@ func (c *Console) Build() {
 		})
 }
 
-// Write writes input on console
+// Write writes input on console, stdout and (if exists) to the log file
 func (c *Console) Write(p []byte) (n int, err error) {
-	c.outputText = string(p) + c.outputText
+	msg := string(p) // convert message from byte slice into string
+
+	c.outputText = msg + c.outputText // append message
+
+	fmt.Print(msg) // print to terminal
+
+	if c.logFile != nil {
+		n, err = c.logFile.Write(p) // print to file
+		if err != nil {
+			return n, fmt.Errorf("error writing to log file: %w", err)
+		} else if n != len(p) {
+			return n, fmt.Errorf("invalid data written to log file")
+		}
+	}
 
 	return len(p), nil
 }
