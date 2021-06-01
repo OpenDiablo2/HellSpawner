@@ -143,7 +143,7 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 	pm := int32(state.playMode)
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
 			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
 				state.playMode = animationPlayMode(pm)
@@ -165,7 +165,7 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 
 func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label("Tiled view:"),
 			giu.InputInt("Width##"+p.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewHeight(state)

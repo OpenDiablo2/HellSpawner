@@ -31,7 +31,7 @@ type TextEditor struct {
 
 	text      string
 	tableView bool
-	tableRows []*g.RowWidget
+	tableRows []*g.TableRowWidget
 	columns   int
 }
 
@@ -58,7 +58,7 @@ func Create(_ *hsconfig.Config,
 		return result, nil
 	}
 
-	result.tableRows = make([]*g.RowWidget, len(lines))
+	result.tableRows = make([]*g.TableRowWidget, len(lines))
 
 	columns := strings.Split(firstLine, "\t")
 
@@ -77,7 +77,7 @@ func Create(_ *hsconfig.Config,
 		columnWidgets[idx] = g.Label(columns[idx])
 	}
 
-	result.tableRows[0] = g.Row(columnWidgets...)
+	result.tableRows[0] = g.TableRow(columnWidgets...)
 
 	for lineIdx := range lines[1:] {
 		columns := strings.Split(lines[lineIdx+1], "\t")
@@ -87,7 +87,7 @@ func Create(_ *hsconfig.Config,
 			columnWidgets[idx] = g.Label(columns[idx])
 		}
 
-		result.tableRows[lineIdx+1] = g.Row(columnWidgets...)
+		result.tableRows[lineIdx+1] = g.TableRow(columnWidgets...)
 	}
 
 	return result, nil

@@ -90,7 +90,7 @@ func Create(textureLoader hscommon.TextureLoader, regularFont, titleFont, fixedF
 func (a *AboutDialog) Build() {
 	colorWhite := hsutil.Color(white)
 	a.IsOpen(&a.Visible).Layout(
-		g.Line(
+		g.Row(
 			g.Image(a.logo).Size(mainWindowW, mainWindowH),
 			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(
 				g.Style().SetColor(imgui.StyleColorText, colorWhite).To(

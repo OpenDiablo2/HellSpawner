@@ -51,7 +51,7 @@ func (p *widget) buildTableLayout() {
 
 	keys := p.generateTableKeys()
 
-	rows := make([]*giu.RowWidget, len(keys)+1)
+	rows := make([]*giu.TableRowWidget, len(keys)+1)
 
 	columns := []string{"key", "value", "action"}
 	columnWidgets := make([]giu.Widget, len(columns))
@@ -60,7 +60,7 @@ func (p *widget) buildTableLayout() {
 		columnWidgets[idx] = giu.Label(columns[idx])
 	}
 
-	rows[0] = giu.Row(columnWidgets...)
+	rows[0] = giu.TableRow(columnWidgets...)
 
 	for keyIdx, key := range keys {
 		// first row is header
@@ -91,13 +91,13 @@ func (p *widget) buildTableLayout() {
 	}.Build()
 }
 
-func (p *widget) makeTableRow(key string) *giu.RowWidget {
+func (p *widget) makeTableRow(key string) *giu.TableRowWidget {
 	state := p.getState()
 
-	return giu.Row(
+	return giu.TableRow(
 		giu.Label(key),
 		giu.Label(p.dict[key]),
-		giu.Line(
+		giu.Row(
 			giu.Button("delete##"+p.id+"deleteString"+key).Size(deleteW, deleteH).OnClick(func() {
 				delete(p.dict, key)
 				p.reloadMapValues()
@@ -119,7 +119,7 @@ func (p *widget) makeSearchSection() giu.Layout {
 		giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
 		giu.Custom(func() {
 			if !state.numOnly {
-				giu.Line(
+				giu.Row(
 					giu.Label("Search:"),
 					giu.InputText("##"+p.id+"search", &state.search),
 				).Build()
@@ -143,7 +143,7 @@ func (p *widget) buildAddEditLayout() {
 			})
 
 			if state.editable {
-				giu.Line(
+				giu.Row(
 					p.makeKeyField("##"+p.id+"addEditKey"),
 					checkbox,
 				).Build()
@@ -154,7 +154,7 @@ func (p *widget) buildAddEditLayout() {
 		giu.Label("Value:"),
 		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.value),
 		giu.Separator(),
-		giu.Line(
+		giu.Row(
 			giu.Custom(func() {
 				var btnStr string
 

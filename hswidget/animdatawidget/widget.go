@@ -75,7 +75,7 @@ func (p *widget) buildAnimationsList() {
 
 	for idx, name := range keys {
 		currentIdx := idx
-		list[idx] = giu.Line(
+		list[idx] = giu.Row(
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteEntry"+strconv.Itoa(currentIdx),
 				13, 13,
@@ -123,7 +123,7 @@ func (p *widget) buildViewRecordLayout() {
 	speed := int32(record.Speed())
 
 	giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.ArrowButton("##"+p.id+"previousAnimation", giu.DirectionLeft).OnClick(func() {
 				state.recordIdx = 0
 
@@ -149,13 +149,13 @@ func (p *widget) buildViewRecordLayout() {
 				}.Build()
 			}
 		}),
-		giu.Line(
+		giu.Row(
 			giu.Label("Frames per direction: "),
 			giu.InputInt("##"+p.id+"recordFramesPerDirection", &fpd).Size(inputIntW).OnChange(func() {
 				record.SetFramesPerDirection(uint32(fpd))
 			}),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Speed: "),
 			giu.InputInt("##"+p.id+"recordSpeed", &speed).Size(inputIntW).OnChange(func() {
 				record.SetSpeed(uint16(speed))
@@ -214,7 +214,7 @@ func (p *widget) makeSearchLayout() giu.Layout {
 
 			found := (len(p.d2.GetRecords(state.name)) > 0)
 			if found {
-				giu.Line(
+				giu.Row(
 					giu.Button("View##"+p.id+"addEntryViewEntry").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 						p.viewRecord()
 					}),
@@ -223,7 +223,7 @@ func (p *widget) makeSearchLayout() giu.Layout {
 				return
 			}
 
-			giu.Line(
+			giu.Row(
 				giu.Button("Add##"+p.id+"addEntry").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 					err := p.d2.AddEntry(state.name)
 					if err != nil {

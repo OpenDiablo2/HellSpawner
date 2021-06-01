@@ -39,6 +39,8 @@ type Config struct {
 	ExternalListFile        string                      `json:"externalListFile"`
 	OpenMostRecentOnStartup bool                        `json:"openMostRecentOnStartup"`
 	ProjectStates           map[string]hsstate.AppState `json:"projectStates"`
+	LoggingToFile           bool                        `json:"loggingToFile"`
+	LogFilePath             string                      `json:"logFile"`
 	Locale                  hsenum.Locale               `json:"locale"`
 	BGColor                 color.RGBA                  `json:"bgColor"`
 }
@@ -59,6 +61,8 @@ func generateDefaultConfig(path string) *Config {
 		RecentProjects:          []string{},
 		OpenMostRecentOnStartup: true,
 		ProjectStates:           make(map[string]hsstate.AppState),
+		LoggingToFile:           false,
+		LogFilePath:             filepath.Join(filepath.Dir(path), "output.log"),
 		Locale:                  hsenum.LocaleEnglish,
 		BGColor:                 hsutil.Color(DefaultBGColor),
 	}
