@@ -83,7 +83,7 @@ func (m *ProjectExplorer) Build() {
 		return
 	}
 
-	header := g.Line(
+	header := g.Row(
 		m.makeRefreshButtonLayout(),
 	)
 
