@@ -2,6 +2,8 @@ package hsapp
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
@@ -62,7 +64,14 @@ func (a *App) setup() error {
 		return fmt.Errorf("error creating a project explorer: %w", err)
 	}
 
-	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY)
+	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY, a.logFile)
+
+	log.SetFlags(log.Lshortfile)
+	log.SetOutput(a.console)
+
+	t := time.Now()
+	y, m, d := t.Date()
+	log.Printf(logFileSeparator, fmt.Sprintf("%d-%d-%d, %d:%d:%d", y, m, d, t.Hour(), t.Minute(), t.Second()))
 
 	// Register the dialogs
 	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
