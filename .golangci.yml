@@ -19,7 +19,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/OpenDiablo2/OpenDiablo2
+    local-prefixes: github.com/OpenDiablo2/HellSpawner
   govet:
     check-shadowing: true
   lll:
