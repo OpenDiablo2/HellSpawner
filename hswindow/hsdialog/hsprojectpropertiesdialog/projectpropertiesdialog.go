@@ -96,7 +96,7 @@ func (p *ProjectPropertiesDialog) Build() {
 			g.Custom(func() {
 				// list of `Selectable widgets`;
 				for i, mpq := range p.auxMPQNames {
-					g.Line(
+					g.Row(
 						g.Checkbox(
 							"##"+"ProjectPropertiesSelectAuxMPQDialogCheckbox"+strconv.Itoa(i),
 							&p.selectedMPQs[i],
