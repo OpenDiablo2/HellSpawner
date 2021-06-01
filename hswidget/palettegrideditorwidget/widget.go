@@ -92,7 +92,7 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 		giu.Separator(),
 		p.makeRGBField("##"+p.id+"changeB", "B:", &state.b, grid),
 		giu.Separator(),
-		giu.Line(
+		giu.Row(
 			giu.Label("Hex: "),
 			giu.InputText("##"+p.id+"editHex", &state.hex).OnChange(func() {
 				r, g, b, err := Hex2RGB(state.hex)
@@ -121,7 +121,7 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 	f32 := int32(*field)
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label(label),
 			hswidget.MakeInputInt(
 				id,
