@@ -95,13 +95,17 @@ func (p *ProjectPropertiesDialog) Build() {
 			g.Custom(func() {
 				// list of `Selectable widgets`;
 				for i, mpq := range p.auxMPQNames {
-					g.Selectable(
-						mpq+"##"+"ProjectPropertiesSelectAuxMPQDialogIdx"+strconv.Itoa(i),
-					).Selected(
-						p.selectedMPQs[i],
-					).Size(mainWindowW, 20).OnClick(func() {
-						p.selectedMPQs[i] = !p.selectedMPQs[i]
-					}).Build()
+					g.Line(
+						g.Checkbox(
+							"##"+"ProjectPropertiesSelectAuxMPQDialogCheckbox"+strconv.Itoa(i),
+							&p.selectedMPQs[i],
+						),
+						g.Selectable(mpq+"##"+"ProjectPropertiesSelectAuxMPQDialogIdx"+strconv.Itoa(i)).
+							Selected(p.selectedMPQs[i]).
+							Size(mainWindowW, 20).OnClick(func() {
+							p.selectedMPQs[i] = !p.selectedMPQs[i]
+						}),
+					).Build()
 				}
 			}),
 		),
