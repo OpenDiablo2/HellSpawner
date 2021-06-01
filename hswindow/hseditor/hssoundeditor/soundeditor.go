@@ -88,7 +88,7 @@ func (s *SoundEditor) Build() {
 		Flags(g.WindowFlagsNoResize).
 		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
-			g.Line(
+			g.Row(
 				hswidget.PlayPauseButton("##"+s.Path.GetUniqueID()+"playPause", &isPlaying, s.textureLoader).
 					OnPlayClicked(s.play).OnPauseClicked(s.stop).Size(btnSize, btnSize),
 				g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).

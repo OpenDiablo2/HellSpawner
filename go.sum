@@ -58,8 +58,8 @@ github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2h
 github.com/hajimehoshi/oto v0.6.8/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk=
 github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
-github.com/ianling/giu v0.5.1-0.20210428184235-269d9885a8ce h1:M9Hta9FT9sF0PjquoAxh8cGYKhzN+gsLedEzN/PbHTU=
-github.com/ianling/giu v0.5.1-0.20210428184235-269d9885a8ce/go.mod h1:wNuvv37Nc82IDyvkuNoZdMQZPBKbB1F9mJCLqV1JWQY=
+github.com/ianling/giu v0.5.1-0.20210524205023-4d3114338b69 h1:8/TnUIv7dy6smaOQiWsOB9MMHbiOgHrllYXRimQPx+Y=
+github.com/ianling/giu v0.5.1-0.20210524205023-4d3114338b69/go.mod h1:twqK/c83RuUbBV8sWkV9TMpcdaBs3Pec2FBN5gC+hEA=
 github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6 h1:cYyhJBJpHS3ccwS/Hn9SI4T3SUzORnfiBvB+/1mopLs=
 github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6/go.mod h1:XJ3IHn74S/5gKA6R5tYya4x7bsucY4tHgfnGO94FmEc=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=

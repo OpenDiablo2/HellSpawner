@@ -64,9 +64,9 @@ func (p *widget) Build() {
 func (p *widget) makeTableLayout() giu.Layout {
 	state := p.getState()
 
-	rows := make([]*giu.RowWidget, 0)
+	rows := make([]*giu.TableRowWidget, 0)
 
-	rows = append(rows, giu.Row(
+	rows = append(rows, giu.TableRow(
 		giu.Label("Delete"),
 		giu.Label("Index"),
 		giu.Label("Character"),
@@ -106,11 +106,11 @@ func (p *widget) makeTableLayout() giu.Layout {
 	}
 }
 
-func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
+func (p *widget) makeGlyphLayout(r rune) *giu.TableRowWidget {
 	state := p.getState()
 
 	if p.fontTable.Glyphs[r] == nil {
-		return &giu.RowWidget{}
+		return &giu.TableRowWidget{}
 	}
 
 	w := p.fontTable.Glyphs[r].Width()
@@ -119,13 +119,13 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 	h := p.fontTable.Glyphs[r].Height()
 	height32 := int32(h)
 
-	row := giu.Row(
+	row := giu.TableRow(
 		hswidget.MakeImageButton("##"+p.id+"deleteFrame"+string(r),
 			delSize, delSize,
 			state.deleteButtonTexture,
 			func() { p.deleteRow(r) },
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label(fmt.Sprintf("%d", p.fontTable.Glyphs[r].FrameIndex())),
 			giu.ArrowButton("##"+p.id+"upItem"+string(r), giu.DirectionUp).OnClick(func() {
 				p.itemUp(r)
@@ -134,7 +134,7 @@ func (p *widget) makeGlyphLayout(r rune) *giu.RowWidget {
 				p.itemDown(r)
 			}),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
 				state.editRuneState.runeBefore = r
 				state.editRuneState.editedRune = r
@@ -208,7 +208,7 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Label("Edit rune:"),
-		giu.Line(
+		giu.Row(
 			giu.Label("Rune: "),
 			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
 				if len(r) > 0 {
@@ -216,13 +216,13 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 				}
 			}),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Int: "),
 			giu.InputInt("##"+p.id+"editRuneInt", &state.editRuneState.editedRune).Size(inputIntW),
 		),
 		giu.Separator(),
-		giu.Line(
-			p.makeSaveCancelLine(func() {
+		giu.Row(
+			p.makeSaveCancelRow(func() {
 				p.fontTable.Glyphs[state.editRuneState.editedRune] = p.fontTable.Glyphs[state.editRuneState.runeBefore]
 				p.deleteRow(state.editRuneState.runeBefore)
 
@@ -270,10 +270,10 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 	r := string(state.addItemState.newRune)
 
 	return giu.Layout{
-		giu.Line(
+		giu.Row(
 			giu.Label(fmt.Sprintf("Frame index: %d", firstFreeIndex)),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Rune: "),
 			// if user put here more then one letter,
 			// second and further letters will be skipped
@@ -287,21 +287,21 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 				state.addItemState.newRune = int32(r[0])
 			}),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Int: "),
 			giu.InputInt("##"+p.id+"addItemRuneInt", &state.addItemState.newRune).Size(inputIntW),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Width: "),
 			giu.InputInt("##"+p.id+"addItemWidth", &state.addItemState.width).Size(inputIntW),
 		),
-		giu.Line(
+		giu.Row(
 			giu.Label("Height: "),
 			giu.InputInt("##"+p.id+"addItemHeight", &state.addItemState.height).Size(inputIntW),
 		),
 		giu.Separator(),
-		giu.Line(
-			p.makeSaveCancelLine(func() {
+		giu.Row(
+			p.makeSaveCancelRow(func() {
 				p.addItem(firstFreeIndex)
 			}, state.addItemState.newRune),
 		),
@@ -321,10 +321,10 @@ func (p *widget) addItem(idx int) {
 	state.mode = modeViewer
 }
 
-// makeSaveCancelLine creates  line of action buttons for an editor
+// makeSaveCancelRow creates  line of action buttons for an editor
 // if given rune already exists in glyph's table, save button isn't
 // created
-func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
+func (p *widget) makeSaveCancelRow(saveCB func(), r rune) giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
@@ -340,7 +340,7 @@ func (p *widget) makeSaveCancelLine(saveCB func(), r rune) giu.Layout {
 				return
 			}
 
-			giu.Line(
+			giu.Row(
 				giu.Button("Save##"+p.id+"addItemSave").Size(saveCancelW, saveCancelH).OnClick(func() {
 					saveCB()
 				}),

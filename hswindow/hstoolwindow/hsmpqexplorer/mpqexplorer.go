@@ -75,7 +75,7 @@ func (m *MPQExplorer) Build() {
 		m.IsOpen(&needToShowOverwritePrompt).Layout(g.Layout{
 			g.PopupModal("Overwrite File?").IsOpen(&needToShowOverwritePrompt).Layout(g.Layout{
 				g.Label("File at " + m.filesToOverwrite[0].Path + " already exists. Overwrite?"),
-				g.Line(
+				g.Row(
 					g.Button("Overwrite").OnClick(func() {
 						success := hsutil.CreateFileAtPath(m.filesToOverwrite[0].Path, m.filesToOverwrite[0].Data)
 						if success {
