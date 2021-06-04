@@ -2,7 +2,9 @@ package hsapp
 
 import (
 	"fmt"
+	"image/color"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/OpenDiablo2/dialog"
@@ -23,7 +25,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
@@ -76,13 +77,43 @@ func (a *App) setup() (err error) {
 }
 
 func (a *App) setupMasterWindow() {
-	color := a.config.BGColor
-	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
-		color = hsutil.Color(bg)
+	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
+
+	bgColor := a.determineBackgroundColor()
+	a.masterWindow.SetBgColor(bgColor)
+}
+
+func (a *App) determineBackgroundColor() color.RGBA {
+	const bitSize = 64
+
+	result := a.config.BGColor
+
+	strBytes := []byte(*a.Flags.bgColor)
+	numChars := len(strBytes)
+	includesBase := strBytes[1] == 'x'
+
+	base := 16
+	if includesBase {
+		base = 0
 	}
 
-	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
-	a.masterWindow.SetBgColor(color)
+	includesAlpha := false
+	if includesBase && numChars == len("0xRRGGBBAA") {
+		includesAlpha = true
+	} else if !includesBase && numChars == len("RRGGBBAA") {
+		includesAlpha = true
+	}
+
+	bg, err := strconv.ParseInt(*a.Flags.bgColor, base, bitSize)
+	if err == nil {
+		if !includesAlpha {
+			bg <<= 8
+		}
+
+		result = hsutil.Color(uint32(bg))
+	}
+
+	return result
 }
 
 func (a *App) setupAutoSave() {
