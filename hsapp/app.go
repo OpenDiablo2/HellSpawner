@@ -149,8 +149,10 @@ func (a *App) Run() {
 
 	// initialize auto-save timer
 	go func() {
-		time.Sleep(autoSaveTimer * time.Second)
-		a.Save()
+		for {
+			time.Sleep(autoSaveTimer * time.Second)
+			a.Save()
+		}
 	}()
 
 	a.TextureLoader.ProcessTextureLoadRequests()
