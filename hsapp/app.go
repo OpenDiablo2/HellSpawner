@@ -117,9 +117,7 @@ func Create() (*App, error) {
 }
 
 // Run runs an app instance
-func (a *App) Run() {
-	var err error
-
+func (a *App) Run() (err error) {
 	defer a.Quit() // force-close and save everything (in case of crash)
 
 	// setting up the logging here, as opposed to inside of app.setup(),
@@ -144,7 +142,7 @@ func (a *App) Run() {
 	}
 
 	if err := a.setup(); err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
@@ -153,6 +151,8 @@ func (a *App) Run() {
 
 	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
 	a.masterWindow.Run(a.render)
+
+	return nil
 }
 
 func (a *App) render() {
