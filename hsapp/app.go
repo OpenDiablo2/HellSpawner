@@ -106,18 +106,14 @@ type App struct {
 
 // Create creates new app instance
 func Create() (*App, error) {
-	tl := hscommon.NewTextureLoader()
 	result := &App{
 		Flags:              &Flags{},
 		editors:            make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]editorConstructor),
-		TextureLoader:      tl,
+		TextureLoader:      hscommon.NewTextureLoader(),
+		InputManager:       hsinput.NewInputManager(),
+		abyssWrapper:       abysswrapper.Create(),
 	}
-
-	im := hsinput.NewInputManager()
-	result.InputManager = im
-
-	result.abyssWrapper = abysswrapper.Create()
 
 	result.parseArgs()
 
@@ -158,7 +154,7 @@ func (a *App) Run() {
 	defer a.Quit() // force-close and save everything (in case of crash)
 
 	if a.config.LoggingToFile || *a.Flags.logFile != "" {
-		var path string = a.config.LogFilePath
+		var path = a.config.LogFilePath
 		if *a.Flags.logFile != "" {
 			path = *a.Flags.logFile
 		}
