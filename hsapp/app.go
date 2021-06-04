@@ -1,6 +1,7 @@
 package hsapp
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -210,34 +211,41 @@ func (a *App) render() {
 	a.TextureLoader.ResumeLoadingTextures()
 }
 
+func logErr(fmtErr string, err error) {
+	msg := fmt.Sprintf(fmtErr, err)
+
+	log.Printf(msg)
+	dialog.Message(msg).Error()
+}
+
 func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
-		log.Printf("Could not load file: %v", err)
-		dialog.Message("Could not load file!").Error()
+		const fmtErr = "Could not load file: %v"
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &data)
 	if err != nil {
-		log.Printf("Error reading file type: %v", err)
-		dialog.Message("No file type is defined for this extension!").Error()
+		const fmtErr = "Error reading file type: %v"
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	if a.editorConstructors[fileType] == nil {
-		log.Printf("Error loading editor: %v", err)
-		dialog.Message("No editor is defined for this file type!").Error()
+		const fmtErr = "Error opening editor: %v"
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, state, &data, x, y, a.project)
 	if err != nil {
-		log.Printf("Error creating editor: %v", err)
-		dialog.Message("Error creating editor: %s", err).Error()
+		const fmtErr = "Error creating editor: %v"
+		logErr(fmtErr, err)
 
 		return
 	}
