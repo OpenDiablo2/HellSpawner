@@ -38,7 +38,6 @@ type playPauseButtonState struct {
 
 func (s *playPauseButtonState) Dispose() {
 	s.playTexture = nil
-	s.playTexture = nil
 }
 
 // PlayPauseButtonWidget represents a play/pause button
