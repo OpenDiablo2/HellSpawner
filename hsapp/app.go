@@ -153,6 +153,8 @@ func (a *App) Run() {
 
 	defer a.Quit() // force-close and save everything (in case of crash)
 
+	// setting up the logging here, as opposed to inside of app.setup(),
+	// because of the deferred call to logfile.Close()
 	if a.config.LoggingToFile || *a.Flags.logFile != "" {
 		var path = a.config.LogFilePath
 		if *a.Flags.logFile != "" {
