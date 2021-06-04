@@ -47,6 +47,7 @@ const (
 	consoleDefaultY          = 500
 
 	samplesPerSecond = 22050
+	sampleDuration   = time.Second / 10
 
 	autoSaveTimer = 120
 
@@ -135,9 +136,9 @@ func (a *App) Run() {
 	a.masterWindow.SetBgColor(color)
 
 	sampleRate := beep.SampleRate(samplesPerSecond)
+	bufferSize := sampleRate.N(sampleDuration)
 
-	// nolint:gomnd // this is 0.1 of second
-	if err = speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
+	if err = speaker.Init(sampleRate, bufferSize); err != nil {
 		log.Fatal(err)
 	}
 
