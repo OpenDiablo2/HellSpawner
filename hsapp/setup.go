@@ -98,9 +98,9 @@ func (a *App) determineBackgroundColor() color.RGBA {
 	}
 
 	includesAlpha := false
-	if includesBase && numChars == len("0xRRGGBBAA") {
+	if includesBase && numChars >= len("0xRGGBBAA") {
 		includesAlpha = true
-	} else if !includesBase && numChars == len("RRGGBBAA") {
+	} else if !includesBase && numChars >= len("RGGBBAA") {
 		includesAlpha = true
 	}
 
@@ -212,7 +212,7 @@ func (a *App) setupFonts() {
 
 	builder.AddRanges(fonts.GlyphRangesDefault())
 
-	var font []byte = hsassets.FontNotoSansRegular
+	font := hsassets.FontNotoSansRegular
 
 	switch a.config.Locale {
 	// glyphs supported by default
