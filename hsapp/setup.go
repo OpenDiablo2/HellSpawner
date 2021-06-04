@@ -5,21 +5,25 @@ import (
 	"log"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hsassets"
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
+	"github.com/OpenDiablo2/dialog"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
 
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsfonttableeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspalettemapeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsstringtableeditor"
 
+	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
@@ -31,14 +35,64 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hspaletteeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hssoundeditor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hstexteditor"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 )
 
-func (a *App) setup() error {
-	var err error
+func (a *App) setup() (err error) {
+	dialog.Init()
 
-	// Register the editors
+	a.setupConsole()
+	a.setupMasterWindow()
+	a.setupAutoSave()
+	a.registerGlobalKeyboardShortcuts()
+	a.registerEditors()
+
+	err = a.setupAudio()
+	if err != nil {
+		return err
+	}
+
+	err = a.setupMainMpqExplorer()
+	if err != nil {
+		return err
+	}
+
+	err = a.setupProjectExplorer()
+	if err != nil {
+		return err
+	}
+
+	err = a.setupDialogs()
+	if err != nil {
+		return err
+	}
+
+	// we may have tried loading some textures already...
+	a.TextureLoader.ProcessTextureLoadRequests()
+
+	return nil
+}
+
+func (a *App) setupMasterWindow() {
+	color := a.config.BGColor
+	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
+		color = hsutil.Color(bg)
+	}
+
+	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
+	a.masterWindow.SetBgColor(color)
+}
+
+func (a *App) setupAutoSave() {
+	go func() {
+		time.Sleep(autoSaveTimer * time.Second)
+		a.Save()
+	}()
+}
+
+func (a *App) registerEditors() {
 	a.editorConstructors[hsfiletypes.FileTypeText] = hstexteditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeAudio] = hssoundeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypePalette] = hspaletteeditor.Create
@@ -52,18 +106,45 @@ func (a *App) setup() error {
 	a.editorConstructors[hsfiletypes.FileTypeTBLStringTable] = hsstringtableeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeTBLFontTable] = hsfonttableeditor.Create
 	a.editorConstructors[hsfiletypes.FileTypeDS1] = hsds1editor.Create
+}
 
-	// Register the tool windows
-	if a.mpqExplorer, err = hsmpqexplorer.Create(a.openEditor, a.config, mpqExplorerDefaultX, mpqExplorerDefaultY); err != nil {
+func (a *App) setupMainMpqExplorer() error {
+	window, err := hsmpqexplorer.Create(a.openEditor, a.config, mpqExplorerDefaultX, mpqExplorerDefaultY)
+	if err != nil {
 		return fmt.Errorf("error creating a MPQ explorer: %w", err)
 	}
 
-	if a.projectExplorer, err = hsprojectexplorer.Create(a.TextureLoader,
-		a.openEditor, projectExplorerDefaultX,
-		projectExplorerDefaultY); err != nil {
+	a.mpqExplorer = window
+
+	return nil
+}
+
+func (a *App) setupProjectExplorer() error {
+	x, y := float32(projectExplorerDefaultX), float32(projectExplorerDefaultY)
+	window, err := hsprojectexplorer.Create(a.TextureLoader,
+		a.openEditor, x, y)
+
+	if err != nil {
 		return fmt.Errorf("error creating a project explorer: %w", err)
 	}
 
+	a.projectExplorer = window
+
+	return nil
+}
+
+func (a *App) setupAudio() error {
+	sampleRate := beep.SampleRate(samplesPerSecond)
+	bufferSize := sampleRate.N(sampleDuration)
+
+	if err := speaker.Init(sampleRate, bufferSize); err != nil {
+		return fmt.Errorf("could not initialize, %w", err)
+	}
+
+	return nil
+}
+
+func (a *App) setupConsole() {
 	a.console = hsconsole.Create(a.fontFixed, consoleDefaultX, consoleDefaultY, a.logFile)
 
 	log.SetFlags(log.Lshortfile)
@@ -71,18 +152,21 @@ func (a *App) setup() error {
 
 	t := time.Now()
 	y, m, d := t.Date()
-	log.Printf(logFileSeparator, fmt.Sprintf("%d-%d-%d, %d:%d:%d", y, m, d, t.Hour(), t.Minute(), t.Second()))
 
+	line := fmt.Sprintf("%d-%d-%d, %d:%d:%d", y, m, d, t.Hour(), t.Minute(), t.Second())
+	log.Printf(logFileSeparator, line)
+}
+
+func (a *App) setupDialogs() error {
 	// Register the dialogs
-	if a.aboutDialog, err = hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall); err != nil {
+	about, err := hsaboutdialog.Create(a.TextureLoader, a.diabloRegularFont, a.diabloBoldFont, a.fontFixedSmall)
+	if err != nil {
 		return fmt.Errorf("error creating an about dialog: %w", err)
 	}
 
+	a.aboutDialog = about
 	a.projectPropertiesDialog = hsprojectpropertiesdialog.Create(a.TextureLoader, a.onProjectPropertiesChanged)
 	a.preferencesDialog = hspreferencesdialog.Create(a.onPreferencesChanged, a.masterWindow.SetBgColor)
-
-	// Set up keyboard shortcuts
-	a.registerGlobalKeyboardShortcuts()
 
 	return nil
 }

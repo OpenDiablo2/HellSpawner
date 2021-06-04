@@ -7,29 +7,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
-
-	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
-
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
-
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/dialog"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
+	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 )
@@ -126,31 +119,6 @@ func Create() (*App, error) {
 // Run runs an app instance
 func (a *App) Run() {
 	var err error
-
-	color := a.config.BGColor
-	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
-		color = hsutil.Color(bg)
-	}
-
-	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
-	a.masterWindow.SetBgColor(color)
-
-	sampleRate := beep.SampleRate(samplesPerSecond)
-	bufferSize := sampleRate.N(sampleDuration)
-
-	if err = speaker.Init(sampleRate, bufferSize); err != nil {
-		log.Fatal(err)
-	}
-
-	dialog.Init()
-
-	// initialize auto-save timer
-	go func() {
-		time.Sleep(autoSaveTimer * time.Second)
-		a.Save()
-	}()
-
-	a.TextureLoader.ProcessTextureLoadRequests()
 
 	defer a.Quit() // force-close and save everything (in case of crash)
 
