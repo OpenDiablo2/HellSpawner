@@ -46,7 +46,7 @@ const (
 	autoSaveTimer = 120
 
 	logFileSeparator = "-----%v-----\n"
-	logFilePerms     = 0o600
+	logFilePerms     = 0o644
 )
 
 const (
