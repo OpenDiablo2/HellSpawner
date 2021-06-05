@@ -209,9 +209,16 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 			}),
 		}
 	} else {
-		layout = append(layout, g.Selectable(pathEntry.Name+id).OnClick(func() {
-			m.fileSelectedCallback(pathEntry)
-		}))
+		layout = append(layout,
+			g.Selectable(pathEntry.Name+id),
+			// double-click detector:
+			// the file should be opened when double-clicked on it
+			g.Custom(func() {
+				if g.IsItemHovered() && g.IsMouseDoubleClicked(g.MouseButtonLeft) {
+					m.fileSelectedCallback(pathEntry)
+				}
+			}),
+		)
 	}
 
 	layout = append(layout,
