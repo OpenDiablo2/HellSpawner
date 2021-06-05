@@ -11,6 +11,7 @@ import (
 type FileType int
 
 type fileTypeInfoStruct struct {
+	FileType
 	Name         string
 	Extension    string
 	subTypeCheck func(*[]byte) (FileType, error)
@@ -42,31 +43,28 @@ func determineTBLtype(data *[]byte) (FileType, error) {
 		return FileTypeTBLStringTable, nil
 	}
 
-	d := *data
-	if string(d[:4]) == "Woo!" {
+	if string((*data)[:4]) == "Woo!" {
 		return FileTypeTBLFontTable, nil
 	}
 
 	return FileTypeText, nil
 }
 
-func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
-	return map[FileType]fileTypeInfoStruct{
-		FileTypeUnknown:        {},
-		FileTypeFont:           {Name: "Font", Extension: ".hsf"},
-		FileTypePalette:        {Name: "Palette", Extension: ".dat"},
-		FileTypePL2:            {Name: "Palette Map", Extension: ".pl2"},
-		FileTypeAudio:          {Name: "Audio", Extension: ".wav"},
-		FileTypeDCC:            {Name: "DCC", Extension: ".dcc"},
-		FileTypeDC6:            {Name: "DC6", Extension: ".dc6"},
-		FileTypeCOF:            {Name: "COF", Extension: ".cof"},
-		FileTypeDT1:            {Name: "DT1", Extension: ".dt1"},
-		FileTypeTBL:            {Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
-		FileTypeTBLFontTable:   {Name: "Font table", Extension: ".tbl"},
-		FileTypeTBLStringTable: {Name: "String table", Extension: ".tbl"},
-		FileTypeText:           {Name: "Text", Extension: ".txt"},
-		FileTypeDS1:            {Name: "DS1", Extension: ".ds1"},
-		FileTypeAnimationData:  {Name: "AnimationData", Extension: ".d2"},
+func fileExtensionInfo() []fileTypeInfoStruct {
+	return []fileTypeInfoStruct{
+		{FileType: FileTypeUnknown},
+		{FileType: FileTypeFont, Name: "Font", Extension: ".hsf"},
+		{FileType: FileTypePalette, Name: "Palette", Extension: ".dat"},
+		{FileType: FileTypePL2, Name: "Palette Map", Extension: ".pl2"},
+		{FileType: FileTypeAudio, Name: "Audio", Extension: ".wav"},
+		{FileType: FileTypeDCC, Name: "DCC", Extension: ".dcc"},
+		{FileType: FileTypeDC6, Name: "DC6", Extension: ".dc6"},
+		{FileType: FileTypeCOF, Name: "COF", Extension: ".cof"},
+		{FileType: FileTypeDT1, Name: "DT1", Extension: ".dt1"},
+		{FileType: FileTypeTBL, Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
+		{FileType: FileTypeText, Name: "Text", Extension: ".txt"},
+		{FileType: FileTypeDS1, Name: "DS1", Extension: ".ds1"},
+		{FileType: FileTypeAnimationData, Name: "AnimationData", Extension: ".d2"},
 	}
 }
 
@@ -82,14 +80,13 @@ func (f FileType) FileExtension() string {
 
 // GetFileTypeFromExtension returns file type
 func GetFileTypeFromExtension(extension string, data *[]byte) (FileType, error) {
-	info := fileExtensionInfo()
-	for idx := range info {
-		if strings.EqualFold(info[idx].Extension, extension) {
-			if info[idx].subTypeCheck == nil {
-				return idx, nil
+	for _, info := range fileExtensionInfo() {
+		if strings.EqualFold(info.Extension, extension) {
+			if info.subTypeCheck == nil {
+				return info.FileType, nil
 			}
 
-			return info[idx].subTypeCheck(data)
+			return info.subTypeCheck(data)
 		}
 	}
 
