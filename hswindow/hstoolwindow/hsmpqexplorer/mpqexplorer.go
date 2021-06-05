@@ -144,10 +144,14 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 		id := generatePathEntryID(pathEntry)
 
 		return g.Layout{
-			g.Selectable(pathEntry.Name + id).
-				OnClick(func() {
+			g.Selectable(pathEntry.Name + id),
+			// double-click detector:
+			// the file should be opened when double-clicked on it
+			g.Custom(func() {
+				if g.IsItemHovered() && g.IsMouseDoubleClicked(g.MouseButtonLeft) {
 					go m.fileSelectedCallback(pathEntry)
-				}),
+				}
+			}),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
