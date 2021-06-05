@@ -23,6 +23,69 @@ const (
 	supportURL           = "https://www.patreon.com/bePatron?u=37261055"
 )
 
+func (a *App) fileMenu() *g.MenuWidget {
+	m := menu("MainMenu", "File")
+
+	mNew := menu("MainMenuFile", "New")
+	mNewProject := menuItem("MainMenuFileNew", "Project...", "Ctrl+Shift+N")
+	mNewProject.OnClick(a.onNewProjectClicked)
+
+	mOpen := menu("MainMenuFile", "Open")
+	mOpenProject := menuItem("MainMenuFileOpen", "Project...", "Ctrl+Shift+O")
+	mOpenProject.OnClick(a.onOpenProjectClicked)
+
+	mSaveProject := menuItem("MainMenuFileSaveProject", "Save Project", "Ctrl+S")
+	mSaveProject.OnClick(a.Save)
+
+	mPreferences := menuItem("MainMenuFilePreferences", "Preferences...", "Alt+P")
+	mPreferences.OnClick(a.onFilePreferencesClicked)
+
+	mExit := menuItem("MainMenuFile", "Exit", "Alt+Q")
+	fnExit := func() {
+		a.Quit()
+		os.Exit(0)
+	}
+
+	m.Layout(
+		mNew.Layout(
+			mNewProject,
+		),
+		mOpen.Layout(
+			mOpenProject,
+		),
+		a.openRecentProjectMenu(),
+		mSaveProject,
+		g.Separator(),
+		mPreferences,
+		g.Separator(),
+		mExit.OnClick(fnExit),
+	)
+
+	return m
+}
+
+func (a *App) openRecentProjectMenu() *g.MenuWidget {
+	m := menu("MainMenuFileOpenRecent", "Recent Project...")
+
+	fnRecent := func() {
+		if len(a.config.RecentProjects) == 0 {
+			g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
+			return
+		}
+
+		for idx := range a.config.RecentProjects {
+			projectName := a.config.RecentProjects[idx]
+			g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
+				a.loadProjectFromFile(projectName)
+			}).Build()
+		}
+	}
+
+	m.Layout(g.Custom(fnRecent))
+
+	return m
+}
+
 func (a *App) renderMainMenuBar() {
 	var runAbyssEngineLabel string
 
@@ -36,36 +99,7 @@ func (a *App) renderMainMenuBar() {
 	}
 
 	menuLayout := g.Layout{
-		g.Menu("File##MainMenuFile").Layout(g.Layout{
-			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
-				g.MenuItem("Project...\t\tCtrl+Shift+N##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
-			}),
-			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
-				g.MenuItem("Project...\t\tCtrl+O##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
-			}),
-			g.MenuItem("Save\t\t\t\t\t\tCtrl+S##MainMenuFileSaveProject").OnClick(a.Save),
-			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
-				g.Custom(func() {
-					if len(a.config.RecentProjects) == 0 {
-						g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
-						return
-					}
-					for idx := range a.config.RecentProjects {
-						projectName := a.config.RecentProjects[idx]
-						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
-							a.loadProjectFromFile(projectName)
-						}).Build()
-					}
-				}),
-			}),
-			g.Separator(),
-			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
-			g.Separator(),
-			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(func() {
-				a.Quit()
-				os.Exit(0)
-			}),
-		}),
+		a.fileMenu(),
 		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
 		g.Menu("Project##MainMenuProject").Layout(g.Layout{
 			g.MenuItem(runAbyssEngineLabel + "##MainMenuProjectRun").
@@ -253,4 +287,34 @@ func (a *App) onReportBugClicked() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func makeMenuID(name, group, shortcut string) string {
+	const (
+		sep  = "##"
+		fmt2 = "%v%v%v%v"
+		fmt3 = "%v\t(%v)%v%v%v"
+	)
+
+	if len(shortcut) > 0 {
+		return fmt.Sprintf(fmt3, name, shortcut, sep, group, name)
+	}
+
+	return fmt.Sprintf(fmt2, name, sep, group, name)
+}
+
+func menuID(group, name string) string {
+	return makeMenuID(name, group, "")
+}
+
+func itemID(group, name, shortcut string) string {
+	return makeMenuID(name, group, shortcut)
+}
+
+func menu(group, name string) *g.MenuWidget {
+	return g.Menu(menuID(group, name))
+}
+
+func menuItem(group, name, shortcut string) *g.MenuItemWidget {
+	return g.MenuItem(itemID(group, name, shortcut))
 }
