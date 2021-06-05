@@ -54,7 +54,7 @@ func Create(_ *hsconfig.Config,
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 	if err != nil {
 		log.Print(err)
-		return nil, err
+		return nil, fmt.Errorf("wav decode error: %w", err)
 	}
 
 	control := &beep.Ctrl{
