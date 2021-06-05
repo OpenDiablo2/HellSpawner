@@ -135,7 +135,7 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 // GetProjectTreeNodes returns project tree
 func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 	if m.project == nil {
-		return []g.Widget{g.Label("No project loaded...")}
+		return g.Layout{g.Label("No project loaded...")}
 	}
 
 	fileStructure, err := m.project.GetFileStructure()
@@ -144,15 +144,15 @@ func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 	}
 
 	if fileStructure == nil {
-		return []g.Widget{g.Label("No file structure detected...")}
+		return g.Layout{g.Label("No file structure detected...")}
 	}
 
 	nodes, err := m.project.GetFileStructure()
 	if err != nil {
-		return []g.Widget{g.Label(err.Error())}
+		return g.Layout{g.Label(err.Error())}
 	}
 
-	return []g.Widget{m.renderNodes(nodes)}
+	return g.Layout{m.renderNodes(nodes)}
 }
 
 func (m *ProjectExplorer) onRefreshProjectExplorerClicked() {
