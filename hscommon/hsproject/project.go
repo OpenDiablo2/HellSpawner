@@ -315,13 +315,13 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 			log.Fatalf("failed to save font: %s", err)
 		}
 	default:
-		manager := getFileManager(fileType)
-		if manager == nil {
-			return
+		m := getMarshallerByType(fileType)
+		if m == nil {
+			return fmt.Errorf("no marshaller for file %s", fileName)
 		}
 
-		if err := ioutil.WriteFile(fileName, manager.Marshal(), os.FileMode(newFileMode)); err != nil {
-			log.Fatalf("cannot write to file %s: %v", fileName, err)
+		if err = ioutil.WriteFile(fileName, m.Marshal(), os.FileMode(newFileMode)); err != nil {
+			return fmt.Errorf("cannot write to file %s: %w", fileName, err)
 		}
 	}
 
