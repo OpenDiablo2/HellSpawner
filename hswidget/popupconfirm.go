@@ -35,7 +35,7 @@ func NewPopUpConfirmDialog(id, header, message string, yCB, nCB func()) *PopUpCo
 // Build builds a pop up dialog
 func (p *PopUpConfirmDialog) Build() {
 	if p.header == "" {
-		log.Fatal("Header is empty; please ensure, if you're building appropriate dialog")
+		log.Print("Header is empty; please ensure, if you're building appropriate dialog")
 	}
 
 	open := true

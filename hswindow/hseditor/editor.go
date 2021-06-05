@@ -131,7 +131,7 @@ func (e *Editor) EncodeState() []byte {
 			Encode() []byte
 		})
 		if !ok {
-			log.Fatalf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
+			log.Printf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
 			return nil
 		}
 

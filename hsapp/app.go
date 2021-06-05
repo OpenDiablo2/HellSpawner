@@ -158,56 +158,13 @@ func (a *App) Run() (err error) {
 
 func (a *App) render() {
 	a.TextureLoader.StopLoadingTextures()
+
 	a.renderMainMenuBar()
-
-	idx := 0
-	for idx < len(a.editors) {
-		editor := a.editors[idx]
-		if !editor.IsVisible() {
-			editor.Cleanup()
-
-			if editor.HasFocus() {
-				a.focusedEditor = nil
-			}
-
-			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
-
-			continue
-		}
-
-		hadFocus := editor.HasFocus()
-
-		editor.Build()
-
-		// if this window didn't have focus before, but it does now,
-		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
-		if !hadFocus && editor.HasFocus() {
-			a.InputManager.UnregisterWindowShortcuts()
-
-			editor.RegisterKeyboardShortcuts(a.InputManager)
-
-			a.focusedEditor = editor
-		}
-
-		idx++
-	}
-
-	windows := []hscommon.Renderable{
-		a.projectExplorer,
-		a.mpqExplorer,
-		a.console,
-		a.preferencesDialog,
-		a.aboutDialog,
-		a.projectPropertiesDialog,
-	}
-
-	for _, tw := range windows {
-		if tw.IsVisible() {
-			tw.Build()
-		}
-	}
+	a.renderEditors()
+	a.renderWindows()
 
 	g.Update()
+
 	a.TextureLoader.ResumeLoadingTextures()
 }
 
@@ -335,7 +292,7 @@ func (a *App) toggleMPQExplorer() {
 func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 	a.project = project
 	if err := a.project.Save(); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	a.mpqExplorer.SetProject(a.project)
@@ -346,7 +303,7 @@ func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 	a.config = config
 	if err := a.config.Save(); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	if a.project != nil {

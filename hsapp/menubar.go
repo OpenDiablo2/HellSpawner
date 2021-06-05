@@ -13,6 +13,7 @@ import (
 	g "github.com/ianling/giu"
 	"github.com/pkg/browser"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 )
 
@@ -316,6 +317,57 @@ func (a *App) onReportBugClicked() {
 	err = browser.OpenURL("https://github.com/OpenDiablo2/HellSpawner/issues/new?body=" + strings.Join(body, "%0D"))
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func (a *App) renderEditors() {
+	idx := 0
+	for idx < len(a.editors) {
+		editor := a.editors[idx]
+		if !editor.IsVisible() {
+			editor.Cleanup()
+
+			if editor.HasFocus() {
+				a.focusedEditor = nil
+			}
+
+			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
+
+			continue
+		}
+
+		hadFocus := editor.HasFocus()
+
+		editor.Build()
+
+		// if this window didn't have focus before, but it does now,
+		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
+		if !hadFocus && editor.HasFocus() {
+			a.InputManager.UnregisterWindowShortcuts()
+
+			editor.RegisterKeyboardShortcuts(a.InputManager)
+
+			a.focusedEditor = editor
+		}
+
+		idx++
+	}
+}
+
+func (a *App) renderWindows() {
+	windows := []hscommon.Renderable{
+		a.projectExplorer,
+		a.mpqExplorer,
+		a.console,
+		a.preferencesDialog,
+		a.aboutDialog,
+		a.projectPropertiesDialog,
+	}
+
+	for _, tw := range windows {
+		if tw.IsVisible() {
+			tw.Build()
+		}
 	}
 }
 

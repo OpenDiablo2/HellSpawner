@@ -75,7 +75,7 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 	defer func() {
 		err := file.Close() // nolint:govet // I want to re-use err
 		if err != nil {
-			log.Fatalf("Error closing file %s: %v", filePath, err)
+			log.Printf("Error closing file %s: %v", filePath, err)
 		}
 	}()
 

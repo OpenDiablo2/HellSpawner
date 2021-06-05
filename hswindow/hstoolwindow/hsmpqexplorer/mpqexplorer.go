@@ -117,7 +117,7 @@ func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 		go func(idx int) {
 			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx]))
 			if err != nil {
-				log.Fatal("failed to load mpq: ", err)
+				log.Print("failed to load mpq: ", err)
 			}
 
 			nodes := m.project.GetMPQFileNodes(mpq, m.config)
