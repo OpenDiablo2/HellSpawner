@@ -252,7 +252,7 @@ func (a *App) loadProjectFromFile(file string) {
 		return
 	}
 
-	if !project.ValidateAuxiliaryMPQs(a.config) {
+	if err = project.ValidateAuxiliaryMPQs(a.config); err != nil {
 		log.Printf("Error loading mpqs: %v", err)
 		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
 

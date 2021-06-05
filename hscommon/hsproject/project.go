@@ -102,15 +102,15 @@ func (p *Project) Save() error {
 }
 
 // ValidateAuxiliaryMPQs creates auxiliary mpq's list
-func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
+func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) error {
 	for idx := range p.AuxiliaryMPQs {
 		realPath := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
 		if _, err := os.Stat(realPath); os.IsNotExist(err) {
-			return false
+			return fmt.Errorf("file not found at %s", realPath)
 		}
 	}
 
-	return true
+	return nil
 }
 
 // LoadFromFile loads projects file
