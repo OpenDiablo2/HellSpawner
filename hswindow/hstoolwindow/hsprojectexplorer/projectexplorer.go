@@ -2,6 +2,7 @@
 package hsprojectexplorer
 
 import (
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -140,7 +141,7 @@ func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 
 	fileStructure, err := m.project.GetFileStructure()
 	if err != nil {
-		dialog.Message(err.Error()).Error()
+		log.Print(err)
 	}
 
 	if fileStructure == nil {
@@ -165,7 +166,7 @@ func (m *ProjectExplorer) onRefreshProjectExplorerClicked() {
 
 func (m *ProjectExplorer) onNewFontClicked(pathEntry *hscommon.PathEntry) {
 	if err := m.project.CreateNewFile(hsfiletypes.FileTypeFont, pathEntry); err != nil {
-		dialog.Message(err.Error()).Error()
+		log.Print(err)
 	}
 }
 
@@ -245,42 +246,42 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry) }),
 			g.MenuItem("Font table (.tbl)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeTBLFontTable, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("String table (.tbl)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeTBLStringTable, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Animation data (.d2)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeAnimationData, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Animation (.cof)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeCOF, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Palette (.dat)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypePalette, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Palette transform (.pl2)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypePL2, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Map tile data (.ds1)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeDS1, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 			g.MenuItem("Map tile animation (.dt1)").OnClick(func() {
 				if err := m.project.CreateNewFile(hsfiletypes.FileTypeDT1, pathEntry); err != nil {
-					dialog.Message(err.Error()).Error()
+					log.Print(err)
 				}
 			}),
 		}),
@@ -400,7 +401,7 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 
 func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry) {
 	if err := m.project.CreateNewFolder(pathEntry); err != nil {
-		dialog.Message(err.Error()).Error()
+		log.Print(err)
 	}
 }
 
