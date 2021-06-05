@@ -15,6 +15,7 @@ type Flags struct {
 	logFile            *string
 }
 
+// parse all of the command line args
 func (a *App) parseArgs() {
 	a.parseConfigArgs()
 	a.parseLogFileArgs()
@@ -49,7 +50,7 @@ func (a *App) parseHelpArgs() {
 
 	if showHelp {
 		flag.Usage()
-		os.Exit(0)
+		os.Exit(0) // this is dangerous, forces us to parse the help flags last
 	}
 }
 
