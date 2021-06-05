@@ -355,7 +355,10 @@ func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 }
 
 func (a *App) reloadAuxiliaryMPQs() {
-	a.project.ReloadAuxiliaryMPQs(a.config)
+	if err := a.project.ReloadAuxiliaryMPQs(a.config); err != nil {
+		dialog.Message(err.Error()).Error()
+	}
+
 	a.mpqExplorer.Reset()
 }
 
