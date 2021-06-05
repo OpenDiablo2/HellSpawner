@@ -41,7 +41,7 @@ func (e *Editor) State() hsstate.EditorState {
 	result := hsstate.EditorState{
 		WindowState: e.Window.State(),
 		Path:        path,
-		EditorState: e.GetStateData(),
+		Encoded:     e.EncodeState(),
 	}
 
 	return result
@@ -121,8 +121,8 @@ func generateWindowTitle(path *hscommon.PathEntry) string {
 	return path.Name + "##" + path.GetUniqueID()
 }
 
-// GetStateData returns widget's state (unique for each editor type) in byte slice format
-func (e *Editor) GetStateData() []byte {
+// EncodeState returns widget's state (unique for each editor type) in byte slice format
+func (e *Editor) EncodeState() []byte {
 	id := fmt.Sprintf("widget_%s", e.Path.GetUniqueID())
 
 	if s := giu.Context.GetState(id); s != nil {
