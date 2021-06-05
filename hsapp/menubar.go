@@ -315,7 +315,7 @@ func (a *App) onReportBugClicked() {
 
 	err = browser.OpenURL("https://github.com/OpenDiablo2/HellSpawner/issues/new?body=" + strings.Join(body, "%0D"))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 }
 
