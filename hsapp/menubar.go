@@ -87,28 +87,11 @@ func (a *App) openRecentProjectMenu() *g.MenuWidget {
 }
 
 func (a *App) renderMainMenuBar() {
-	openURL := func(url string) func() {
-		return func() {
-			if err := browser.OpenURL(url); err != nil {
-				log.Print(err)
-			}
-		}
-	}
-
 	menuLayout := g.Layout{
 		a.fileMenu(),
 		a.viewMenu(),
 		a.projectMenu(),
-		g.Menu("Help").Layout(g.Layout{
-			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
-			g.Separator(),
-			g.MenuItem("GitHub repository").OnClick(openURL(githubURL)),
-			g.MenuItem("Join Discord server").OnClick(openURL(discordInvitationURL)),
-			g.MenuItem("Development live stream").OnClick(openURL(twitchURL)),
-			g.MenuItem("Support us").OnClick(openURL(supportURL)),
-			g.Separator(),
-			g.MenuItem("Report Bug on GitHub##MainMenuHelpBug").OnClick(a.onReportBugClicked),
-		}),
+		a.helpMenu(),
 	}
 
 	if a.focusedEditor != nil {
@@ -189,6 +172,45 @@ func (a *App) projectMenu() *g.MenuWidget {
 		projectMenuProperties,
 		g.Separator(),
 		projectMenuExportMPQ,
+	)
+}
+
+func openURL(url string) {
+	if err := browser.OpenURL(url); err != nil {
+		log.Print(err)
+	}
+}
+
+func (a *App) onOpenURL(url string) func() {
+	return func() {
+		openURL(url)
+	}
+}
+
+func (a *App) helpMenu() *g.MenuWidget {
+	menuHelp := menu("MainMenu", "Help")
+	menuHelpAbout := menuItem("MainMenuHelp", "About HellSpawner...", "F1").
+		OnClick(a.onHelpAboutClicked)
+	menuHelpGithub := menuItem("MainMenuHelp", "GitHub repository", "").
+		OnClick(a.onOpenURL(githubURL))
+	menuHelpDiscord := menuItem("MainMenuHelp", "Join Discord server", "").
+		OnClick(a.onOpenURL(discordInvitationURL))
+	menuHelpTwitch := menuItem("MainMenuHelp", "Development live stream", "").
+		OnClick(a.onOpenURL(twitchURL))
+	menuHelpSupport := menuItem("MainMenuHelp", "Support us", "").
+		OnClick(a.onOpenURL(supportURL))
+	menuHelpBug := menuItem("MainMenuHelp", "Report Bug on GitHub", "").
+		OnClick(a.onReportBugClicked)
+
+	return menuHelp.Layout(
+		menuHelpAbout,
+		g.Separator(),
+		menuHelpGithub,
+		menuHelpDiscord,
+		menuHelpTwitch,
+		menuHelpSupport,
+		g.Separator(),
+		menuHelpBug,
 	)
 }
 
