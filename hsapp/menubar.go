@@ -87,56 +87,25 @@ func (a *App) openRecentProjectMenu() *g.MenuWidget {
 }
 
 func (a *App) renderMainMenuBar() {
-	var runAbyssEngineLabel string
-
-	projectOpened := a.project != nil
-	enginePathSet := len(a.config.AbyssEnginePath) > 0
-
-	if a.abyssWrapper.IsRunning() {
-		runAbyssEngineLabel = "Stop Abyss Engine"
-	} else {
-		runAbyssEngineLabel = "Run in Abyss Engine"
+	openURL := func(url string) func() {
+		return func() {
+			if err := browser.OpenURL(url); err != nil {
+				log.Print(err)
+			}
+		}
 	}
 
 	menuLayout := g.Layout{
 		a.fileMenu(),
-		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
-		g.Menu("Project##MainMenuProject").Layout(g.Layout{
-			g.MenuItem(runAbyssEngineLabel + "##MainMenuProjectRun").
-				Enabled(projectOpened && enginePathSet).
-				OnClick(a.onProjectRunClicked),
-			g.Separator(),
-			g.MenuItem("Properties...##MainMenuProjectProperties").
-				Enabled(projectOpened).
-				OnClick(a.onProjectPropertiesClicked),
-			g.Separator(),
-			g.MenuItem("Export MPQ...##MainMenuProjectExport").
-				Enabled(projectOpened).
-				OnClick(a.onProjectExportMPQClicked),
-		}),
+		a.viewMenu(),
+		a.projectMenu(),
 		g.Menu("Help").Layout(g.Layout{
 			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
 			g.Separator(),
-			g.MenuItem("GitHub repository").OnClick(func() {
-				if err := browser.OpenURL(githubURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Join Discord server").OnClick(func() {
-				if err := browser.OpenURL(discordInvitationURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Development live stream").OnClick(func() {
-				if err := browser.OpenURL(twitchURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Support us").OnClick(func() {
-				if err := browser.OpenURL(supportURL); err != nil {
-					log.Print(err)
-				}
-			}),
+			g.MenuItem("GitHub repository").OnClick(openURL(githubURL)),
+			g.MenuItem("Join Discord server").OnClick(openURL(discordInvitationURL)),
+			g.MenuItem("Development live stream").OnClick(openURL(twitchURL)),
+			g.MenuItem("Support us").OnClick(openURL(supportURL)),
 			g.Separator(),
 			g.MenuItem("Report Bug on GitHub##MainMenuHelpBug").OnClick(a.onReportBugClicked),
 		}),
@@ -151,10 +120,10 @@ func (a *App) renderMainMenuBar() {
 	menuBar.Build()
 }
 
-func (a *App) buildViewMenu() g.Layout {
-	result := make([]g.Widget, 0)
+func (a *App) viewMenu() *g.MenuWidget {
+	viewMenu := menu("MainMenu", "View")
 
-	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
+	toolWindows := g.Menu("Tool Windows").Layout(g.Layout{
 		g.MenuItem("Project Explorer\tCtrl+Shift+P").
 			Selected(a.projectExplorer.Visible).
 			Enabled(true).
@@ -168,20 +137,59 @@ func (a *App) buildViewMenu() g.Layout {
 		g.MenuItem("Console\t\t\t\t\tCtrl+Shift+C").
 			Selected(a.console.Visible).
 			OnClick(a.toggleConsole),
-	}))
+	})
 
-	if len(a.editors) == 0 {
-		return result
+	items := []g.Widget{
+		toolWindows,
 	}
 
-	result = append(result, g.Separator())
+	if len(a.editors) > 0 {
+		items = append(items, g.Separator())
 
-	for idx := range a.editors {
-		i := idx
-		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle()).OnClick(a.editors[i].BringToFront))
+		for i := range a.editors {
+			editorItem := g.MenuItem(a.editors[i].GetWindowTitle()).OnClick(a.editors[i].BringToFront)
+			items = append(items, editorItem)
+		}
 	}
 
-	return result
+	return viewMenu.Layout(items...)
+}
+
+func (a *App) projectMenu() *g.MenuWidget {
+	const (
+		runAbyssEngine  = "Run in Abyss Engine"
+		stopAbyssEngine = "Stop Abyss Engine"
+	)
+
+	projectOpened := a.project != nil
+	enginePathSet := len(a.config.AbyssEnginePath) > 0
+
+	label := runAbyssEngine
+	if a.abyssWrapper.IsRunning() {
+		label = stopAbyssEngine
+	}
+
+	projectMenu := menu("MainMenu", "Project")
+
+	projectMenuRun := menuItem("MainMenuProject", label, "").
+		Enabled(projectOpened && enginePathSet).
+		OnClick(a.onProjectRunClicked)
+
+	projectMenuProperties := menuItem("MainMenuProject", "Properties...", "").
+		Enabled(projectOpened).
+		OnClick(a.onProjectPropertiesClicked)
+
+	projectMenuExportMPQ := menuItem("MainMenuProject", "Export MPQ...", "").
+		Enabled(projectOpened).
+		OnClick(a.onProjectExportMPQClicked)
+
+	return projectMenu.Layout(
+		projectMenuRun,
+		g.Separator(),
+		projectMenuProperties,
+		g.Separator(),
+		projectMenuExportMPQ,
+	)
 }
 
 func (a *App) onNewProjectClicked() {
