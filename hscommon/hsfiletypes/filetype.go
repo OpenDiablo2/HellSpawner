@@ -1,4 +1,3 @@
-// Package hsfiletypes determinates file types
 package hsfiletypes
 
 import (
