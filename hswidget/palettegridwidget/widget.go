@@ -77,7 +77,7 @@ func (p *PaletteGridWidget) Build() {
 
 			idx := cellY*gridHeight + cellX
 
-			if giu.IsMouseClicked(giu.MouseButtonLeft) {
+			if giu.IsWindowFocused() && giu.IsMouseClicked(giu.MouseButtonLeft) {
 				p.onClick(idx)
 				p.rebuildImage()
 			}
