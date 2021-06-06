@@ -131,7 +131,7 @@ func (a *App) Run() (err error) {
 
 		a.logFile, err = os.OpenFile(filepath.Clean(path), os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
 		if err != nil {
-			log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
+			logErr("Error opening log file at %s: %v", a.config.LogFilePath, err)
 		}
 
 		defer func() {
@@ -147,7 +147,10 @@ func (a *App) Run() (err error) {
 	}
 
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
-		a.loadProjectFromFile(a.config.RecentProjects[0])
+		err = a.loadProjectFromFile(a.config.RecentProjects[0])
+		if err != nil {
+			return err
+		}
 	}
 
 	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
@@ -168,8 +171,8 @@ func (a *App) render() {
 	a.TextureLoader.ResumeLoadingTextures()
 }
 
-func logErr(fmtErr string, err error) {
-	msg := fmt.Sprintf(fmtErr, err)
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
 	log.Print(msg)
 	dialog.Message(msg).Error()
 }
@@ -240,29 +243,27 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	a.createEditor(path, nil, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
 }
 
-func (a *App) loadProjectFromFile(file string) {
+func (a *App) loadProjectFromFile(file string) error {
 	var project *hsproject.Project
 
 	var err error
 
 	if project, err = hsproject.LoadFromFile(file); err != nil {
-		log.Printf("Error loading project: %v", err)
-		dialog.Message("Could not load project.").Title("Load HellSpawner Project Error").Error()
-
-		return
+		return err
 	}
 
 	if err = project.ValidateAuxiliaryMPQs(a.config); err != nil {
-		log.Printf("Error loading mpqs: %v", err)
-		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
-
-		return
+		return err
 	}
 
 	a.project = project
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
-	a.reloadAuxiliaryMPQs()
+
+	if err := a.reloadAuxiliaryMPQs(); err != nil {
+		return err
+	}
+
 	a.projectExplorer.SetProject(a.project)
 	a.mpqExplorer.SetProject(a.project)
 
@@ -274,6 +275,8 @@ func (a *App) loadProjectFromFile(file string) {
 		// if we don't have a state saved for this project, just open the project explorer
 		a.projectExplorer.Show()
 	}
+
+	return nil
 }
 
 func (a *App) updateWindowTitle() {
@@ -292,31 +295,40 @@ func (a *App) toggleMPQExplorer() {
 func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 	a.project = project
 	if err := a.project.Save(); err != nil {
-		log.Print(err)
+		logErr("could not save project properties after changing", err)
 	}
 
 	a.mpqExplorer.SetProject(a.project)
 	a.updateWindowTitle()
-	a.reloadAuxiliaryMPQs()
+	
+	if err := a.reloadAuxiliaryMPQs(); err != nil {
+		logErr("could not reload aux mpq's after changing project properties ", err)
+	}
 }
 
 func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 	a.config = config
 	if err := a.config.Save(); err != nil {
-		log.Print(err)
+		logErr("could not save config, %w", err)
 	}
 
-	if a.project != nil {
-		a.reloadAuxiliaryMPQs()
+	if a.project == nil {
+		return
+	}
+
+	if err := a.reloadAuxiliaryMPQs(); err != nil {
+		logErr("could not reload auxiliary mpq's", err)
 	}
 }
 
-func (a *App) reloadAuxiliaryMPQs() {
+func (a *App) reloadAuxiliaryMPQs() error {
 	if err := a.project.ReloadAuxiliaryMPQs(a.config); err != nil {
-		dialog.Message(err.Error()).Error()
+		return err
 	}
 
-	a.mpqExplorer.Reset()
+	 a.mpqExplorer.Reset()
+
+	return nil
 }
 
 func (a *App) toggleProjectExplorer() {
@@ -361,7 +373,7 @@ func (a *App) Save() {
 	}
 
 	if err := a.config.Save(); err != nil {
-		log.Print("failed to save config: ", err)
+		logErr("failed to save config: ", err)
 		return
 	}
 
