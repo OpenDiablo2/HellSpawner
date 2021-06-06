@@ -40,6 +40,7 @@ func (p *PaletteGridWidget) OnClick(onClick func(idx int)) *PaletteGridWidget {
 	return p
 }
 
+// UpdateImage updates a palette image
 func (p *PaletteGridWidget) UpdateImage() {
 	p.rebuildImage()
 }

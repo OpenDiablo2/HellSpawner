@@ -109,8 +109,8 @@ func (ws *widgetState) Decode(data []byte) {
 type editEntryState struct {
 	idx     int
 	r, g, b uint8
-	hex     string // nolint:structcheck // linter's bug
-	texture *giu.Texture
+	hex     string       // nolint:structcheck // linter's bug
+	texture *giu.Texture // nolint:structcheck // linter's bug
 }
 
 func (ees *editEntryState) Dispose() {
