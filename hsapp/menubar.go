@@ -38,6 +38,9 @@ func (a *App) fileMenu() *g.MenuWidget {
 	mSaveProject := menuItem("MainMenuFileSaveProject", "Save Project", "Ctrl+S")
 	mSaveProject.OnClick(a.Save)
 
+	mCloseProject := menuItem("MainMenuCloseProject", "Close Project", "")
+	mCloseProject.OnClick(a.onExitProjectClicked)
+
 	mPreferences := menuItem("MainMenuFilePreferences", "Preferences...", "Alt+P")
 	mPreferences.OnClick(a.onFilePreferencesClicked)
 
@@ -48,14 +51,12 @@ func (a *App) fileMenu() *g.MenuWidget {
 	}
 
 	m.Layout(
-		mNew.Layout(
-			mNewProject,
-		),
-		mOpen.Layout(
-			mOpenProject,
-		),
+		mNew.Layout(mNewProject),
+		mOpen.Layout(mOpenProject),
 		a.openRecentProjectMenu(),
 		mSaveProject,
+		g.Separator(),
+		mCloseProject,
 		g.Separator(),
 		mPreferences,
 		g.Separator(),
@@ -108,16 +109,17 @@ func (a *App) renderMainMenuBar() {
 
 func (a *App) viewMenu() *g.MenuWidget {
 	viewMenu := menu("MainMenu", "View")
+	hasProject := a.project != nil
 
 	toolWindows := g.Menu("Tool Windows").Layout(g.Layout{
 		g.MenuItem("Project Explorer\tCtrl+Shift+P").
-			Selected(a.projectExplorer.Visible).
-			Enabled(true).
+			Selected(a.projectExplorer.Visible && hasProject).
+			Enabled(hasProject).
 			OnClick(a.toggleProjectExplorer),
 
 		g.MenuItem("MPQ Explorer\t\tCtrl+Shift+M").
-			Selected(a.mpqExplorer.Visible).
-			Enabled(a.project != nil).
+			Selected(a.mpqExplorer.Visible && hasProject).
+			Enabled(hasProject).
 			OnClick(a.toggleMPQExplorer),
 
 		g.MenuItem("Console\t\t\t\t\tCtrl+Shift+C").
@@ -251,6 +253,14 @@ func (a *App) onProjectPropertiesClicked() {
 
 func (a *App) onFilePreferencesClicked() {
 	a.preferencesDialog.Show(a.config)
+}
+
+func (a *App) onExitProjectClicked() {
+	a.project = nil
+	a.projectExplorer.SetProject(nil)
+	a.mpqExplorer.SetProject(nil)
+	a.CloseAllOpenWindows()
+	a.updateWindowTitle()
 }
 
 func (a *App) onHelpAboutClicked() {
