@@ -17,7 +17,7 @@ type Flags struct {
 }
 
 // parse all of the command line args
-func (a *App) parseArgs() (shouldTerminate bool){
+func (a *App) parseArgs() (shouldTerminate bool) {
 	a.parseConfigArgs()
 	a.parseLogFileArgs()
 	a.parseBackgroundColorArgs()
