@@ -110,6 +110,7 @@ type editEntryState struct {
 	idx     int
 	r, g, b uint8
 	hex     string // nolint:structcheck // linter's bug
+	texture *giu.Texture
 }
 
 func (ees *editEntryState) Dispose() {
@@ -145,6 +146,8 @@ func (p *PaletteGridEditorWidget) initState() {
 	}
 
 	p.setState(state)
+
+	p.updateEditedTexture()
 }
 
 func (p *PaletteGridEditorWidget) setState(s giu.Disposable) {

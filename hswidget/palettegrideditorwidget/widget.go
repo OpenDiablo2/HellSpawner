@@ -1,6 +1,8 @@
 package palettegrideditorwidget
 
 import (
+	"image"
+	"image/color"
 	"log"
 	"math"
 
@@ -15,6 +17,7 @@ import (
 const (
 	actionButtonW, actionButtonH = 250, 30
 	inputIntW                    = 30
+	imgSize                      = 80
 )
 
 // PaletteGridEditorWidget represents a palette grid editor
@@ -85,7 +88,7 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 
 	giu.Layout{
 		giu.Label("Edit Color: "),
-		giu.Image(grid.GetColorTexture(state.idx)),
+		giu.Image(state.texture),
 		giu.Separator(),
 		p.makeRGBField("##"+p.id+"changeR", "R:", &state.r, grid),
 		giu.Separator(),
@@ -101,7 +104,7 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 					log.Print("error: ", err)
 				}
 
-				grid.UpdateColorTexture(state.idx)
+				grid.UpdateImage()
 
 				state.r, state.g, state.b = r, g, b
 			}),
@@ -119,6 +122,8 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, grid *palettegridwidget.PaletteGridWidget) giu.Layout {
 	state := p.getState()
 
+	p.updateEditedTexture()
+
 	f32 := int32(*field)
 
 	return giu.Layout{
@@ -130,7 +135,8 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 				field,
 				func() {
 					p.changeColor(state)
-					grid.UpdateColorTexture(state.idx)
+					p.updateEditedTexture()
+					grid.UpdateImage()
 					if p.onChange != nil {
 						p.onChange()
 					}
@@ -140,12 +146,34 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 		),
 		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
 			p.changeColor(state)
-			grid.UpdateColorTexture(state.idx)
+			grid.UpdateImage()
 			if p.onChange != nil {
 				p.onChange()
 			}
-			state.hex = hsutil.RGB2Hex(state.r, state.g, state.b)
+			p.updateEditedTexture()
 			hswidget.SetByteToInt(f32, field)
 		}),
 	}
+}
+
+func (p *PaletteGridEditorWidget) updateEditedTexture() {
+	state := p.getState()
+
+	rgb := image.NewRGBA(image.Rect(0, 0, imgSize, imgSize))
+
+	for y := 0; y < imgSize; y++ {
+		for x := 0; x < imgSize; x++ {
+			// nolint:gomnd // alpha = 255
+			rgb.Set(x, y, color.RGBA{
+				R: state.r,
+				G: state.g,
+				B: state.b,
+				A: 255,
+			})
+		}
+	}
+
+	p.textureLoader.CreateTextureFromARGB(rgb, func(t *giu.Texture) {
+		state.texture = t
+	})
 }
