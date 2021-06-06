@@ -43,7 +43,8 @@ func determineTBLtype(data *[]byte) (FileType, error) {
 		return FileTypeTBLStringTable, nil
 	}
 
-	if string((*data)[:4]) == "Woo!" {
+	d := *data
+	if string(d[:4]) == "Woo!" {
 		return FileTypeTBLFontTable, nil
 	}
 
