@@ -77,7 +77,9 @@ func (a *App) openRecentProjectMenu() *g.MenuWidget {
 		for idx := range a.config.RecentProjects {
 			projectName := a.config.RecentProjects[idx]
 			g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
-				a.loadProjectFromFile(projectName)
+				if err := a.loadProjectFromFile(projectName); err != nil {
+					logErr("could not open recent file %s", err)
+				}
 			}).Build()
 		}
 	}
@@ -218,16 +220,18 @@ func (a *App) helpMenu() *g.MenuWidget {
 func (a *App) onNewProjectClicked() {
 	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Save()
 	if err != nil || file == "" {
-		return
+		logErr("could not create new project, %s", err)
 	}
 
-	var project *hsproject.Project
-
-	if project, err = hsproject.CreateNew(file); err != nil {
-		return
+	project, err := hsproject.CreateNew(file)
+	if err != nil {
+		logErr("could not create new project file, %s", err)
 	}
 
-	a.loadProjectFromFile(project.GetProjectFilePath())
+	ppath := project.GetProjectFilePath()
+	if err := a.loadProjectFromFile(ppath); err != nil {
+		logErr("could not load new project from file %s, %s", ppath, err)
+	}
 }
 
 func (a *App) onOpenProjectClicked() {
@@ -236,7 +240,9 @@ func (a *App) onOpenProjectClicked() {
 		return
 	}
 
-	a.loadProjectFromFile(file)
+	if err := a.loadProjectFromFile(file); err != nil {
+		logErr("could not open project file %s, %s", file, err)
+	}
 }
 
 func (a *App) onProjectPropertiesClicked() {

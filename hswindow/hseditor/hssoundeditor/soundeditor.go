@@ -53,7 +53,6 @@ func Create(_ *hsconfig.Config,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	streamer, format, err := wav.Decode(bytes.NewReader(*data))
 	if err != nil {
-		log.Print(err)
 		return nil, fmt.Errorf("wav decode error: %w", err)
 	}
 

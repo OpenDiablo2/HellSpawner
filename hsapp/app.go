@@ -135,14 +135,14 @@ func (a *App) Run() (err error) {
 		}
 
 		defer func() {
-			err := a.logFile.Close()
-			if err != nil {
-				log.Fatal(err)
+			if logErr := a.logFile.Close(); logErr != nil {
+				log.Fatal(logErr)
 			}
 		}()
 	}
 
-	if err := a.setup(); err != nil {
+	err = a.setup()
+	if err != nil {
 		return err
 	}
 
@@ -244,23 +244,22 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 }
 
 func (a *App) loadProjectFromFile(file string) error {
-	var project *hsproject.Project
-
-	var err error
-
-	if project, err = hsproject.LoadFromFile(file); err != nil {
-		return err
+	project, err := hsproject.LoadFromFile(file)
+	if err != nil {
+		return fmt.Errorf("could not load project from file %s, %w", file, err)
 	}
 
-	if err = project.ValidateAuxiliaryMPQs(a.config); err != nil {
-		return err
+	err = project.ValidateAuxiliaryMPQs(a.config)
+	if err != nil {
+		return fmt.Errorf("could not validate aux mpq's, %w", err)
 	}
 
 	a.project = project
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
 
-	if err := a.reloadAuxiliaryMPQs(); err != nil {
+	err = a.reloadAuxiliaryMPQs()
+	if err != nil {
 		return err
 	}
 
@@ -295,21 +294,21 @@ func (a *App) toggleMPQExplorer() {
 func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 	a.project = project
 	if err := a.project.Save(); err != nil {
-		logErr("could not save project properties after changing", err)
+		logErr("could not save project properties after changing, %s", err)
 	}
 
 	a.mpqExplorer.SetProject(a.project)
 	a.updateWindowTitle()
-	
+
 	if err := a.reloadAuxiliaryMPQs(); err != nil {
-		logErr("could not reload aux mpq's after changing project properties ", err)
+		logErr("could not reload aux mpq's after changing project properties, %s", err)
 	}
 }
 
 func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 	a.config = config
 	if err := a.config.Save(); err != nil {
-		logErr("could not save config, %w", err)
+		logErr("after changing preferences, %s", err)
 	}
 
 	if a.project == nil {
@@ -317,16 +316,16 @@ func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 	}
 
 	if err := a.reloadAuxiliaryMPQs(); err != nil {
-		logErr("could not reload auxiliary mpq's", err)
+		logErr("after changing preferences, %s", err)
 	}
 }
 
 func (a *App) reloadAuxiliaryMPQs() error {
 	if err := a.project.ReloadAuxiliaryMPQs(a.config); err != nil {
-		return err
+		return fmt.Errorf("could not reload aux mpq's in project, %w", err)
 	}
 
-	 a.mpqExplorer.Reset()
+	a.mpqExplorer.Reset()
 
 	return nil
 }
@@ -373,7 +372,7 @@ func (a *App) Save() {
 	}
 
 	if err := a.config.Save(); err != nil {
-		logErr("failed to save config: ", err)
+		logErr("failed to save config: %s", err)
 		return
 	}
 
