@@ -3,11 +3,8 @@ package palettegrideditorwidget
 import (
 	"fmt"
 	"image/color"
-	"log"
 
 	"github.com/ianling/giu"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
 type widgetMode int32
@@ -19,73 +16,22 @@ const (
 
 // PaletteGridState represents palette grid's state
 type widgetState struct {
-	mode widgetMode
+	Mode widgetMode `json:"mode"`
 	editEntryState
 }
 
 // Dispose cleans palette grids state
 func (ws *widgetState) Dispose() {
-	ws.mode = widgetModeGrid
-}
-
-func (ws *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	sw.PushInt32(int32(ws.mode))
-	sw.PushInt32(int32(ws.idx))
-
-	return sw.GetBytes()
-}
-
-func (ws *widgetState) Decode(data []byte) {
-	sr := d2datautils.CreateStreamReader(data)
-
-	mode, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	ws.mode = widgetMode(mode)
-
-	idx, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	ws.idx = int(idx)
-
-	l, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s := make([]rune, int(l))
-
-	for i := 0; i < int(l); i++ {
-		r, err := sr.ReadByte()
-		if err != nil {
-			log.Print(err)
-
-			return
-		}
-
-		s[i] = rune(r)
-	}
+	ws.Mode = widgetModeGrid
 }
 
 type editEntryState struct {
-	idx  int
-	rgba color.RGBA // nolint:structcheck // bug in golangci-lint
+	Idx  int
+	RGBA color.RGBA // nolint:structcheck // bug in golangci-lint
 }
 
 func (ees *editEntryState) Dispose() {
-	ees.idx = 0
+	ees.Idx = 0
 }
 
 func (p *PaletteGridEditorWidget) getStateID() string {
@@ -110,7 +56,7 @@ func (p *PaletteGridEditorWidget) getState() *widgetState {
 
 func (p *PaletteGridEditorWidget) initState() {
 	state := &widgetState{
-		mode: widgetModeGrid,
+		Mode: widgetModeGrid,
 	}
 
 	p.setState(state)

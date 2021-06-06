@@ -1,10 +1,13 @@
 package palettegrideditorwidget
 
 import (
+	"math"
+
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
@@ -59,15 +62,15 @@ func (p *PaletteGridEditorWidget) Build() {
 
 	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
 		color := hsutil.Color((*p.colors)[idx].RGBA())
-		state.rgba = color
-		state.idx = idx
+		state.RGBA = color
+		state.Idx = idx
 
-		state.mode = widgetModeEdit
+		state.Mode = widgetModeEdit
 	})
 
 	grid.Build()
 
-	if state.mode == widgetModeEdit {
+	if state.Mode == widgetModeEdit {
 		p.buildEditor(grid)
 	}
 }
@@ -87,11 +90,11 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 
 	giu.Layout{
 		giu.PopupModal("Edit color").IsOpen(&isOpen).Layout(
-			giu.ColorEdit("##edit color", &state.rgba).Flags(giu.ColorEditFlagsNoAlpha),
+			giu.ColorEdit("##edit color", &state.RGBA).Flags(giu.ColorEditFlagsNoAlpha),
 			giu.Separator(),
 			giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
 				onChange()
-				state.mode = widgetModeGrid
+				state.Mode = widgetModeGrid
 			}),
 		),
 		// handle clicking on "X" button of popup
@@ -102,4 +105,38 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 			}
 		}),
 	}.Build()
+}
+
+func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, grid *palettegridwidget.PaletteGridWidget) giu.Layout {
+	state := p.getState()
+
+	f32 := int32(*field)
+
+	return giu.Layout{
+		giu.Row(
+			giu.Label(label),
+			hswidget.MakeInputInt(
+				id,
+				inputIntW,
+				field,
+				func() {
+					p.changeColor(state)
+					grid.UpdateColorTexture(state.Idx)
+					if p.onChange != nil {
+						p.onChange()
+					}
+					state.Hex = hsutil.RGB2Hex(state.R, state.G, state.B)
+				},
+			),
+		),
+		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
+			p.changeColor(state)
+			grid.UpdateColorTexture(state.Idx)
+			if p.onChange != nil {
+				p.onChange()
+			}
+			state.Hex = hsutil.RGB2Hex(state.R, state.G, state.B)
+			hswidget.SetByteToInt(f32, field)
+		}),
+	}
 }
