@@ -410,6 +410,7 @@ func (a *App) CloseAllOpenWindows() {
 	a.closePopups()
 	a.projectExplorer.Cleanup()
 	a.mpqExplorer.Cleanup()
+	a.focusedEditor = nil
 
 	for _, editor := range a.editors {
 		editor.Cleanup()
