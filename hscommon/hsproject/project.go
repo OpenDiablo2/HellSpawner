@@ -254,7 +254,7 @@ func (p *Project) searchPathEntries(pathEntry *hscommon.PathEntry, path string) 
 	return nil
 }
 
-func checkIfPathExists(fmtPath string, maxAttempt int) (fileName string, err error) {
+func getNextUniqueNewPath(fmtPath string, maxAttempt int) (fileName string, err error) {
 	for i := 0; i <= maxAttempt; i++ {
 		possibleFileName := fmt.Sprintf(fmtPath, i)
 		if _, err = os.Stat(possibleFileName); os.IsNotExist(err) {
@@ -277,7 +277,7 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) (err error) {
 
 	fmtPath := filepath.Join(basePath, "untitled%d")
 
-	fileName, err := checkIfPathExists(fmtPath, maxNewFileAttempts)
+	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
 	if err != nil {
 		dialog.Message(err.Error()).Error()
 
@@ -304,7 +304,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 
 	fmtFile := fmt.Sprintf("untitled%s", fileType.FileExtension())
 	fmtPath := filepath.Join(basePath, fmtFile)
-	fileName, err := checkIfPathExists(fmtPath, maxNewFileAttempts)
+	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
 
 	if err != nil {
 		dialog.Message(err.Error()).Error()
