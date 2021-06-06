@@ -58,6 +58,7 @@ func (a *App) renderMainMenuBar() {
 					}
 				}),
 			}),
+			g.MenuItem("Close Project").OnClick(a.onExitProjectClicked),
 			g.Separator(),
 			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
@@ -119,16 +120,17 @@ func (a *App) renderMainMenuBar() {
 
 func (a *App) buildViewMenu() g.Layout {
 	result := make([]g.Widget, 0)
+	hasProject := a.project != nil
 
 	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
 		g.MenuItem("Project Explorer\tCtrl+Shift+P").
-			Selected(a.projectExplorer.Visible).
-			Enabled(true).
+			Selected(a.projectExplorer.Visible && hasProject).
+			Enabled(hasProject).
 			OnClick(a.toggleProjectExplorer),
 
 		g.MenuItem("MPQ Explorer\t\tCtrl+Shift+M").
-			Selected(a.mpqExplorer.Visible).
-			Enabled(a.project != nil).
+			Selected(a.mpqExplorer.Visible && hasProject).
+			Enabled(hasProject).
 			OnClick(a.toggleMPQExplorer),
 
 		g.MenuItem("Console\t\t\t\t\tCtrl+Shift+C").
@@ -180,6 +182,14 @@ func (a *App) onProjectPropertiesClicked() {
 
 func (a *App) onFilePreferencesClicked() {
 	a.preferencesDialog.Show(a.config)
+}
+
+func (a *App) onExitProjectClicked() {
+	a.project = nil
+	a.projectExplorer.SetProject(nil)
+	a.mpqExplorer.SetProject(nil)
+	a.CloseAllOpenWindows()
+	a.updateWindowTitle()
 }
 
 func (a *App) onHelpAboutClicked() {
