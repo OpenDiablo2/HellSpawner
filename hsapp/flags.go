@@ -3,6 +3,7 @@ package hsapp
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -16,7 +17,7 @@ type Flags struct {
 }
 
 // parse all of the command line args
-func (a *App) parseArgs() {
+func (a *App) parseArgs() (shouldTerminate bool){
 	a.parseConfigArgs()
 	a.parseLogFileArgs()
 	a.parseBackgroundColorArgs()
@@ -26,6 +27,15 @@ func (a *App) parseArgs() {
 	//
 	// otherwise, other flags will not be printed in usage string!
 	a.parseHelpArgs()
+
+	flag.Parse()
+
+	if a.showUsage {
+		flag.Usage()
+		return true
+	}
+
+	return false
 }
 
 func (a *App) parseHelpArgs() {
@@ -35,22 +45,12 @@ func (a *App) parseHelpArgs() {
 		fmtUsage = "usage: %s [<flags>]\n\nFlags:\n"
 	)
 
-	// we will use a single variable for both short and long flags
-	var showHelp bool
-
-	flag.BoolVar(&showHelp, long, false, "Show help")
-	flag.BoolVar(&showHelp, short, false, "Show help (shorthand)")
+	flag.BoolVar(&a.showUsage, long, false, "Show help")
+	flag.BoolVar(&a.showUsage, short, false, "Show help (shorthand)")
 
 	flag.Usage = func() {
-		fmt.Printf(fmtUsage, os.Args[0])
+		log.Printf(fmtUsage, os.Args[0])
 		flag.PrintDefaults()
-	}
-
-	flag.Parse()
-
-	if showHelp {
-		flag.Usage()
-		os.Exit(0) // this is dangerous, forces us to parse the help flags last
 	}
 }
 

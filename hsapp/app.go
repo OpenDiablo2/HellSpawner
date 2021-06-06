@@ -97,6 +97,8 @@ type App struct {
 
 	InputManager  *hsinput.InputManager
 	TextureLoader hscommon.TextureLoader
+
+	showUsage bool
 }
 
 // Create creates new app instance
@@ -110,7 +112,9 @@ func Create() (*App, error) {
 		abyssWrapper:       abysswrapper.Create(),
 	}
 
-	result.parseArgs()
+	if shouldTerminate := result.parseArgs(); shouldTerminate {
+		return nil, nil
+	}
 
 	result.config = hsconfig.Load(*result.Flags.optionalConfigPath)
 
