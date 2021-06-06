@@ -68,12 +68,13 @@ func (p *PaletteGridWidget) Build() {
 
 			// cellX, cellY - cell cords
 			cellX, cellY := x/cellSize, y/cellSize
-			idx := cellY*gridHeight + cellX
 
-			// check if index out of range
-			if idx < 0 || idx > gridWidth*gridHeight {
+			// check if cell cords are out of bounds
+			if cellX < 0 || cellY < 0 || cellX >= gridWidth || cellY >= gridHeight {
 				return
 			}
+
+			idx := cellY*gridHeight + cellX
 
 			if giu.IsMouseClicked(giu.MouseButtonLeft) {
 				p.onClick(idx)
