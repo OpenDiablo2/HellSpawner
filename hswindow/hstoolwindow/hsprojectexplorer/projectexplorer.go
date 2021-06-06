@@ -2,6 +2,7 @@
 package hsprojectexplorer
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -399,9 +400,15 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 	m.project.InvalidateFileStructure()
 }
 
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
+}
+
 func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry) {
 	if err := m.project.CreateNewFolder(pathEntry); err != nil {
-		log.Print(err)
+		logErr("%s", err)
 	}
 }
 
