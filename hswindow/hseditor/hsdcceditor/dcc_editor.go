@@ -79,9 +79,6 @@ func (e *DCCEditor) Build() {
 			func(colors *[256]d2interface.Color) {
 				e.palette = colors
 			},
-			func() {
-				e.selectPalette = false
-			},
 		).IsOpen(&e.selectPalette)
 	}
 

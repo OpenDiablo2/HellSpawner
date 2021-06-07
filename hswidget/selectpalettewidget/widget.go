@@ -30,7 +30,6 @@ type SelectPaletteWidget struct {
 	isOpen          *bool
 	id              string
 	saveCB          func(colors *[256]d2interface.Color)
-	closeCB         func()
 }
 
 // NewSelectPaletteWidget creates a select palette widget
@@ -39,12 +38,10 @@ func NewSelectPaletteWidget(
 	project *hsproject.Project,
 	config *hsconfig.Config,
 	saveCB func(colors *[256]d2interface.Color),
-	closeCB func(),
 ) *SelectPaletteWidget {
 	result := &SelectPaletteWidget{
-		id:      id,
-		saveCB:  saveCB,
-		closeCB: closeCB,
+		id:     id,
+		saveCB: saveCB,
 	}
 
 	callback := func(path *hscommon.PathEntry) {
@@ -77,7 +74,8 @@ func NewSelectPaletteWidget(
 			colors := palette.GetColors()
 
 			saveCB(&colors)
-			closeCB()
+
+			*result.isOpen = false
 		}
 	}
 
@@ -119,12 +117,12 @@ func (p *SelectPaletteWidget) Build() {
 				Size(actionButtonW, actionButtonH).
 				OnClick(func() {
 					p.saveCB(nil)
-					p.closeCB()
+					*p.isOpen = false
 				}),
 			giu.Button("Exit##"+p.id+"selectPaletteExit").
 				Size(actionButtonW, actionButtonH).
 				OnClick(func() {
-					p.closeCB()
+					*p.isOpen = false
 				}),
 		}),
 	}).Build()

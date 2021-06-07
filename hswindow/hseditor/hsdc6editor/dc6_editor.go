@@ -78,9 +78,6 @@ func (e *DC6Editor) Build() {
 			func(palette *[256]d2interface.Color) {
 				e.palette = palette
 			},
-			func() {
-				e.selectPalette = false
-			},
 		).IsOpen(&e.selectPalette)
 	}
 
