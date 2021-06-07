@@ -76,10 +76,11 @@ func (e *DCCEditor) Build() {
 			"##"+e.Path.GetUniqueID()+"SelectPaletteWidget",
 			e.Project,
 			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
 			func(colors *[256]d2interface.Color) {
 				e.palette = colors
 			},
-		).IsOpen(&e.selectPalette)
+		)
 	}
 
 	e.Layout(e.selectPaletteWidget)

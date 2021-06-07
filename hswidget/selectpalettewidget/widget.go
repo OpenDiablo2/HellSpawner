@@ -29,7 +29,7 @@ type SelectPaletteWidget struct {
 	projectExplorer *hsprojectexplorer.ProjectExplorer
 	isOpen          *bool
 	id              string
-	saveCB          func(colors *[256]d2interface.Color)
+	onSelect        func(colors *[256]d2interface.Color)
 }
 
 // NewSelectPaletteWidget creates a select palette widget
@@ -37,11 +37,9 @@ func NewSelectPaletteWidget(
 	id string,
 	project *hsproject.Project,
 	config *hsconfig.Config,
-	saveCB func(colors *[256]d2interface.Color),
 ) *SelectPaletteWidget {
 	result := &SelectPaletteWidget{
-		id:     id,
-		saveCB: saveCB,
+		id: id,
 	}
 
 	callback := func(path *hscommon.PathEntry) {
@@ -73,7 +71,9 @@ func NewSelectPaletteWidget(
 
 			colors := palette.GetColors()
 
-			saveCB(&colors)
+			if result.onSelect != nil {
+				result.onSelect(&colors)
+			}
 
 			*result.isOpen = false
 		}
@@ -100,6 +100,12 @@ func NewSelectPaletteWidget(
 	return result
 }
 
+// OnSelect sets a callback for ppalette selection
+func (p *SelectPaletteWidget) OnSelect(cb func(colors *[256]d2interface.Color)) *SelectPaletteWidget {
+	p.onSelect = cb
+	return p
+}
+
 // IsOpen sets pointer to isOpen variable - determinates if a widget is visible
 func (p *SelectPaletteWidget) IsOpen(isOpen *bool) *SelectPaletteWidget {
 	p.isOpen = isOpen
@@ -116,7 +122,9 @@ func (p *SelectPaletteWidget) Build() {
 			giu.Button("Don't use any palette##"+p.id+"selectPaletteDonotUseAny").
 				Size(actionButtonW, actionButtonH).
 				OnClick(func() {
-					p.saveCB(nil)
+					if p.onSelect != nil {
+						p.onSelect(nil)
+					}
 					*p.isOpen = false
 				}),
 			giu.Button("Exit##"+p.id+"selectPaletteExit").

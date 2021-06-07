@@ -78,13 +78,14 @@ func (e *DT1Editor) Build() {
 			e.Path.GetUniqueID(),
 			e.Project,
 			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
 			func(colors *[256]d2interface.Color) {
 				e.palette = colors
 			},
-		).IsOpen(&e.selectPalette)
+		)
 	}
 
-	e.Layout(g.Layout{e.selectPaletteWidget})
+	e.Layout(e.selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contains editors options

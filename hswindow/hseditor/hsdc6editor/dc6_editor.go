@@ -75,10 +75,11 @@ func (e *DC6Editor) Build() {
 			e.Path.GetUniqueID()+"selectPalette",
 			e.Project,
 			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
 			func(palette *[256]d2interface.Color) {
 				e.palette = palette
 			},
-		).IsOpen(&e.selectPalette)
+		)
 	}
 
 	e.Layout(e.selectPaletteWidget)
