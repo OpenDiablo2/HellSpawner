@@ -1,6 +1,7 @@
 package animdatawidget
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -37,7 +38,10 @@ func Create(textureLoader hscommon.TextureLoader, state []byte, id string, d2 *d
 
 	if state != nil && giu.Context.GetState(result.getStateID()) == nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding animation data widget state: %v", err)
+		}
+
 		result.setState(s)
 	}
 

@@ -1,7 +1,6 @@
 package animdatawidget
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -27,13 +26,13 @@ type widgetState struct {
 }
 
 // Dispose clears widget's state
-func (ws *widgetState) Dispose() {
-	ws.Mode = widgetModeList
-	ws.mapKeys = make([]string, 0)
-	ws.MapIndex = 0
-	ws.RecordIdx = 0
-	ws.addEntryState.Dispose()
-	ws.deleteIcon = nil
+func (s *widgetState) Dispose() {
+	s.Mode = widgetModeList
+	s.mapKeys = make([]string, 0)
+	s.MapIndex = 0
+	s.RecordIdx = 0
+	s.addEntryState.Dispose()
+	s.deleteIcon = nil
 }
 
 type addEntryState struct {
@@ -42,11 +41,6 @@ type addEntryState struct {
 
 func (s *addEntryState) Dispose() {
 	s.Name = ""
-}
-
-// Decode decodes byte slice into widget state
-func (s *widgetState) Decode(data []byte) {
-	json.Unmarshal(data, s)
 }
 
 func (p *widget) getStateID() string {

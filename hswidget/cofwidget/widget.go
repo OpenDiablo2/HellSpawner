@@ -1,7 +1,9 @@
 package cofwidget
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -42,7 +44,10 @@ func Create(
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding cof widget state: %v", err)
+		}
+
 		result.setState(s)
 	}
 

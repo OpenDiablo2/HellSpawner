@@ -1,7 +1,6 @@
 package cofwidget
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/ianling/giu"
@@ -39,11 +38,6 @@ type textures struct {
 func (s *widgetState) Dispose() {
 	s.viewerState.Dispose()
 	s.newLayerFields.Dispose()
-}
-
-// Decode decodes byt slice into state
-func (s *widgetState) Decode(data []byte) {
-	json.Unmarshal(data, s)
 }
 
 // viewerState represents cof viewer's state
