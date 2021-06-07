@@ -58,7 +58,7 @@ func (a *App) renderMainMenuBar() {
 					}
 				}),
 			}),
-			g.MenuItem("Close Project").OnClick(a.onExitProjectClicked),
+			g.MenuItem("Close Project").Enabled(a.project != nil).OnClick(a.onExitProjectClicked),
 			g.Separator(),
 			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
