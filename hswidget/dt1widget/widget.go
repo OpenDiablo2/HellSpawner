@@ -22,6 +22,7 @@ const (
 )
 
 const (
+	comboW          = 280
 	gridMaxWidth    = 160
 	gridMaxHeight   = 80
 	gridDivisionsXY = 5
@@ -579,13 +580,19 @@ func (p *widget) SetTileGroup(tileGroup int32) {
 }
 
 func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
+	subtileFlagList := make([]string, 0)
+
+	const numberSubtileFlagTypes = 8
+	for i := int32(0); i < numberSubtileFlagTypes; i++ {
+		subtileFlagList = append(subtileFlagList, subTileString(i))
+	}
+
 	if tile.Height < 0 {
 		tile.Height *= -1
 	}
 
 	return giu.Layout{
-		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, 7),
-		giu.Label(subTileString(state.controls.subtileFlag)),
+		giu.Combo("##"+p.id+"SubtileList", subtileFlagList[state.subtileFlag], subtileFlagList, &state.subtileFlag).Size(comboW),
 		giu.Label("Edit:"),
 		giu.Custom(func() {
 			for y := 0; y < gridDivisionsXY; y++ {
