@@ -8,6 +8,8 @@ import (
 	"math"
 	"strconv"
 
+	"golang.org/x/image/colornames"
+
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
@@ -180,6 +182,14 @@ func (p *widget) makeTileTextures() {
 }
 
 func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
+	const (
+		rOff = iota // rg,b offsets
+		gOff
+		bOff
+		aOff
+		bpp // bytes per pixel
+	)
+
 	tw, th := int(tile.Width), int(tile.Height)
 	if th < 0 {
 		th *= -1
@@ -198,10 +208,8 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 
 	decodeTileGfxData(tile.Blocks, &floor, &wall, tileYOffset, tile.Width)
 
-	// nolint:gomnd // constant
-	floorBuf = make([]byte, tw*th*4) // rgba, fake palette values
-	// nolint:gomnd // constant
-	wallBuf = make([]byte, tw*th*4) // rgba, fake palette values
+	floorBuf = make([]byte, tw*th*bpp)
+	wallBuf = make([]byte, tw*th*bpp)
 
 	for idx := range floor {
 		var r, g, b, alpha byte
@@ -209,8 +217,7 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 		floorVal := floor[idx]
 		wallVal := wall[idx]
 
-		// nolint:gomnd // constant
-		rPos, gPos, bPos, aPos := idx*4+0, idx*4+1, idx*4+2, idx*4+3
+		rPos, gPos, bPos, aPos := idx*bpp+rOff, idx*bpp+gOff, idx*bpp+bOff, idx*bpp+aOff
 
 		// the faux rgb color data here is just to make it look more interesting
 		if p.palette != nil {
@@ -343,7 +350,6 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
 
 			// make TL to BR lines
-			// nolint:dupl // could be changed
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -355,18 +361,16 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
-				// nolint:gomnd // const
-				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+				c := colornames.Green
 
 				if idx == 0 || idx == gridDivisionsXY {
-					c.R = 255
+					c = colornames.Yellowgreen
 				}
 
 				canvas.AddLine(p1, p2, c, 1)
 			}
 
 			// make TR to BL lines
-			// nolint:dupl // is ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{
 					X: left.X + (idx * halfTileW),
@@ -378,11 +382,10 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
-				// nolint:gomnd // const
-				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+				c := colornames.Green
 
 				if idx == 0 || idx == gridDivisionsXY {
-					c.R = 255
+					c = colornames.Yellowgreen
 				}
 
 				canvas.AddLine(p1, p2, c, 1)
@@ -615,11 +618,10 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					Y: p1.Y + (gridDivisionsXY * halfTileH),
 				}
 
-				// nolint:gomnd // const
-				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+				c := colornames.Green
 
 				if idx == 0 || idx == gridDivisionsXY {
-					c.R = 255
+					c = colornames.Yellowgreen
 				}
 
 				for flagOffsetIdx := 0; flagOffsetIdx < gridDivisionsXY; flagOffsetIdx++ {
@@ -632,8 +634,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 
 					flagPoint := image.Point{X: p1.X + ox, Y: p1.Y + oy}
 
-					// nolint:gomnd // const
-					col := color.RGBA{R: 0, G: 255, B: 255, A: 255}
+					col := colornames.Yellow
 
 					subtileIdx := getFlagFromPos(flagOffsetIdx, idx%gridDivisionsXY)
 					flag := tile.SubTileFlags[subtileIdx].Encode()
@@ -653,7 +654,6 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 			}
 
 			// make TR to BL lines
-			// nolint:dupl // also ok
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
 				p1 := image.Point{ // bottom left point
 					X: left.X + (idx * halfTileW),
@@ -665,11 +665,10 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					Y: p1.Y - (gridDivisionsXY * halfTileH),
 				}
 
-				// nolint:gomnd // const
-				c := color.RGBA{R: 0, G: 255, B: 0, A: 255}
+				c := colornames.Green
 
 				if idx == 0 || idx == gridDivisionsXY {
-					c.R = 255
+					c = colornames.Yellowgreen
 				}
 
 				canvas.AddLine(p1, p2, c, 1)
