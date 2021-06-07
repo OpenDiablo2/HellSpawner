@@ -39,7 +39,7 @@ func (a *App) fileMenu() *g.MenuWidget {
 	mSaveProject.OnClick(a.Save)
 
 	mCloseProject := menuItem("MainMenuCloseProject", "Close Project", "")
-	mCloseProject.OnClick(a.onExitProjectClicked)
+	mCloseProject.OnClick(a.onExitProjectClicked).Enabled(a.project != nil)
 
 	mPreferences := menuItem("MainMenuFilePreferences", "Preferences...", "Alt+P")
 	mPreferences.OnClick(a.onFilePreferencesClicked)
