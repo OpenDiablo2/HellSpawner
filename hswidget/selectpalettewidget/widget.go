@@ -102,6 +102,7 @@ func NewSelectPaletteWidget(
 	return result
 }
 
+// IsOpen sets pointer to isOpen variable - determinates if a widget is visible
 func (p *SelectPaletteWidget) IsOpen(isOpen *bool) *SelectPaletteWidget {
 	p.isOpen = isOpen
 	return p
