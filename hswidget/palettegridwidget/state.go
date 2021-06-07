@@ -70,13 +70,16 @@ func (p *PaletteGridWidget) rebuildImage() {
 			col := hsutil.Color(c.RGBA())
 
 			// nolint:gomnd // const
-			rgb.Set(x, y, color.RGBA{R: col.R, G: col.G, B: col.B, A: 255})
+			rgb.Set(x, y, color.RGBA{
+				R: col.R,
+				G: col.G,
+				B: col.B,
+				A: 255,
+			})
 		}
 	}
 
-	go func() {
-		p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
-			p.setState(&widgetState{rgba: texture})
-		})
-	}()
+	p.textureLoader.CreateTextureFromARGB(rgb, func(texture *giu.Texture) {
+		p.setState(&widgetState{rgba: texture})
+	})
 }
