@@ -27,6 +27,7 @@ const (
 type SelectPaletteWidget struct {
 	mpqExplorer     *hsmpqexplorer.MPQExplorer
 	projectExplorer *hsprojectexplorer.ProjectExplorer
+	isOpen          *bool
 	id              string
 	saveCB          func(colors *[256]d2interface.Color)
 	closeCB         func()
@@ -101,28 +102,29 @@ func NewSelectPaletteWidget(
 	return result
 }
 
+func (p *SelectPaletteWidget) IsOpen(isOpen *bool) *SelectPaletteWidget {
+	p.isOpen = isOpen
+	return p
+}
+
 // Build builds a widget
 func (p *SelectPaletteWidget) Build() {
-	// always true (we don't use this feature in this case
-	isOpen := true
-	giu.Layout{
-		giu.PopupModal("##" + p.id + "popUpSelectPalette").IsOpen(&isOpen).Layout(giu.Layout{
-			giu.Child("##"+p.id+"popUpSelectPaletteChildWidget").Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
-				p.projectExplorer.GetProjectTreeNodes(),
-				giu.Layout(p.mpqExplorer.GetMpqTreeNodes()),
-				giu.Separator(),
-				giu.Button("Don't use any palette##"+p.id+"selectPaletteDonotUseAny").
-					Size(actionButtonW, actionButtonH).
-					OnClick(func() {
-						p.saveCB(nil)
-						p.closeCB()
-					}),
-				giu.Button("Exit##"+p.id+"selectPaletteExit").
-					Size(actionButtonW, actionButtonH).
-					OnClick(func() {
-						p.closeCB()
-					}),
-			}),
+	giu.PopupModal("##" + p.id + "popUpSelectPalette").IsOpen(p.isOpen).Layout(giu.Layout{
+		giu.Child("##"+p.id+"popUpSelectPaletteChildWidget").Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
+			p.projectExplorer.GetProjectTreeNodes(),
+			giu.Layout(p.mpqExplorer.GetMpqTreeNodes()),
+			giu.Separator(),
+			giu.Button("Don't use any palette##"+p.id+"selectPaletteDonotUseAny").
+				Size(actionButtonW, actionButtonH).
+				OnClick(func() {
+					p.saveCB(nil)
+					p.closeCB()
+				}),
+			giu.Button("Exit##"+p.id+"selectPaletteExit").
+				Size(actionButtonW, actionButtonH).
+				OnClick(func() {
+					p.closeCB()
+				}),
 		}),
-	}.Build()
+	}).Build()
 }

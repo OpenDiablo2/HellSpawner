@@ -82,10 +82,10 @@ func (e *DCCEditor) Build() {
 			func() {
 				e.selectPalette = false
 			},
-		)
+		).IsOpen(&e.selectPalette)
 	}
 
-	e.Layout(g.Layout{e.selectPaletteWidget})
+	e.Layout(e.selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options

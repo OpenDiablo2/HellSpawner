@@ -81,7 +81,7 @@ func (e *DC6Editor) Build() {
 			func() {
 				e.selectPalette = false
 			},
-		)
+		).IsOpen(&e.selectPalette)
 	}
 
 	e.Layout(e.selectPaletteWidget)

@@ -84,7 +84,7 @@ func (e *DT1Editor) Build() {
 			func() {
 				e.selectPalette = false
 			},
-		)
+		).IsOpen(&e.selectPalette)
 	}
 
 	e.Layout(g.Layout{e.selectPaletteWidget})
