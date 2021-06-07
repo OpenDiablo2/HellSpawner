@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	mainWindowW, mainWindowH = 300, 200
+	mainWindowW, mainWindowH = 320, 200
 	textboxSize              = 245
 	btnW, btnH               = 30, 0
 )
