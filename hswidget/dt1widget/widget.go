@@ -5,6 +5,7 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"math"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -27,6 +28,8 @@ const (
 	gridDivisionsXY = 5
 	subtileHeight   = gridMaxHeight / gridDivisionsXY
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
+	halfTileW       = subtileWidth >> 1
+	halfTileH       = subtileHeight >> 1
 	imageW, imageH  = 32, 32
 )
 
@@ -586,26 +589,9 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 	return giu.Layout{
 		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, maxSubtileIndex),
 		giu.Label(subTileString(state.controls.subtileFlag)),
-		giu.Label("Edit:"),
-		giu.Custom(func() {
-			for y := 0; y < gridDivisionsXY; y++ {
-				layout := giu.Layout{}
-				for x := 0; x < gridDivisionsXY; x++ {
-					layout = append(layout,
-						giu.Checkbox("##"+strconv.Itoa(y*gridDivisionsXY+x),
-							p.getSubTileFieldToEdit(y+x*gridDivisionsXY),
-						),
-					)
-				}
-
-				giu.Row(layout...).Build()
-			}
-		}),
-		giu.Dummy(0, spacerHeight),
-		giu.Label("Preview:"),
 		p.makeSubTilePreview(tile, state),
-
 		giu.Dummy(gridMaxWidth, gridMaxHeight),
+		giu.Label("Click to Add/Remove flags"),
 	}
 }
 
@@ -616,8 +602,6 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 			pos := giu.GetCursorScreenPos()
 
 			left := image.Point{X: 0 + pos.X, Y: (gridMaxHeight >> 1) + pos.Y}
-
-			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
 
 			// make TL to BR lines
 			for idx := 0; idx <= gridDivisionsXY; idx++ {
@@ -646,23 +630,17 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					ox := (flagOffsetIdx + 1) * halfTileW
 					oy := flagOffsetIdx * halfTileH
 
-					flagPoint := image.Point{
-						X: p1.X + ox,
-						Y: p1.Y + oy,
-					}
+					flagPoint := image.Point{X: p1.X + ox, Y: p1.Y + oy}
 
 					// nolint:gomnd // const
-					col := color.RGBA{
-						R: 0,
-						G: 255,
-						B: 255,
-						A: 255,
-					}
+					col := color.RGBA{R: 0, G: 255, B: 255, A: 255}
 
-					// nolint:gomnd // constant
-					flag := tile.SubTileFlags[getFlagFromPos(flagOffsetIdx, 4-idx)].Encode()
+					subtileIdx := getFlagFromPos(flagOffsetIdx, idx%gridDivisionsXY)
+					flag := tile.SubTileFlags[subtileIdx].Encode()
 
 					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
+
+					p.handleSubtileHoverAndClick(subtileIdx, flagPoint, canvas)
 
 					if hasFlag {
 						const circleRadius = 3 // px
@@ -697,5 +675,29 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 				canvas.AddLine(p1, p2, c, 1)
 			}
 		}),
+	}
+}
+
+func (p *widget) handleSubtileHoverAndClick(subtileIdx int, flagPoint image.Point, canvas *giu.Canvas) {
+	mousePos := giu.GetMousePos()
+	delta := mousePos.Sub(flagPoint)
+	dx, dy := int(math.Abs(float64(delta.X))), int(math.Abs(float64(delta.Y)))
+	closeEnough := (dx < halfTileH) && (dy < halfTileH)
+
+	// draw a crosshair on the point if hovered
+	if closeEnough {
+		highlight := color.RGBA{255, 255, 255, 64}
+
+		p1, p2 := flagPoint.Sub(image.Point{X: -halfTileW}), flagPoint.Sub(image.Point{X: halfTileW})
+		canvas.AddLine(p1, p2, highlight, 1)
+
+		p3, p4 := flagPoint.Sub(image.Point{Y: -halfTileH}), flagPoint.Sub(image.Point{Y: halfTileH})
+		canvas.AddLine(p3, p4, highlight, 1)
+	}
+
+	// on mouse release, toggle the flag
+	if closeEnough && giu.IsMouseReleased(giu.MouseButtonLeft) {
+		bit := p.getSubTileFieldToEdit(subtileIdx)
+		*bit = !(*bit)
 	}
 }
