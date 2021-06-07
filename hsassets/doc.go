@@ -1,2 +1,2 @@
-// Package hsassets contanins project assets embeds
+// Package hsassets contains project assets embeds
 package hsassets

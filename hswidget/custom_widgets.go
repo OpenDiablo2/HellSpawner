@@ -38,7 +38,7 @@ type playPauseButtonState struct {
 
 func (s *playPauseButtonState) Dispose() {
 	s.playTexture = nil
-	s.playTexture = nil
+	s.pauseTexture = nil
 }
 
 // PlayPauseButtonWidget represents a play/pause button
@@ -110,40 +110,45 @@ func (p *PlayPauseButtonWidget) Build() {
 		})
 
 		giu.Context.SetState(stateID, state)
-	} else {
-		imgState := state.(*playPauseButtonState)
-		if !*p.isPlaying {
-			widget = MakeImageButton(
-				p.id+"Play",
-				int(p.width), int(p.height),
-				imgState.playTexture,
-				func() {
-					*p.isPlaying = true
-					if cb := p.onChange; cb != nil {
-						cb()
-					}
-					if cb := p.onPlayClicked; cb != nil {
-						cb()
-					}
-				},
-			)
-		} else {
-			widget = MakeImageButton(
-				p.id+"Pause",
-				int(p.width), int(p.height),
-				imgState.pauseTexture,
-				func() {
-					*p.isPlaying = false
-					if cb := p.onChange; cb != nil {
-						cb()
-					}
-					if cb := p.onPauseClicked; cb != nil {
-						cb()
-					}
-				},
-			)
+
+		widget.Build()
+
+		return
+	}
+
+	imgState := state.(*playPauseButtonState)
+
+	w, h := int(p.width), int(p.height)
+
+	var id string
+
+	var texture *giu.Texture
+
+	var callback func() // callback
+
+	setIsPlaying := func(b bool) {
+		*p.isPlaying = b
+
+		if cb := p.onChange; cb != nil {
+			cb()
+		}
+
+		if cb := p.onPlayClicked; cb != nil {
+			cb()
 		}
 	}
+
+	if !*p.isPlaying {
+		id = p.id + "Play"
+		texture = imgState.playTexture
+		callback = func() { setIsPlaying(true) }
+	} else {
+		id = p.id + "Pause"
+		texture = imgState.pauseTexture
+		callback = func() { setIsPlaying(false) }
+	}
+
+	widget = MakeImageButton(id, w, h, texture, callback)
 
 	widget.Build()
 }
@@ -189,7 +194,7 @@ func MakeInputInt(id string, width int32, output interface{}, optionalCB func())
 
 // MakeCheckboxFromByte creates a checkbox using a byte as input/output
 func MakeCheckboxFromByte(id string, value *byte) *giu.CheckboxWidget {
-	v := (*value > 0)
+	v := *value > 0
 
 	return giu.Checkbox(id, &v).OnChange(func() {
 		if v {

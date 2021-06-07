@@ -2,6 +2,7 @@ package hsproject
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -26,9 +27,9 @@ const (
 )
 
 const (
-	newFileMode      = 0o644
-	newDirMode       = 0o755
-	maxProjectsCount = 100
+	newFileMode        = 0o644
+	newDirMode         = 0o755
+	maxNewFileAttempts = 100
 )
 
 // Project represents HellSpawner's project
@@ -102,15 +103,15 @@ func (p *Project) Save() error {
 }
 
 // ValidateAuxiliaryMPQs creates auxiliary mpq's list
-func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) bool {
+func (p *Project) ValidateAuxiliaryMPQs(config *hsconfig.Config) error {
 	for idx := range p.AuxiliaryMPQs {
 		realPath := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
 		if _, err := os.Stat(realPath); os.IsNotExist(err) {
-			return false
+			return fmt.Errorf("file not found at %s", realPath)
 		}
 	}
 
-	return true
+	return nil
 }
 
 // LoadFromFile loads projects file
@@ -154,13 +155,13 @@ func (p *Project) ensureProjectPaths() error {
 }
 
 // GetFileStructure returns project's file structure
-func (p *Project) GetFileStructure() *hscommon.PathEntry {
+func (p *Project) GetFileStructure() (*hscommon.PathEntry, error) {
 	if p.pathEntryCache != nil {
-		return p.pathEntryCache
+		return p.pathEntryCache, nil
 	}
 
 	if err := p.ensureProjectPaths(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	result := &hscommon.PathEntry{
@@ -172,17 +173,17 @@ func (p *Project) GetFileStructure() *hscommon.PathEntry {
 	}
 
 	result.FullPath = filepath.Join(filepath.Dir(p.filePath), "content")
-	p.getFileNodes(result.FullPath, result)
+	err := p.getFileNodes(result.FullPath, result)
 
 	p.pathEntryCache = result
 
-	return result
+	return result, err
 }
 
-func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
+func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) error {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("cannot read dir, %w", err)
 	}
 
 	for idx := range files {
@@ -199,11 +200,15 @@ func (p *Project) getFileNodes(path string, entry *hscommon.PathEntry) {
 
 		if files[idx].IsDir() {
 			fileNode.IsDirectory = true
-			p.getFileNodes(fileNode.FullPath, fileNode)
+			if err := p.getFileNodes(fileNode.FullPath, fileNode); err != nil {
+				return err
+			}
 		}
 
 		entry.Children = append(entry.Children, fileNode)
 	}
+
+	return nil
 }
 
 // InvalidateFileStructure cleans project's files structure
@@ -250,90 +255,93 @@ func (p *Project) searchPathEntries(pathEntry *hscommon.PathEntry, path string) 
 	return nil
 }
 
-// CreateNewFolder creates a new directory
-func (p *Project) CreateNewFolder(path *hscommon.PathEntry) {
-	basePath := path.FullPath
-
-	filePathFormat := filepath.Join(basePath, "untitled%d")
-
-	var fileName string
-
-	for i := 0; ; i++ {
-		possibleFileName := fmt.Sprintf(filePathFormat, i)
-		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
+func getNextUniqueNewPath(fmtPath string, maxAttempt int) (fileName string, err error) {
+	for i := 0; i <= maxAttempt; i++ {
+		possibleFileName := fmt.Sprintf(fmtPath, i)
+		if _, err = os.Stat(possibleFileName); os.IsNotExist(err) {
 			fileName = possibleFileName
 
 			break
 		}
-
-		if i > maxProjectsCount {
-			dialog.Message("Could not create a new project folder!").Error()
-
-			return
-		}
 	}
 
-	if err := os.Mkdir(fileName, 0o644); err != nil {
-		dialog.Message("Could not create a new project folder!").Error()
+	if fileName == "" {
+		err = errors.New("could not create a new project file")
+	}
 
-		return
+	return fileName, err
+}
+
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
+}
+
+// CreateNewFolder creates a new directory
+func (p *Project) CreateNewFolder(path *hscommon.PathEntry) (err error) {
+	basePath := path.FullPath
+
+	fmtPath := filepath.Join(basePath, "untitled%d")
+
+	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
+	if err != nil {
+		return err
+	}
+
+	err = os.Mkdir(fileName, newFileMode)
+	if err != nil {
+		return fmt.Errorf("could not make directory, %w", err)
 	}
 
 	p.InvalidateFileStructure()
-	p.GetFileStructure()
+	_, err = p.GetFileStructure()
 	p.RenameFile(fileName)
+
+	return err
 }
 
 // CreateNewFile creates a new file
-func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) {
+func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.PathEntry) (err error) {
 	basePath := path.FullPath
 
-	fmt.Println(fileType, ";", fileType.FileExtension())
-	filePathFormat := filepath.Join(basePath, "untitled%d"+fileType.FileExtension())
+	fmtFile := fmt.Sprintf("untitled%s", fileType.FileExtension())
+	fmtPath := filepath.Join(basePath, fmtFile)
+	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
 
-	var fileName string
-
-	for i := 0; ; i++ {
-		possibleFileName := fmt.Sprintf(filePathFormat, i)
-		if _, err := os.Stat(possibleFileName); os.IsNotExist(err) {
-			fileName = possibleFileName
-
-			break
-		}
-
-		if i > maxProjectsCount {
-			dialog.Message("Could not create a new project file!").Error()
-
-			return
-		}
+	if err != nil {
+		logErr("%s", err)
+		return err
 	}
 
 	switch fileType {
 	case hsfiletypes.FileTypeFont:
-		_, err := hsfont.NewFile(fileName)
+		_, err = hsfont.NewFile(fileName)
 		if err != nil {
-			log.Fatalf("failed to save font: %s", err)
+			return fmt.Errorf("failed to save font: %w", err)
 		}
 	default:
-		manager := getFileManager(fileType)
-		if manager == nil {
-			return
+		m := getMarshallerByType(fileType)
+		if m == nil {
+			return fmt.Errorf("no marshaller for file %s", fileName)
 		}
 
-		if err := ioutil.WriteFile(fileName, manager.Marshal(), os.FileMode(newFileMode)); err != nil {
-			log.Fatalf("cannot write to file %s: %v", fileName, err)
+		if err = ioutil.WriteFile(fileName, m.Marshal(), os.FileMode(newFileMode)); err != nil {
+			return fmt.Errorf("cannot write to file %s: %w", fileName, err)
 		}
 	}
 
 	p.InvalidateFileStructure()
 
 	// Force regeneration of file structure so that rename can find the file
-	p.GetFileStructure()
+	_, err = p.GetFileStructure()
 	p.RenameFile(fileName)
+
+	return err
 }
 
 // ReloadAuxiliaryMPQs reloads auxiliary MPQs
-func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
+func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) (err error) {
 	p.mpqs = make([]d2interface.Archive, len(p.AuxiliaryMPQs))
 
 	wg := sync.WaitGroup{}
@@ -343,16 +351,17 @@ func (p *Project) ReloadAuxiliaryMPQs(config *hsconfig.Config) {
 		go func(idx int) {
 			fileName := filepath.Join(config.AuxiliaryMpqPath, p.AuxiliaryMPQs[idx])
 
-			data, err := d2mpq.FromFile(fileName)
-			if err != nil {
-				log.Fatal(err)
+			if data, mpqErr := d2mpq.FromFile(fileName); mpqErr != nil {
+				err = mpqErr
+			} else {
+				p.mpqs[idx] = data
 			}
-
-			p.mpqs[idx] = data
 
 			wg.Done()
 		}(mpqIdx)
 	}
 
 	wg.Wait()
+
+	return err
 }

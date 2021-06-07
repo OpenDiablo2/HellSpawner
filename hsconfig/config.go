@@ -17,8 +17,8 @@ import (
 	"github.com/kirsle/configdir"
 )
 
-// default background color value
 const (
+	// DefaultBGColor is the default background color of the main window
 	DefaultBGColor = 0x0a0a0aff
 )
 
@@ -68,7 +68,7 @@ func generateDefaultConfig(path string) *Config {
 	}
 
 	if err := result.Save(); err != nil {
-		log.Fatalf("filed to save config: %s", err)
+		log.Printf("filed to save config: %s", err)
 	}
 
 	return result
@@ -151,7 +151,7 @@ func (c *Config) AddToRecentProjects(filePath string) {
 	}
 
 	if err := c.Save(); err != nil {
-		log.Fatalf("failed to save config: %s", err)
+		log.Printf("failed to save config: %s", err)
 	}
 }
 

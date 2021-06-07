@@ -1,2 +1,2 @@
-// Package hsproject contains common data for HellSpawner's projects
+// Package hsproject contains Hellspawner's Project implementation
 package hsproject

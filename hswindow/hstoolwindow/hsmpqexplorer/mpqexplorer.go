@@ -115,13 +115,17 @@ func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 
 	for mpqIndex := range m.project.AuxiliaryMPQs {
 		go func(idx int) {
-			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx]))
+			fullPath := filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx])
+			mpq, err := d2mpq.FromFile(fullPath)
+
 			if err != nil {
-				log.Fatal("failed to load mpq: ", err)
+				log.Printf("failed to load mpq: %s", fullPath)
 			}
 
-			nodes := m.project.GetMPQFileNodes(mpq, m.config)
-			result[idx] = m.renderNodes(nodes)
+			if mpq != nil {
+				nodes := m.project.GetMPQFileNodes(mpq, m.config)
+				result[idx] = m.renderNodes(nodes)
+			}
 
 			wg.Done()
 		}(mpqIndex)

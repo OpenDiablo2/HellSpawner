@@ -1,3 +1,2 @@
-// Package hsapp contains HellSpawner's
-// app data
+// Package hsapp contains HellSpawner's high-level application logic
 package hsapp

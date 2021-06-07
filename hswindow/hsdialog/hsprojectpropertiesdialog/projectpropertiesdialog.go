@@ -272,7 +272,8 @@ func (p *ProjectPropertiesDialog) onAddAuxMpqClicked() {
 func (p *ProjectPropertiesDialog) addAuxMpq(mpqPath string) {
 	relPath, err := filepath.Rel(p.config.AuxiliaryMpqPath, mpqPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return
 	}
 
 	for idx := range p.project.AuxiliaryMPQs {

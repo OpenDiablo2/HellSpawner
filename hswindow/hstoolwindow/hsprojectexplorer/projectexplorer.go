@@ -2,6 +2,8 @@
 package hsprojectexplorer
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -135,16 +137,24 @@ func (m *ProjectExplorer) makeRefreshButtonLayout() g.Layout {
 // GetProjectTreeNodes returns project tree
 func (m *ProjectExplorer) GetProjectTreeNodes() g.Layout {
 	if m.project == nil {
-		return []g.Widget{g.Label("No project loaded...")}
+		return g.Layout{g.Label("No project loaded...")}
 	}
 
-	fileStructure := m.project.GetFileStructure()
+	fileStructure, err := m.project.GetFileStructure()
+	if err != nil {
+		log.Print(err)
+	}
 
 	if fileStructure == nil {
-		return []g.Widget{g.Label("No file structure detected...")}
+		return g.Layout{g.Label("No file structure detected...")}
 	}
 
-	return []g.Widget{m.renderNodes(m.project.GetFileStructure())}
+	nodes, err := m.project.GetFileStructure()
+	if err != nil {
+		return g.Layout{g.Label(err.Error())}
+	}
+
+	return g.Layout{m.renderNodes(nodes)}
 }
 
 func (m *ProjectExplorer) onRefreshProjectExplorerClicked() {
@@ -156,7 +166,9 @@ func (m *ProjectExplorer) onRefreshProjectExplorerClicked() {
 }
 
 func (m *ProjectExplorer) onNewFontClicked(pathEntry *hscommon.PathEntry) {
-	m.project.CreateNewFile(hsfiletypes.FileTypeFont, pathEntry)
+	if err := m.project.CreateNewFile(hsfiletypes.FileTypeFont, pathEntry); err != nil {
+		log.Print(err)
+	}
 }
 
 func (m *ProjectExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
@@ -234,28 +246,44 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 			g.Separator(),
 			g.MenuItem("Font").OnClick(func() { m.onNewFontClicked(pathEntry) }),
 			g.MenuItem("Font table (.tbl)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeTBLFontTable, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeTBLFontTable, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("String table (.tbl)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeTBLStringTable, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeTBLStringTable, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Animation data (.d2)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeAnimationData, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeAnimationData, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Animation (.cof)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeCOF, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeCOF, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Palette (.dat)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypePalette, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypePalette, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Palette transform (.pl2)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypePL2, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypePL2, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Map tile data (.ds1)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeDS1, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeDS1, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 			g.MenuItem("Map tile animation (.dt1)").OnClick(func() {
-				m.project.CreateNewFile(hsfiletypes.FileTypeDT1, pathEntry)
+				if err := m.project.CreateNewFile(hsfiletypes.FileTypeDT1, pathEntry); err != nil {
+					log.Print(err)
+				}
 			}),
 		}),
 	}
@@ -372,8 +400,16 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 	m.project.InvalidateFileStructure()
 }
 
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
+}
+
 func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry) {
-	m.project.CreateNewFolder(pathEntry)
+	if err := m.project.CreateNewFolder(pathEntry); err != nil {
+		logErr("%s", err)
+	}
 }
 
 func sortPaths(rootPath *hscommon.PathEntry) {
