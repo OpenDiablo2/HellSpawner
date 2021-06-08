@@ -18,6 +18,7 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget/tiletypeimage"
 )
 
 const (
@@ -431,8 +432,6 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 }
 
 func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
-	var tileTypeImage *giu.ImageWithFileWidget
-
 	// we're creating list of tile names
 	tileTypeList := make([]string, d2enum.TileRightWallWithDoor+1)
 	for i := d2enum.TileFloor; i <= d2enum.TileRightWallWithDoor; i++ {
@@ -453,22 +452,12 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		tileTypeIdx = int32(len(tileTypeList) - 1)
 	}
 
-	tileImageFile := getTileTypeImage(d2enum.TileType(tile.Type))
-
-	tileTypeImage = giu.ImageWithFile("./hsassets/images/" + tileImageFile)
-
 	tileTypeInfo := giu.Layout{
 		giu.Row(
 			giu.Label("Type: "),
 			giu.InputInt("##"+p.id+"tileTypeInt", &tile.Type).Size(inputIntW),
 			giu.Combo("##"+p.id+"tileTypeList", tileTypeList[tileTypeIdx], tileTypeList, &tile.Type),
 		),
-	}
-
-	if tileTypeImage != nil {
-		tileTypeInfo = append(tileTypeInfo,
-			tileTypeImage.Size(imageW, imageH),
-		)
 	}
 
 	w, h := tile.Width, tile.Height
@@ -512,7 +501,8 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 		spacer,
 
 		tileTypeInfo,
-		spacer,
+		drawTileTypeImage(d2enum.TileType(tile.Type)),
+		giu.Dummy(1, tiletypeimage.ImageH),
 
 		giu.Row(
 			giu.Label("Style:"),
