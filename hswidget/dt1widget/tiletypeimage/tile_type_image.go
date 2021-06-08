@@ -12,6 +12,7 @@ import (
 const (
 	floorW, floorH = 60, 30
 	wallW, wallH   = floorW / 2, floorH
+	widthWallW     = 10
 	doorW, doorH   = wallW / 2, wallH * 2 / 3
 
 	// ImageW - max width of an image
@@ -87,9 +88,10 @@ func (b *Builder) NorthWall(filling bool) *Builder {
 
 // EastWall adds an easter wall
 func (b *Builder) EastWall() *Builder {
-	pos := b.pos.Add(image.Pt(wallW, floorH/2))
-	p3 := pos.Add(image.Pt(wallW, wallH))
-	p4 := pos.Add(image.Pt(0, wallH+floorH/2))
+	pos := b.pos.Add(image.Pt(wallW, 0))
+	my := float32(floorH/2) / float32(floorW/2) * float32(widthWallW)
+	p3 := pos.Add(image.Pt(wallW, wallH+floorH/2))
+	p4 := pos.Add(image.Pt(-widthWallW, wallH-int(my)))
 	p1 := p4.Add(image.Pt(0, -wallH))
 	p2 := p3.Add(image.Pt(0, -wallH))
 
@@ -101,9 +103,9 @@ func (b *Builder) EastWall() *Builder {
 
 // SoathWall adds a wall on a soath
 func (b *Builder) SoathWall() *Builder {
-	pos := b.pos.Add(image.Pt(0, floorH/2))
-	p3 := pos.Add(image.Pt(wallW, wallH+floorH/2))
-	p4 := pos.Add(image.Pt(0, wallH))
+	my := float32(floorH/2) / float32(floorW/2) * float32(widthWallW)
+	p3 := b.pos.Add(image.Pt(wallW+widthWallW, wallH-int(my)))
+	p4 := b.pos.Add(image.Pt(0, wallH+floorH/2))
 	p1 := p4.Add(image.Pt(0, -wallH))
 	p2 := p3.Add(image.Pt(0, -wallH))
 
