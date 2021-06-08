@@ -1,13 +1,16 @@
 package dt1widget
 
 import (
-	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget/tiletypeimage"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/ianling/giu"
+
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
+
+	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget/tiletypeimage"
 )
 
 func drawTileTypeImage(t d2enum.TileType) giu.Widget {
 	tileImageFile := getTileTypeImage(t)
+
 	switch t {
 	case d2enum.TileFloor:
 		return giu.Custom(func() {
