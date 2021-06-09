@@ -62,6 +62,12 @@ func drawTileTypeImage(t d2enum.TileType) giu.Widget {
 			b.Floor().SoathWall()
 		})
 	case d2enum.TileSouthCornerWall:
+		return giu.Custom(func() {
+			canvas := giu.GetCanvas()
+			pos := giu.GetCursorScreenPos()
+			b := tiletypeimage.TileTypeImage(canvas, pos)
+			b.Floor().Corner()
+		})
 	case d2enum.TileLeftWallWithDoor:
 		return giu.Custom(func() {
 			canvas := giu.GetCanvas()
