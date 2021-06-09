@@ -32,7 +32,7 @@ func subTileString(subtile int32) string {
 }
 
 func getFlagFromPos(x, y int) int {
-	var subtileLookup = [5][5]int{
+	subtileLookup := [5][5]int{
 		{0, 1, 2, 3, 4},
 		{5, 6, 7, 8, 9},
 		{10, 11, 12, 13, 14},
@@ -46,9 +46,9 @@ func getFlagFromPos(x, y int) int {
 func (p *widget) getSubTileFieldToEdit(idx int) *bool {
 	state := p.getState()
 
-	tileIdx := state.tileGroup
+	tileIdx := state.TileGroup
 
-	switch state.subtileFlag {
+	switch state.SubtileFlag {
 	case subTileFlagBlockWalk:
 		return &p.dt1.Tiles[tileIdx].SubTileFlags[idx].BlockWalk
 	case subTileFlagBlockLOS:
