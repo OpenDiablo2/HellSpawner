@@ -15,7 +15,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dc6widget"
-	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -25,13 +24,12 @@ var _ hscommon.EditorWindow = &DC6Editor{}
 // DC6Editor represents a dc6 editor
 type DC6Editor struct {
 	*hseditor.Editor
-	dc6                 *d2dc6.DC6
-	textureLoader       hscommon.TextureLoader
-	config              *hsconfig.Config
-	selectPalette       bool
-	palette             *[256]d2interface.Color
-	selectPaletteWidget g.Widget
-	state               []byte
+	dc6           *d2dc6.DC6
+	textureLoader hscommon.TextureLoader
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	state         []byte
 }
 
 // Create creates a new dc6 editor
@@ -70,19 +68,17 @@ func (e *DC6Editor) Build() {
 		return
 	}
 
-	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
-			e.Path.GetUniqueID()+"selectPalette",
-			e.Project,
-			e.config,
-		).IsOpen(&e.selectPalette).OnSelect(
-			func(palette *[256]d2interface.Color) {
-				e.palette = palette
-			},
-		)
-	}
+	selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+		e.Path.GetUniqueID()+"selectPalette",
+		e.Project,
+		e.config,
+	).IsOpen(&e.selectPalette).OnSelect(
+		func(palette *[256]d2interface.Color) {
+			e.palette = palette
+		},
+	)
 
-	e.Layout(e.selectPaletteWidget)
+	e.Layout(selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu

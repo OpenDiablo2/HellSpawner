@@ -16,7 +16,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
-	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -26,13 +25,12 @@ var _ hscommon.EditorWindow = &DT1Editor{}
 // DT1Editor represents a dt1 editor
 type DT1Editor struct {
 	*hseditor.Editor
-	dt1                 *d2dt1.DT1
-	textureLoader       hscommon.TextureLoader
-	config              *hsconfig.Config
-	selectPalette       bool
-	palette             *[256]d2interface.Color
-	selectPaletteWidget g.Widget
-	state               []byte
+	dt1           *d2dt1.DT1
+	textureLoader hscommon.TextureLoader
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	state         []byte
 }
 
 // Create creates new dt1 editor
@@ -72,20 +70,17 @@ func (e *DT1Editor) Build() {
 		return
 	}
 
-	// create mpq explorer if doesn't exist for now
-	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
-			e.Path.GetUniqueID(),
-			e.Project,
-			e.config,
-		).IsOpen(&e.selectPalette).OnSelect(
-			func(colors *[256]d2interface.Color) {
-				e.palette = colors
-			},
-		)
-	}
+	selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+		e.Path.GetUniqueID(),
+		e.Project,
+		e.config,
+	).IsOpen(&e.selectPalette).OnSelect(
+		func(colors *[256]d2interface.Color) {
+			e.palette = colors
+		},
+	)
 
-	e.Layout(e.selectPaletteWidget)
+	e.Layout(selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contains editors options
