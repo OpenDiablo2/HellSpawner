@@ -57,28 +57,28 @@ func Create(config *hsconfig.Config,
 
 // Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
+	id := e.Path.GetUniqueID()
+
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		e.Layout(g.Layout{
-			dc6widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
-		})
+	if e.selectPalette {
+		selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+			id+"selectPalette",
+			e.Project,
+			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
+			func(palette *[256]d2interface.Color) {
+				e.palette = palette
+			},
+		)
 
-		return
+		e.Layout(selectPaletteWidget)
 	}
 
-	selectPaletteWidget := hswidget.NewSelectPaletteWidget(
-		e.Path.GetUniqueID()+"selectPalette",
-		e.Project,
-		e.config,
-	).IsOpen(&e.selectPalette).OnSelect(
-		func(palette *[256]d2interface.Color) {
-			e.palette = palette
-		},
+	e.Layout(
+		dc6widget.Create(e.state, e.palette, e.textureLoader, id, e.dc6),
 	)
-
-	e.Layout(selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu

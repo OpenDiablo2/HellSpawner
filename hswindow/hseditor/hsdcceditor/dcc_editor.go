@@ -61,25 +61,27 @@ func (e *DCCEditor) Build() {
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		e.Layout(g.Layout{
-			dccwidget.Create(e.textureLoader, e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
-		})
+	id := e.Path.GetUniqueID()
+
+	if e.selectPalette {
+		selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+			"##"+id+"SelectPaletteWidget",
+			e.Project,
+			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
+			func(colors *[256]d2interface.Color) {
+				e.palette = colors
+			},
+		)
+
+		e.Layout(selectPaletteWidget)
 
 		return
 	}
 
-	selectPaletteWidget := hswidget.NewSelectPaletteWidget(
-		"##"+e.Path.GetUniqueID()+"SelectPaletteWidget",
-		e.Project,
-		e.config,
-	).IsOpen(&e.selectPalette).OnSelect(
-		func(colors *[256]d2interface.Color) {
-			e.palette = colors
-		},
+	e.Layout(
+		dccwidget.Create(e.textureLoader, e.state, e.palette, id, e.dcc),
 	)
-
-	e.Layout(selectPaletteWidget)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options

@@ -58,29 +58,28 @@ func Create(config *hsconfig.Config,
 
 // Build prepares the editor for rendering, but does not actually render it
 func (e *DT1Editor) Build() {
+	id := e.Path.GetUniqueID()
+
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		dt1Viewer := dt1widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
-		e.Layout(g.Layout{
-			dt1Viewer,
-		})
-
-		return
+	if e.selectPalette {
+		selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+			id+"SelectPalette",
+			e.Project,
+			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
+			func(colors *[256]d2interface.Color) {
+				e.palette = colors
+			},
+		)
+		e.Layout(selectPaletteWidget)
 	}
 
-	selectPaletteWidget := hswidget.NewSelectPaletteWidget(
-		e.Path.GetUniqueID(),
-		e.Project,
-		e.config,
-	).IsOpen(&e.selectPalette).OnSelect(
-		func(colors *[256]d2interface.Color) {
-			e.palette = colors
-		},
-	)
-
-	e.Layout(selectPaletteWidget)
+	dt1Viewer := dt1widget.Create(e.state, e.palette, e.textureLoader, id, e.dt1)
+	e.Layout(g.Layout{
+		dt1Viewer,
+	})
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contains editors options
