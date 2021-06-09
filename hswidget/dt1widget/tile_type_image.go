@@ -85,9 +85,6 @@ func drawTileTypeImage(t d2enum.TileType) giu.Widget {
 	default:
 		return giu.ImageWithFile("./hsassets/images/" + tileImageFile)
 	}
-
-	// can't be reached
-	return nil
 }
 
 func getTileTypeImage(t d2enum.TileType) string {
