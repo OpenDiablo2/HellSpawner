@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"log"
 	"time"
 
 	"github.com/ianling/giu"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
@@ -42,16 +39,16 @@ func (a animationPlayMode) String() string {
 const defaultTickTime = 100
 
 type widgetState struct {
-	controls struct {
-		direction int32
-		frame     int32
-		scale     int32
+	Controls struct {
+		Direction int32
+		Frame     int32
+		Scale     int32
 	}
 
-	isPlaying bool
-	repeat    bool
-	tickTime  int32
-	playMode  animationPlayMode
+	IsPlaying bool
+	Repeat    bool
+	TickTime  int32
+	PlayMode  animationPlayMode
 
 	// cache - will not be saved
 	images   []*image.RGBA
@@ -64,82 +61,6 @@ type widgetState struct {
 // Dispose cleans viewers state
 func (s *widgetState) Dispose() {
 	s.textures = nil
-}
-
-func (s *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	sw.PushInt32(s.controls.direction)
-	sw.PushInt32(s.controls.frame)
-	sw.PushInt32(s.controls.scale)
-
-	sw.PushBytes(byte(hsutil.BoolToInt(s.isPlaying)))
-	sw.PushBytes(byte(hsutil.BoolToInt(s.repeat)))
-
-	sw.PushInt32(s.tickTime)
-	sw.PushBytes(byte(s.playMode))
-
-	return sw.GetBytes()
-}
-
-func (s *widgetState) Decode(data []byte) {
-	var err error
-
-	sr := d2datautils.CreateStreamReader(data)
-
-	s.controls.direction, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.controls.frame, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.controls.scale, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	isPlaying, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-		return
-	}
-
-	s.isPlaying = isPlaying == 1
-
-	repeat, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-		return
-	}
-
-	s.repeat = repeat == 1
-
-	s.tickTime, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-		return
-	}
-
-	playMode, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-		return
-	}
-
-	s.playMode = animationPlayMode(playMode)
-
-	// update ticker
-	s.ticker.Reset(time.Second * time.Duration(s.tickTime) / miliseconds)
 }
 
 func (p *widget) getStateID() string {
@@ -164,13 +85,13 @@ func (p *widget) getState() *widgetState {
 func (p *widget) initState() {
 	// Prevent multiple invocation to LoadImage.
 	state := &widgetState{
-		isPlaying: false,
-		repeat:    false,
-		tickTime:  defaultTickTime,
-		playMode:  playModeForward,
+		IsPlaying: false,
+		Repeat:    false,
+		TickTime:  defaultTickTime,
+		PlayMode:  playModeForward,
 	}
 
-	state.ticker = time.NewTicker(time.Second * time.Duration(state.tickTime) / miliseconds)
+	state.ticker = time.NewTicker(time.Second * time.Duration(state.TickTime) / miliseconds)
 
 	p.setState(state)
 
@@ -255,39 +176,39 @@ func (p *widget) makeImagePixel(val byte) color.RGBA {
 
 func (p *widget) runPlayer(state *widgetState) {
 	for range state.ticker.C {
-		if !state.isPlaying {
+		if !state.IsPlaying {
 			continue
 		}
 
 		numFrames := int32(p.dcc.FramesPerDirection - 1)
-		isLastFrame := state.controls.frame == numFrames
+		isLastFrame := state.Controls.Frame == numFrames
 
 		// update play direction
-		switch state.playMode {
+		switch state.PlayMode {
 		case playModeForward:
 			state.isForward = true
 		case playModeBackword:
 			state.isForward = false
 		case playModePingPong:
-			if isLastFrame || state.controls.frame == 0 {
+			if isLastFrame || state.Controls.Frame == 0 {
 				state.isForward = !state.isForward
 			}
 		}
 
 		// now update the frame number
 		if state.isForward {
-			state.controls.frame++
+			state.Controls.Frame++
 		} else {
-			state.controls.frame--
+			state.Controls.Frame--
 		}
 
-		state.controls.frame = int32(hsutil.Wrap(int(state.controls.frame), p.dcc.FramesPerDirection))
+		state.Controls.Frame = int32(hsutil.Wrap(int(state.Controls.Frame), p.dcc.FramesPerDirection))
 
 		// next, check for stopping/repeat
-		isStoppingFrame := (state.controls.frame == 0) || (state.controls.frame == numFrames)
+		isStoppingFrame := (state.Controls.Frame == 0) || (state.Controls.Frame == numFrames)
 
-		if isStoppingFrame && !state.repeat {
-			state.isPlaying = false
+		if isStoppingFrame && !state.Repeat {
+			state.IsPlaying = false
 		}
 	}
 }
