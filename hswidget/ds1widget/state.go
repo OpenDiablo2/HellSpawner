@@ -20,24 +20,22 @@ const (
 )
 
 type ds1Controls struct {
-	tileX, tileY int32
-	object       int32
-	// nolint:structcheck // will be used
-	subgroup int32
-	// nolint:structcheck // linter's bug: this is used
-	tile struct {
-		floor, wall, shadow, sub int32
+	TileX, TileY int32
+	Object       int32
+	Subgroup     int32
+	Tile         struct {
+		Floor, Wall, Shadow, Sub int32
 	}
 	noObjectsImageTexture *giu.Texture
 }
 
-// ds1AddObjectState represents state of new object
+// ds1AddObjectState represents state of new Object
 type ds1AddObjectState struct {
-	objType  int32
-	objID    int32
-	objX     int32
-	objY     int32
-	objFlags int32
+	ObjType  int32
+	ObjID    int32
+	ObjX     int32
+	ObjY     int32
+	ObjFlags int32
 }
 
 // Dispose clears state
@@ -47,9 +45,9 @@ func (t *ds1AddObjectState) Dispose() {
 
 // ds1AddPathState contains data about new path
 type ds1AddPathState struct {
-	pathAction int32
-	pathX      int32
-	pathY      int32
+	PathAction int32
+	PathX      int32
+	PathY      int32
 }
 
 // Dispose clears state
@@ -60,9 +58,9 @@ func (t *ds1AddPathState) Dispose() {
 // widgetState represents ds1 viewers state
 type widgetState struct {
 	*ds1Controls
-	mode           widgetMode
+	Mode           widgetMode
 	confirmDialog  *hswidget.PopUpConfirmDialog
-	newFilePath    string
+	NewFilePath    string
 	addObjectState ds1AddObjectState
 	addPathState   ds1AddPathState
 }
@@ -74,7 +72,7 @@ func (is *widgetState) Dispose() {
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("DS1Widget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {
