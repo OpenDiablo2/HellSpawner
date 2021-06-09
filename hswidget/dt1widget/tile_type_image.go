@@ -20,7 +20,7 @@ func drawTileTypeImage(t d2enum.TileType) giu.Widget {
 			d2enum.TileRightPartOfNorthCornerWall: func() { b.Floor().WestWall(false).NorthWall(true) },
 			d2enum.TileLeftPartOfNorthCornerWall:  func() { b.Floor().WestWall(true).NorthWall(false) },
 			d2enum.TileLeftEndWall:                func() { b.Floor().EastWall() },
-			d2enum.TileRightEndWall:               func() { b.Floor().SoathWall() },
+			d2enum.TileRightEndWall:               func() { b.Floor().SouthWall() },
 			d2enum.TileSouthCornerWall:            func() { b.Floor().Corner() },
 			d2enum.TileLeftWallWithDoor:           func() { b.Floor().WestDoor() },
 			d2enum.TileRightWallWithDoor:          func() { b.Floor().NorthDoor() },

@@ -108,8 +108,8 @@ func (b *Builder) EastWall() *Builder {
 	return b
 }
 
-// SoathWall adds a wall on a soath
-func (b *Builder) SoathWall() *Builder {
+// SouthWall adds a wall on a south
+func (b *Builder) SouthWall() *Builder {
 	my := float32(floorH/half) / float32(floorW/half) * float32(widthWallW)
 	p3 := b.pos.Add(image.Pt(wallW+widthWallW, wallH-int(my)))
 	p4 := b.pos.Add(image.Pt(0, wallH+floorH/half))
