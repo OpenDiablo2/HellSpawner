@@ -10,8 +10,6 @@ import (
 
 const (
 	actionButtonW, actionButtonH = 250, 30
-	inputIntW                    = 30
-	imgSize                      = 80
 )
 
 // PaletteGridEditorWidget represents a palette grid editor
@@ -54,28 +52,28 @@ func (p *PaletteGridEditorWidget) OnChange(onChange func()) *PaletteGridEditorWi
 func (p *PaletteGridEditorWidget) Build() {
 	state := p.getState()
 
-	colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
-	for n := range *(p.colors) {
-		colors[n] = (*p.colors)[n]
-	}
-
-	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
-		color := hsutil.Color((*p.colors)[idx].RGBA())
-		state.rgba = color
-		state.idx = idx
-
-		state.mode = widgetModeEdit
-	})
-
 	switch state.mode {
 	case widgetModeGrid:
+		colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
+		for n := range *(p.colors) {
+			colors[n] = (*p.colors)[n]
+		}
+
+		grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
+			color := hsutil.Color((*p.colors)[idx].RGBA())
+			state.rgba = color
+			state.idx = idx
+
+			state.mode = widgetModeEdit
+		})
+
 		grid.Build()
 	case widgetModeEdit:
-		p.buildEditor(grid)
+		p.buildEditor()
 	}
 }
 
-func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGridWidget) {
+func (p *PaletteGridEditorWidget) buildEditor() {
 	state := p.getState()
 
 	isOpen := state.mode == widgetModeEdit

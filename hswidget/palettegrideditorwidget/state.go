@@ -81,7 +81,7 @@ func (ws *widgetState) Decode(data []byte) {
 
 type editEntryState struct {
 	idx  int
-	rgba color.RGBA
+	rgba color.RGBA // nolint:structcheck // bug in golangci-lint
 }
 
 func (ees *editEntryState) Dispose() {
