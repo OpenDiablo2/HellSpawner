@@ -19,6 +19,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
@@ -117,8 +118,8 @@ func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 	for mpqIndex := range m.project.AuxiliaryMPQs {
 		go func(idx int) {
 			fullPath := filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx])
-			mpq, err := d2mpq.FromFile(fullPath)
 
+			mpq, err := d2mpq.FromFile(fullPath)
 			if err != nil {
 				log.Printf("failed to load mpq: %s", fullPath)
 			}
@@ -145,13 +146,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id),
-			// double-click detector:
-			// the file should be opened when double-clicked on it
-			g.Custom(func() {
-				if g.IsItemHovered() && g.IsMouseDoubleClicked(g.MouseButtonLeft) {
-					go m.fileSelectedCallback(pathEntry)
-				}
-			}),
+			hswidget.DetectDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
