@@ -14,7 +14,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
@@ -113,26 +112,30 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 	*l = append(*l, m)
 }
 
-// RegisterKeyboardShortcuts register a new keyboard shortcut
-// nolint:wsl // I can't put this ccommented out code anywhere else
-func (e *DT1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
-	// Ctrl+Shift+S saves file
-	inputManager.RegisterShortcut(func() {
-		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
-
+// KeyboardShortcuts register a new keyboard shortcut
+func (e *DT1Editor) KeyboardShortcuts() []g.WindowShortcut {
 	// nolint:gocritic // we may want to use this code
-	/*
-		// right arrow goes to the next tile group
-		inputManager.RegisterShortcut(func() {
-			e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)
-		}, g.KeyRight, g.ModNone, false)
+	return []g.WindowShortcut{
+		/*
+			// right arrow goes to the next tile group
+			giu.WindowShortcut{
+				Callback: func() {
+					e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() + 1)
+				},
+				Key:      g.KeyRight,
+				Modifier: g.ModNone,
+			},
 
-		// left arrow goes to the previous tile group
-		inputManager.RegisterShortcut(func() {
-			e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
-		}, g.KeyLeft, g.ModNone, false)
-	*/
+			// left arrow goes to the previous tile group
+			giu.WindowShortcut{
+				Callback: func() {
+					e.dt1Viewer.SetTileGroup(e.dt1Viewer.TileGroup() - 1)
+				},
+				Key:      g.KeyLeft,
+				Modifier: g.ModNone,
+			},
+		*/
+	}
 }
 
 // GenerateSaveData generates data to be saved

@@ -60,6 +60,8 @@ github.com/hajimehoshi/oto v0.7.1 h1:I7maFPz5MBCwiutOrz++DLdbr4rTzBsbBuV2VpgU9kk
 github.com/hajimehoshi/oto v0.7.1/go.mod h1:wovJ8WWMfFKvP587mhHgot/MBr4DnNy9m6EepeVGnos=
 github.com/ianling/giu v0.5.1-0.20210524205023-4d3114338b69 h1:8/TnUIv7dy6smaOQiWsOB9MMHbiOgHrllYXRimQPx+Y=
 github.com/ianling/giu v0.5.1-0.20210524205023-4d3114338b69/go.mod h1:twqK/c83RuUbBV8sWkV9TMpcdaBs3Pec2FBN5gC+hEA=
+github.com/ianling/giu v0.5.1-0.20210619154109-b35b66c84649 h1:V+knrBNqCF2mrLnQRSiS27DwlSlOqzQxwE7Nx0dQCfA=
+github.com/ianling/giu v0.5.1-0.20210619154109-b35b66c84649/go.mod h1:twqK/c83RuUbBV8sWkV9TMpcdaBs3Pec2FBN5gC+hEA=
 github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6 h1:cYyhJBJpHS3ccwS/Hn9SI4T3SUzORnfiBvB+/1mopLs=
 github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6/go.mod h1:XJ3IHn74S/5gKA6R5tYya4x7bsucY4tHgfnGO94FmEc=
 github.com/jakecoffman/cp v1.0.0/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
@@ -162,6 +164,8 @@ golang.org/x/net v0.0.0-20201021035429-f5854403a974/go.mod h1:sp8m0HH+o8qH0wwXwY
 golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4/go.mod h1:p54w0d4576C0XHj96bSt6lcn1PtDYWL6XObtHCRCNQM=
 golang.org/x/net v0.0.0-20210525063256-abc453219eb5 h1:wjuX4b5yYQnEQHzd+CBcrcC6OVR2J1CN6mUy0oSxIPo=
 golang.org/x/net v0.0.0-20210525063256-abc453219eb5/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
+golang.org/x/net v0.0.0-20210614182718-04defd469f4e h1:XpT3nA5TvE525Ne3hInMh6+GETgn27Zfm9dxsThnX2Q=
+golang.org/x/net v0.0.0-20210614182718-04defd469f4e/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

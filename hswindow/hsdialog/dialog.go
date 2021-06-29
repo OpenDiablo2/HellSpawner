@@ -3,8 +3,6 @@ package hsdialog
 
 import (
 	"github.com/ianling/giu"
-
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 )
 
 // Dialog represents HellSpawner's dialog
@@ -32,9 +30,14 @@ func (d *Dialog) Show() {
 	d.Visible = true
 }
 
-// RegisterKeyboardShortcuts registers a new shortcut
-func (d *Dialog) RegisterKeyboardShortcuts(_ *hsinput.InputManager) {
-	// noop
+// RegisterKeyboardShortcuts registers a shortcuts for popup dialog
+func (d *Dialog) RegisterKeyboardShortcuts(_ ...giu.WindowShortcut) {
+	// TODO: handle keyboard shortcuts inside of popup-modal
+}
+
+// KeyboardShortcuts returns a list of shortcuts
+func (d *Dialog) KeyboardShortcuts() []giu.WindowShortcut {
+	return []giu.WindowShortcut{}
 }
 
 // IsVisible returns true if dialog is visible
