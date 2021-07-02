@@ -205,14 +205,14 @@ func MakeCheckboxFromByte(id string, value *byte) *giu.CheckboxWidget {
 	})
 }
 
-// DetectDoubleClick detects if item is double-clicked
+// OnDoubleClick detects if item is double-clicked
 // this can be used as an alternative to OnClick methos of some widgets
 // e.g.:
 // giu.Layout{
 //	giu.Button("double click me"),
-//	DetectDoubleClick(func() { fmt.Println("I was double-clicked") }),
+//	OnDoubleClick(func() { fmt.Println("I was double-clicked") }),
 // }
-func DetectDoubleClick(cb func()) giu.Widget {
+func OnDoubleClick(cb func()) giu.Widget {
 	return giu.Custom(func() {
 		if giu.IsItemHovered() && giu.IsMouseDoubleClicked(giu.MouseButtonLeft) {
 			go cb()

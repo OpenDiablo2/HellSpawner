@@ -212,7 +212,7 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 	} else {
 		layout = append(layout,
 			g.Selectable(pathEntry.Name+id),
-			hswidget.DetectDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
 		)
 	}
 

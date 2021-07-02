@@ -146,7 +146,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id),
-			hswidget.DetectDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
