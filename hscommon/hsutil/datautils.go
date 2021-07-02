@@ -48,7 +48,7 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 	// reload static image and construct outGif
 	for _, img := range images {
 		// FROM TUTORIAL:
-		// Read each frame GIF image with gif.Decode. If we read JPEG images, we have to convert them programatically
+		// Read each frame GIF image with gif.Decode. If we read JPEG images, we have to convert them programmatically
 		// (goanigiffy does this by calling gif.Encode and gif.Decode).
 		g := bytes.NewBuffer([]byte{})
 
