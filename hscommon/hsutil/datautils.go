@@ -14,7 +14,7 @@ import (
 
 const milliseconds = 1000
 
-// BoolToInt converts bool into 32-bit intager
+// BoolToInt converts bool into 32-bit integer
 // if b is true, then returns 1, else 0
 func BoolToInt(b bool) int32 {
 	if b {
