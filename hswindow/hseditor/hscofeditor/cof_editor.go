@@ -31,7 +31,7 @@ type COFEditor struct {
 }
 
 // Create creates a new cof editor
-func Create(config *hsconfig.Config,
+func Create(_ *hsconfig.Config,
 	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
 	state []byte,
