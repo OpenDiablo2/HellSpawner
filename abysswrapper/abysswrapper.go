@@ -48,7 +48,7 @@ func (a *AbyssWrapper) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
-// Launch launchs abyss wrapper
+// Launch launches abyss wrapper
 func (a *AbyssWrapper) Launch(config *hsconfig.Config, output io.Writer) error {
 	a.mutex.RLock()
 	if a.running {
