@@ -1,4 +1,4 @@
-// Package hsaboutdialog contains about dialog's data
+// Package hsaboutdialog provides the "About" window implementation, which shows information about hellspawner.
 package hsaboutdialog
 
 import (
