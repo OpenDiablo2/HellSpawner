@@ -12,7 +12,7 @@ import (
 	"github.com/OpenDiablo2/dialog"
 )
 
-const miliseconds = 1000
+const milliseconds = 1000
 
 // BoolToInt converts bool into 32-bit intager
 // if b is true, then returns 1, else 0
@@ -63,7 +63,7 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 		}
 
 		outGif.Image = append(outGif.Image, inGif.(*image.Paletted))
-		outGif.Delay = append(outGif.Delay, int(delay/miliseconds))
+		outGif.Delay = append(outGif.Delay, int(delay/milliseconds))
 	}
 
 	// save gif image
