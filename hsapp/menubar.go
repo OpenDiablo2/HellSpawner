@@ -58,7 +58,7 @@ func (a *App) renderMainMenuBar() {
 					}
 				}),
 			}),
-			g.MenuItem("Close Project").Enabled(a.project != nil).OnClick(a.onExitProjectClicked),
+			g.MenuItem("Close Project").Enabled(a.project != nil).OnClick(a.onCloseProjectClicked),
 			g.Separator(),
 			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
 			g.Separator(),
@@ -184,7 +184,10 @@ func (a *App) onFilePreferencesClicked() {
 	a.preferencesDialog.Show(a.config)
 }
 
-func (a *App) onExitProjectClicked() {
+func (a *App) onCloseProjectClicked() {
+	if save := dialog.Message("Do you want to save current project?").YesNo(); save {
+		a.project.Save()
+	}
 	a.project = nil
 	a.projectExplorer.SetProject(nil)
 	a.mpqExplorer.SetProject(nil)
