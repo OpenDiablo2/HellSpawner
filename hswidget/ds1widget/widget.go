@@ -333,11 +333,10 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 	}
 
 	if len(obj.Paths) > 0 {
-		l = append(
-			l,
-			giu.Dummy(1, 16),
-			p.makePathLayout(state, obj),
-		)
+		const spacerHeight = 16
+
+		vspace := giu.Dummy(1, spacerHeight)
+		l = append(l, vspace, p.makePathLayout(state, obj))
 	}
 
 	return l
