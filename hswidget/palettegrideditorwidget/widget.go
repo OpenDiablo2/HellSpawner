@@ -52,23 +52,22 @@ func (p *PaletteGridEditorWidget) OnChange(onChange func()) *PaletteGridEditorWi
 func (p *PaletteGridEditorWidget) Build() {
 	state := p.getState()
 
-	switch state.mode {
-	case widgetModeGrid:
-		colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
-		for n := range *(p.colors) {
-			colors[n] = (*p.colors)[n]
-		}
+	colors := make([]palettegridwidget.PaletteColor, len(*p.colors))
+	for n := range *(p.colors) {
+		colors[n] = (*p.colors)[n]
+	}
 
-		grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
-			color := hsutil.Color((*p.colors)[idx].RGBA())
-			state.rgba = color
-			state.idx = idx
+	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
+		color := hsutil.Color((*p.colors)[idx].RGBA())
+		state.rgba = color
+		state.idx = idx
 
-			state.mode = widgetModeEdit
-		})
+		state.mode = widgetModeEdit
+	})
 
-		grid.Build()
-	case widgetModeEdit:
+	grid.Build()
+
+	if state.mode == widgetModeEdit {
 		p.buildEditor()
 	}
 }
