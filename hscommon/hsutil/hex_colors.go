@@ -1,11 +1,11 @@
-package palettegridwidget
+package hsutil
 
 import (
 	"fmt"
 	"strconv"
 )
 
-// Hex2RGB converts haxadecimal color into r, g, b
+// Hex2RGB converts haxadecimal string color into r, g, b
 func Hex2RGB(hex string) (r, g, b uint8, err error) {
 	const (
 		base    = 16
@@ -29,8 +29,8 @@ func Hex2RGB(hex string) (r, g, b uint8, err error) {
 
 func t2x(t int64) string {
 	const base = 16
-	result := strconv.FormatInt(t, base)
 
+	result := strconv.FormatInt(t, base)
 	if len(result) == 1 {
 		result = "0" + result
 	}
@@ -38,7 +38,7 @@ func t2x(t int64) string {
 	return result
 }
 
-// RGB2Hex converts RGB into hexadecimal
+// RGB2Hex converts RGB color into hexadecimal string
 func RGB2Hex(red, green, blue uint8) string {
 	r := t2x(int64(red))
 	g := t2x(int64(green))
