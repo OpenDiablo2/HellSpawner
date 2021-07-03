@@ -12,9 +12,9 @@ import (
 	"github.com/OpenDiablo2/dialog"
 )
 
-const miliseconds = 1000
+const milliseconds = 1000
 
-// BoolToInt converts bool into 32-bit intager
+// BoolToInt converts bool into 32-bit integer
 // if b is true, then returns 1, else 0
 func BoolToInt(b bool) int32 {
 	if b {
@@ -48,7 +48,7 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 	// reload static image and construct outGif
 	for _, img := range images {
 		// FROM TUTORIAL:
-		// Read each frame GIF image with gif.Decode. If we read JPEG images, we have to convert them programatically
+		// Read each frame GIF image with gif.Decode. If we read JPEG images, we have to convert them programmatically
 		// (goanigiffy does this by calling gif.Encode and gif.Decode).
 		g := bytes.NewBuffer([]byte{})
 
@@ -63,11 +63,11 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 		}
 
 		outGif.Image = append(outGif.Image, inGif.(*image.Paletted))
-		outGif.Delay = append(outGif.Delay, int(delay/miliseconds))
+		outGif.Delay = append(outGif.Delay, int(delay/milliseconds))
 	}
 
 	// save gif image
-	file, err := os.OpenFile(filepath.Clean(filePath), os.O_WRONLY|os.O_CREATE, 0o600)
+	file, err := os.OpenFile(filepath.Clean(filePath), os.O_WRONLY|os.O_CREATE, defaultFilePermissions)
 	if err != nil {
 		return fmt.Errorf("error creating a new file: %w", err)
 	}

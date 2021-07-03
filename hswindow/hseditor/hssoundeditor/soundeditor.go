@@ -84,6 +84,10 @@ func (s *SoundEditor) Build() {
 	secondsCurrent := s.streamer.Position() / progressTimeModifier
 	secondsTotal := s.streamer.Len() / progressTimeModifier
 
+	const progressBarHeight = 24 // px
+
+	progress := float32(s.streamer.Position()) / float32(s.streamer.Len())
+
 	s.IsOpen(&s.Visible).
 		Flags(g.WindowFlagsNoResize).
 		Size(mainWindowW, mainWindowH).
@@ -91,7 +95,7 @@ func (s *SoundEditor) Build() {
 			g.Row(
 				hswidget.PlayPauseButton("##"+s.Path.GetUniqueID()+"playPause", &isPlaying, s.textureLoader).
 					OnPlayClicked(s.play).OnPauseClicked(s.stop).Size(btnSize, btnSize),
-				g.ProgressBar(float32(s.streamer.Position())/float32(s.streamer.Len())).Size(-1, 24).
+				g.ProgressBar(progress).Size(-1, progressBarHeight).
 					Overlay(fmt.Sprintf("%d:%02d / %d:%02d",
 						secondsCurrent/progressIndicatorModifier,
 						secondsCurrent%progressIndicatorModifier,

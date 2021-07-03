@@ -1,4 +1,4 @@
-// Package hsnode contains game nodes
+// Package hsnode contains an implementation of a node graph, as parent and child nodes.
 package hsnode
 
 import "strings"
