@@ -114,7 +114,6 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // KeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) KeyboardShortcuts() []g.WindowShortcut {
-	// nolint:gocritic // we may want to use this code
 	return []g.WindowShortcut{
 		/*
 			// right arrow goes to the next tile group
