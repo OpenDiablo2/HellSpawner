@@ -1,4 +1,4 @@
-// Package hsprojectexplorer contains project explorer's data
+// Package hsprojectexplorer provides a project explorer, for viewing project directories as trees.
 package hsprojectexplorer
 
 import (

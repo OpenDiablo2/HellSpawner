@@ -114,7 +114,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.isPlaying = (isPlaying == 1)
+	s.isPlaying = isPlaying == 1
 
 	repeat, err := sr.ReadByte()
 	if err != nil {
@@ -122,7 +122,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.repeat = (repeat == 1)
+	s.repeat = repeat == 1
 
 	s.tickTime, err = sr.ReadInt32()
 	if err != nil {
