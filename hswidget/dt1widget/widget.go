@@ -31,6 +31,8 @@ const (
 	gridDivisionsXY = 5
 	subtileHeight   = gridMaxHeight / gridDivisionsXY
 	subtileWidth    = gridMaxWidth / gridDivisionsXY
+	halfTileW       = subtileWidth >> 1
+	halfTileH       = subtileHeight >> 1
 )
 
 type tileIdentity string

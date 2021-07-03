@@ -56,7 +56,7 @@ func (b *Builder) Floor() *Builder {
 	p3 := pos.Add(image.Pt(0, floorH))
 	p4 := pos.Add(image.Pt(-floorW/half, floorH/half))
 
-	b.canvas.AddQuad(p1, p2, p3, p4, b.borderColor, 5)
+	b.canvas.AddQuad(p1, p2, p3, p4, b.borderColor, thickness)
 	b.canvas.AddQuadFilled(p1, p2, p3, p4, b.fillingColor)
 
 	return b
