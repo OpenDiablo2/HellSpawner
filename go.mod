@@ -27,5 +27,4 @@ require (
 	golang.org/x/mobile v0.0.0-20210527171505-7e972142eb43 // indirect
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/sys v0.0.0-20210601080250-7ecdf8ef093b // indirect
-	golang.org/x/tools v0.1.2 // indirect
 )
