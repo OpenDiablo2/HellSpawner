@@ -55,7 +55,9 @@ func Create(
 
 // Build builds a palette editor
 func (e *PaletteEditor) Build() {
-	col := make([]palettegridwidget.PaletteColor, 256)
+	const colorsPerPalette = 256
+
+	col := make([]palettegridwidget.PaletteColor, colorsPerPalette)
 	for n, i := range e.palette.GetColors() {
 		col[n] = palettegridwidget.PaletteColor(i)
 	}

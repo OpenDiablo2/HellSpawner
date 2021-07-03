@@ -1,4 +1,3 @@
-// Package hsfiletypes determinates file types
 package hsfiletypes
 
 import (
@@ -10,12 +9,6 @@ import (
 
 // FileType represents file type
 type FileType int
-
-type fileTypeInfoStruct struct {
-	Name         string
-	Extension    string
-	subTypeCheck func(*[]byte) (FileType, error)
-}
 
 // enumerate known file types
 const (
@@ -34,64 +27,99 @@ const (
 	FileTypeTBLFontTable
 	FileTypeDS1
 	FileTypeAnimationData
+	numFileTypes
 )
 
 // determinateTBLtype returns table type
-func determineTBLtype(data *[]byte) (FileType, error) {
-	_, err := d2tbl.LoadTextDictionary(*data)
-	if err == nil {
-		return FileTypeTBLStringTable, nil
+func determineSubtypeTBL(data *[]byte) FileType {
+	if _, err := d2tbl.LoadTextDictionary(*data); err == nil {
+		return FileTypeTBLStringTable
 	}
 
 	d := *data
 	if string(d[:4]) == "Woo!" {
-		return FileTypeTBLFontTable, nil
+		return FileTypeTBLFontTable
 	}
 
-	return FileTypeText, nil
-}
-
-func fileExtensionInfo() map[FileType]fileTypeInfoStruct {
-	return map[FileType]fileTypeInfoStruct{
-		FileTypeUnknown:        {},
-		FileTypeFont:           {Name: "Font", Extension: ".hsf"},
-		FileTypePalette:        {Name: "Palette", Extension: ".dat"},
-		FileTypePL2:            {Name: "Palette Map", Extension: ".pl2"},
-		FileTypeAudio:          {Name: "Audio", Extension: ".wav"},
-		FileTypeDCC:            {Name: "DCC", Extension: ".dcc"},
-		FileTypeDC6:            {Name: "DC6", Extension: ".dc6"},
-		FileTypeCOF:            {Name: "COF", Extension: ".cof"},
-		FileTypeDT1:            {Name: "DT1", Extension: ".dt1"},
-		FileTypeTBL:            {Name: "TBL", Extension: ".tbl", subTypeCheck: determineTBLtype},
-		FileTypeTBLFontTable:   {Name: "Font table", Extension: ".tbl"},
-		FileTypeTBLStringTable: {Name: "String table", Extension: ".tbl"},
-		FileTypeText:           {Name: "Text", Extension: ".txt"},
-		FileTypeDS1:            {Name: "DS1", Extension: ".ds1"},
-		FileTypeAnimationData:  {Name: "AnimationData", Extension: ".d2"},
-	}
+	return FileTypeText
 }
 
 // String returns file type string
 func (f FileType) String() string {
-	return fileExtensionInfo()[f].Name
+	table := map[FileType]string{
+		FileTypeUnknown:        "unknown",
+		FileTypeFont:           "Hellspawner font",
+		FileTypePalette:        "palette",
+		FileTypePL2:            "palette transform",
+		FileTypeAudio:          "wav",
+		FileTypeDCC:            "DCC image",
+		FileTypeDC6:            "DC6 image",
+		FileTypeCOF:            "COF animation data",
+		FileTypeDT1:            "DT1 tileset",
+		FileTypeTBLFontTable:   "Font Character Table",
+		FileTypeTBLStringTable: "String Table",
+		FileTypeText:           "text file",
+		FileTypeDS1:            "DS1 Map Stamp",
+		FileTypeAnimationData:  "Animation Dataset",
+	}
+
+	val, found := table[f]
+	if !found {
+		return table[FileTypeUnknown]
+	}
+
+	return val
 }
 
 // FileExtension returns file's extension
 func (f FileType) FileExtension() string {
-	return fileExtensionInfo()[f].Extension
+	table := map[FileType]string{
+		FileTypeFont:           ".hsf",
+		FileTypePalette:        ".dat",
+		FileTypePL2:            ".pl2",
+		FileTypeAudio:          ".wav",
+		FileTypeDCC:            ".dcc",
+		FileTypeDC6:            ".dc6",
+		FileTypeCOF:            ".cof",
+		FileTypeDT1:            ".dt1",
+		FileTypeTBLFontTable:   ".tbl",
+		FileTypeTBLStringTable: ".tbl",
+		FileTypeText:           ".txt",
+		FileTypeDS1:            ".ds1",
+		FileTypeAnimationData:  ".d2",
+	}
+
+	return table[f]
+}
+
+type fileTypeCheckFn = func(data *[]byte) FileType
+
+// subtypeCheckFn returns a function to check a file. This is important for
+// distinguishing between files that share a common file extension.
+func (f FileType) subtypeCheckFn() fileTypeCheckFn {
+	table := map[FileType]fileTypeCheckFn{
+		FileTypeTBL:            determineSubtypeTBL,
+		FileTypeTBLFontTable:   determineSubtypeTBL,
+		FileTypeTBLStringTable: determineSubtypeTBL,
+	}
+
+	return table[f]
 }
 
 // GetFileTypeFromExtension returns file type
 func GetFileTypeFromExtension(extension string, data *[]byte) (FileType, error) {
-	info := fileExtensionInfo()
-	for idx := range info {
-		if strings.EqualFold(info[idx].Extension, extension) {
-			if info[idx].subTypeCheck == nil {
-				return idx, nil
-			}
-
-			return info[idx].subTypeCheck(data)
+	for fileType := FileType(0); fileType < numFileTypes; fileType++ {
+		extensionsMatch := strings.EqualFold(fileType.FileExtension(), extension)
+		if !extensionsMatch {
+			continue
 		}
+
+		fnDetermine := fileType.subtypeCheckFn()
+		if fnDetermine == nil {
+			return fileType, nil
+		}
+
+		return fnDetermine(data), nil
 	}
 
 	return FileTypeUnknown, errors.New("filetype: no file type matches the extension provided")

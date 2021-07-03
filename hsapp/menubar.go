@@ -13,6 +13,7 @@ import (
 	g "github.com/ianling/giu"
 	"github.com/pkg/browser"
 
+	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 )
 
@@ -23,90 +24,78 @@ const (
 	supportURL           = "https://www.patreon.com/bePatron?u=37261055"
 )
 
-func (a *App) renderMainMenuBar() {
-	var runAbyssEngineLabel string
+func (a *App) fileMenu() *g.MenuWidget {
+	m := menu("MainMenu", "File")
 
-	projectOpened := a.project != nil
-	enginePathSet := len(a.config.AbyssEnginePath) > 0
+	mNew := menu("MainMenuFile", "New")
+	mNewProject := menuItem("MainMenuFileNew", "Project...", "Ctrl+Shift+N")
+	mNewProject.OnClick(a.onNewProjectClicked)
 
-	if a.abyssWrapper.IsRunning() {
-		runAbyssEngineLabel = "Stop Abyss Engine"
-	} else {
-		runAbyssEngineLabel = "Run in Abyss Engine"
+	mOpen := menu("MainMenuFile", "Open")
+	mOpenProject := menuItem("MainMenuFileOpen", "Project...", "Ctrl+Shift+O")
+	mOpenProject.OnClick(a.onOpenProjectClicked)
+
+	mSaveProject := menuItem("MainMenuFileSaveProject", "Save Project", "Ctrl+S")
+	mSaveProject.OnClick(a.Save)
+
+	mCloseProject := menuItem("MainMenuCloseProject", "Close Project", "")
+	mCloseProject.OnClick(a.onCloseProjectClicked).Enabled(a.project != nil)
+
+	mPreferences := menuItem("MainMenuFilePreferences", "Preferences...", "Alt+P")
+	mPreferences.OnClick(a.onFilePreferencesClicked)
+
+	mExit := menuItem("MainMenuFile", "Exit", "Alt+Q")
+	fnExit := func() {
+		a.Quit()
+		os.Exit(0)
 	}
 
+	m.Layout(
+		mNew.Layout(mNewProject),
+		mOpen.Layout(mOpenProject),
+		a.openRecentProjectMenu(),
+		mSaveProject,
+		g.Separator(),
+		mCloseProject,
+		g.Separator(),
+		mPreferences,
+		g.Separator(),
+		mExit.OnClick(fnExit),
+	)
+
+	return m
+}
+
+func (a *App) openRecentProjectMenu() *g.MenuWidget {
+	m := menu("MainMenuFileOpenRecent", "Recent Project...")
+
+	fnRecent := func() {
+		if len(a.config.RecentProjects) == 0 {
+			g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
+			return
+		}
+
+		for idx := range a.config.RecentProjects {
+			projectName := a.config.RecentProjects[idx]
+			g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
+				if err := a.loadProjectFromFile(projectName); err != nil {
+					logErr("could not open recent file %s", err)
+				}
+			}).Build()
+		}
+	}
+
+	m.Layout(g.Custom(fnRecent))
+
+	return m
+}
+
+func (a *App) renderMainMenuBar() {
 	menuLayout := g.Layout{
-		g.Menu("File##MainMenuFile").Layout(g.Layout{
-			g.Menu("New##MainMenuFileNew").Layout(g.Layout{
-				g.MenuItem("Project...\t\tCtrl+Shift+N##MainMenuFileNewProject").OnClick(a.onNewProjectClicked),
-			}),
-			g.Menu("Open##MainMenuFileOpen").Layout(g.Layout{
-				g.MenuItem("Project...\t\tCtrl+O##MainMenuFileOpenProject").OnClick(a.onOpenProjectClicked),
-			}),
-			g.MenuItem("Save\t\t\t\t\t\tCtrl+S##MainMenuFileSaveProject").OnClick(a.Save),
-			g.Menu("Open Recent##MainMenuOpenRecent").Layout(g.Layout{
-				g.Custom(func() {
-					if len(a.config.RecentProjects) == 0 {
-						g.MenuItem("No recent projects...##MainMenuOpenRecentItems").Build()
-						return
-					}
-					for idx := range a.config.RecentProjects {
-						projectName := a.config.RecentProjects[idx]
-						g.MenuItem(fmt.Sprintf("%s##MainMenuOpenRecent_%d", projectName, idx)).OnClick(func() {
-							a.loadProjectFromFile(projectName)
-						}).Build()
-					}
-				}),
-			}),
-			g.MenuItem("Close Project").Enabled(a.project != nil).OnClick(a.onCloseProjectClicked),
-			g.Separator(),
-			g.MenuItem("Preferences...\t\tAlt+P##MainMenuFilePreferences").OnClick(a.onFilePreferencesClicked),
-			g.Separator(),
-			g.MenuItem("Exit\t\t\t\t\t\t  Alt+Q##MainMenuFileExit").OnClick(func() {
-				a.Quit()
-				os.Exit(0)
-			}),
-		}),
-		g.Menu("View##MainMenuView").Layout(a.buildViewMenu()),
-		g.Menu("Project##MainMenuProject").Layout(g.Layout{
-			g.MenuItem(runAbyssEngineLabel + "##MainMenuProjectRun").
-				Enabled(projectOpened && enginePathSet).
-				OnClick(a.onProjectRunClicked),
-			g.Separator(),
-			g.MenuItem("Properties...##MainMenuProjectProperties").
-				Enabled(projectOpened).
-				OnClick(a.onProjectPropertiesClicked),
-			g.Separator(),
-			g.MenuItem("Export MPQ...##MainMenuProjectExport").
-				Enabled(projectOpened).
-				OnClick(a.onProjectExportMPQClicked),
-		}),
-		g.Menu("Help").Layout(g.Layout{
-			g.MenuItem("About HellSpawner...\tF1##MainMenuHelpAbout").OnClick(a.onHelpAboutClicked),
-			g.Separator(),
-			g.MenuItem("GitHub repository").OnClick(func() {
-				if err := browser.OpenURL(githubURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Join Discord server").OnClick(func() {
-				if err := browser.OpenURL(discordInvitationURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Development live stream").OnClick(func() {
-				if err := browser.OpenURL(twitchURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.MenuItem("Support us").OnClick(func() {
-				if err := browser.OpenURL(supportURL); err != nil {
-					log.Print(err)
-				}
-			}),
-			g.Separator(),
-			g.MenuItem("Report Bug on GitHub##MainMenuHelpBug").OnClick(a.onReportBugClicked),
-		}),
+		a.fileMenu(),
+		a.viewMenu(),
+		a.projectMenu(),
+		a.helpMenu(),
 	}
 
 	if a.focusedEditor != nil {
@@ -118,11 +107,11 @@ func (a *App) renderMainMenuBar() {
 	menuBar.Build()
 }
 
-func (a *App) buildViewMenu() g.Layout {
-	result := make([]g.Widget, 0)
+func (a *App) viewMenu() *g.MenuWidget {
+	viewMenu := menu("MainMenu", "View")
 	hasProject := a.project != nil
 
-	result = append(result, g.Menu("Tool Windows").Layout(g.Layout{
+	toolWindows := g.Menu("Tool Windows").Layout(g.Layout{
 		g.MenuItem("Project Explorer\tCtrl+Shift+P").
 			Selected(a.projectExplorer.Visible && hasProject).
 			Enabled(hasProject).
@@ -136,35 +125,115 @@ func (a *App) buildViewMenu() g.Layout {
 		g.MenuItem("Console\t\t\t\t\tCtrl+Shift+C").
 			Selected(a.console.Visible).
 			OnClick(a.toggleConsole),
-	}))
+	})
 
-	if len(a.editors) == 0 {
-		return result
+	items := []g.Widget{
+		toolWindows,
 	}
 
-	result = append(result, g.Separator())
+	if len(a.editors) > 0 {
+		items = append(items, g.Separator())
 
-	for idx := range a.editors {
-		i := idx
-		result = append(result, g.MenuItem(a.editors[idx].GetWindowTitle()).OnClick(a.editors[i].BringToFront))
+		for i := range a.editors {
+			editorItem := g.MenuItem(a.editors[i].GetWindowTitle()).OnClick(a.editors[i].BringToFront)
+			items = append(items, editorItem)
+		}
 	}
 
-	return result
+	return viewMenu.Layout(items...)
+}
+
+func (a *App) projectMenu() *g.MenuWidget {
+	const (
+		runAbyssEngine  = "Run in Abyss Engine"
+		stopAbyssEngine = "Stop Abyss Engine"
+	)
+
+	projectOpened := a.project != nil
+	enginePathSet := len(a.config.AbyssEnginePath) > 0
+
+	label := runAbyssEngine
+	if a.abyssWrapper.IsRunning() {
+		label = stopAbyssEngine
+	}
+
+	projectMenu := menu("MainMenu", "Project")
+
+	projectMenuRun := menuItem("MainMenuProject", label, "").
+		Enabled(projectOpened && enginePathSet).
+		OnClick(a.onProjectRunClicked)
+
+	projectMenuProperties := menuItem("MainMenuProject", "Properties...", "").
+		Enabled(projectOpened).
+		OnClick(a.onProjectPropertiesClicked)
+
+	projectMenuExportMPQ := menuItem("MainMenuProject", "Export MPQ...", "").
+		Enabled(projectOpened).
+		OnClick(a.onProjectExportMPQClicked)
+
+	return projectMenu.Layout(
+		projectMenuRun,
+		g.Separator(),
+		projectMenuProperties,
+		g.Separator(),
+		projectMenuExportMPQ,
+	)
+}
+
+func openURL(url string) {
+	if err := browser.OpenURL(url); err != nil {
+		log.Print(err)
+	}
+}
+
+func (a *App) onOpenURL(url string) func() {
+	return func() {
+		openURL(url)
+	}
+}
+
+func (a *App) helpMenu() *g.MenuWidget {
+	menuHelp := menu("MainMenu", "Help")
+	menuHelpAbout := menuItem("MainMenuHelp", "About HellSpawner...", "F1").
+		OnClick(a.onHelpAboutClicked)
+	menuHelpGithub := menuItem("MainMenuHelp", "GitHub repository", "").
+		OnClick(a.onOpenURL(githubURL))
+	menuHelpDiscord := menuItem("MainMenuHelp", "Join Discord server", "").
+		OnClick(a.onOpenURL(discordInvitationURL))
+	menuHelpTwitch := menuItem("MainMenuHelp", "Development live stream", "").
+		OnClick(a.onOpenURL(twitchURL))
+	menuHelpSupport := menuItem("MainMenuHelp", "Support us", "").
+		OnClick(a.onOpenURL(supportURL))
+	menuHelpBug := menuItem("MainMenuHelp", "Report Bug on GitHub", "").
+		OnClick(a.onReportBugClicked)
+
+	return menuHelp.Layout(
+		menuHelpAbout,
+		g.Separator(),
+		menuHelpGithub,
+		menuHelpDiscord,
+		menuHelpTwitch,
+		menuHelpSupport,
+		g.Separator(),
+		menuHelpBug,
+	)
 }
 
 func (a *App) onNewProjectClicked() {
 	file, err := dialog.File().Filter("HellSpawner Project", "hsp").Save()
 	if err != nil || file == "" {
-		return
+		logErr("could not create new project, %s", err)
 	}
 
-	var project *hsproject.Project
-
-	if project, err = hsproject.CreateNew(file); err != nil {
-		return
+	project, err := hsproject.CreateNew(file)
+	if err != nil {
+		logErr("could not create new project file, %s", err)
 	}
 
-	a.loadProjectFromFile(project.GetProjectFilePath())
+	ppath := project.GetProjectFilePath()
+	if err := a.loadProjectFromFile(ppath); err != nil {
+		logErr("could not load new project from file %s, %s", ppath, err)
+	}
 }
 
 func (a *App) onOpenProjectClicked() {
@@ -173,7 +242,9 @@ func (a *App) onOpenProjectClicked() {
 		return
 	}
 
-	a.loadProjectFromFile(file)
+	if err := a.loadProjectFromFile(file); err != nil {
+		logErr("could not open project file %s, %s", file, err)
+	}
 }
 
 func (a *App) onProjectPropertiesClicked() {
@@ -272,6 +343,87 @@ func (a *App) onReportBugClicked() {
 
 	err = browser.OpenURL("https://github.com/OpenDiablo2/HellSpawner/issues/new?body=" + strings.Join(body, "%0D"))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
+}
+
+func (a *App) renderEditors() {
+	idx := 0
+	for idx < len(a.editors) {
+		editor := a.editors[idx]
+		if !editor.IsVisible() {
+			editor.Cleanup()
+
+			if editor.HasFocus() {
+				a.focusedEditor = nil
+			}
+
+			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
+
+			continue
+		}
+
+		hadFocus := editor.HasFocus()
+
+		editor.Build()
+
+		// if this window didn't have focus before, but it does now,
+		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
+		if !hadFocus && editor.HasFocus() {
+			a.InputManager.UnregisterWindowShortcuts()
+
+			editor.RegisterKeyboardShortcuts(a.InputManager)
+
+			a.focusedEditor = editor
+		}
+
+		idx++
+	}
+}
+
+func (a *App) renderWindows() {
+	windows := []hscommon.Renderable{
+		a.projectExplorer,
+		a.mpqExplorer,
+		a.console,
+		a.preferencesDialog,
+		a.aboutDialog,
+		a.projectPropertiesDialog,
+	}
+
+	for _, tw := range windows {
+		if tw.IsVisible() {
+			tw.Build()
+		}
+	}
+}
+
+func makeMenuID(name, group, shortcut string) string {
+	const (
+		sep  = "##"
+		fmt2 = "%v%v%v%v"
+		fmt3 = "%v\t(%v)%v%v%v"
+	)
+
+	if len(shortcut) > 0 {
+		return fmt.Sprintf(fmt3, name, shortcut, sep, group, name)
+	}
+
+	return fmt.Sprintf(fmt2, name, sep, group, name)
+}
+
+func menuID(group, name string) string {
+	return makeMenuID(name, group, "")
+}
+
+func itemID(group, name, shortcut string) string {
+	return makeMenuID(name, group, shortcut)
+}
+
+func menu(group, name string) *g.MenuWidget {
+	return g.Menu(menuID(group, name))
+}
+
+func menuItem(group, name, shortcut string) *g.MenuItemWidget {
+	return g.MenuItem(itemID(group, name, shortcut))
 }

@@ -1,35 +1,29 @@
 package hsapp
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
-
-	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
-
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
-
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
-
 	g "github.com/ianling/giu"
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/dialog"
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
 	"github.com/go-gl/glfw/v3.3/glfw"
 
+	"github.com/OpenDiablo2/HellSpawner/abysswrapper"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
-	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
+	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsconsole"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsmpqexplorer"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow/hsprojectexplorer"
 )
@@ -47,11 +41,12 @@ const (
 	consoleDefaultY          = 500
 
 	samplesPerSecond = 22050
+	sampleDuration   = time.Second / 10
 
 	autoSaveTimer = 120
 
 	logFileSeparator = "-----%v-----\n"
-	logFilePerms     = 0o600
+	logFilePerms     = 0o644
 )
 
 const (
@@ -102,24 +97,24 @@ type App struct {
 
 	InputManager  *hsinput.InputManager
 	TextureLoader hscommon.TextureLoader
+
+	showUsage bool
 }
 
 // Create creates new app instance
 func Create() (*App, error) {
-	tl := hscommon.NewTextureLoader()
 	result := &App{
 		Flags:              &Flags{},
 		editors:            make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]editorConstructor),
-		TextureLoader:      tl,
+		TextureLoader:      hscommon.NewTextureLoader(),
+		InputManager:       hsinput.NewInputManager(),
+		abyssWrapper:       abysswrapper.Create(),
 	}
 
-	im := hsinput.NewInputManager()
-	result.InputManager = im
-
-	result.abyssWrapper = abysswrapper.Create()
-
-	result.parseArgs()
+	if shouldTerminate := result.parseArgs(); shouldTerminate {
+		return nil, nil
+	}
 
 	result.config = hsconfig.Load(*result.Flags.optionalConfigPath)
 
@@ -127,150 +122,97 @@ func Create() (*App, error) {
 }
 
 // Run runs an app instance
-func (a *App) Run() {
-	var err error
-
-	color := a.config.BGColor
-	if bg := uint32(*a.Flags.bgColor); bg != hsconfig.DefaultBGColor {
-		color = hsutil.Color(bg)
-	}
-
-	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
-	a.masterWindow.SetBgColor(color)
-
-	sampleRate := beep.SampleRate(samplesPerSecond)
-
-	// nolint:gomnd // this is 0.1 of second
-	if err = speaker.Init(sampleRate, sampleRate.N(time.Second/10)); err != nil {
-		log.Fatal(err)
-	}
-
-	dialog.Init()
-
-	// initialize auto-save timer
-	go func() {
-		time.Sleep(autoSaveTimer * time.Second)
-		a.Save()
-	}()
-
-	a.TextureLoader.ProcessTextureLoadRequests()
-
+func (a *App) Run() (err error) {
 	defer a.Quit() // force-close and save everything (in case of crash)
 
+	// setting up the logging here, as opposed to inside of app.setup(),
+	// because of the deferred call to logfile.Close()
 	if a.config.LoggingToFile || *a.Flags.logFile != "" {
-		var path string = a.config.LogFilePath
+		var path = a.config.LogFilePath
 		if *a.Flags.logFile != "" {
 			path = *a.Flags.logFile
 		}
 
 		a.logFile, err = os.OpenFile(filepath.Clean(path), os.O_CREATE|os.O_APPEND|os.O_WRONLY, logFilePerms)
 		if err != nil {
-			log.Printf("Error opening log file at %s: %v", a.config.LogFilePath, err)
+			logErr("Error opening log file at %s: %v", a.config.LogFilePath, err)
 		}
 
 		defer func() {
-			err := a.logFile.Close()
-			if err != nil {
-				log.Fatal(err)
+			if logErr := a.logFile.Close(); logErr != nil {
+				log.Fatal(logErr)
 			}
 		}()
 	}
 
-	if err := a.setup(); err != nil {
-		log.Panic(err)
+	err = a.setup()
+	if err != nil {
+		return err
 	}
 
 	if a.config.OpenMostRecentOnStartup && len(a.config.RecentProjects) > 0 {
-		a.loadProjectFromFile(a.config.RecentProjects[0])
+		err = a.loadProjectFromFile(a.config.RecentProjects[0])
+		if err != nil {
+			return err
+		}
 	}
 
 	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
 	a.masterWindow.Run(a.render)
+
+	return nil
 }
 
 func (a *App) render() {
 	a.TextureLoader.StopLoadingTextures()
+
 	a.renderMainMenuBar()
-
-	idx := 0
-	for idx < len(a.editors) {
-		editor := a.editors[idx]
-		if !editor.IsVisible() {
-			editor.Cleanup()
-
-			if editor.HasFocus() {
-				a.focusedEditor = nil
-			}
-
-			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
-
-			continue
-		}
-
-		hadFocus := editor.HasFocus()
-
-		editor.Build()
-
-		// if this window didn't have focus before, but it does now,
-		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
-		if !hadFocus && editor.HasFocus() {
-			a.InputManager.UnregisterWindowShortcuts()
-
-			editor.RegisterKeyboardShortcuts(a.InputManager)
-
-			a.focusedEditor = editor
-		}
-
-		idx++
-	}
-
-	windows := []hscommon.Renderable{
-		a.projectExplorer,
-		a.mpqExplorer,
-		a.console,
-		a.preferencesDialog,
-		a.aboutDialog,
-		a.projectPropertiesDialog,
-	}
-
-	for _, tw := range windows {
-		if tw.IsVisible() {
-			tw.Build()
-		}
-	}
+	a.renderEditors()
+	a.renderWindows()
 
 	g.Update()
+
 	a.TextureLoader.ResumeLoadingTextures()
+}
+
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
 }
 
 func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h float32) {
 	data, err := path.GetFileBytes()
 	if err != nil {
-		log.Printf("Could not load file: %v", err)
-		dialog.Message("Could not load file!").Error()
+		const fmtErr = "Could not load file: %v"
+
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	fileType, err := hsfiletypes.GetFileTypeFromExtension(filepath.Ext(path.FullPath), &data)
 	if err != nil {
-		log.Printf("Error reading file type: %v", err)
-		dialog.Message("No file type is defined for this extension!").Error()
+		const fmtErr = "Error reading file type: %v"
+
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	if a.editorConstructors[fileType] == nil {
-		log.Printf("Error loading editor: %v", err)
-		dialog.Message("No editor is defined for this file type!").Error()
+		const fmtErr = "Error opening editor: %v"
+
+		logErr(fmtErr, err)
 
 		return
 	}
 
 	editor, err := a.editorConstructors[fileType](a.config, a.TextureLoader, path, state, &data, x, y, a.project)
 	if err != nil {
-		log.Printf("Error creating editor: %v", err)
-		dialog.Message("Error creating editor: %s", err).Error()
+		const fmtErr = "Error creating editor: %v"
+
+		logErr(fmtErr, err)
 
 		return
 	}
@@ -299,35 +241,32 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 
 	a.editorManagerMutex.RUnlock()
 
-	// w, h = 0, because we're createing a new editor,
+	// w, h = 0, because we're creating a new editor,
 	// width and height aren't saved, so we give 0 and
 	// editors without AutoResize flag sets w, h to default
 	a.createEditor(path, nil, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
 }
 
-func (a *App) loadProjectFromFile(file string) {
-	var project *hsproject.Project
-
-	var err error
-
-	if project, err = hsproject.LoadFromFile(file); err != nil {
-		log.Printf("Error loading project: %v", err)
-		dialog.Message("Could not load project.").Title("Load HellSpawner Project Error").Error()
-
-		return
+func (a *App) loadProjectFromFile(file string) error {
+	project, err := hsproject.LoadFromFile(file)
+	if err != nil {
+		return fmt.Errorf("could not load project from file %s, %w", file, err)
 	}
 
-	if !project.ValidateAuxiliaryMPQs(a.config) {
-		log.Printf("Error loading mpqs: %v", err)
-		dialog.Message("Could not load project.\nCould not locate one or more auxiliary MPQs!").Title("Load HellSpawner Project Error").Error()
-
-		return
+	err = project.ValidateAuxiliaryMPQs(a.config)
+	if err != nil {
+		return fmt.Errorf("could not validate aux mpq's, %w", err)
 	}
 
 	a.project = project
 	a.config.AddToRecentProjects(file)
 	a.updateWindowTitle()
-	a.reloadAuxiliaryMPQs()
+
+	err = a.reloadAuxiliaryMPQs()
+	if err != nil {
+		return err
+	}
+
 	a.projectExplorer.SetProject(a.project)
 	a.mpqExplorer.SetProject(a.project)
 
@@ -339,6 +278,8 @@ func (a *App) loadProjectFromFile(file string) {
 		// if we don't have a state saved for this project, just open the project explorer
 		a.projectExplorer.Show()
 	}
+
+	return nil
 }
 
 func (a *App) updateWindowTitle() {
@@ -357,28 +298,40 @@ func (a *App) toggleMPQExplorer() {
 func (a *App) onProjectPropertiesChanged(project *hsproject.Project) {
 	a.project = project
 	if err := a.project.Save(); err != nil {
-		log.Fatal(err)
+		logErr("could not save project properties after changing, %s", err)
 	}
 
 	a.mpqExplorer.SetProject(a.project)
 	a.updateWindowTitle()
-	a.reloadAuxiliaryMPQs()
+
+	if err := a.reloadAuxiliaryMPQs(); err != nil {
+		logErr("could not reload aux mpq's after changing project properties, %s", err)
+	}
 }
 
 func (a *App) onPreferencesChanged(config *hsconfig.Config) {
 	a.config = config
 	if err := a.config.Save(); err != nil {
-		log.Fatal(err)
+		logErr("after changing preferences, %s", err)
 	}
 
-	if a.project != nil {
-		a.reloadAuxiliaryMPQs()
+	if a.project == nil {
+		return
+	}
+
+	if err := a.reloadAuxiliaryMPQs(); err != nil {
+		logErr("after changing preferences, %s", err)
 	}
 }
 
-func (a *App) reloadAuxiliaryMPQs() {
-	a.project.ReloadAuxiliaryMPQs(a.config)
+func (a *App) reloadAuxiliaryMPQs() error {
+	if err := a.project.ReloadAuxiliaryMPQs(a.config); err != nil {
+		return fmt.Errorf("could not reload aux mpq's in project, %w", err)
+	}
+
 	a.mpqExplorer.Reset()
+
+	return nil
 }
 
 func (a *App) toggleProjectExplorer() {
@@ -424,7 +377,7 @@ func (a *App) Save() {
 	}
 
 	if err := a.config.Save(); err != nil {
-		log.Print("failed to save config: ", err)
+		logErr("failed to save config: %s", err)
 		return
 	}
 

@@ -421,12 +421,12 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 
 	drawEffectList := make([]string, d2enum.DrawEffectNone+1)
 	for i := d2enum.DrawEffectPctTransparency25; i <= d2enum.DrawEffectNone; i++ {
-		drawEffectList[int(i)] = strconv.Itoa(int(i)) + " (" + i.String() + ")"
+		drawEffectList[i] = strconv.Itoa(int(i)) + " (" + i.String() + ")"
 	}
 
 	weaponClassList := make([]string, d2enum.WeaponClassTwoHandToHand+1)
 	for i := d2enum.WeaponClassNone; i <= d2enum.WeaponClassTwoHandToHand; i++ {
-		weaponClassList[int(i)] = i.String() + " (" + i.Name() + ")"
+		weaponClassList[i] = i.String() + " (" + i.Name() + ")"
 	}
 
 	return giu.Layout{

@@ -1,4 +1,4 @@
-package hswidget
+package selectpalettewidget
 
 import (
 	"log"
@@ -41,6 +41,7 @@ func NewSelectPaletteWidget(
 	closeCB func(),
 ) *SelectPaletteWidget {
 	result := &SelectPaletteWidget{
+		id:      id,
 		saveCB:  saveCB,
 		closeCB: closeCB,
 	}

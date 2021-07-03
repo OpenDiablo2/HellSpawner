@@ -41,7 +41,7 @@ func (e *Editor) State() hsstate.EditorState {
 	result := hsstate.EditorState{
 		WindowState: e.Window.State(),
 		Path:        path,
-		EditorState: e.GetStateData(),
+		Encoded:     e.EncodeState(),
 	}
 
 	return result
@@ -64,29 +64,25 @@ func (e *Editor) Save(editor Saveable) {
 		return
 	}
 
-	if _, isSaveable := editor.(Saveable); isSaveable {
-		saveData := editor.GenerateSaveData()
-		if saveData == nil {
-			return
-		}
+	saveData := editor.GenerateSaveData()
+	if saveData == nil {
+		return
+	}
 
-		existingFileData, err := e.Path.GetFileBytes()
-		if err != nil {
-			fmt.Println("failed to read file before saving: ", err)
-			return
-		}
+	existingFileData, err := e.Path.GetFileBytes()
+	if err != nil {
+		fmt.Println("failed to read file before saving: ", err)
+		return
+	}
 
-		if bytes.Equal(saveData, existingFileData) {
-			// nothing to save
-			return
-		}
+	if bytes.Equal(saveData, existingFileData) {
+		// nothing to save
+		return
+	}
 
-		err = e.Path.WriteFile(saveData)
-		if err != nil {
-			fmt.Println("failed to save file: ", err)
-			return
-		}
-	} else {
+	err = e.Path.WriteFile(saveData)
+	if err != nil {
+		fmt.Println("failed to save file: ", err)
 		return
 	}
 }
@@ -98,13 +94,11 @@ func (e *Editor) HasChanges(editor Saveable) bool {
 		return false
 	}
 
-	if _, isSaveable := editor.(Saveable); isSaveable {
-		newData := editor.GenerateSaveData()
-		if newData != nil {
-			oldData, err := e.Path.GetFileBytes()
-			if err == nil {
-				return !bytes.Equal(oldData, newData)
-			}
+	newData := editor.GenerateSaveData()
+	if newData != nil {
+		oldData, err := e.Path.GetFileBytes()
+		if err == nil {
+			return !bytes.Equal(oldData, newData)
 		}
 	}
 
@@ -121,8 +115,8 @@ func generateWindowTitle(path *hscommon.PathEntry) string {
 	return path.Name + "##" + path.GetUniqueID()
 }
 
-// GetStateData returns widget's state (unique for each editor type) in byte slice format
-func (e *Editor) GetStateData() []byte {
+// EncodeState returns widget's state (unique for each editor type) in byte slice format
+func (e *Editor) EncodeState() []byte {
 	id := fmt.Sprintf("widget_%s", e.Path.GetUniqueID())
 
 	if s := giu.Context.GetState(id); s != nil {
@@ -131,7 +125,7 @@ func (e *Editor) GetStateData() []byte {
 			Encode() []byte
 		})
 		if !ok {
-			log.Fatalf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
+			log.Printf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
 			return nil
 		}
 

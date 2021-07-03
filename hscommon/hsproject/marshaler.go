@@ -13,11 +13,11 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 )
 
-type fileCreator interface {
+type marshaler interface {
 	Marshal() []byte
 }
 
-func getFileManager(fileType hsfiletypes.FileType) fileCreator {
+func getMarshallerByType(fileType hsfiletypes.FileType) marshaler {
 	switch fileType {
 	case hsfiletypes.FileTypeTBLFontTable:
 		return &d2font.Font{}

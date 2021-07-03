@@ -1,4 +1,4 @@
-// Package hsnode contains game nodes
+// Package hsnode contains an implementation of a node graph, as parent and child nodes.
 package hsnode
 
 import "strings"
@@ -8,11 +8,10 @@ const (
 	sep    = "/"
 )
 
-// Name represents node's name
-type Name = string
+type name = string
 
 // Children represents represents subnodes
-type Children map[Name]*Node
+type Children map[name]*Node
 
 // Path represents node path
 type Path = string
@@ -20,14 +19,14 @@ type Path = string
 // Node represents node
 type Node struct {
 	Parent *Node
-	Name
+	name
 	Children
 }
 
 // NewNode creates a new node
 func NewNode(name string) *Node {
 	n := &Node{
-		Name:     name,
+		name:     name,
 		Children: make(Children),
 	}
 
@@ -36,7 +35,7 @@ func NewNode(name string) *Node {
 
 // String represents node's name
 func (n *Node) String() string {
-	return n.Name
+	return n.name
 }
 
 // Insert inserts a new path to node
@@ -58,7 +57,7 @@ func (n *Node) Insert(p Path) *Node {
 
 		child.Insert(remainder).SetParent(n)
 	} else {
-		n.Name = p
+		n.name = p
 	}
 
 	return n

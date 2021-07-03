@@ -12,7 +12,11 @@ func main() {
 	app, err := hsapp.Create()
 	if err != nil {
 		log.Fatal(err)
+	} else if app == nil {
+		return // we've terminated early
 	}
 
-	app.Run()
+	if err := app.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

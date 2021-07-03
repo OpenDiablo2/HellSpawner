@@ -3,6 +3,7 @@
 ![Logo](hsassets/images/d2logo.png)
 
 [Join us on Discord!](https://discord.gg/pRy8tdc)\
+[Join us on IRC!](ircs://irc.libera.chat/#opendiablo2)\
 [Development Live stream](https://www.twitch.tv/essial/)\
 [Support us on Patreon](https://www.patreon.com/bePatron?u=37261055)
 

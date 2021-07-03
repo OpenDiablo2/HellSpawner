@@ -62,6 +62,6 @@ func (a *App) RestoreAppState(state hsstate.AppState) {
 			continue
 		}
 
-		go a.createEditor(&path, editorState.EditorState, editorState.PosX, editorState.PosY, editorState.Width, editorState.Height)
+		go a.createEditor(&path, editorState.Encoded, editorState.PosX, editorState.PosY, editorState.Width, editorState.Height)
 	}
 }

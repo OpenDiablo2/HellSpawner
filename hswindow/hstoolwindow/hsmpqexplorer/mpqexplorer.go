@@ -1,4 +1,5 @@
-// Package hsmpqexplorer contains mpq explorer's data
+// Package hsmpqexplorer contains an implementation of a MPQ archive explorer,
+// which displays the archive contents as a tree.
 package hsmpqexplorer
 
 import (
@@ -18,6 +19,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
@@ -115,13 +117,17 @@ func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 
 	for mpqIndex := range m.project.AuxiliaryMPQs {
 		go func(idx int) {
-			mpq, err := d2mpq.FromFile(filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx]))
+			fullPath := filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx])
+
+			mpq, err := d2mpq.FromFile(fullPath)
 			if err != nil {
-				log.Fatal("failed to load mpq: ", err)
+				log.Printf("failed to load mpq: %s", fullPath)
 			}
 
-			nodes := m.project.GetMPQFileNodes(mpq, m.config)
-			result[idx] = m.renderNodes(nodes)
+			if mpq != nil {
+				nodes := m.project.GetMPQFileNodes(mpq, m.config)
+				result[idx] = m.renderNodes(nodes)
+			}
 
 			wg.Done()
 		}(mpqIndex)
@@ -139,10 +145,8 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 		id := generatePathEntryID(pathEntry)
 
 		return g.Layout{
-			g.Selectable(pathEntry.Name + id).
-				OnClick(func() {
-					go m.fileSelectedCallback(pathEntry)
-				}),
+			g.Selectable(pathEntry.Name + id),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)

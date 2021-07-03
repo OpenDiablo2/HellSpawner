@@ -3,6 +3,7 @@ package hsapp
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
@@ -11,26 +12,74 @@ import (
 // Flags specifies app flags
 type Flags struct {
 	optionalConfigPath *string
-	bgColor            *uint
+	bgColor            *string
 	logFile            *string
 }
 
-func (a *App) parseArgs() {
-	configDescr := fmt.Sprintf("specify a custom config path. Default is: %s", hsconfig.GetConfigPath())
-	a.Flags.optionalConfigPath = flag.String("config", "", configDescr)
-	a.Flags.bgColor = flag.Uint("bgColor", hsconfig.DefaultBGColor, "custom background color")
-	a.Flags.logFile = flag.String("log", "", "path to the output log file")
-	showHelp := flag.Bool("h", false, "Show help")
+// parse all of the command line args
+func (a *App) parseArgs() (shouldTerminate bool) {
+	a.parseConfigArgs()
+	a.parseLogFileArgs()
+	a.parseBackgroundColorArgs()
 
-	flag.Usage = func() {
-		fmt.Printf("usage: %s [<flags>]\n\nFlags:\n", os.Args[0])
-		flag.PrintDefaults()
-	}
+	// help args need to be parsed last, so that all other args
+	// can be parsed before a possible os.Exit() invoked by `-h` or `--help`
+	//
+	// otherwise, other flags will not be printed in usage string!
+	a.parseHelpArgs()
 
 	flag.Parse()
 
-	if *showHelp {
+	if a.showUsage {
 		flag.Usage()
-		os.Exit(0)
+		return true
 	}
+
+	return false
+}
+
+func (a *App) parseHelpArgs() {
+	const (
+		short    = "h"
+		long     = "help"
+		fmtUsage = "usage: %s [<flags>]\n\nFlags:\n"
+	)
+
+	flag.BoolVar(&a.showUsage, long, false, "Show help")
+	flag.BoolVar(&a.showUsage, short, false, "Show help (shorthand)")
+
+	flag.Usage = func() {
+		log.Printf(fmtUsage, os.Args[0])
+		flag.PrintDefaults()
+	}
+}
+
+func (a *App) parseConfigArgs() {
+	const (
+		name         = "config"
+		defaultValue = ""
+		fmtDesc      = "specify a custom config path.\nDefault is:\n\t%s"
+	)
+
+	desc := fmt.Sprintf(fmtDesc, hsconfig.GetConfigPath())
+	a.Flags.optionalConfigPath = flag.String(name, defaultValue, desc)
+}
+
+func (a *App) parseBackgroundColorArgs() {
+	const (
+		name = "bgColor"
+		desc = "custom background color."
+	)
+
+	defaultValue := fmt.Sprintf("0x%x", hsconfig.DefaultBGColor)
+	a.Flags.bgColor = flag.String(name, defaultValue, desc)
+}
+
+func (a *App) parseLogFileArgs() {
+	const (
+		name = "log"
+		desc = "path to the output log file."
+	)
+
+	a.Flags.logFile = flag.String(name, "", desc)
 }
