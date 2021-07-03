@@ -67,7 +67,7 @@ func ExportToGif(images []*image.RGBA, delay int32) error {
 	}
 
 	// save gif image
-	file, err := os.OpenFile(filepath.Clean(filePath), os.O_WRONLY|os.O_CREATE, 0o600)
+	file, err := os.OpenFile(filepath.Clean(filePath), os.O_WRONLY|os.O_CREATE, defaultFilePermissions)
 	if err != nil {
 		return fmt.Errorf("error creating a new file: %w", err)
 	}
