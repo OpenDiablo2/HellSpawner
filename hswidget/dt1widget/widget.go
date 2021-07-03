@@ -593,8 +593,8 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 	)
 
 	return giu.Layout{
-		giu.SliderInt("Subtile Type", &state.Controls.SubtileFlag, 0, maxSubtileIndex),
-		giu.Label(subTileString(state.Controls.SubtileFlag)),
+		giu.SliderInt("Subtile Type", &state.controls.SubtileFlag, 0, maxSubtileIndex),
+		giu.Label(subTileString(state.controls.SubtileFlag)),
 		p.makeSubTilePreview(tile, state),
 		giu.Dummy(gridMaxWidth, gridMaxHeight),
 		giu.Label("Click to Add/Remove flags"),
@@ -642,7 +642,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					subtileIdx := getFlagFromPos(flagOffsetIdx, idx%gridDivisionsXY)
 					flag := tile.SubTileFlags[subtileIdx].Encode()
 
-					hasFlag := (flag & (1 << state.Controls.SubtileFlag)) > 0
+					hasFlag := (flag & (1 << state.controls.SubtileFlag)) > 0
 
 					p.handleSubtileHoverAndClick(subtileIdx, flagPoint, canvas)
 

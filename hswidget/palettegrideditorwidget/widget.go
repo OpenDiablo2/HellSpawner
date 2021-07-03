@@ -78,7 +78,7 @@ func (p *PaletteGridEditorWidget) Build() {
 func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGridWidget) {
 	state := p.getState()
 
-	isOpen := state.mode == widgetModeEdit
+	isOpen := state.Mode == widgetModeEdit
 	onChange := func() {
 		p.changeColor(state)
 		grid.UpdateImage()
