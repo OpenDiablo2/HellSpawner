@@ -257,9 +257,18 @@ func (a *App) onFilePreferencesClicked() {
 
 func (a *App) onCloseProjectClicked() {
 	if save := dialog.Message("Do you want to save current project?").YesNo(); save {
-		a.project.Save()
+		if err := a.project.Save(); err != nil {
+			a.console.BringToFront()
+			a.console.SetVisible(true)
+
+			const errSave = "could not save project"
+			_, _ = a.console.Write([]byte(errSave))
+		}
 	}
+	}
+
 	a.project = nil
+
 	a.projectExplorer.SetProject(nil)
 	a.mpqExplorer.SetProject(nil)
 	a.CloseAllOpenWindows()
