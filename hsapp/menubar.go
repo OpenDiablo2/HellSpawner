@@ -39,7 +39,7 @@ func (a *App) fileMenu() *g.MenuWidget {
 	mSaveProject.OnClick(a.Save)
 
 	mCloseProject := menuItem("MainMenuCloseProject", "Close Project", "")
-	mCloseProject.OnClick(a.onExitProjectClicked).Enabled(a.project != nil)
+	mCloseProject.OnClick(a.onCloseProjectClicked).Enabled(a.project != nil)
 
 	mPreferences := menuItem("MainMenuFilePreferences", "Preferences...", "Alt+P")
 	mPreferences.OnClick(a.onFilePreferencesClicked)
@@ -255,7 +255,10 @@ func (a *App) onFilePreferencesClicked() {
 	a.preferencesDialog.Show(a.config)
 }
 
-func (a *App) onExitProjectClicked() {
+func (a *App) onCloseProjectClicked() {
+	if save := dialog.Message("Do you want to save current project?").YesNo(); save {
+		a.project.Save()
+	}
 	a.project = nil
 	a.projectExplorer.SetProject(nil)
 	a.mpqExplorer.SetProject(nil)
