@@ -114,6 +114,9 @@ func (p *ProjectPropertiesDialog) Build() {
 
 					return false
 				}
+
+				const listItemHeight = 20
+
 				// list of `Selectable widgets`;
 				for i, mpq := range p.auxMPQNames {
 					i := i
@@ -132,7 +135,7 @@ func (p *ProjectPropertiesDialog) Build() {
 						}),
 						g.Selectable(mpq+"##"+"ProjectPropertiesSelectAuxMPQDialogIdx"+strconv.Itoa(i)).
 							Selected(isSelected).
-							Size(mainWindowW, 20).OnClick(func() {
+							Size(mainWindowW, listItemHeight).OnClick(func() {
 							if isSelected {
 								removeMPQ(i)
 							} else {
@@ -234,8 +237,10 @@ func (p *ProjectPropertiesDialog) Build() {
 			),
 			g.Row(
 				g.Custom(func() {
+					const halfOpacity = 0.5
+
 					if !canSave {
-						imgui.PushStyleVarFloat(imgui.StyleVarAlpha, 0.5)
+						imgui.PushStyleVarFloat(imgui.StyleVarAlpha, halfOpacity)
 					}
 				}),
 				g.Button("Save##ProjectPropertiesDialogSave").OnClick(p.onSaveClicked),

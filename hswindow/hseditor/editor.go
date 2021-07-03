@@ -64,29 +64,25 @@ func (e *Editor) Save(editor Saveable) {
 		return
 	}
 
-	if _, isSaveable := editor.(Saveable); isSaveable {
-		saveData := editor.GenerateSaveData()
-		if saveData == nil {
-			return
-		}
+	saveData := editor.GenerateSaveData()
+	if saveData == nil {
+		return
+	}
 
-		existingFileData, err := e.Path.GetFileBytes()
-		if err != nil {
-			fmt.Println("failed to read file before saving: ", err)
-			return
-		}
+	existingFileData, err := e.Path.GetFileBytes()
+	if err != nil {
+		fmt.Println("failed to read file before saving: ", err)
+		return
+	}
 
-		if bytes.Equal(saveData, existingFileData) {
-			// nothing to save
-			return
-		}
+	if bytes.Equal(saveData, existingFileData) {
+		// nothing to save
+		return
+	}
 
-		err = e.Path.WriteFile(saveData)
-		if err != nil {
-			fmt.Println("failed to save file: ", err)
-			return
-		}
-	} else {
+	err = e.Path.WriteFile(saveData)
+	if err != nil {
+		fmt.Println("failed to save file: ", err)
 		return
 	}
 }
@@ -98,13 +94,11 @@ func (e *Editor) HasChanges(editor Saveable) bool {
 		return false
 	}
 
-	if _, isSaveable := editor.(Saveable); isSaveable {
-		newData := editor.GenerateSaveData()
-		if newData != nil {
-			oldData, err := e.Path.GetFileBytes()
-			if err == nil {
-				return !bytes.Equal(oldData, newData)
-			}
+	newData := editor.GenerateSaveData()
+	if newData != nil {
+		oldData, err := e.Path.GetFileBytes()
+		if err == nil {
+			return !bytes.Equal(oldData, newData)
 		}
 	}
 

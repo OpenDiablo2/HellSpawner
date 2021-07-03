@@ -176,11 +176,6 @@ func (p *widget) makeTileTextures() {
 	p.setState(state)
 }
 
-func rangeByte(b byte, min, max float64) byte {
-	// nolint:gomnd // constant
-	return byte((float64(b)/255*(max-min) + min) * 255)
-}
-
 func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 	tw, th := int(tile.Width), int(tile.Height)
 	if th < 0 {
@@ -219,9 +214,9 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 			col := p.palette[floorVal]
 			r, g, b = col.R(), col.G(), col.B()
 		} else {
-			r = rangeByte(floorVal, 128, 256)
-			g = 0
-			b = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+			r = floorVal
+			g = floorVal
+			b = floorVal
 		}
 
 		floorBuf[rPos] = r
@@ -240,9 +235,9 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 			col := p.palette[wallVal]
 			r, g, b = col.R(), col.G(), col.B()
 		} else {
-			r = 0
-			g = rangeByte(wallVal, 64, 196)
-			b = rangeByte(rangeByte(floorVal, 0, 4), 128, 0)
+			r = wallVal
+			g = wallVal
+			b = wallVal
 		}
 
 		wallBuf[rPos] = r
@@ -477,6 +472,12 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 
 	roofHeight := int32(tile.RoofHeight)
 
+	const (
+		vspaceHeight = 4 // px
+	)
+
+	spacer := giu.Dummy(1, vspaceHeight)
+
 	return giu.Layout{
 		giu.Row(
 			giu.InputInt("##"+p.id+"inputWidth", &w).Size(inputIntW).OnChange(func() {
@@ -488,13 +489,13 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 			}),
 			giu.Label("pixels"),
 		),
-		giu.Dummy(1, 4),
+		spacer,
 
 		giu.Row(
 			giu.Label("Direction: "),
 			giu.InputInt("##"+p.id+"tileDirection", &tile.Direction).Size(inputIntW),
 		),
-		giu.Dummy(1, 4),
+		spacer,
 
 		giu.Row(
 			giu.Label("RoofHeight:"),
@@ -502,33 +503,27 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 				tile.RoofHeight = int16(roofHeight)
 			}),
 		),
-		giu.Dummy(1, 4),
+		spacer,
 
 		tileTypeInfo,
-		giu.Dummy(1, 4),
+		spacer,
 
 		giu.Row(
 			giu.Label("Style:"),
 			giu.InputInt("##"+p.id+"style", &tile.Style).Size(inputIntW),
 		),
-		giu.Dummy(1, 4),
+		spacer,
 
 		giu.Row(
 			giu.Label("Sequence:"),
 			giu.InputInt("##"+p.id+"sequence", &tile.Sequence).Size(inputIntW),
 		),
-		giu.Dummy(1, 4),
+		spacer,
 
 		giu.Row(
 			giu.Label("RarityFrameIndex:"),
 			giu.InputInt("##"+p.id+"rarityFrameIndex", &tile.RarityFrameIndex).Size(inputIntW),
 		),
-		// giu.Row(
-		//	giu.Label(fmt.Sprintf("SubTileFlags: %v", tile.SubTileFlags)),
-		// ),
-		// giu.Row(
-		//	giu.Label(fmt.Sprintf("Blocks: %v", tile.Blocks)),
-		// ),
 	}
 }
 
@@ -583,8 +578,13 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 		tile.Height *= -1
 	}
 
+	const (
+		maxSubtileIndex = 7
+		spacerHeight    = 4 // px
+	)
+
 	return giu.Layout{
-		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, 7),
+		giu.SliderInt("Subtile Type", &state.controls.subtileFlag, 0, maxSubtileIndex),
 		giu.Label(subTileString(state.controls.subtileFlag)),
 		giu.Label("Edit:"),
 		giu.Custom(func() {
@@ -601,7 +601,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 				giu.Row(layout...).Build()
 			}
 		}),
-		giu.Dummy(0, 4),
+		giu.Dummy(0, spacerHeight),
 		giu.Label("Preview:"),
 		p.makeSubTilePreview(tile, state),
 
@@ -665,7 +665,9 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
 
 					if hasFlag {
-						canvas.AddCircle(flagPoint, 3, col, 1)
+						const circleRadius = 3 // px
+
+						canvas.AddCircle(flagPoint, circleRadius, col, 1)
 					}
 				}
 

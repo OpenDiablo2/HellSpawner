@@ -2,6 +2,7 @@ package palettegrideditorwidget
 
 import (
 	"log"
+	"math"
 
 	"github.com/ianling/giu"
 
@@ -137,7 +138,7 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 				},
 			),
 		),
-		giu.SliderInt(id+"Slider", &f32, 0, 255).OnChange(func() {
+		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
 			p.changeColor(state)
 			grid.UpdateColorTexture(state.idx)
 			if p.onChange != nil {

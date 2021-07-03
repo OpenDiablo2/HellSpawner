@@ -105,7 +105,9 @@ func (p *widget) Build() {
 				imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dcc.FramesPerDirection-1))
 			}
 
-			imgui.SliderInt("Scale", &viewerState.controls.scale, 1, 8)
+			const minScale, maxScale = 1, 8
+
+			imgui.SliderInt("Scale", &viewerState.controls.scale, minScale, maxScale)
 
 			imgui.EndGroup()
 		}),

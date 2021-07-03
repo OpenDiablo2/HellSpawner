@@ -80,7 +80,8 @@ func Create(textureLoader hscommon.TextureLoader, regularFont, titleFont, fixedF
 	}
 
 	// set string's max length
-	text = strings.Join(hsutil.SplitIntoLinesWithMaxWidth(text, 70), "\n")
+	const maxColumns = 70
+	text = strings.Join(hsutil.SplitIntoLinesWithMaxWidth(text, maxColumns), "\n")
 	result.readme = text
 
 	return result, nil
