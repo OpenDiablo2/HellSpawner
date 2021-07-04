@@ -1,11 +1,17 @@
 # HellSpawner
 
+[![CircleCI](https://img.shields.io/circleci/build/github/OpenDiablo2/OpenDiablo2/master)](https://app.circleci.com/pipelines/github/OpenDiablo2/HellSpawner)
+[![Go Report Card](https://goreportcard.com/badge/github.com/OpenDiablo2/HellSpawner)](https://goreportcard.com/report/github.com/OpenDiablo2/HellSpawner)
+[![GoDoc](https://pkg.go.dev/badge/github.com/OpenDiablo2/HellSpawner?utm_source=godoc)](https://pkg.go.dev/mod/github.com/OpenDiablo2/HellSpawner)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Discord](https://img.shields.io/discord/515518620034662421?label=Discord&style=flat)](https://discord.gg/pRy8tdc)
+[![Twitch Status](https://img.shields.io/twitch/status/essial?style=flat)](https://www.twitch.tv/essial)
+[![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/OpenDiablo2?label=reddit&style=flat)](https://www.reddit.com/r/OpenDiablo2/)
+
 ![Logo](hsassets/images/d2logo.png)
 
-[Join us on Discord!](https://discord.gg/pRy8tdc)\
-[Join us on IRC!](ircs://irc.libera.chat/#opendiablo2)\
-[Development Live stream](https://www.twitch.tv/essial/)\
-[Support us on Patreon](https://www.patreon.com/bePatron?u=37261055)
+Join us on IRC!: ircs://irc.libera.chat/#opendiablo2
+
 
 ## About this project
 
