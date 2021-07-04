@@ -63,7 +63,7 @@ then clicking on `Edit in settings.json`. Just paste that section where appropri
 
 ## Status
 
-For now (start of June 2021) you can use HellSpawner to:
+For now (start of July 2021) you can use HellSpawner to:
 
 *   create projects
 *   browse MPQ archives
@@ -79,7 +79,7 @@ For now (start of June 2021) you can use HellSpawner to:
     *   DAT - palettes
     *   PL2 - palette transforms
     *   DT1 - map tiles
-    *   DS1 - map data
+    *   DS1 - map preset
     *   D2 - animation data
 
 Much work has been made in the background, but a lot of work still has to be done for the project to be complete.
