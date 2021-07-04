@@ -15,8 +15,8 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -74,7 +74,7 @@ func (e *DT1Editor) Build() {
 
 	// create mpq explorer if doesn't exist for now
 	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = hswidget.NewSelectPaletteWidget(
+		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
 			e.Path.GetUniqueID(),
 			e.Project,
 			e.config,

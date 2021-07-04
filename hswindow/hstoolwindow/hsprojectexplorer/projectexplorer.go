@@ -21,6 +21,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
@@ -209,9 +210,10 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 			}),
 		}
 	} else {
-		layout = append(layout, g.Selectable(pathEntry.Name+id).OnClick(func() {
-			m.fileSelectedCallback(pathEntry)
-		}))
+		layout = append(layout,
+			g.Selectable(pathEntry.Name+id),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
+		)
 	}
 
 	layout = append(layout,

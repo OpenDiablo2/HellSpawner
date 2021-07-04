@@ -14,8 +14,8 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dc6widget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -71,7 +71,7 @@ func (e *DC6Editor) Build() {
 	}
 
 	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = hswidget.NewSelectPaletteWidget(
+		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
 			e.Path.GetUniqueID()+"selectPalette",
 			e.Project,
 			e.config,
