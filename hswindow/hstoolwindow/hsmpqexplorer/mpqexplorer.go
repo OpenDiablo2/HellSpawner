@@ -19,6 +19,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
@@ -117,8 +118,8 @@ func (m *MPQExplorer) GetMpqTreeNodes() []g.Widget {
 	for mpqIndex := range m.project.AuxiliaryMPQs {
 		go func(idx int) {
 			fullPath := filepath.Join(m.config.AuxiliaryMpqPath, m.project.AuxiliaryMPQs[idx])
-			mpq, err := d2mpq.FromFile(fullPath)
 
+			mpq, err := d2mpq.FromFile(fullPath)
 			if err != nil {
 				log.Printf("failed to load mpq: %s", fullPath)
 			}
@@ -144,10 +145,8 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 		id := generatePathEntryID(pathEntry)
 
 		return g.Layout{
-			g.Selectable(pathEntry.Name + id).
-				OnClick(func() {
-					go m.fileSelectedCallback(pathEntry)
-				}),
+			g.Selectable(pathEntry.Name + id),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
 			g.ContextMenu("Context" + id).Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
