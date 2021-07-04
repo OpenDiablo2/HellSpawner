@@ -1,4 +1,4 @@
-// Package hsconsole contains project's console
+// Package hsconsole provides a graphical console for logging output while the app is running.
 package hsconsole
 
 import (

@@ -94,9 +94,9 @@ func (f FileType) FileExtension() string {
 
 type fileTypeCheckFn = func(data *[]byte) FileType
 
-// SubtypeCheckFn returns a function to check a file. This is important for
+// subtypeCheckFn returns a function to check a file. This is important for
 // distinguishing between files that share a common file extension.
-func (f FileType) SubtypeCheckFn() fileTypeCheckFn {
+func (f FileType) subtypeCheckFn() fileTypeCheckFn {
 	table := map[FileType]fileTypeCheckFn{
 		FileTypeTBL:            determineSubtypeTBL,
 		FileTypeTBLFontTable:   determineSubtypeTBL,
@@ -114,7 +114,7 @@ func GetFileTypeFromExtension(extension string, data *[]byte) (FileType, error) 
 			continue
 		}
 
-		fnDetermine := fileType.SubtypeCheckFn()
+		fnDetermine := fileType.subtypeCheckFn()
 		if fnDetermine == nil {
 			return fileType, nil
 		}

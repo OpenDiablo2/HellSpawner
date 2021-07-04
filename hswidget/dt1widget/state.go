@@ -91,7 +91,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.showGrid = (showGrid == 1)
+	s.showGrid = showGrid == 1
 
 	showFloor, err := sr.ReadByte()
 	if err != nil {
@@ -100,7 +100,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.showFloor = (showFloor == 1)
+	s.showFloor = showFloor == 1
 
 	showWall, err := sr.ReadByte()
 	if err != nil {
@@ -109,7 +109,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.showWall = (showWall == 1)
+	s.showWall = showWall == 1
 
 	s.subtileFlag, err = sr.ReadInt32()
 	if err != nil {

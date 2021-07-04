@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	comboW           = 280
-	layoutW, layoutH = 475, 300
-	actionButtonW    = layoutW
+	comboW             = 280
+	layoutW, layoutH   = 475, 300
+	actionButtonW      = layoutW
+	numColorsInPalette = 256
 )
 
 type widget struct {
@@ -55,7 +56,7 @@ func (p *widget) buildViewer(state *widgetState) {
 		log.Print(err)
 	}
 
-	baseColors := make([]palettegridwidget.PaletteColor, 256)
+	baseColors := make([]palettegridwidget.PaletteColor, numColorsInPalette)
 
 	for n := range baseColors {
 		baseColors[n] = palettegridwidget.PaletteColor(&p.pl2.BasePalette.Colors[n])

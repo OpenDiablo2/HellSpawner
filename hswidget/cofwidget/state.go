@@ -130,7 +130,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.selectable = (selectable == 1)
+	s.selectable = selectable == 1
 
 	transparent, err := sr.ReadByte()
 	if err != nil {
@@ -139,7 +139,7 @@ func (s *widgetState) Decode(data []byte) {
 		return
 	}
 
-	s.transparent = (transparent == 1)
+	s.transparent = transparent == 1
 
 	s.drawEffect, err = sr.ReadInt32()
 	if err != nil {

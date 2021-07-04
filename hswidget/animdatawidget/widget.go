@@ -73,12 +73,14 @@ func (p *widget) buildAnimationsList() {
 
 	list := make([]giu.Widget, len(keys))
 
+	const imageButtonSize = 13
+
 	for idx, name := range keys {
 		currentIdx := idx
 		list[idx] = giu.Row(
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteEntry"+strconv.Itoa(currentIdx),
-				13, 13,
+				imageButtonSize, imageButtonSize,
 				state.deleteIcon,
 				func() {
 					p.deleteEntry(state.mapKeys[currentIdx])

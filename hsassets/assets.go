@@ -4,7 +4,7 @@ import (
 	_ "embed" // this is standard solution for embed
 )
 
-// these variables are links to existing icones used in project
+// these variables are links to existing icons used in project
 // nolint:gochecknoglobals // go:embed directive works only for globals
 // https://github.com/golangci/golangci-lint/issues/1727
 var (

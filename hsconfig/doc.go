@@ -1,2 +1,2 @@
-// Package hsconfig contains app configs
+// Package hsconfig provides the Hellspawner application config file implementation.
 package hsconfig
