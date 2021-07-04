@@ -40,7 +40,8 @@ func (p *PaletteGridWidget) OnClick(onClick func(idx int)) *PaletteGridWidget {
 	return p
 }
 
-// UpdateImage updates a palette image
+// UpdateImage updates a palette image.
+// should be called when palete colors gets changed
 func (p *PaletteGridWidget) UpdateImage() {
 	p.rebuildImage()
 }

@@ -68,16 +68,17 @@ func (p *PaletteGridEditorWidget) Build() {
 	grid.Build()
 
 	if state.mode == widgetModeEdit {
-		p.buildEditor()
+		p.buildEditor(grid)
 	}
 }
 
-func (p *PaletteGridEditorWidget) buildEditor() {
+func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGridWidget) {
 	state := p.getState()
 
 	isOpen := state.mode == widgetModeEdit
 	onChange := func() {
 		p.changeColor(state)
+		grid.UpdateImage()
 
 		if p.onChange != nil {
 			p.onChange()
