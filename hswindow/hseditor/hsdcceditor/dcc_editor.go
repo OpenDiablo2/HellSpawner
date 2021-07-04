@@ -16,6 +16,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dccwidget"
+	"github.com/OpenDiablo2/HellSpawner/hswidget/selectpalettewidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
 
@@ -64,7 +65,7 @@ func (e *DCCEditor) Build() {
 	id := e.Path.GetUniqueID()
 
 	if e.selectPalette {
-		selectPaletteWidget := hswidget.NewSelectPaletteWidget(
+		selectPaletteWidget := selectpalettewidget.NewSelectPaletteWidget(
 			"##"+id+"SelectPaletteWidget",
 			e.Project,
 			e.config,
