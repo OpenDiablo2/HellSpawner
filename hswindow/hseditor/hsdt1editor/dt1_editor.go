@@ -114,6 +114,7 @@ func (e *DT1Editor) UpdateMainMenuLayout(l *g.Layout) {
 
 // KeyboardShortcuts register a new keyboard shortcut
 func (e *DT1Editor) KeyboardShortcuts() []g.WindowShortcut {
+	// https://github.com/OpenDiablo2/HellSpawner/issues/329
 	return []g.WindowShortcut{
 		/*
 			// right arrow goes to the next tile group
