@@ -1,7 +1,8 @@
-// Package hsprojectexplorer contains project explorer's data
+// Package hsprojectexplorer provides a project explorer, for viewing project directories as trees.
 package hsprojectexplorer
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -20,6 +21,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
 )
 
@@ -208,9 +210,10 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 			}),
 		}
 	} else {
-		layout = append(layout, g.Selectable(pathEntry.Name+id).OnClick(func() {
-			m.fileSelectedCallback(pathEntry)
-		}))
+		layout = append(layout,
+			g.Selectable(pathEntry.Name+id),
+			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
+		)
 	}
 
 	layout = append(layout,
@@ -399,9 +402,15 @@ func (m *ProjectExplorer) onFileRenamed(entry *hscommon.PathEntry) {
 	m.project.InvalidateFileStructure()
 }
 
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
+}
+
 func (m *ProjectExplorer) onNewFolderClicked(pathEntry *hscommon.PathEntry) {
 	if err := m.project.CreateNewFolder(pathEntry); err != nil {
-		log.Print(err)
+		logErr("%s", err)
 	}
 }
 

@@ -2,6 +2,7 @@ package palettegrideditorwidget
 
 import (
 	"log"
+	"math"
 
 	"github.com/ianling/giu"
 
@@ -95,7 +96,7 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 		giu.Row(
 			giu.Label("Hex: "),
 			giu.InputText("##"+p.id+"editHex", &state.hex).OnChange(func() {
-				r, g, b, err := Hex2RGB(state.hex)
+				r, g, b, err := hsutil.Hex2RGB(state.hex)
 				if err != nil {
 					log.Print("error: ", err)
 				}
@@ -133,17 +134,17 @@ func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, g
 					if p.onChange != nil {
 						p.onChange()
 					}
-					state.hex = RGB2Hex(state.r, state.g, state.b)
+					state.hex = hsutil.RGB2Hex(state.r, state.g, state.b)
 				},
 			),
 		),
-		giu.SliderInt(id+"Slider", &f32, 0, 255).OnChange(func() {
+		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
 			p.changeColor(state)
 			grid.UpdateColorTexture(state.idx)
 			if p.onChange != nil {
 				p.onChange()
 			}
-			state.hex = RGB2Hex(state.r, state.g, state.b)
+			state.hex = hsutil.RGB2Hex(state.r, state.g, state.b)
 			hswidget.SetByteToInt(f32, field)
 		}),
 	}

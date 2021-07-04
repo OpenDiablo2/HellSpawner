@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -271,6 +272,12 @@ func getNextUniqueNewPath(fmtPath string, maxAttempt int) (fileName string, err 
 	return fileName, err
 }
 
+func logErr(fmtErr string, args ...interface{}) {
+	msg := fmt.Sprintf(fmtErr, args...)
+	log.Print(msg)
+	dialog.Message(msg).Error()
+}
+
 // CreateNewFolder creates a new directory
 func (p *Project) CreateNewFolder(path *hscommon.PathEntry) (err error) {
 	basePath := path.FullPath
@@ -279,15 +286,11 @@ func (p *Project) CreateNewFolder(path *hscommon.PathEntry) (err error) {
 
 	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
 	if err != nil {
-		dialog.Message(err.Error()).Error()
-
 		return err
 	}
 
 	err = os.Mkdir(fileName, newFileMode)
 	if err != nil {
-		dialog.Message(err.Error()).Error()
-
 		return fmt.Errorf("could not make directory, %w", err)
 	}
 
@@ -307,7 +310,7 @@ func (p *Project) CreateNewFile(fileType hsfiletypes.FileType, path *hscommon.Pa
 	fileName, err := getNextUniqueNewPath(fmtPath, maxNewFileAttempts)
 
 	if err != nil {
-		dialog.Message(err.Error()).Error()
+		logErr("%s", err)
 		return err
 	}
 
