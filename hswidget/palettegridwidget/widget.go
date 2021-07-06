@@ -1,6 +1,8 @@
 package palettegridwidget
 
 import (
+	"image"
+
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -38,46 +40,48 @@ func (p *PaletteGridWidget) OnClick(onClick func(idx int)) *PaletteGridWidget {
 	return p
 }
 
-// GetColorTexture returns selected color texture
-func (p *PaletteGridWidget) GetColorTexture(idx int) *giu.Texture {
-	state := p.getState()
-	return state.texture[idx]
-}
-
-// UpdateColorTexture updates specified texture
-func (p *PaletteGridWidget) UpdateColorTexture(idx int) {
-	p.loadTexture(idx)
+// UpdateImage updates a palette image.
+// should be called when palete colors gets changed
+func (p *PaletteGridWidget) UpdateImage() {
+	p.rebuildImage()
 }
 
 // Build build a new widget
 func (p *PaletteGridWidget) Build() {
 	state := p.getState()
 
+	// cache variable for a base position of image
+	var imgBase image.Point
+
 	giu.Layout{
+		// just save base cursor position
 		giu.Custom(func() {
-			var grid giu.Layout = make([]giu.Widget, 0)
+			imgBase = giu.GetCursorScreenPos()
+		}),
+		giu.Image(state.rgba).
+			Size(gridWidth*cellSize, gridHeight*cellSize),
+		// event detector - detects clicking in a cell
+		giu.Custom(func() {
+			mousePos := giu.GetMousePos()
 
-			for y := 0; y < gridHeight; y++ {
-				line := make([]giu.Widget, 0)
+			// x, y - cursor position on an image
+			x := mousePos.X - imgBase.X
+			y := mousePos.Y - imgBase.Y
 
-				for x := 0; x < gridWidth; x++ {
-					idx := y*gridWidth + x
-					line = append(
-						line,
-						giu.ImageButton(state.texture[idx]).
-							Size(cellSize, cellSize).OnClick(func() {
-							if p.onClick != nil {
-								p.onClick(idx)
-								p.loadTexture(idx)
-							}
-						}),
-					)
-				}
+			// cellX, cellY - cell cords
+			cellX, cellY := x/cellSize, y/cellSize
 
-				grid = append(grid, giu.Row(line...))
+			// check if cell cords are out of bounds
+			if cellX < 0 || cellY < 0 || cellX >= gridWidth || cellY >= gridHeight {
+				return
 			}
 
-			grid.Build()
+			idx := cellY*gridHeight + cellX
+
+			if giu.IsWindowFocused() && giu.IsMouseClicked(giu.MouseButtonLeft) {
+				p.onClick(idx)
+				p.rebuildImage()
+			}
 		}),
 	}.Build()
 }

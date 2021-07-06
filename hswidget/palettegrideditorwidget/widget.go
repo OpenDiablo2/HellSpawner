@@ -1,20 +1,15 @@
 package palettegrideditorwidget
 
 import (
-	"log"
-	"math"
-
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
 const (
 	actionButtonW, actionButtonH = 250, 30
-	inputIntW                    = 30
 )
 
 // PaletteGridEditorWidget represents a palette grid editor
@@ -64,18 +59,15 @@ func (p *PaletteGridEditorWidget) Build() {
 
 	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
 		color := hsutil.Color((*p.colors)[idx].RGBA())
-		state.r = color.R
-		state.g = color.G
-		state.b = color.B
+		state.rgba = color
 		state.idx = idx
 
 		state.mode = widgetModeEdit
 	})
 
-	switch state.mode {
-	case widgetModeGrid:
-		grid.Build()
-	case widgetModeEdit:
+	grid.Build()
+
+	if state.mode == widgetModeEdit {
 		p.buildEditor(grid)
 	}
 }
@@ -83,69 +75,31 @@ func (p *PaletteGridEditorWidget) Build() {
 func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGridWidget) {
 	state := p.getState()
 
+	isOpen := state.mode == widgetModeEdit
+	onChange := func() {
+		p.changeColor(state)
+		grid.UpdateImage()
+
+		if p.onChange != nil {
+			p.onChange()
+		}
+	}
+
 	giu.Layout{
-		giu.Label("Edit Color: "),
-		giu.Image(grid.GetColorTexture(state.idx)),
-		giu.Separator(),
-		p.makeRGBField("##"+p.id+"changeR", "R:", &state.r, grid),
-		giu.Separator(),
-		p.makeRGBField("##"+p.id+"changeG", "G:", &state.g, grid),
-		giu.Separator(),
-		p.makeRGBField("##"+p.id+"changeB", "B:", &state.b, grid),
-		giu.Separator(),
-		giu.Row(
-			giu.Label("Hex: "),
-			giu.InputText("##"+p.id+"editHex", &state.hex).OnChange(func() {
-				r, g, b, err := hsutil.Hex2RGB(state.hex)
-				if err != nil {
-					log.Print("error: ", err)
-				}
-
-				grid.UpdateColorTexture(state.idx)
-
-				state.r, state.g, state.b = r, g, b
+		giu.PopupModal("Edit color").IsOpen(&isOpen).Layout(
+			giu.ColorEdit("##edit color", &state.rgba).Flags(giu.ColorEditFlagsNoAlpha),
+			giu.Separator(),
+			giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
+				onChange()
+				state.mode = widgetModeGrid
 			}),
 		),
-		giu.Separator(),
-		giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
-			if p.onChange != nil {
-				p.onChange()
+		// handle clicking on "X" button of popup
+		giu.Custom(func() {
+			if !isOpen {
+				onChange()
+				state.mode = widgetModeGrid
 			}
-			state.mode = widgetModeGrid
 		}),
 	}.Build()
-}
-
-func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, grid *palettegridwidget.PaletteGridWidget) giu.Layout {
-	state := p.getState()
-
-	f32 := int32(*field)
-
-	return giu.Layout{
-		giu.Row(
-			giu.Label(label),
-			hswidget.MakeInputInt(
-				id,
-				inputIntW,
-				field,
-				func() {
-					p.changeColor(state)
-					grid.UpdateColorTexture(state.idx)
-					if p.onChange != nil {
-						p.onChange()
-					}
-					state.hex = hsutil.RGB2Hex(state.r, state.g, state.b)
-				},
-			),
-		),
-		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
-			p.changeColor(state)
-			grid.UpdateColorTexture(state.idx)
-			if p.onChange != nil {
-				p.onChange()
-			}
-			state.hex = hsutil.RGB2Hex(state.r, state.g, state.b)
-			hswidget.SetByteToInt(f32, field)
-		}),
-	}
 }

@@ -2,6 +2,7 @@ package palettegrideditorwidget
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"github.com/ianling/giu"
@@ -32,11 +33,6 @@ func (ws *widgetState) Encode() []byte {
 
 	sw.PushInt32(int32(ws.mode))
 	sw.PushInt32(int32(ws.idx))
-	sw.PushBytes(ws.r)
-	sw.PushBytes(ws.g)
-	sw.PushBytes(ws.b)
-	sw.PushBytes(byte(len(ws.hex)))
-	sw.PushBytes([]byte(ws.hex)...)
 
 	return sw.GetBytes()
 }
@@ -62,27 +58,6 @@ func (ws *widgetState) Decode(data []byte) {
 
 	ws.idx = int(idx)
 
-	ws.r, err = sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	ws.g, err = sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	ws.b, err = sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
 	l, err := sr.ReadByte()
 	if err != nil {
 		log.Print(err)
@@ -102,21 +77,15 @@ func (ws *widgetState) Decode(data []byte) {
 
 		s[i] = rune(r)
 	}
-
-	ws.hex = string(s)
 }
 
 type editEntryState struct {
-	idx     int
-	r, g, b uint8
-	hex     string // nolint:structcheck // linter's bug
+	idx  int
+	rgba color.RGBA // nolint:structcheck // bug in golangci-lint
 }
 
 func (ees *editEntryState) Dispose() {
 	ees.idx = 0
-	ees.r = 0
-	ees.g = 0
-	ees.b = 0
 }
 
 func (p *PaletteGridEditorWidget) getStateID() string {
