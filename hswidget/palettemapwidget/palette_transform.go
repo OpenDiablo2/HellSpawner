@@ -19,9 +19,9 @@ func (p *widget) makeGrid(key string, colors *[256]palettegridwidget.PaletteColo
 
 	state := p.getState()
 	state.textures[key] = palettegridwidget.Create(p.textureLoader, p.id+key, &c).OnClick(func(idx int) {
-		state.id = key
-		state.idx = idx
-		state.mode = widgetModeEditTransform
+		state.ID = key
+		state.Idx = idx
+		state.Mode = widgetModeEditTransform
 	})
 }
 
@@ -65,19 +65,19 @@ func (p *widget) transformMulti(key string, transforms []d2pl2.PL2PaletteTransfo
 
 	numSelections := int32(len(transforms))
 
-	if state.slider1 >= numSelections {
-		state.slider1 = numSelections - 1
+	if state.Slider1 >= numSelections {
+		state.Slider1 = numSelections - 1
 		p.setState(state)
 	}
 
-	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
+	textureID := fmt.Sprintf("%s_%d", key, state.Slider1)
 
-	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections-1))
+	l = append(l, giu.SliderInt("##"+key+"_slider", &state.Slider1, 0, numSelections-1))
 
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, tex)
 	} else {
-		p.makeGrid(textureID, p.getColors(&transforms[state.slider1].Indices))
+		p.makeGrid(textureID, p.getColors(&transforms[state.Slider1].Indices))
 	}
 
 	return l
@@ -92,33 +92,33 @@ func (p *widget) transformMultiGroup(key string, groups ...[256]d2pl2.PL2Palette
 
 	numGroups := int32(len(groups))
 
-	if state.slider2 >= numGroups {
-		state.slider2 = numGroups - 1
+	if state.Slider2 >= numGroups {
+		state.Slider2 = numGroups - 1
 		p.setState(state)
 	}
 
 	if numGroups > 1 {
 		sliderKey := fmt.Sprintf("##%s_group", key)
-		l = append(l, giu.SliderInt(sliderKey, &state.slider2, 0, numGroups-1))
+		l = append(l, giu.SliderInt(sliderKey, &state.Slider2, 0, numGroups-1))
 	}
 
-	groupIdx := state.slider2
+	groupIdx := state.Slider2
 
 	numSelections := int32(len(groups[groupIdx]) - 1)
 
-	if state.slider1 >= numSelections {
-		state.slider1 = numSelections - 1
+	if state.Slider1 >= numSelections {
+		state.Slider1 = numSelections - 1
 		p.setState(state)
 	}
 
-	textureID := fmt.Sprintf("%s_%d_%d", key, state.slider2, state.slider1)
+	textureID := fmt.Sprintf("%s_%d_%d", key, state.Slider2, state.Slider1)
 
-	l = append(l, giu.SliderInt("##"+key+"_slider", &state.slider1, 0, numSelections))
+	l = append(l, giu.SliderInt("##"+key+"_slider", &state.Slider1, 0, numSelections))
 
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, tex)
 	} else {
-		col := p.getColors(&groups[groupIdx][state.slider1].Indices)
+		col := p.getColors(&groups[groupIdx][state.Slider1].Indices)
 		p.makeGrid(textureID, col)
 	}
 
@@ -132,12 +132,12 @@ func (p *widget) textColors(key string, colors []d2pl2.PL2Color24Bits) giu.Layou
 
 	numSelections := int32(len(colors) - 1)
 
-	if state.slider1 >= numSelections {
-		state.slider1 = numSelections - 1
+	if state.Slider1 >= numSelections {
+		state.Slider1 = numSelections - 1
 		p.setState(state)
 	}
 
-	textureID := fmt.Sprintf("%s_%d", key, state.slider1)
+	textureID := fmt.Sprintf("%s_%d", key, state.Slider1)
 	if tex, found := state.textures[textureID]; found {
 		l = append(l, tex)
 	} else {

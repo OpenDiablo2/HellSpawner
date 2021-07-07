@@ -2,11 +2,9 @@ package cofwidget
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ianling/giu"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
 
@@ -25,7 +23,7 @@ const (
 type widgetState struct {
 	*viewerState
 	*newLayerFields
-	mode
+	Mode mode
 	textures
 }
 
@@ -42,125 +40,11 @@ func (s *widgetState) Dispose() {
 	s.newLayerFields.Dispose()
 }
 
-// Encode encodes state into byte slice to save it
-func (s *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	if s.mode == modeConfirm {
-		s.mode = modeViewer
-	}
-
-	sw.PushInt32(int32(s.mode))
-	sw.PushInt32(s.layerIndex)
-	sw.PushInt32(s.frameIndex)
-	sw.PushInt32(s.directionIndex)
-	sw.PushInt32(s.layerType)
-	sw.PushBytes(s.shadow)
-
-	if s.selectable {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
-
-	if s.transparent {
-		sw.PushBytes(1)
-	} else {
-		sw.PushBytes(0)
-	}
-
-	sw.PushInt32(s.drawEffect)
-	sw.PushInt32(s.weaponClass)
-
-	return sw.GetBytes()
-}
-
-// Decode decodes byt slice into state
-func (s *widgetState) Decode(data []byte) {
-	sr := d2datautils.CreateStreamReader(data)
-
-	m, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.mode = mode(m)
-
-	s.layerIndex, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.frameIndex, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.directionIndex, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.layerType, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.shadow, err = sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	selectable, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.selectable = selectable == 1
-
-	transparent, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.transparent = transparent == 1
-
-	s.drawEffect, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.weaponClass, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-}
-
 // viewerState represents cof viewer's state
 type viewerState struct {
-	layerIndex     int32
-	directionIndex int32
-	frameIndex     int32
+	LayerIndex     int32
+	DirectionIndex int32
+	FrameIndex     int32
 	layer          *d2cof.CofLayer
 	confirmDialog  *hswidget.PopUpConfirmDialog
 }
@@ -171,19 +55,19 @@ func (s *viewerState) Dispose() {
 }
 
 type newLayerFields struct {
-	layerType   int32
-	shadow      byte
-	selectable  bool
-	transparent bool
-	drawEffect  int32
-	weaponClass int32
+	LayerType   int32
+	Shadow      byte
+	Selectable  bool
+	Transparent bool
+	DrawEffect  int32
+	WeaponClass int32
 }
 
 // Dispose disposes editor's state
 func (s *newLayerFields) Dispose() {
-	s.layerType = 0
-	s.drawEffect = 0
-	s.weaponClass = 0
+	s.LayerType = 0
+	s.DrawEffect = 0
+	s.WeaponClass = 0
 }
 
 func (p *widget) getStateID() string {
@@ -198,7 +82,7 @@ func (p *widget) getState() *widgetState {
 	if s != nil {
 		state = s.(*widgetState)
 		if len(p.cof.CofLayers) > 0 {
-			state.viewerState.layer = &p.cof.CofLayers[state.viewerState.layerIndex]
+			state.viewerState.layer = &p.cof.CofLayers[state.viewerState.LayerIndex]
 		}
 	} else {
 		p.initState()
@@ -214,13 +98,13 @@ func (p *widget) setState(s giu.Disposable) {
 
 func (p *widget) initState() {
 	state := &widgetState{
-		mode: modeViewer,
+		Mode: modeViewer,
 		viewerState: &viewerState{
 			confirmDialog: &hswidget.PopUpConfirmDialog{},
 		},
 		newLayerFields: &newLayerFields{
-			selectable: true,
-			drawEffect: int32(d2enum.DrawEffectNone),
+			Selectable: true,
+			DrawEffect: int32(d2enum.DrawEffectNone),
 		},
 	}
 

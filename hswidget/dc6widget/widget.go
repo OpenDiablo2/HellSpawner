@@ -1,6 +1,7 @@
 package dc6widget
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -47,9 +48,14 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
 
-		if s.mode == dc6WidgetTiledView {
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding dc6 widget state: %v", err)
+		}
+
+		s.ticker.Reset(time.Second * time.Duration(s.TickTime) / miliseconds)
+
+		if s.Mode == dc6WidgetTiledView {
 			result.createImage(s)
 		}
 
@@ -63,7 +69,7 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 func (p *widget) Build() {
 	state := p.getState()
 
-	switch state.mode {
+	switch state.Mode {
 	case dc6WidgetViewer:
 		p.makeViewerLayout().Build()
 	case dc6WidgetTiledView:
@@ -74,11 +80,11 @@ func (p *widget) Build() {
 func (p *widget) makeViewerLayout() giu.Layout {
 	viewerState := p.getState()
 
-	imageScale := uint32(viewerState.controls.scale)
-	curFrameIndex := int(viewerState.controls.frame) + (int(viewerState.controls.direction) * int(p.dc6.FramesPerDirection))
-	dirIdx := int(viewerState.controls.direction)
+	imageScale := uint32(viewerState.Controls.Scale)
+	curFrameIndex := int(viewerState.Controls.Frame) + (int(viewerState.Controls.Direction) * int(p.dc6.FramesPerDirection))
+	dirIdx := int(viewerState.Controls.Direction)
 
-	textureIdx := dirIdx*int(p.dc6.FramesPerDirection) + int(viewerState.controls.frame)
+	textureIdx := dirIdx*int(p.dc6.FramesPerDirection) + int(viewerState.Controls.Frame)
 
 	if imageScale < 1 {
 		imageScale = 1
@@ -93,7 +99,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	h := float32(p.dc6.Frames[curFrameIndex].Height * imageScale)
 
 	var widget *giu.ImageWidget
-	if viewerState.textures == nil || len(viewerState.textures) <= int(viewerState.controls.frame) ||
+	if viewerState.textures == nil || len(viewerState.textures) <= int(viewerState.Controls.Frame) ||
 		viewerState.textures[curFrameIndex] == nil {
 		widget = giu.Image(nil).Size(w, h)
 	} else {
@@ -111,16 +117,16 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		giu.Custom(func() {
 			imgui.BeginGroup()
 			if p.dc6.Directions > 1 {
-				imgui.SliderInt("Direction", &viewerState.controls.direction, 0, int32(p.dc6.Directions-1))
+				imgui.SliderInt("Direction", &viewerState.Controls.Direction, 0, int32(p.dc6.Directions-1))
 			}
 
 			if p.dc6.FramesPerDirection > 1 {
-				imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dc6.FramesPerDirection-1))
+				imgui.SliderInt("Frames", &viewerState.Controls.Frame, 0, int32(p.dc6.FramesPerDirection-1))
 			}
 
 			const minScale, maxScale = 1, 8
 
-			imgui.SliderInt("Scale", &viewerState.controls.scale, minScale, maxScale)
+			imgui.SliderInt("Scale", &viewerState.Controls.Scale, minScale, maxScale)
 
 			imgui.EndGroup()
 		}),
@@ -130,7 +136,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 		widget,
 		giu.Separator(),
 		giu.Button("Tiled View##"+p.id+"tiledViewButton").Size(buttonW, buttonH).OnClick(func() {
-			viewerState.mode = dc6WidgetTiledView
+			viewerState.Mode = dc6WidgetTiledView
 			p.createImage(viewerState)
 		}),
 	}
@@ -142,18 +148,18 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 		playModeList = append(playModeList, i.String())
 	}
 
-	pm := int32(state.playMode)
+	pm := int32(state.PlayMode)
 
 	return giu.Layout{
 		giu.Row(
-			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
-			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
-				state.playMode = animationPlayMode(pm)
+			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.Repeat),
+			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.PlayMode], playModeList, &pm).OnChange(func() {
+				state.PlayMode = animationPlayMode(pm)
 			}).Size(comboW),
-			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.tickTime).Size(inputIntW).OnChange(func() {
-				state.ticker.Reset(time.Second * time.Duration(state.tickTime) / miliseconds)
+			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.TickTime).Size(inputIntW).OnChange(func() {
+				state.ticker.Reset(time.Second * time.Duration(state.TickTime) / miliseconds)
 			}),
-			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
+			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.IsPlaying, p.textureLoader).
 				Size(playPauseButtonSize, playPauseButtonSize),
 			giu.Button("Export GIF##"+p.id+"exportGif").OnClick(func() {
 				err := p.exportGif(state)
@@ -169,26 +175,26 @@ func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Row(
 			giu.Label("Tiled view:"),
-			giu.InputInt("Width##"+p.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Width##"+p.id+"tiledWidth", &state.Width).Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewHeight(state)
 			}),
-			giu.InputInt("Height##"+p.id+"tiledHeight", &state.height).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Height##"+p.id+"tiledHeight", &state.Height).Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewWidth(state)
 			}),
 		),
-		giu.Image(state.tiled).Size(float32(state.imgw), float32(state.imgh)),
+		giu.Image(state.tiled).Size(float32(state.Imgw), float32(state.Imgh)),
 		giu.Button("Back##"+p.id+"tiledBack").Size(buttonW, buttonH).OnClick(func() {
-			state.mode = dc6WidgetViewer
+			state.Mode = dc6WidgetViewer
 		}),
 	}
 }
 
 func (p *widget) exportGif(state *widgetState) error {
 	fpd := int32(p.dc6.FramesPerDirection)
-	firstFrame := state.controls.direction * fpd
+	firstFrame := state.Controls.Direction * fpd
 	images := state.rgb[firstFrame : firstFrame+fpd]
 
-	err := hsutil.ExportToGif(images, state.tickTime)
+	err := hsutil.ExportToGif(images, state.TickTime)
 	if err != nil {
 		return fmt.Errorf("error creating gif file: %w", err)
 	}
