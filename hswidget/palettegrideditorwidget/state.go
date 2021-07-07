@@ -27,7 +27,7 @@ func (ws *widgetState) Dispose() {
 
 type editEntryState struct {
 	Idx  int
-	RGBA color.RGBA // nolint:structcheck // bug in golangci-lint
+	RGBA color.RGBA
 }
 
 func (ees *editEntryState) Dispose() {
