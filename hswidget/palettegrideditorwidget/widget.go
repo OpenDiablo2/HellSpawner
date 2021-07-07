@@ -1,6 +1,9 @@
 package palettegrideditorwidget
 
 import (
+	"encoding/json"
+	"log"
+
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -34,7 +37,11 @@ func Create(state []byte,
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error loading palette grid editor state: %v", err)
+		}
+
 		result.setState(s)
 	}
 
@@ -59,15 +66,15 @@ func (p *PaletteGridEditorWidget) Build() {
 
 	grid := palettegridwidget.Create(p.textureLoader, p.id, &colors).OnClick(func(idx int) {
 		color := hsutil.Color((*p.colors)[idx].RGBA())
-		state.rgba = color
-		state.idx = idx
+		state.RGBA = color
+		state.Idx = idx
 
-		state.mode = widgetModeEdit
+		state.Mode = widgetModeEdit
 	})
 
 	grid.Build()
 
-	if state.mode == widgetModeEdit {
+	if state.Mode == widgetModeEdit {
 		p.buildEditor(grid)
 	}
 }
@@ -75,7 +82,7 @@ func (p *PaletteGridEditorWidget) Build() {
 func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGridWidget) {
 	state := p.getState()
 
-	isOpen := state.mode == widgetModeEdit
+	isOpen := state.Mode == widgetModeEdit
 	onChange := func() {
 		p.changeColor(state)
 		grid.UpdateImage()
@@ -87,18 +94,18 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 
 	giu.Layout{
 		giu.PopupModal("Edit color").IsOpen(&isOpen).Layout(
-			giu.ColorEdit("##edit color", &state.rgba).Flags(giu.ColorEditFlagsNoAlpha),
+			giu.ColorEdit("##edit color", &state.RGBA).Flags(giu.ColorEditFlagsNoAlpha),
 			giu.Separator(),
 			giu.Button("OK##"+p.id+"editColorOK").Size(actionButtonW, actionButtonH).OnClick(func() {
 				onChange()
-				state.mode = widgetModeGrid
+				state.Mode = widgetModeGrid
 			}),
 		),
 		// handle clicking on "X" button of popup
 		giu.Custom(func() {
 			if !isOpen {
 				onChange()
-				state.mode = widgetModeGrid
+				state.Mode = widgetModeGrid
 			}
 		}),
 	}.Build()

@@ -23,25 +23,25 @@ func getPaletteTransformString() []string {
 }
 
 // cannot use map or literal, because len of transforms isn't the same, so
-// for example if state.slider1 = 30, state.selection = 0 (LightLevelVariation)
+// for example if state.Slider1 = 30, state.selection = 0 (LightLevelVariation)
 // and len p.pl2.InvColorVariations = 16, than
 // (if we'd use map) we receive "index out of range" panic
 func (p *widget) getPaletteIndices(state *widgetState) (indice *[256]byte) {
-	switch state.selection {
+	switch state.Selection {
 	case transformLightLevelVariations:
-		indice = &p.pl2.LightLevelVariations[state.slider1].Indices
+		indice = &p.pl2.LightLevelVariations[state.Slider1].Indices
 	case transformInvColorVariations:
-		indice = &p.pl2.InvColorVariations[state.slider1].Indices
+		indice = &p.pl2.InvColorVariations[state.Slider1].Indices
 	case transformSelectedUintShift:
 		indice = &p.pl2.SelectedUintShift.Indices
 	case transformAlphaBlend:
-		indice = &p.pl2.AlphaBlend[state.slider2][state.slider1].Indices
+		indice = &p.pl2.AlphaBlend[state.Slider2][state.Slider1].Indices
 	case transformAdditiveBlend:
-		indice = &p.pl2.AdditiveBlend[state.slider1].Indices
+		indice = &p.pl2.AdditiveBlend[state.Slider1].Indices
 	case transformMultiplicativeBlend:
-		indice = &p.pl2.MultiplicativeBlend[state.slider1].Indices
+		indice = &p.pl2.MultiplicativeBlend[state.Slider1].Indices
 	case transformHueVariations:
-		indice = &p.pl2.HueVariations[state.slider1].Indices
+		indice = &p.pl2.HueVariations[state.Slider1].Indices
 	case transformRedTones:
 		indice = &p.pl2.RedTones.Indices
 	case transformGreenTones:
@@ -49,13 +49,13 @@ func (p *widget) getPaletteIndices(state *widgetState) (indice *[256]byte) {
 	case transformBlueTones:
 		indice = &p.pl2.BlueTones.Indices
 	case transformUnknownVariations:
-		indice = &p.pl2.UnknownVariations[state.slider1].Indices
+		indice = &p.pl2.UnknownVariations[state.Slider1].Indices
 	case transformMaxComponentBlend:
-		indice = &p.pl2.MaxComponentBlend[state.slider1].Indices
+		indice = &p.pl2.MaxComponentBlend[state.Slider1].Indices
 	case transformDarkendColorShift:
 		indice = &p.pl2.DarkendColorShift.Indices
 	case transformTextColorShifts:
-		indice = &p.pl2.TextColorShifts[state.slider1].Indices
+		indice = &p.pl2.TextColorShifts[state.Slider1].Indices
 	}
 
 	return indice

@@ -120,16 +120,12 @@ func (e *Editor) EncodeState() []byte {
 	id := fmt.Sprintf("widget_%s", e.Path.GetUniqueID())
 
 	if s := giu.Context.GetState(id); s != nil {
-		state, ok := s.(interface {
-			Dispose()
-			Encode() []byte
-		})
-		if !ok {
-			log.Printf("editor on path %s doesn't support saving state", e.Path.GetUniqueID())
-			return nil
+		data, err := json.Marshal(s)
+		if err != nil {
+			log.Printf("error encoding state of editor at path %v: %v", e.Path, err)
 		}
 
-		return state.Encode()
+		return data
 	}
 
 	return nil
