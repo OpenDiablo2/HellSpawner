@@ -3,13 +3,11 @@ package palettegrideditorwidget
 import (
 	"encoding/json"
 	"log"
-	"math"
 
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/palettegridwidget"
 )
 
@@ -107,42 +105,8 @@ func (p *PaletteGridEditorWidget) buildEditor(grid *palettegridwidget.PaletteGri
 		giu.Custom(func() {
 			if !isOpen {
 				onChange()
-				state.mode = widgetModeGrid
+				state.Mode = widgetModeGrid
 			}
 		}),
 	}.Build()
-}
-
-func (p *PaletteGridEditorWidget) makeRGBField(id, label string, field *uint8, grid *palettegridwidget.PaletteGridWidget) giu.Layout {
-	state := p.getState()
-
-	f32 := int32(*field)
-
-	return giu.Layout{
-		giu.Row(
-			giu.Label(label),
-			hswidget.MakeInputInt(
-				id,
-				inputIntW,
-				field,
-				func() {
-					p.changeColor(state)
-					grid.UpdateColorTexture(state.Idx)
-					if p.onChange != nil {
-						p.onChange()
-					}
-					state.Hex = hsutil.RGB2Hex(state.R, state.G, state.B)
-				},
-			),
-		),
-		giu.SliderInt(id+"Slider", &f32, 0, math.MaxUint8).OnChange(func() {
-			p.changeColor(state)
-			grid.UpdateColorTexture(state.Idx)
-			if p.onChange != nil {
-				p.onChange()
-			}
-			state.Hex = hsutil.RGB2Hex(state.R, state.G, state.B)
-			hswidget.SetByteToInt(f32, field)
-		}),
-	}
 }
