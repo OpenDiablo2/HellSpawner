@@ -1,6 +1,8 @@
 package palettegrideditorwidget
 
 import (
+	"encoding/json"
+	"log"
 	"math"
 
 	"github.com/ianling/giu"
@@ -37,7 +39,11 @@ func Create(state []byte,
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error loading palette grid editor state: %v", err)
+		}
+
 		result.setState(s)
 	}
 
