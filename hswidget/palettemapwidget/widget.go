@@ -1,6 +1,7 @@
 package palettemapwidget
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/ianling/giu"
@@ -28,11 +29,18 @@ type widget struct {
 }
 
 // Create creates a new palette map viewer's widget
-func Create(textureLoader hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu.Widget {
+func Create(textureLoader hscommon.TextureLoader, id string, pl2 *d2pl2.PL2, state []byte) giu.Widget {
 	result := &widget{
 		id:            id,
 		pl2:           pl2,
 		textureLoader: textureLoader,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding palette map widget state: %v", err)
+		}
 	}
 
 	return result
@@ -42,7 +50,7 @@ func Create(textureLoader hscommon.TextureLoader, id string, pl2 *d2pl2.PL2) giu
 func (p *widget) Build() {
 	state := p.getState()
 
-	switch state.mode {
+	switch state.Mode {
 	case widgetModeView:
 		p.buildViewer(state)
 	case widgetModeEditTransform:
@@ -73,8 +81,8 @@ func (p *widget) buildViewer(state *widgetState) {
 	right := giu.Layout{
 		giu.Label("Palette Map"),
 		giu.Layout{
-			giu.Combo("", selections[state.selection], selections, &state.selection).Size(comboW),
-			p.getTransformViewLayout(state.selection),
+			giu.Combo("", selections[state.Selection], selections, &state.Selection).Size(comboW),
+			p.getTransformViewLayout(state.Selection),
 		},
 	}
 
@@ -82,7 +90,7 @@ func (p *widget) buildViewer(state *widgetState) {
 	w2, h2 := float32(layoutW), float32(layoutH)
 
 	// nolint:gomnd // special case for alpha blend
-	if state.selection == 3 {
+	if state.Selection == 3 {
 		h2 += 32
 	}
 
@@ -159,14 +167,14 @@ func (p *widget) buildEditor(state *widgetState) {
 
 	grid = palettegridwidget.Create(p.textureLoader, p.id+"transformEdit", &colors).OnClick(func(idx int) {
 		// this is save, because idx is always less than 256
-		indices[state.idx] = byte(idx)
+		indices[state.Idx] = byte(idx)
 
 		// reset textures list
 		state.textures = make(map[string]giu.Widget)
 
-		state.mode = widgetModeView
+		state.Mode = widgetModeView
 	})
-	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indices[state.idx]].RGBA())
+	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indices[state.Idx]].RGBA())
 	giu.Layout{
 		giu.Style().SetColor(imgui.StyleColorText, labelColor).To(
 			giu.Label("Select color from base palette"),
@@ -175,7 +183,7 @@ func (p *widget) buildEditor(state *widgetState) {
 		giu.Separator(),
 		// if height > 0, then pushItemHeight
 		giu.Button("Cancel##"+p.id+"cancelEditorButton").Size(actionButtonW, 0).OnClick(func() {
-			state.mode = widgetModeView
+			state.Mode = widgetModeView
 		}),
 	}.Build()
 }

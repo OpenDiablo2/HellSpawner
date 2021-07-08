@@ -1,7 +1,9 @@
 package cofwidget
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -42,7 +44,10 @@ func Create(
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding cof widget state: %v", err)
+		}
+
 		result.setState(s)
 	}
 
@@ -54,7 +59,7 @@ func (p *widget) Build() {
 	state := p.getState()
 
 	// builds appropriate menu (depends on state)
-	switch state.mode {
+	switch state.Mode {
 	case modeViewer:
 		p.makeViewerLayout().Build()
 	case modeAddLayer:
@@ -135,8 +140,8 @@ func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 		layerStrings = append(layerStrings, strconv.Itoa(int(p.cof.CofLayers[idx].Type)))
 	}
 
-	currentLayerName := layerStrings[state.viewerState.layerIndex]
-	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.layerIndex)
+	currentLayerName := layerStrings[state.viewerState.LayerIndex]
+	layerList := giu.Combo("##"+p.id+"layer", currentLayerName, layerStrings, &state.LayerIndex)
 	layerList.Size(layerListW).OnChange(p.onUpdate)
 
 	deleteLayerButtonID := fmt.Sprintf("Delete current layer...##%sDeleteLayer", p.id)
@@ -148,18 +153,18 @@ func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 		)
 
 		fnYes := func() {
-			p.deleteCurrentLayer(state.viewerState.layerIndex)
-			state.mode = modeViewer
+			p.deleteCurrentLayer(state.viewerState.LayerIndex)
+			state.Mode = modeViewer
 		}
 
 		fnNo := func() {
-			state.mode = modeViewer
+			state.Mode = modeViewer
 		}
 
 		id := fmt.Sprintf("##%sDeleteLayerConfirm", p.id)
 		state.viewerState.confirmDialog = hswidget.NewPopUpConfirmDialog(id, strPrompt, strMessage, fnYes, fnNo)
 
-		state.mode = modeConfirm
+		state.Mode = modeConfirm
 	})
 
 	layout := giu.Layout{
@@ -177,7 +182,7 @@ func (p *widget) makeLayerTab(state *widgetState) giu.Layout {
 func (p *widget) createNewLayer() {
 	state := p.getState()
 
-	state.mode = modeAddLayer
+	state.Mode = modeAddLayer
 }
 
 func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
@@ -192,17 +197,17 @@ func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
 		directionStrings = append(directionStrings, fmt.Sprintf("%d", idx))
 	}
 
-	directionString := directionStrings[state.viewerState.directionIndex]
-	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.directionIndex)
+	directionString := directionStrings[state.viewerState.DirectionIndex]
+	directionList := giu.Combo("##"+p.id+"dir", directionString, directionStrings, &state.DirectionIndex)
 	directionList.Size(layerListW).OnChange(p.onUpdate)
 
 	frameStrings := make([]string, 0)
-	for idx := range p.cof.Priority[state.viewerState.directionIndex] {
+	for idx := range p.cof.Priority[state.DirectionIndex] {
 		frameStrings = append(frameStrings, fmt.Sprintf("%d", idx))
 	}
 
-	frameString := frameStrings[state.viewerState.frameIndex]
-	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.frameIndex)
+	frameString := frameStrings[state.FrameIndex]
+	frameList := giu.Combo("##"+p.id+"frame", frameString, frameStrings, &state.FrameIndex)
 	frameList.Size(layerListW).OnChange(p.onUpdate)
 
 	const (
@@ -221,17 +226,17 @@ func (p *widget) makePriorityTab(state *widgetState) giu.Layout {
 	deleteButton.OnClick(func() {
 		fnYes := func() {
 			p.deleteCurrentDirection()
-			state.mode = modeViewer
+			state.Mode = modeViewer
 		}
 
 		fnNo := func() {
-			state.mode = modeViewer
+			state.Mode = modeViewer
 		}
 
 		popupID := fmt.Sprintf("%sDeleteLayerConfirm", p.id)
 
 		state.confirmDialog = hswidget.NewPopUpConfirmDialog(popupID, strPrompt, strMessage, fnYes, fnNo)
-		state.mode = modeConfirm
+		state.Mode = modeConfirm
 	})
 
 	return giu.Layout{
@@ -281,7 +286,7 @@ func (p *widget) layoutAnimFrames(state *widgetState) *giu.RowWidget {
 func (p *widget) onUpdate() {
 	state := p.getState()
 
-	clone := p.cof.CofLayers[state.viewerState.layerIndex]
+	clone := p.cof.CofLayers[state.LayerIndex]
 	state.viewerState.layer = &clone
 
 	giu.Context.SetState(p.id, state)
@@ -329,8 +334,8 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 
 	state := p.getState()
 
-	frames := p.cof.Priority[state.directionIndex]
-	layers := frames[int(state.frameIndex)%len(frames)]
+	frames := p.cof.Priority[state.DirectionIndex]
+	layers := frames[int(state.FrameIndex)%len(frames)]
 
 	// increase / decrease callback function providers, based on layer index
 	makeIncPriorityFn := func(idx int) func() {
@@ -339,14 +344,14 @@ func (p *widget) makeDirectionLayout() giu.Layout {
 				return
 			}
 
-			list := &p.cof.Priority[state.directionIndex][state.frameIndex]
+			list := &p.cof.Priority[state.DirectionIndex][state.FrameIndex]
 			(*list)[idx-1], (*list)[idx] = (*list)[idx], (*list)[idx-1]
 		}
 	}
 
 	makeDecPriorityFn := func(idx int) func() {
 		return func() {
-			list := &p.cof.Priority[state.directionIndex][state.frameIndex]
+			list := &p.cof.Priority[state.DirectionIndex][state.FrameIndex]
 
 			if idx >= len(*list)-1 {
 				return
@@ -434,30 +439,30 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 		giu.Separator(),
 		giu.Row(
 			giu.Label("Type: "),
-			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.newLayerFields.layerType],
-				compositeTypeList, &state.newLayerFields.layerType).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerType", compositeTypeList[state.newLayerFields.LayerType],
+				compositeTypeList, &state.newLayerFields.LayerType).Size(bigListW),
 		),
 		giu.Row(
 			giu.Label("Shadow: "),
-			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.shadow),
+			hswidget.MakeCheckboxFromByte("##"+p.id+"AddLayerShadow", &state.newLayerFields.Shadow),
 		),
 		giu.Row(
 			giu.Label("Selectable: "),
-			giu.Checkbox("##"+p.id+"AddLayerSelectable", &state.newLayerFields.selectable),
+			giu.Checkbox("##"+p.id+"AddLayerSelectable", &state.newLayerFields.Selectable),
 		),
 		giu.Row(
 			giu.Label("Transparent: "),
-			giu.Checkbox("##"+p.id+"AddLayerTransparent", &state.newLayerFields.transparent),
+			giu.Checkbox("##"+p.id+"AddLayerTransparent", &state.newLayerFields.Transparent),
 		),
 		giu.Row(
 			giu.Label("Draw effect: "),
-			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.newLayerFields.drawEffect],
-				drawEffectList, &state.newLayerFields.drawEffect).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerDrawEffect", drawEffectList[state.newLayerFields.DrawEffect],
+				drawEffectList, &state.newLayerFields.DrawEffect).Size(bigListW),
 		),
 		giu.Row(
 			giu.Label("Weapon class: "),
-			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.newLayerFields.weaponClass],
-				weaponClassList, &state.newLayerFields.weaponClass).Size(bigListW),
+			giu.Combo("##"+p.id+"AddLayerWeaponClass", weaponClassList[state.newLayerFields.WeaponClass],
+				weaponClassList, &state.newLayerFields.WeaponClass).Size(bigListW),
 		),
 		giu.Separator(),
 		p.makeSaveCancelButtonRow(available, state),
@@ -467,12 +472,12 @@ func (p *widget) makeAddLayerLayout() giu.Layout {
 func (p *widget) makeSaveCancelButtonRow(available []d2enum.CompositeType, state *widgetState) *giu.RowWidget {
 	fnSave := func() {
 		newCofLayer := &d2cof.CofLayer{
-			Type:        available[state.newLayerFields.layerType],
-			Shadow:      state.newLayerFields.shadow,
-			Selectable:  state.newLayerFields.selectable,
-			Transparent: state.newLayerFields.transparent,
-			DrawEffect:  d2enum.DrawEffect(state.newLayerFields.drawEffect),
-			WeaponClass: d2enum.WeaponClass(state.newLayerFields.weaponClass),
+			Type:        available[state.newLayerFields.LayerType],
+			Shadow:      state.newLayerFields.Shadow,
+			Selectable:  state.newLayerFields.Selectable,
+			Transparent: state.newLayerFields.Transparent,
+			DrawEffect:  d2enum.DrawEffect(state.newLayerFields.DrawEffect),
+			WeaponClass: d2enum.WeaponClass(state.newLayerFields.WeaponClass),
 		}
 
 		p.cof.CofLayers = append(p.cof.CofLayers, *newCofLayer)
@@ -486,13 +491,13 @@ func (p *widget) makeSaveCancelButtonRow(available []d2enum.CompositeType, state
 		}
 
 		// this sets layer index to just added layer
-		state.viewerState.layerIndex = int32(p.cof.NumberOfLayers - 1)
+		state.viewerState.LayerIndex = int32(p.cof.NumberOfLayers - 1)
 		state.viewerState.layer = newCofLayer
-		state.mode = modeViewer
+		state.Mode = modeViewer
 	}
 
 	fnCancel := func() {
-		state.mode = modeViewer
+		state.Mode = modeViewer
 	}
 
 	buttonSave := giu.Button("Save##AddLayer").Size(saveCancelButtonW, saveCancelButtonH).OnClick(fnSave)
@@ -533,27 +538,27 @@ func (p *widget) deleteCurrentLayer(index int32) {
 
 	state := p.getState()
 
-	if state.viewerState.layerIndex != 0 {
-		state.viewerState.layerIndex--
+	if state.viewerState.LayerIndex != 0 {
+		state.viewerState.LayerIndex--
 	}
 }
 
 func (p *widget) duplicateDirection() {
 	state := p.getState()
 
-	idx := state.viewerState.directionIndex
+	idx := state.viewerState.DirectionIndex
 
 	p.cof.NumberOfDirections++
 
 	p.cof.Priority = append(p.cof.Priority, p.cof.Priority[idx])
 
-	state.directionIndex = int32(len(p.cof.Priority) - 1)
+	state.DirectionIndex = int32(len(p.cof.Priority) - 1)
 }
 
 func (p *widget) deleteCurrentDirection() {
 	state := p.getState()
 
-	index := state.viewerState.directionIndex
+	index := state.viewerState.DirectionIndex
 
 	p.cof.NumberOfDirections--
 

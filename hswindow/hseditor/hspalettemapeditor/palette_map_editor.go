@@ -26,13 +26,14 @@ type PaletteMapEditor struct {
 	*hseditor.Editor
 	pl2           *d2pl2.PL2
 	textureLoader hscommon.TextureLoader
+	state         []byte
 }
 
 // Create creates a new palette map editor
 func Create(_ *hsconfig.Config,
 	textureLoader hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
-	_ []byte,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	pl2, err := d2pl2.Load(*data)
 	if err != nil {
@@ -43,6 +44,7 @@ func Create(_ *hsconfig.Config,
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		pl2:           pl2,
 		textureLoader: textureLoader,
+		state:         state,
 	}
 
 	result.Path = pathEntry
@@ -55,7 +57,7 @@ func (e *PaletteMapEditor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			palettemapwidget.Create(e.textureLoader, e.Path.GetUniqueID(), e.pl2),
+			palettemapwidget.Create(e.textureLoader, e.Path.GetUniqueID(), e.pl2, e.state),
 		})
 }
 

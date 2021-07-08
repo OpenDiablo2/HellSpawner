@@ -2,11 +2,8 @@ package fonttablewidget
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ianling/giu"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 )
@@ -20,102 +17,39 @@ const (
 )
 
 type widgetState struct {
-	mode                widgetMode
-	editRuneState       editRuneState
-	addItemState        addItemState
+	Mode                widgetMode
+	EditRuneState       editRuneState
+	AddItemState        addItemState
 	deleteButtonTexture *giu.Texture
 }
 
 // Dispose cleans state
 func (s *widgetState) Dispose() {
-	s.editRuneState.Dispose()
-	s.addItemState.Dispose()
-}
-
-func (s *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	sw.PushInt32(int32(s.mode))
-	sw.PushInt32(s.editRuneState.editedRune)
-	sw.PushInt16(int16(s.editRuneState.runeBefore))
-	sw.PushInt32(s.addItemState.newRune)
-	sw.PushInt32(s.addItemState.width)
-	sw.PushInt32(s.addItemState.height)
-
-	return sw.GetBytes()
-}
-
-func (s *widgetState) Decode(data []byte) {
-	sr := d2datautils.CreateStreamReader(data)
-
-	mode, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.mode = widgetMode(mode)
-
-	s.editRuneState.editedRune, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	runeBefore, err := sr.ReadInt16()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.editRuneState.runeBefore = rune(runeBefore)
-
-	s.addItemState.newRune, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.addItemState.width, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	s.addItemState.height, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
+	s.EditRuneState.Dispose()
+	s.AddItemState.Dispose()
 }
 
 type editRuneState struct {
-	editedRune int32
-	runeBefore rune
+	EditedRune int32
+	RuneBefore rune
 }
 
 // Dispose disposes a rune state
 func (e *editRuneState) Dispose() {
-	e.editedRune = rune(0)
-	e.runeBefore = rune(0)
+	e.EditedRune = rune(0)
+	e.RuneBefore = rune(0)
 }
 
 type addItemState struct {
-	newRune,
-	width,
-	height int32
+	NewRune,
+	Width,
+	Height int32
 }
 
 func (s *addItemState) Dispose() {
-	s.newRune = rune(0)
-	s.height = 0
-	s.width = 0
+	s.NewRune = rune(0)
+	s.Height = 0
+	s.Width = 0
 }
 
 func (p *widget) getStateID() string {
@@ -139,7 +73,7 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{
-		mode: modeViewer,
+		Mode: modeViewer,
 	}
 
 	p.textureLoader.CreateTextureFromFile(hsassets.DeleteIcon, func(texture *giu.Texture) {
