@@ -1,6 +1,7 @@
 package dt1widget
 
 import (
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -64,7 +65,9 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding dt1 editor state: %v", err)
+		}
 	}
 
 	return result
@@ -78,9 +81,9 @@ func (p *widget) registerKeyboardShortcuts() {
 func (p *widget) Build() {
 	state := p.getState()
 
-	if state.lastTileGroup != state.controls.tileGroup {
-		state.lastTileGroup = state.controls.tileGroup
-		state.controls.tileVariant = 0
+	if state.LastTileGroup != state.controls.TileGroup {
+		state.LastTileGroup = state.controls.TileGroup
+		state.controls.TileVariant = 0
 	}
 
 	if len(state.tileGroups) == 0 {
@@ -91,8 +94,8 @@ func (p *widget) Build() {
 		return
 	}
 
-	tiles := state.tileGroups[int(state.controls.tileGroup)]
-	tile := tiles[int(state.controls.tileVariant)]
+	tiles := state.tileGroups[int(state.controls.TileGroup)]
+	tile := tiles[int(state.controls.TileVariant)]
 
 	giu.Layout{
 		p.makeTileSelector(),
@@ -270,21 +273,21 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 func (p *widget) makeTileSelector() giu.Layout {
 	state := p.getState()
 
-	if state.lastTileGroup != state.controls.tileGroup {
-		state.lastTileGroup = state.controls.tileGroup
-		state.controls.tileVariant = 0
+	if state.LastTileGroup != state.controls.TileGroup {
+		state.LastTileGroup = state.controls.TileGroup
+		state.controls.TileVariant = 0
 	}
 
 	numGroups := len(state.tileGroups) - 1
-	numVariants := len(state.tileGroups[state.controls.tileGroup]) - 1
+	numVariants := len(state.tileGroups[state.controls.TileGroup]) - 1
 
 	// actual layout
 	layout := giu.Layout{
-		giu.SliderInt("Tile Group", &state.controls.tileGroup, 0, int32(numGroups)),
+		giu.SliderInt("Tile Group", &state.controls.TileGroup, 0, int32(numGroups)),
 	}
 
 	if numVariants > 1 {
-		layout = append(layout, giu.SliderInt("Tile Variant", &state.controls.tileVariant, 0, int32(numVariants)))
+		layout = append(layout, giu.SliderInt("Tile Variant", &state.controls.TileVariant, 0, int32(numVariants)))
 	}
 
 	p.setState(state)
@@ -299,8 +302,8 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 	// nolint:gocritic // could be useful
 	// curFrameIndex := int(state.controls.frame) + (int(state.controls.direction) * int(p.dt1.FramesPerDirection))
 
-	if uint32(state.controls.scale) < 1 {
-		state.controls.scale = 1
+	if uint32(state.controls.Scale) < 1 {
+		state.controls.Scale = 1
 	}
 
 	err := giu.Context.GetRenderer().SetTextureMagFilter(giu.TextureFilterNearest)
@@ -313,7 +316,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 		h *= -1
 	}
 
-	curGroup, curVariant := int(state.controls.tileGroup), int(state.controls.tileVariant)
+	curGroup, curVariant := int(state.controls.TileGroup), int(state.controls.TileVariant)
 
 	var floorTexture, wallTexture *giu.Texture
 
@@ -330,9 +333,9 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 	}
 
 	imageControls := giu.Row(
-		giu.Checkbox("Show Grid", &state.controls.showGrid),
-		giu.Checkbox("Show Floor", &state.controls.showFloor),
-		giu.Checkbox("Show Wall", &state.controls.showWall),
+		giu.Checkbox("Show Grid", &state.controls.ShowGrid),
+		giu.Checkbox("Show Floor", &state.controls.ShowFloor),
+		giu.Checkbox("Show Wall", &state.controls.ShowWall),
 	)
 
 	layout = append(layout, giu.Custom(func() {
@@ -345,7 +348,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 			gridOffsetY -= subtileHeight
 		}
 
-		if state.controls.showGrid && (state.controls.showFloor || state.controls.showWall) {
+		if state.controls.ShowGrid && (state.controls.ShowFloor || state.controls.ShowWall) {
 			left := image.Point{X: 0 + pos.X, Y: pos.Y + gridOffsetY}
 
 			halfTileW, halfTileH := subtileWidth>>1, subtileHeight>>1
@@ -393,7 +396,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 			}
 		}
 
-		if state.controls.showFloor && floorTexture != nil {
+		if state.controls.ShowFloor && floorTexture != nil {
 			floorTL := image.Point{
 				X: pos.X,
 				Y: pos.Y,
@@ -407,7 +410,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 			canvas.AddImage(floorTexture, floorTL, floorBR)
 		}
 
-		if state.controls.showWall && wallTexture != nil {
+		if state.controls.ShowWall && wallTexture != nil {
 			wallTL := image.Point{
 				X: pos.X,
 				Y: pos.Y,
@@ -422,7 +425,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 		}
 	}))
 
-	if state.controls.showFloor || state.controls.showWall {
+	if state.controls.ShowFloor || state.controls.ShowWall {
 		layout = append(layout, giu.Dummy(w, h))
 	}
 
@@ -565,7 +568,7 @@ func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 // TileGroup returns current tile group
 func (p *widget) TileGroup() int32 {
 	state := p.getState()
-	return state.tileGroup
+	return state.TileGroup
 }
 
 // SetTileGroup sets current tile group
@@ -577,7 +580,7 @@ func (p *widget) SetTileGroup(tileGroup int32) {
 		tileGroup = 0
 	}
 
-	state.tileGroup = tileGroup
+	state.TileGroup = tileGroup
 }
 
 func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
@@ -593,8 +596,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 	}
 
 	const (
-		maxSubtileIndex = 7
-		spacerHeight    = 4 // px
+		spacerHeight = 4 // px
 	)
 
 	return giu.Layout{
@@ -614,7 +616,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 				giu.Row(layout...).Build()
 			}
 		}),
-		giu.Dummy(0, 4),
+		giu.Dummy(0, spacerHeight),
 		giu.Label("Preview:"),
 		p.makeSubTilePreview(tile, state),
 		giu.Dummy(gridMaxWidth, gridMaxHeight),
@@ -663,7 +665,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					subtileIdx := getFlagFromPos(flagOffsetIdx, idx%gridDivisionsXY)
 					flag := tile.SubTileFlags[subtileIdx].Encode()
 
-					hasFlag := (flag & (1 << state.controls.subtileFlag)) > 0
+					hasFlag := (flag & (1 << state.controls.SubtileFlag)) > 0
 
 					p.handleSubtileHoverAndClick(subtileIdx, flagPoint, canvas)
 

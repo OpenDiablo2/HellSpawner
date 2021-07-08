@@ -10,8 +10,6 @@ import (
 	"github.com/ianling/giu"
 	gim "github.com/ozankasikci/go-image-merge"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
-
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )
 
@@ -54,137 +52,32 @@ const (
 type widgetState struct {
 	viewerState
 	tiledState
-	mode widgetMode
+	Mode widgetMode
 
-	isPlaying bool
-	repeat    bool
-	tickTime  int32
-	playMode  animationPlayMode
+	IsPlaying bool
+	Repeat    bool
+	TickTime  int32
+	PlayMode  animationPlayMode
 
 	// cache - will not be saved
 	rgb      []*image.RGBA
 	textures []*giu.Texture
 
-	isForward bool
+	IsForward bool
 	ticker    *time.Ticker
 }
 
 func (w *widgetState) Dispose() {
 	w.viewerState.Dispose()
-	w.mode = dc6WidgetViewer
+	w.Mode = dc6WidgetViewer
 	w.textures = nil
 }
 
-func (w *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	sw.PushInt32(int32(w.mode))
-	sw.PushInt32(w.controls.direction)
-	sw.PushInt32(w.controls.frame)
-	sw.PushInt32(w.controls.scale)
-
-	sw.PushBytes(byte(hsutil.BoolToInt(w.isPlaying)))
-	sw.PushBytes(byte(hsutil.BoolToInt(w.repeat)))
-	sw.PushInt32(w.tickTime)
-	sw.PushBytes(byte(w.playMode))
-
-	sw.PushInt32(w.width)
-	sw.PushInt32(w.height)
-
-	return sw.GetBytes()
-}
-
-func (w *widgetState) Decode(data []byte) {
-	sr := d2datautils.CreateStreamReader(data)
-
-	mode, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.mode = widgetMode(mode)
-
-	w.controls.direction, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.controls.frame, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.controls.scale, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	isPlaying, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.isPlaying = isPlaying == 1
-
-	repeat, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.repeat = repeat == 1
-
-	w.tickTime, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	playMode, err := sr.ReadByte()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.playMode = animationPlayMode(playMode)
-
-	w.width, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	w.height, err = sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	// update ticker
-	w.ticker.Reset(time.Second * time.Duration(w.tickTime) / miliseconds)
-}
-
-// nolint:structcheck // :-/ linter bug?! thes values are deffinitly used
 type viewerState struct {
-	controls struct {
-		direction int32
-		frame     int32
-		scale     int32
+	Controls struct {
+		Direction int32
+		Frame     int32
+		Scale     int32
 	}
 
 	lastFrame          int32
@@ -198,15 +91,15 @@ func (s *viewerState) Dispose() {
 }
 
 type tiledState struct {
-	width,
-	height int32
+	Width,
+	Height int32
 	tiled *giu.Texture
-	imgw, // nolint:structcheck // linter's bug - it is used
-	imgh int
+	Imgw,
+	Imgh int
 }
 
 func (s *tiledState) Dispose() {
-	s.width, s.height = 0, 0
+	s.Width, s.Height = 0, 0
 	s.tiled = nil
 }
 
@@ -232,24 +125,24 @@ func (p *widget) getState() *widgetState {
 func (p *widget) initState() {
 	// Prevent multiple invocation to LoadImage.
 	newState := &widgetState{
-		mode: dc6WidgetViewer,
+		Mode: dc6WidgetViewer,
 		viewerState: viewerState{
 			lastFrame:          -1,
 			lastDirection:      -1,
 			framesPerDirection: p.dc6.FramesPerDirection,
 		},
 		tiledState: tiledState{
-			width:  int32(p.dc6.FramesPerDirection),
-			height: 1,
+			Width:  int32(p.dc6.FramesPerDirection),
+			Height: 1,
 		},
 
-		isPlaying: false,
-		repeat:    false,
-		tickTime:  defaultTickTime,
-		playMode:  playModeForward,
+		IsPlaying: false,
+		Repeat:    false,
+		TickTime:  defaultTickTime,
+		PlayMode:  playModeForward,
 	}
 
-	newState.ticker = time.NewTicker(time.Second * time.Duration(newState.tickTime) / miliseconds)
+	newState.ticker = time.NewTicker(time.Second * time.Duration(newState.TickTime) / miliseconds)
 
 	go p.runPlayer(newState)
 
@@ -317,65 +210,65 @@ func (p *widget) setState(s giu.Disposable) {
 
 func (p *widget) runPlayer(state *widgetState) {
 	for range state.ticker.C {
-		if !state.isPlaying {
+		if !state.IsPlaying {
 			continue
 		}
 
 		numFrames := int32(p.dc6.FramesPerDirection - 1)
-		isLastFrame := state.controls.frame == numFrames
+		isLastFrame := state.Controls.Frame == numFrames
 
 		// update play direction
-		switch state.playMode {
+		switch state.PlayMode {
 		case playModeForward:
-			state.isForward = true
+			state.IsForward = true
 		case playModeBackword:
-			state.isForward = false
+			state.IsForward = false
 		case playModePingPong:
-			if isLastFrame || state.controls.frame == 0 {
-				state.isForward = !state.isForward
+			if isLastFrame || state.Controls.Frame == 0 {
+				state.IsForward = !state.IsForward
 			}
 		}
 
 		// now update the frame number
-		if state.isForward {
-			state.controls.frame++
+		if state.IsForward {
+			state.Controls.Frame++
 		} else {
-			state.controls.frame--
+			state.Controls.Frame--
 		}
 
-		state.controls.frame = int32(hsutil.Wrap(int(state.controls.frame), int(p.dc6.FramesPerDirection)))
+		state.Controls.Frame = int32(hsutil.Wrap(int(state.Controls.Frame), int(p.dc6.FramesPerDirection)))
 
 		// next, check for stopping/repeat
-		isStoppingFrame := (state.controls.frame == 0) || (state.controls.frame == numFrames)
+		isStoppingFrame := (state.Controls.Frame == 0) || (state.Controls.Frame == numFrames)
 
-		if isStoppingFrame && !state.repeat {
-			state.isPlaying = false
+		if isStoppingFrame && !state.Repeat {
+			state.IsPlaying = false
 		}
 	}
 }
 
 func (p *widget) recalculateTiledViewWidth(state *widgetState) {
 	// the area of our rectangle must be less or equal than FramesPerDirection
-	state.width = int32(p.dc6.FramesPerDirection) / state.height
+	state.Width = int32(p.dc6.FramesPerDirection) / state.Height
 	p.createImage(state)
 }
 
 func (p *widget) recalculateTiledViewHeight(state *widgetState) {
 	// the area of our rectangle must be less or equal than FramesPerDirection
-	state.height = int32(p.dc6.FramesPerDirection) / state.width
+	state.tiledState.Height = int32(p.dc6.FramesPerDirection) / state.Width
 	p.createImage(state)
 }
 
 func (p *widget) createImage(state *widgetState) {
-	firstFrame := state.controls.direction * int32(p.dc6.FramesPerDirection)
+	firstFrame := state.Controls.Direction * int32(p.dc6.FramesPerDirection)
 
 	grids := make([]*gim.Grid, 0)
 
-	for j := int32(0); j < state.height*state.width; j++ {
+	for j := int32(0); j < state.Height*state.Width; j++ {
 		grids = append(grids, &gim.Grid{Image: image.Image(state.rgb[firstFrame+j])})
 	}
 
-	newimg, err := gim.New(grids, int(state.width), int(state.height)).Merge()
+	newimg, err := gim.New(grids, int(state.Width), int(state.Height)).Merge()
 	if err != nil {
 		log.Printf("merging image error: %v", err)
 		return
@@ -385,5 +278,5 @@ func (p *widget) createImage(state *widgetState) {
 		state.tiled = t
 	})
 
-	state.imgw, state.imgh = newimg.Bounds().Dx(), newimg.Bounds().Dy()
+	state.Imgw, state.Imgh = newimg.Bounds().Dx(), newimg.Bounds().Dy()
 }

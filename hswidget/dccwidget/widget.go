@@ -1,6 +1,7 @@
 package dccwidget
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -49,7 +50,12 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding dcc widget state: %v", err)
+		}
+
+		// update ticker
+		s.ticker.Reset(time.Second * time.Duration(s.TickTime) / miliseconds)
 		result.setState(s)
 	}
 
@@ -60,9 +66,9 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 func (p *widget) Build() {
 	viewerState := p.getState()
 
-	imageScale := uint32(viewerState.controls.scale)
-	dirIdx := int(viewerState.controls.direction)
-	frameIdx := viewerState.controls.frame
+	imageScale := uint32(viewerState.Controls.Scale)
+	dirIdx := int(viewerState.Controls.Direction)
+	frameIdx := viewerState.Controls.Frame
 
 	textureIdx := dirIdx*len(p.dcc.Directions[dirIdx].Frames) + int(frameIdx)
 
@@ -98,16 +104,16 @@ func (p *widget) Build() {
 		giu.Custom(func() {
 			imgui.BeginGroup()
 			if p.dcc.NumberOfDirections > 1 {
-				imgui.SliderInt("Direction", &viewerState.controls.direction, 0, int32(p.dcc.NumberOfDirections-1))
+				imgui.SliderInt("Direction", &viewerState.Controls.Direction, 0, int32(p.dcc.NumberOfDirections-1))
 			}
 
 			if p.dcc.FramesPerDirection > 1 {
-				imgui.SliderInt("Frames", &viewerState.controls.frame, 0, int32(p.dcc.FramesPerDirection-1))
+				imgui.SliderInt("Frames", &viewerState.Controls.Frame, 0, int32(p.dcc.FramesPerDirection-1))
 			}
 
 			const minScale, maxScale = 1, 8
 
-			imgui.SliderInt("Scale", &viewerState.controls.scale, minScale, maxScale)
+			imgui.SliderInt("Scale", &viewerState.Controls.Scale, minScale, maxScale)
 
 			imgui.EndGroup()
 		}),
@@ -124,18 +130,18 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 		playModeList = append(playModeList, i.String())
 	}
 
-	pm := int32(state.playMode)
+	pm := int32(state.PlayMode)
 
 	return giu.Layout{
 		giu.Row(
-			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.repeat),
-			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
-				state.playMode = animationPlayMode(pm)
+			giu.Checkbox("Loop##"+p.id+"PlayRepeat", &state.Repeat),
+			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.PlayMode], playModeList, &pm).OnChange(func() {
+				state.PlayMode = animationPlayMode(pm)
 			}).Size(comboW),
-			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.tickTime).Size(inputIntW).OnChange(func() {
-				state.ticker.Reset(time.Second * time.Duration(state.tickTime) / miliseconds)
+			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.TickTime).Size(inputIntW).OnChange(func() {
+				state.ticker.Reset(time.Second * time.Duration(state.TickTime) / miliseconds)
 			}),
-			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.isPlaying, p.textureLoader).
+			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.IsPlaying, p.textureLoader).
 				Size(playPauseButtonSize, playPauseButtonSize),
 			giu.Button("Export GIF##"+p.id+"exportGif").OnClick(func() {
 				err := p.exportGif(state)
@@ -149,10 +155,10 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 
 func (p *widget) exportGif(state *widgetState) error {
 	fpd := int32(p.dcc.FramesPerDirection)
-	firstFrame := state.controls.direction * fpd
+	firstFrame := state.Controls.Direction * fpd
 	images := state.images[firstFrame : firstFrame+fpd]
 
-	err := hsutil.ExportToGif(images, state.tickTime)
+	err := hsutil.ExportToGif(images, state.TickTime)
 	if err != nil {
 		return fmt.Errorf("error creating gif file: %w", err)
 	}
