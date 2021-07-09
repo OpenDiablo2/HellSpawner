@@ -13,11 +13,11 @@ func (p *widget) formatKey(s *string) {
 func (p *widget) updateValueText() {
 	state := p.getState()
 
-	str, found := p.dict[state.key]
+	str, found := p.dict[state.Key]
 	if found {
-		state.value = str
+		state.Value = str
 	} else {
-		state.value = ""
+		state.Value = ""
 	}
 }
 
@@ -53,7 +53,7 @@ func (p *widget) generateTableKeys() (keys []string) {
 	state := p.getState()
 
 	switch {
-	case state.numOnly:
+	case state.NumOnly:
 		for _, key := range state.keys {
 			if key[0] == '#' {
 				keys = append(keys, key)
@@ -62,9 +62,9 @@ func (p *widget) generateTableKeys() (keys []string) {
 				break
 			}
 		}
-	case state.search != "":
+	case state.Search != "":
 		for _, key := range state.keys {
-			s := strings.ToLower(state.search)
+			s := strings.ToLower(state.Search)
 			k := strings.ToLower(key)
 			v := strings.ToLower(p.dict[key])
 

@@ -1,7 +1,9 @@
 package fonttablewidget
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/ianling/giu"
@@ -41,7 +43,9 @@ func Create(
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding font table editor state: %v", err)
+		}
 	}
 
 	return result
@@ -51,7 +55,7 @@ func Create(
 func (p *widget) Build() {
 	state := p.getState()
 
-	switch state.mode {
+	switch state.Mode {
 	case modeViewer:
 		p.makeTableLayout().Build()
 	case modeEditRune:
@@ -97,7 +101,7 @@ func (p *widget) makeTableLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Button("Add new glyph...##"+p.id+"addItem").Size(addW, addH).OnClick(func() {
-			state.mode = modeAddItem
+			state.Mode = modeAddItem
 		}),
 		giu.Separator(),
 		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
@@ -136,9 +140,9 @@ func (p *widget) makeGlyphLayout(r rune) *giu.TableRowWidget {
 		),
 		giu.Row(
 			giu.Button("edit##"+p.id+"editRune"+string(r)).Size(editRuneW, editRuneH).OnClick(func() {
-				state.editRuneState.runeBefore = r
-				state.editRuneState.editedRune = r
-				state.mode = modeEditRune
+				state.EditRuneState.RuneBefore = r
+				state.EditRuneState.EditedRune = r
+				state.Mode = modeEditRune
 			}),
 			giu.Label(string(r)),
 		),
@@ -204,7 +208,7 @@ func (p *widget) itemDown(r rune) {
 func (p *widget) makeEditRuneLayout() giu.Layout {
 	state := p.getState()
 
-	r := string(state.editRuneState.editedRune)
+	r := string(state.EditRuneState.EditedRune)
 
 	return giu.Layout{
 		giu.Label("Edit rune:"),
@@ -212,22 +216,22 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 			giu.Label("Rune: "),
 			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
 				if len(r) > 0 {
-					state.editRuneState.editedRune = int32(r[0])
+					state.EditRuneState.EditedRune = int32(r[0])
 				}
 			}),
 		),
 		giu.Row(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"editRuneInt", &state.editRuneState.editedRune).Size(inputIntW),
+			giu.InputInt("##"+p.id+"editRuneInt", &state.EditRuneState.EditedRune).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
 			p.makeSaveCancelRow(func() {
-				p.fontTable.Glyphs[state.editRuneState.editedRune] = p.fontTable.Glyphs[state.editRuneState.runeBefore]
-				p.deleteRow(state.editRuneState.runeBefore)
+				p.fontTable.Glyphs[state.EditRuneState.EditedRune] = p.fontTable.Glyphs[state.EditRuneState.RuneBefore]
+				p.deleteRow(state.EditRuneState.RuneBefore)
 
-				state.mode = modeViewer
-			}, state.editRuneState.editedRune),
+				state.Mode = modeViewer
+			}, state.EditRuneState.EditedRune),
 		),
 	}
 }
@@ -267,7 +271,7 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		firstFreeIndex = len(usedIndexes)
 	}
 
-	r := string(state.addItemState.newRune)
+	r := string(state.AddItemState.NewRune)
 
 	return giu.Layout{
 		giu.Row(
@@ -279,31 +283,31 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 			// second and further letters will be skipped
 			giu.InputText("##"+p.id+"addItemRune", &r).Size(inputIntW).OnChange(func() {
 				if r == "" {
-					state.addItemState.newRune = 0
+					state.AddItemState.NewRune = 0
 
 					return
 				}
 
-				state.addItemState.newRune = int32(r[0])
+				state.AddItemState.NewRune = int32(r[0])
 			}),
 		),
 		giu.Row(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"addItemRuneInt", &state.addItemState.newRune).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemRuneInt", &state.AddItemState.NewRune).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Width: "),
-			giu.InputInt("##"+p.id+"addItemWidth", &state.addItemState.width).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemWidth", &state.AddItemState.Width).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Height: "),
-			giu.InputInt("##"+p.id+"addItemHeight", &state.addItemState.height).Size(inputIntW),
+			giu.InputInt("##"+p.id+"addItemHeight", &state.AddItemState.Height).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
 			p.makeSaveCancelRow(func() {
 				p.addItem(firstFreeIndex)
-			}, state.addItemState.newRune),
+			}, state.AddItemState.NewRune),
 		),
 	}
 }
@@ -313,12 +317,12 @@ func (p *widget) addItem(idx int) {
 
 	newGlyph := d2fontglyph.Create(
 		idx,
-		int(state.addItemState.width),
-		int(state.addItemState.height),
+		int(state.AddItemState.Width),
+		int(state.AddItemState.Height),
 	)
 
-	p.fontTable.Glyphs[state.addItemState.newRune] = newGlyph
-	state.mode = modeViewer
+	p.fontTable.Glyphs[state.AddItemState.NewRune] = newGlyph
+	state.Mode = modeViewer
 }
 
 // makeSaveCancelRow creates  line of action buttons for an editor
@@ -330,7 +334,7 @@ func (p *widget) makeSaveCancelRow(saveCB func(), r rune) giu.Layout {
 	return giu.Layout{
 		giu.Custom(func() {
 			cancel := giu.Button("Cancel##"+p.id+"addItemCancel").Size(saveCancelW, saveCancelH).OnClick(func() {
-				state.mode = modeViewer
+				state.Mode = modeViewer
 			})
 
 			_, exist := p.fontTable.Glyphs[r]
