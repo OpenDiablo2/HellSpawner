@@ -27,6 +27,7 @@ const (
 )
 
 const (
+	comboW          = 280
 	gridMaxWidth    = 160
 	gridMaxHeight   = 80
 	gridDivisionsXY = 5
@@ -572,18 +573,40 @@ func (p *widget) SetTileGroup(tileGroup int32) {
 }
 
 func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
+	subtileFlagList := make([]string, 0)
+
+	const numberSubtileFlagTypes = 8
+	for i := int32(0); i < numberSubtileFlagTypes; i++ {
+		subtileFlagList = append(subtileFlagList, subTileString(i))
+	}
+
 	if tile.Height < 0 {
 		tile.Height *= -1
 	}
 
 	const (
-		maxSubtileIndex = 7
-		spacerHeight    = 4 // px
+		spacerHeight = 4 // px
 	)
 
 	return giu.Layout{
-		giu.SliderInt("Subtile Type", &state.controls.SubtileFlag, 0, maxSubtileIndex),
-		giu.Label(subTileString(state.controls.SubtileFlag)),
+		giu.Combo("##"+p.id+"SubtileList", subtileFlagList[state.subtileFlag], subtileFlagList, &state.subtileFlag).Size(comboW),
+		giu.Label("Edit:"),
+		giu.Custom(func() {
+			for y := 0; y < gridDivisionsXY; y++ {
+				layout := giu.Layout{}
+				for x := 0; x < gridDivisionsXY; x++ {
+					layout = append(layout,
+						giu.Checkbox("##"+strconv.Itoa(y*gridDivisionsXY+x),
+							p.getSubTileFieldToEdit(y+x*gridDivisionsXY),
+						),
+					)
+				}
+
+				giu.Row(layout...).Build()
+			}
+		}),
+		giu.Dummy(0, spacerHeight),
+		giu.Label("Preview:"),
 		p.makeSubTilePreview(tile, state),
 		giu.Dummy(gridMaxWidth, gridMaxHeight),
 		giu.Label("Click to Add/Remove flags"),
