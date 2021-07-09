@@ -1,7 +1,9 @@
 package ds1widget
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -34,12 +36,21 @@ type widget struct {
 }
 
 // Create creates a new ds1 viewer
-func Create(textureLoader hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt *giu.Texture) giu.Widget {
+func Create(textureLoader hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt *giu.Texture, state []byte) giu.Widget {
 	result := &widget{
 		id:                  id,
 		ds1:                 ds1,
 		deleteButtonTexture: dbt,
 		textureLoader:       textureLoader,
+	}
+
+	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
+		s := result.getState()
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding ds1 widget state: %v", err)
+		}
+
+		result.setState(s)
 	}
 
 	return result
@@ -49,7 +60,7 @@ func Create(textureLoader hscommon.TextureLoader, id string, ds1 *d2ds1.DS1, dbt
 func (p *widget) Build() {
 	state := p.getState()
 
-	switch state.mode {
+	switch state.Mode {
 	case widgetModeViewer:
 		p.makeViewerLayout().Build()
 	case widgetModeAddFile:
@@ -108,13 +119,13 @@ func (p *widget) makeDataLayout() giu.Layout {
 						"Continue?",
 					func() {
 						p.ds1.SetVersion(int(version))
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 					func() {
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 				)
-				state.mode = widgetModeConfirm
+				state.Mode = widgetModeConfirm
 			}),
 		),
 		// giu.Label(fmt.Sprintf("Size: %d x %d tiles", p.ds1.Width, p.ds1.Height)),
@@ -129,13 +140,13 @@ func (p *widget) makeDataLayout() giu.Layout {
 						"Continue?",
 					func() {
 						p.ds1.SetWidth(int(w))
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 					func() {
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 				)
-				state.mode = widgetModeConfirm
+				state.Mode = widgetModeConfirm
 			}),
 		),
 		giu.Row(
@@ -148,13 +159,13 @@ func (p *widget) makeDataLayout() giu.Layout {
 						"Continue?",
 					func() {
 						p.ds1.SetHeight(int(h))
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 					func() {
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					},
 				)
-				state.mode = widgetModeConfirm
+				state.Mode = widgetModeConfirm
 			}),
 		),
 		giu.Label(fmt.Sprintf("Substitution Type: %d", p.ds1.SubstitutionType)),
@@ -200,7 +211,7 @@ func (p *widget) makeFilesLayout() giu.Layout {
 		l,
 		giu.Separator(),
 		giu.Button("Add File##"+p.id+"AddFile").Size(actionButtonW, actionButtonH).OnClick(func() {
-			state.mode = widgetModeAddFile
+			state.Mode = widgetModeAddFile
 		}),
 	}
 }
@@ -210,36 +221,36 @@ func (p *widget) makeAddFileLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Label("File path:"),
-		giu.InputText("##"+p.id+"newFilePath", &state.newFilePath).Size(filePathW),
+		giu.InputText("##"+p.id+"newFilePath", &state.NewFilePath).Size(filePathW),
 		giu.Separator(),
 		giu.Row(
 			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				p.ds1.Files = append(p.ds1.Files, state.newFilePath)
-				state.mode = widgetModeViewer
+				p.ds1.Files = append(p.ds1.Files, state.NewFilePath)
+				state.Mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"addFileCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 		),
 	}
 }
 
-// makeObjectsLayout creates objects info tab
-// used in p.makeViewerLayout (in objects tab)
+// makeObjectsLayout creates Objects info tab
+// used in p.makeViewerLayout (in Objects tab)
 func (p *widget) makeObjectsLayout(state *widgetState) giu.Layout {
 	numObjects := int32(len(p.ds1.Objects))
 
 	l := giu.Layout{}
 
 	if numObjects > 1 {
-		l = append(l, giu.SliderInt("Object Index", &state.object, 0, numObjects-1))
+		l = append(l, giu.SliderInt("Object Index", &state.Object, 0, numObjects-1))
 	}
 
 	if numObjects > 0 {
 		l = append(l, p.makeObjectLayout(state))
 	} else {
 		line := giu.Row(
-			giu.Label("No objects."),
+			giu.Label("No Objects."),
 			giu.ImageWithFile("hsassets/images/shrug.png").Size(imageW, imageH),
 		)
 
@@ -250,18 +261,18 @@ func (p *widget) makeObjectsLayout(state *widgetState) giu.Layout {
 		l,
 		giu.Separator(),
 		giu.Row(
-			giu.Button("Add new object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.mode = widgetModeAddObject
+			giu.Button("Add new Object...##"+p.id+"AddObject").Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.Mode = widgetModeAddObject
 			}),
-			giu.Button("Add path to this object...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.mode = widgetModeAddPath
+			giu.Button("Add path to this Object...##"+p.id+"AddPath").Size(actionButtonW, actionButtonH).OnClick(func() {
+				state.Mode = widgetModeAddPath
 			}),
 			hswidget.MakeImageButton(
 				"##"+p.id+"deleteObject",
 				layerDeleteButtonSize, layerDeleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
-					p.ds1.Objects = append(p.ds1.Objects[:state.object], p.ds1.Objects[state.object+1:]...)
+					p.ds1.Objects = append(p.ds1.Objects[:state.Object], p.ds1.Objects[state.Object+1:]...)
 				},
 			),
 		),
@@ -270,18 +281,18 @@ func (p *widget) makeObjectsLayout(state *widgetState) giu.Layout {
 	return l
 }
 
-// makeObjectLayout creates informations about single object
+// makeObjectLayout creates informations about single Object
 // used in p.makeObjectsLayout
 func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
-	if objIdx := int(state.object); objIdx >= len(p.ds1.Objects) {
-		state.ds1Controls.object = int32(len(p.ds1.Objects) - 1)
+	if objIdx := int(state.Object); objIdx >= len(p.ds1.Objects) {
+		state.ds1Controls.Object = int32(len(p.ds1.Objects) - 1)
 		p.setState(state)
 	} else if objIdx < 0 {
-		state.ds1Controls.object = 0
+		state.ds1Controls.Object = 0
 		p.setState(state)
 	}
 
-	obj := &p.ds1.Objects[int(state.ds1Controls.object)]
+	obj := &p.ds1.Objects[int(state.ds1Controls.Object)]
 
 	l := giu.Layout{
 		giu.Row(
@@ -348,41 +359,41 @@ func (p *widget) makeAddObjectLayout() giu.Layout {
 	return giu.Layout{
 		giu.Row(
 			giu.Label("Type: "),
-			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.objType).Size(inputIntW),
+			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.ObjType).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("ID: "),
-			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.objID).Size(inputIntW),
+			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.ObjID).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("X: "),
-			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.objX).Size(inputIntW),
+			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.ObjX).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Y: "),
-			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.objY).Size(inputIntW),
+			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.ObjY).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Flags: "),
-			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.objFlags).Size(inputIntW),
+			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.ObjFlags).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
 			giu.Button("Save##"+p.id+"AddObjectSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				newObject := d2ds1.Object{
-					Type:  int(state.addObjectState.objType),
-					ID:    int(state.addObjectState.objID),
-					X:     int(state.addObjectState.objX),
-					Y:     int(state.addObjectState.objY),
-					Flags: int(state.addObjectState.objFlags),
+					Type:  int(state.addObjectState.ObjType),
+					ID:    int(state.addObjectState.ObjID),
+					X:     int(state.addObjectState.ObjX),
+					Y:     int(state.addObjectState.ObjY),
+					Flags: int(state.addObjectState.ObjFlags),
 				}
 
 				p.ds1.Objects = append(p.ds1.Objects, newObject)
 
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddObjectCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 		),
 	}
@@ -412,8 +423,8 @@ func (p *widget) makePathLayout(state *widgetState, obj *d2ds1.Object) giu.Layou
 				deleteButtonSize, deleteButtonSize,
 				p.deleteButtonTexture,
 				func() {
-					p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths[:currentIdx],
-						p.ds1.Objects[state.object].Paths[currentIdx+1:]...)
+					p.ds1.Objects[state.Object].Paths = append(p.ds1.Objects[state.Object].Paths[:currentIdx],
+						p.ds1.Objects[state.Object].Paths[currentIdx+1:]...)
 				},
 			),
 		))
@@ -429,15 +440,15 @@ func (p *widget) makePathLayout(state *widgetState, obj *d2ds1.Object) giu.Layou
 func (p *widget) makeTilesTabLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
-	tx, ty := int(state.tileX), int(state.tileY)
+	tx, ty := int(state.TileX), int(state.TileY)
 
 	if ty < 0 {
-		state.ds1Controls.tileY = 0
+		state.ds1Controls.TileY = 0
 		p.setState(state)
 	}
 
 	if tx < 0 {
-		state.ds1Controls.tileX = 0
+		state.ds1Controls.TileX = 0
 		p.setState(state)
 	}
 
@@ -447,21 +458,21 @@ func (p *widget) makeTilesTabLayout(state *widgetState) giu.Layout {
 	}
 
 	if ty >= numRows {
-		state.ds1Controls.tileY = int32(numRows - 1)
+		state.ds1Controls.TileY = int32(numRows - 1)
 		p.setState(state)
 	}
 
 	if numCols := p.ds1.Width(); tx >= numCols {
-		state.ds1Controls.tileX = int32(numCols - 1)
+		state.ds1Controls.TileX = int32(numCols - 1)
 		p.setState(state)
 	}
 
-	tx, ty = int(state.tileX), int(state.tileY)
+	tx, ty = int(state.TileX), int(state.TileY)
 
 	l = append(
 		l,
-		giu.SliderInt("Tile X", &state.ds1Controls.tileX, 0, int32(p.ds1.Width()-1)),
-		giu.SliderInt("Tile Y", &state.ds1Controls.tileY, 0, int32(p.ds1.Height()-1)),
+		giu.SliderInt("Tile X", &state.ds1Controls.TileX, 0, int32(p.ds1.Width()-1)),
+		giu.SliderInt("Tile Y", &state.ds1Controls.TileY, 0, int32(p.ds1.Height()-1)),
 		giu.TabBar("##TabBar_ds1_tiles"+p.id).Layout(giu.Layout{
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.FloorLayerGroup),
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.WallLayerGroup),
@@ -490,17 +501,17 @@ func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.Laye
 	// sets "everything" ;-)
 	switch t {
 	case d2ds1.FloorLayerGroup:
-		recordIdx = &state.tile.floor
+		recordIdx = &state.Tile.Floor
 		addCb = p.addFloor
 		deleteCb = p.deleteFloor
 	case d2ds1.WallLayerGroup:
-		recordIdx = &state.tile.wall
+		recordIdx = &state.Tile.Wall
 		addCb = p.addWall
 		deleteCb = p.deleteWall
 	case d2ds1.ShadowLayerGroup:
-		recordIdx = &state.tile.shadow
+		recordIdx = &state.Tile.Shadow
 	case d2ds1.SubstitutionLayerGroup:
-		recordIdx = &state.tile.sub
+		recordIdx = &state.Tile.Sub
 	}
 
 	var addBtn *giu.ButtonWidget
@@ -662,7 +673,7 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 	l := giu.Layout{}
 
-	recordIdx := int(state.subgroup)
+	recordIdx := int(state.Subgroup)
 	numRecords := len(p.ds1.SubstitutionGroups)
 
 	if p.ds1.SubstitutionGroups == nil || numRecords == 0 {
@@ -671,16 +682,16 @@ func (p *widget) makeSubstitutionsLayout(state *widgetState) giu.Layout {
 
 	if recordIdx >= numRecords {
 		recordIdx = numRecords - 1
-		state.subgroup = int32(recordIdx)
+		state.Subgroup = int32(recordIdx)
 		p.setState(state)
 	} else if recordIdx < 0 {
 		recordIdx = 0
-		state.subgroup = int32(recordIdx)
+		state.Subgroup = int32(recordIdx)
 		p.setState(state)
 	}
 
 	if numRecords > 1 {
-		l = append(l, giu.SliderInt("Substitution", &state.subgroup, 0, int32(numRecords-1)))
+		l = append(l, giu.SliderInt("Substitution", &state.Subgroup, 0, int32(numRecords-1)))
 	}
 
 	l = append(l, p.makeSubstitutionLayout(&p.ds1.SubstitutionGroups[recordIdx]))
@@ -711,27 +722,27 @@ func (p *widget) makeAddPathLayout() giu.Layout {
 		giu.Row(
 			giu.Label("Action: "),
 			giu.Combo("##"+p.id+"newPathAction",
-				actionsList[state.addPathState.pathAction],
-				actionsList, &state.addPathState.pathAction,
+				actionsList[state.addPathState.PathAction],
+				actionsList, &state.addPathState.PathAction,
 			).Size(bigListW),
 		),
 		giu.Label("Vector:"),
 		giu.Row(
 			giu.Label("\tX: "),
-			giu.InputInt("##"+p.id+"newPathX", &state.addPathState.pathX).Size(inputIntW),
+			giu.InputInt("##"+p.id+"newPathX", &state.addPathState.PathX).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("\tY: "),
-			giu.InputInt("##"+p.id+"newPathY", &state.addPathState.pathY).Size(inputIntW),
+			giu.InputInt("##"+p.id+"newPathY", &state.addPathState.PathY).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
 			giu.Button("Save##"+p.id+"AddPathSave").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
 				p.addPath()
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 			giu.Button("Cancel##"+p.id+"AddPathCancel").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 		),
 	}
@@ -742,12 +753,12 @@ func (p *widget) addPath() {
 
 	newPath := d2path.Path{
 		// npc actions starts from 1
-		Action: int(state.addPathState.pathAction) + 1,
+		Action: int(state.addPathState.PathAction) + 1,
 		Position: d2vector.NewPosition(
-			float64(state.addPathState.pathX),
-			float64(state.addPathState.pathY),
+			float64(state.addPathState.PathX),
+			float64(state.addPathState.PathY),
 		),
 	}
 
-	p.ds1.Objects[state.object].Paths = append(p.ds1.Objects[state.object].Paths, newPath)
+	p.ds1.Objects[state.Object].Paths = append(p.ds1.Objects[state.Object].Paths, newPath)
 }

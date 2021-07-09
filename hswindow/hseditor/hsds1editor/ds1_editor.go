@@ -27,13 +27,14 @@ type DS1Editor struct {
 	ds1                 *d2ds1.DS1
 	deleteButtonTexture *g.Texture
 	textureLoader       hscommon.TextureLoader
+	state               []byte
 }
 
 // Create creates a new ds1 editor
 func Create(_ *hsconfig.Config,
 	tl hscommon.TextureLoader,
 	pathEntry *hscommon.PathEntry,
-	_ []byte,
+	state []byte,
 	data *[]byte, x, y float32, project *hsproject.Project) (hscommon.EditorWindow, error) {
 	ds1, err := d2ds1.Unmarshal(*data)
 	if err != nil {
@@ -44,6 +45,7 @@ func Create(_ *hsconfig.Config,
 		Editor:        hseditor.New(pathEntry, x, y, project),
 		ds1:           ds1,
 		textureLoader: tl,
+		state:         state,
 	}
 
 	result.Path = pathEntry
@@ -60,7 +62,7 @@ func (e *DS1Editor) Build() {
 	e.IsOpen(&e.Visible).
 		Flags(g.WindowFlagsAlwaysAutoResize).
 		Layout(g.Layout{
-			ds1widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture),
+			ds1widget.Create(e.textureLoader, e.Path.GetUniqueID(), e.ds1, e.deleteButtonTexture, e.state),
 		})
 }
 

@@ -10,9 +10,9 @@ func (p *PaletteGridEditorWidget) changeColor(state *widgetState) {
 	)
 
 	var rgba uint32
-	rgba |= uint32(state.r) << rOffset
-	rgba |= uint32(state.g) << gOffset
-	rgba |= uint32(state.b) << bOffset
+	rgba |= uint32(state.RGBA.R) << rOffset
+	rgba |= uint32(state.RGBA.G) << gOffset
+	rgba |= uint32(state.RGBA.B) << bOffset
 	rgba |= uint32(maxValue) << aOffset
-	(*p.colors)[state.idx].SetRGBA(rgba)
+	(*p.colors)[state.Idx].SetRGBA(rgba)
 }

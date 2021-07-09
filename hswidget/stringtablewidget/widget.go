@@ -1,6 +1,8 @@
 package stringtablewidget
 
 import (
+	"encoding/json"
+	"log"
 	"strconv"
 
 	"github.com/ianling/giu"
@@ -28,7 +30,10 @@ func Create(state []byte, id string, dict d2tbl.TextDictionary) giu.Widget {
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
-		s.Decode(state)
+		if err := json.Unmarshal(state, s); err != nil {
+			log.Printf("error decoding string table editor state: %v", err)
+		}
+
 		result.setState(s)
 	}
 
@@ -38,7 +43,7 @@ func Create(state []byte, id string, dict d2tbl.TextDictionary) giu.Widget {
 func (p *widget) Build() {
 	state := p.getState()
 
-	switch state.mode {
+	switch state.Mode {
 	case widgetModeViewer:
 		p.buildTableLayout()
 	case widgetModeAddEdit:
@@ -70,8 +75,8 @@ func (p *widget) buildTableLayout() {
 	giu.Layout{
 		giu.Button("Add/Edit record##"+p.id+"addEditRecord").
 			Size(addEditW, addEditH).OnClick(func() {
-			state.editable = true
-			state.mode = widgetModeAddEdit
+			state.Editable = true
+			state.Mode = widgetModeAddEdit
 		}),
 		giu.Separator(),
 		p.makeSearchSection(),
@@ -103,10 +108,10 @@ func (p *widget) makeTableRow(key string) *giu.TableRowWidget {
 				p.reloadMapValues()
 			}),
 			giu.Button("edit##"+p.id+"editButton"+key).Size(deleteW, deleteH).OnClick(func() {
-				state.key = key
-				state.editable = false
+				state.Key = key
+				state.Editable = false
 				p.updateValueText()
-				state.mode = widgetModeAddEdit
+				state.Mode = widgetModeAddEdit
 			}),
 		),
 	)
@@ -116,12 +121,12 @@ func (p *widget) makeSearchSection() giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
-		giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.numOnly),
+		giu.Checkbox("only no-named (starting from #) labels##"+p.id+"numOnly", &state.NumOnly),
 		giu.Custom(func() {
-			if !state.numOnly {
+			if !state.NumOnly {
 				giu.Row(
 					giu.Label("Search:"),
-					giu.InputText("##"+p.id+"search", &state.search),
+					giu.InputText("##"+p.id+"search", &state.Search),
 				).Build()
 			}
 		}),
@@ -134,31 +139,31 @@ func (p *widget) buildAddEditLayout() {
 	giu.Layout{
 		giu.Label("Key:"),
 		giu.Custom(func() {
-			checkbox := giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.noName).OnChange(func() {
-				if state.noName {
+			checkbox := giu.Checkbox("no-name##"+p.id+"addEditNoName", &state.NoName).OnChange(func() {
+				if state.NoName {
 					firstFreeNoName := p.calculateFirstFreeNoName()
-					state.key = "#" + strconv.Itoa(firstFreeNoName)
+					state.Key = "#" + strconv.Itoa(firstFreeNoName)
 					p.updateValueText()
 				}
 			})
 
-			if state.editable {
+			if state.Editable {
 				giu.Row(
 					p.makeKeyField("##"+p.id+"addEditKey"),
 					checkbox,
 				).Build()
 			} else {
-				giu.Label(state.key).Build()
+				giu.Label(state.Key).Build()
 			}
 		}),
 		giu.Label("Value:"),
-		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.value),
+		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.Value),
 		giu.Separator(),
 		giu.Row(
 			giu.Custom(func() {
 				var btnStr string
 
-				key := state.key
+				key := state.Key
 				if key == "" {
 					return
 				}
@@ -173,15 +178,15 @@ func (p *widget) buildAddEditLayout() {
 				giu.Button(btnStr+"##"+p.id+"addEditAcceptButton").
 					Size(actionButtonW, actionButtonH).
 					OnClick(func() {
-						p.dict[key] = state.value
+						p.dict[key] = state.Value
 						p.reloadMapValues()
-						state.mode = widgetModeViewer
+						state.Mode = widgetModeViewer
 					}).
 					Build()
 			}),
 			giu.Button("cancel##"+p.id+"addEditCancel").
 				Size(actionButtonW, actionButtonH).OnClick(func() {
-				state.mode = widgetModeViewer
+				state.Mode = widgetModeViewer
 			}),
 		),
 		giu.Separator(),
@@ -193,8 +198,8 @@ func (p *widget) buildAddEditLayout() {
 func (p *widget) makeKeyField(id string) giu.Widget {
 	state := p.getState()
 
-	return giu.InputText(id, &state.key).OnChange(func() {
-		p.formatKey(&state.key)
+	return giu.InputText(id, &state.Key).OnChange(func() {
+		p.formatKey(&state.Key)
 		p.updateValueText()
 	})
 }

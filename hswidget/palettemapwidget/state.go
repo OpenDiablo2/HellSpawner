@@ -14,10 +14,10 @@ const (
 )
 
 type widgetState struct {
-	mode      widgetMode
-	selection int32
-	slider1   int32
-	slider2   int32
+	Mode      widgetMode
+	Selection int32
+	Slider1   int32
+	Slider2   int32
 	textures  map[string]giu.Widget
 	editTransformState
 }
@@ -29,17 +29,16 @@ func (p *widgetState) Dispose() {
 }
 
 type editTransformState struct {
-	id string
-	// nolint:structcheck // linter's bug: this value is used
-	idx int
+	ID  string
+	Idx int
 }
 
 func (p *editTransformState) Dispose() {
-	p.id = ""
+	p.ID = ""
 }
 
 func (p *widget) getStateID() string {
-	return fmt.Sprintf("PaletteMapWidget_%s", p.id)
+	return fmt.Sprintf("widget_%s", p.id)
 }
 
 func (p *widget) getState() *widgetState {
@@ -59,7 +58,7 @@ func (p *widget) getState() *widgetState {
 
 func (p *widget) initState() {
 	state := &widgetState{
-		mode:     widgetModeView,
+		Mode:     widgetModeView,
 		textures: make(map[string]giu.Widget),
 	}
 

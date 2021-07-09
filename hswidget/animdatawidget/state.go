@@ -2,12 +2,9 @@ package animdatawidget
 
 import (
 	"fmt"
-	"log"
 	"sort"
 
 	"github.com/ianling/giu"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 )
@@ -20,71 +17,30 @@ const (
 )
 
 type widgetState struct {
-	mode       widgetMode
+	Mode       widgetMode
 	mapKeys    []string
-	mapIndex   int32
-	recordIdx  int32
+	MapIndex   int32
+	RecordIdx  int32
 	deleteIcon *giu.Texture
 	addEntryState
 }
 
 // Dispose clears widget's state
-func (ws *widgetState) Dispose() {
-	ws.mode = widgetModeList
-	ws.mapKeys = make([]string, 0)
-	ws.mapIndex = 0
-	ws.recordIdx = 0
-	ws.addEntryState.Dispose()
-	ws.deleteIcon = nil
+func (s *widgetState) Dispose() {
+	s.Mode = widgetModeList
+	s.mapKeys = make([]string, 0)
+	s.MapIndex = 0
+	s.RecordIdx = 0
+	s.addEntryState.Dispose()
+	s.deleteIcon = nil
 }
 
 type addEntryState struct {
-	name string
+	Name string
 }
 
-func (aes *addEntryState) Dispose() {
-	aes.name = ""
-}
-
-// Encode encodes state into byte slice to save it
-func (ws *widgetState) Encode() []byte {
-	sw := d2datautils.CreateStreamWriter()
-
-	sw.PushInt32(int32(ws.mode))
-	sw.PushInt32(ws.mapIndex)
-	sw.PushInt32(ws.recordIdx)
-
-	return sw.GetBytes()
-}
-
-// Decode decodes byte slice into widget state
-func (ws *widgetState) Decode(data []byte) {
-	sr := d2datautils.CreateStreamReader(data)
-
-	mode, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	mapIndex, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	recordIdx, err := sr.ReadInt32()
-	if err != nil {
-		log.Print(err)
-
-		return
-	}
-
-	ws.mode = widgetMode(mode)
-	ws.mapIndex = mapIndex
-	ws.recordIdx = recordIdx
+func (s *addEntryState) Dispose() {
+	s.Name = ""
 }
 
 func (p *widget) getStateID() string {
