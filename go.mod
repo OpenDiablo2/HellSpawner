@@ -12,7 +12,7 @@ require (
 	github.com/go-resty/resty/v2 v2.6.0 // indirect
 	github.com/gravestench/osinfo v0.0.0-20210525170338-34eb1ac010f7
 	github.com/hajimehoshi/oto v0.7.1 // indirect
-	github.com/ianling/giu v0.5.1-0.20210524205023-4d3114338b69
+	github.com/ianling/giu v0.5.1-0.20210619154109-b35b66c84649
 	github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
@@ -25,6 +25,6 @@ require (
 	golang.org/x/exp v0.0.0-20210526181343-b47a03e3048a // indirect
 	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e // indirect
 	golang.org/x/mobile v0.0.0-20210527171505-7e972142eb43 // indirect
-	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sys v0.0.0-20210601080250-7ecdf8ef093b // indirect
 )

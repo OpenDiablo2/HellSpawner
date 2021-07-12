@@ -4,7 +4,6 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 )
 
 // Window represents project's window
@@ -49,9 +48,14 @@ func (t *Window) Build() {
 	// noop
 }
 
-// RegisterKeyboardShortcuts registers a keyboard shortcut
-func (t *Window) RegisterKeyboardShortcuts(_ *hsinput.InputManager) {
-	// noop
+// RegisterKeyboardShortcuts sets a local shortcuts list
+func (t *Window) RegisterKeyboardShortcuts(s ...giu.WindowShortcut) {
+	t.WindowWidget.RegisterKeyboardShortcuts(s...)
+}
+
+// KeyboardShortcuts returns a list of local keyboard shortcuts
+func (t *Window) KeyboardShortcuts() []giu.WindowShortcut {
+	return []giu.WindowShortcut{}
 }
 
 // IsVisible returns true if window is visible

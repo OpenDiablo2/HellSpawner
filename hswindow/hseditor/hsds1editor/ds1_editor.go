@@ -14,7 +14,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswidget/ds1widget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 )
@@ -84,14 +83,6 @@ func (e *DS1Editor) UpdateMainMenuLayout(l *g.Layout) {
 	})
 
 	*l = append(*l, m)
-}
-
-// RegisterKeyboardShortcuts adds a local shortcuts for this editor
-func (e *DS1Editor) RegisterKeyboardShortcuts(inputManager *hsinput.InputManager) {
-	// Ctrl+Shift+S saves file
-	inputManager.RegisterShortcut(func() {
-		e.Save()
-	}, g.KeyS, g.ModShift+g.ModControl, false)
 }
 
 // GenerateSaveData generates data to be saved

@@ -152,9 +152,9 @@ func (a *App) setupMainMpqExplorer() error {
 
 func (a *App) setupProjectExplorer() error {
 	x, y := float32(projectExplorerDefaultX), float32(projectExplorerDefaultY)
+
 	window, err := hsprojectexplorer.Create(a.TextureLoader,
 		a.openEditor, x, y)
-
 	if err != nil {
 		return fmt.Errorf("error creating a project explorer: %w", err)
 	}
@@ -248,17 +248,19 @@ func (a *App) setupFonts() {
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {
-	a.InputManager.RegisterShortcut(a.onNewProjectClicked, g.KeyN, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.onOpenProjectClicked, g.KeyO, g.ModControl, true)
-	a.InputManager.RegisterShortcut(a.Save, g.KeyS, g.ModControl, true)
-	a.InputManager.RegisterShortcut(a.onFilePreferencesClicked, g.KeyP, g.ModAlt, true)
-	a.InputManager.RegisterShortcut(a.Quit, g.KeyQ, g.ModAlt, true)
-	a.InputManager.RegisterShortcut(a.onHelpAboutClicked, g.KeyF1, g.ModNone, true)
+	a.masterWindow.RegisterKeyboardShortcuts(
+		g.WindowShortcut{Key: g.KeyN, Modifier: g.ModControl + g.ModShift, Callback: a.onNewProjectClicked},
+		g.WindowShortcut{Key: g.KeyO, Modifier: g.ModControl, Callback: a.onOpenProjectClicked},
+		g.WindowShortcut{Key: g.KeyS, Modifier: g.ModControl, Callback: a.Save},
+		g.WindowShortcut{Key: g.KeyP, Modifier: g.ModAlt, Callback: a.onFilePreferencesClicked},
+		g.WindowShortcut{Key: g.KeyQ, Modifier: g.ModAlt, Callback: a.Quit},
+		g.WindowShortcut{Key: g.KeyF1, Modifier: g.ModNone, Callback: a.onHelpAboutClicked},
 
-	a.InputManager.RegisterShortcut(a.closeActiveEditor, g.KeyW, g.ModControl, true)
-	a.InputManager.RegisterShortcut(func() { a.closePopups(); a.closeActiveEditor() }, g.KeyEscape, g.ModNone, true)
+		g.WindowShortcut{Key: g.KeyW, Modifier: g.ModControl, Callback: a.closeActiveEditor},
+		g.WindowShortcut{Key: g.KeyEscape, Modifier: g.ModNone, Callback: func() { a.closePopups(); a.closeActiveEditor() }},
 
-	a.InputManager.RegisterShortcut(a.toggleMPQExplorer, g.KeyM, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.toggleProjectExplorer, g.KeyP, g.ModControl+g.ModShift, true)
-	a.InputManager.RegisterShortcut(a.toggleConsole, g.KeyC, g.ModControl+g.ModShift, true)
+		g.WindowShortcut{Key: g.KeyM, Modifier: g.ModControl + g.ModShift, Callback: a.toggleMPQExplorer},
+		g.WindowShortcut{Key: g.KeyP, Modifier: g.ModControl + g.ModShift, Callback: a.toggleProjectExplorer},
+		g.WindowShortcut{Key: g.KeyC, Modifier: g.ModControl + g.ModShift, Callback: a.toggleConsole},
+	)
 }

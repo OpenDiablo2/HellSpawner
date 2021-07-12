@@ -19,7 +19,6 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsfiletypes"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
-	"github.com/OpenDiablo2/HellSpawner/hsinput"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsaboutdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hspreferencesdialog"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hsdialog/hsprojectpropertiesdialog"
@@ -95,7 +94,6 @@ type App struct {
 	diabloBoldFont    imgui.Font
 	diabloRegularFont imgui.Font
 
-	InputManager  *hsinput.InputManager
 	TextureLoader hscommon.TextureLoader
 
 	showUsage bool
@@ -108,7 +106,6 @@ func Create() (*App, error) {
 		editors:            make([]hscommon.EditorWindow, 0),
 		editorConstructors: make(map[hsfiletypes.FileType]editorConstructor),
 		TextureLoader:      hscommon.NewTextureLoader(),
-		InputManager:       hsinput.NewInputManager(),
 		abyssWrapper:       abysswrapper.Create(),
 	}
 
@@ -128,7 +125,7 @@ func (a *App) Run() (err error) {
 	// setting up the logging here, as opposed to inside of app.setup(),
 	// because of the deferred call to logfile.Close()
 	if a.config.LoggingToFile || *a.Flags.logFile != "" {
-		var path = a.config.LogFilePath
+		path := a.config.LogFilePath
 		if *a.Flags.logFile != "" {
 			path = *a.Flags.logFile
 		}
@@ -157,7 +154,6 @@ func (a *App) Run() (err error) {
 		}
 	}
 
-	a.masterWindow.SetInputCallback(a.InputManager.HandleInput)
 	a.masterWindow.Run(a.render)
 
 	return nil
