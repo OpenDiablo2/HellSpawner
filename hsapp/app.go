@@ -215,9 +215,7 @@ func (a *App) createEditor(path *hscommon.PathEntry, state []byte, x, y, w, h fl
 
 	editor.Size(w, h)
 
-	a.editorManagerMutex.Lock()
 	a.editors = append(a.editors, editor)
-	a.editorManagerMutex.Unlock()
 	editor.Show()
 	editor.BringToFront()
 }
@@ -240,7 +238,9 @@ func (a *App) openEditor(path *hscommon.PathEntry) {
 	// w, h = 0, because we're creating a new editor,
 	// width and height aren't saved, so we give 0 and
 	// editors without AutoResize flag sets w, h to default
+	a.editorManagerMutex.Lock()
 	a.createEditor(path, nil, editorWindowDefaultX, editorWindowDefaultY, 0, 0)
+	a.editorManagerMutex.Unlock()
 }
 
 func (a *App) loadProjectFromFile(file string) error {
