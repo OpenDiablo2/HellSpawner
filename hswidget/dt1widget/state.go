@@ -6,6 +6,7 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 type controls struct {
@@ -26,11 +27,13 @@ type widgetState struct {
 
 	tileGroups [][]*d2dt1.Tile
 	textures   [][]map[string]*giu.Texture
+	palette    *[256]d2interface.Color
 }
 
 // Dispose clears viewers state
 func (s *widgetState) Dispose() {
 	s.textures = nil
+	s.palette = nil
 }
 
 func (p *widget) getStateID() string {

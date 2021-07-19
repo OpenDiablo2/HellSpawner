@@ -47,7 +47,6 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 type widget struct {
 	id            string
 	dt1           *d2dt1.DT1
-	palette       *[256]d2interface.Color
 	textureLoader hscommon.TextureLoader
 }
 
@@ -57,7 +56,6 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		id:            id,
 		dt1:           dt1,
 		textureLoader: textureLoader,
-		palette:       palette,
 	}
 
 	result.registerKeyboardShortcuts()
@@ -67,6 +65,11 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		if err := json.Unmarshal(state, s); err != nil {
 			log.Printf("error decoding dt1 editor state: %v", err)
 		}
+	}
+
+	if s := result.getState(); s.palette != palette {
+		s.palette = palette
+		result.makeTileTextures()
 	}
 
 	return result
@@ -145,7 +148,7 @@ func (p *widget) makeTileTextures() {
 			variantIdx := variantIdx
 			tile := state.tileGroups[groupIdx][variantIdx]
 
-			floorPix, wallPix := p.makePixelBuffer(tile)
+			floorPix, wallPix := p.makePixelBuffer(tile, state.palette)
 			if len(floorPix) == 0 || len(wallPix) == 0 {
 				continue
 			}
@@ -184,7 +187,7 @@ func (p *widget) makeTileTextures() {
 	p.setState(state)
 }
 
-func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
+func (p *widget) makePixelBuffer(tile *d2dt1.Tile, palette *[256]d2interface.Color) (floorBuf, wallBuf []byte) {
 	const (
 		rOff = iota // rg,b offsets
 		gOff
@@ -223,8 +226,8 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 		rPos, gPos, bPos, aPos := idx*bpp+rOff, idx*bpp+gOff, idx*bpp+bOff, idx*bpp+aOff
 
 		// the faux rgb color data here is just to make it look more interesting
-		if p.palette != nil {
-			col := p.palette[floorVal]
+		if palette != nil {
+			col := palette[floorVal]
 			r, g, b = col.R(), col.G(), col.B()
 		} else {
 			r = floorVal
@@ -244,8 +247,8 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile) (floorBuf, wallBuf []byte) {
 
 		floorBuf[aPos] = alpha
 
-		if p.palette != nil {
-			col := p.palette[wallVal]
+		if palette != nil {
+			col := palette[wallVal]
 			r, g, b = col.R(), col.G(), col.B()
 		} else {
 			r = wallVal

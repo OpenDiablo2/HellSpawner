@@ -34,7 +34,6 @@ type widget struct {
 	id            string
 	dc6           *d2dc6.DC6
 	textureLoader hscommon.TextureLoader
-	palette       *[256]d2interface.Color
 }
 
 // Create creates new widget
@@ -43,7 +42,6 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		id:            id,
 		dc6:           dc6,
 		textureLoader: textureLoader,
-		palette:       palette,
 	}
 
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
@@ -60,6 +58,12 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		}
 
 		result.setState(s)
+	}
+
+	if s := result.getState(); s.palette != palette {
+		s.palette = palette
+		fmt.Println("updating palette")
+		result.buildImages(s)
 	}
 
 	return result
