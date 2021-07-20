@@ -35,7 +35,6 @@ const (
 type widget struct {
 	id            string
 	dcc           *d2dcc.DCC
-	palette       *[256]d2interface.Color
 	textureLoader hscommon.TextureLoader
 }
 
@@ -44,7 +43,6 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 	result := &widget{
 		id:            id,
 		dcc:           dcc,
-		palette:       palette,
 		textureLoader: tl,
 	}
 
@@ -57,6 +55,11 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 		// update ticker
 		s.ticker.Reset(time.Second * time.Duration(s.TickTime) / miliseconds)
 		result.setState(s)
+	}
+
+	if s := result.getState(); s.palette != palette {
+		s.palette = palette
+		result.buildImages(s)
 	}
 
 	return result

@@ -9,6 +9,7 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 const miliseconds = 1000
@@ -56,6 +57,7 @@ type widgetState struct {
 
 	isForward bool // determines a direction of animation
 	ticker    *time.Ticker
+	palette   *[256]d2interface.Color
 }
 
 // Dispose cleans viewers state
@@ -97,6 +99,10 @@ func (p *widget) initState() {
 
 	go p.runPlayer(state)
 
+	p.buildImages(state)
+}
+
+func (p *widget) buildImages(state *widgetState) {
 	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
 	state.images = make([]*image.RGBA, totalFrames)
 
@@ -121,7 +127,7 @@ func (p *widget) initState() {
 
 					val := pixels[idx]
 
-					RGBAColor := p.makeImagePixel(val)
+					RGBAColor := p.makeImagePixel(val, state.palette)
 					state.images[absoluteFrameIdx].Set(x, y, RGBAColor)
 				}
 			}
@@ -148,7 +154,7 @@ func (p *widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *widget) makeImagePixel(val byte) color.RGBA {
+func (p *widget) makeImagePixel(val byte, palette *[256]d2interface.Color) color.RGBA {
 	alpha := maxAlpha
 
 	if val == 0 {
@@ -157,8 +163,8 @@ func (p *widget) makeImagePixel(val byte) color.RGBA {
 
 	var r, g, b uint8
 
-	if p.palette != nil {
-		col := p.palette[val]
+	if palette != nil {
+		col := palette[val]
 		r, g, b = col.R(), col.G(), col.B()
 	} else {
 		r, g, b = val, val, val
