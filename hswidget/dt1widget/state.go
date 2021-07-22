@@ -36,11 +36,11 @@ func (s *widgetState) Dispose() {
 	s.palette = nil
 }
 
-func (p *widget) getStateID() string {
-	return fmt.Sprintf("widget_%s", p.id)
+func (p *DT1Widget) getStateID() string {
+	return fmt.Sprintf("DT1Widget_%s", p.id)
 }
 
-func (p *widget) getState() *widgetState {
+func (p *DT1Widget) getState() *widgetState {
 	var state *widgetState
 
 	s := giu.Context.GetState(p.getStateID())
@@ -56,11 +56,11 @@ func (p *widget) getState() *widgetState {
 	return state
 }
 
-func (p *widget) setState(s giu.Disposable) {
+func (p *DT1Widget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *widget) initState() {
+func (p *DT1Widget) initState() {
 	state := &widgetState{
 		controls: &controls{
 			ShowGrid:  true,

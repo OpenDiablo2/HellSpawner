@@ -43,16 +43,16 @@ func (tileIdentity) fromTile(tile *d2dt1.Tile) tileIdentity {
 	return tileIdentity(str)
 }
 
-// widget represents dt1 viewers widget
-type widget struct {
+// DT1Widget represents dt1 viewers DT1Widget
+type DT1Widget struct {
 	id            string
 	dt1           *d2dt1.DT1
 	textureLoader hscommon.TextureLoader
 }
 
-// Create creates a new dt1 viewers widget
-func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) giu.Widget {
-	result := &widget{
+// Create creates a new dt1 viewers DT1Widget
+func Create(state []byte, textureLoader hscommon.TextureLoader, id string, dt1 *d2dt1.DT1) *DT1Widget {
+	result := &DT1Widget{
 		id:            id,
 		dt1:           dt1,
 		textureLoader: textureLoader,
@@ -67,20 +67,25 @@ func Create(state []byte, palette *[256]d2interface.Color, textureLoader hscommo
 		}
 	}
 
-	if s := result.getState(); s.palette != palette {
-		s.palette = palette
-		result.makeTileTextures()
-	}
-
 	return result
 }
 
-func (p *widget) registerKeyboardShortcuts() {
+// Palette sets the palette used to display image (default is white-black pseudo-palette)
+func (p *DT1Widget) Palette(palette *[256]d2interface.Color) *DT1Widget {
+	if s := p.getState(); s.palette != palette {
+		s.palette = palette
+		p.makeTileTextures()
+	}
+
+	return p
+}
+
+func (p *DT1Widget) registerKeyboardShortcuts() {
 	// noop
 }
 
 // Build builds a viewer
-func (p *widget) Build() {
+func (p *DT1Widget) Build() {
 	state := p.getState()
 
 	if state.LastTileGroup != state.controls.TileGroup {
@@ -112,7 +117,7 @@ func (p *widget) Build() {
 	}.Build()
 }
 
-func (p *widget) groupTilesByIdentity() [][]*d2dt1.Tile {
+func (p *DT1Widget) groupTilesByIdentity() [][]*d2dt1.Tile {
 	result := make([][]*d2dt1.Tile, 0)
 
 	var tileID, groupID tileIdentity
@@ -137,7 +142,7 @@ OUTER:
 	return result
 }
 
-func (p *widget) makeTileTextures() {
+func (p *DT1Widget) makeTileTextures() {
 	state := p.getState()
 	textureGroups := make([][]map[string]*giu.Texture, len(state.tileGroups))
 
@@ -187,7 +192,7 @@ func (p *widget) makeTileTextures() {
 	p.setState(state)
 }
 
-func (p *widget) makePixelBuffer(tile *d2dt1.Tile, palette *[256]d2interface.Color) (floorBuf, wallBuf []byte) {
+func (p *DT1Widget) makePixelBuffer(tile *d2dt1.Tile, palette *[256]d2interface.Color) (floorBuf, wallBuf []byte) {
 	const (
 		rOff = iota // rg,b offsets
 		gOff
@@ -272,7 +277,7 @@ func (p *widget) makePixelBuffer(tile *d2dt1.Tile, palette *[256]d2interface.Col
 	return floorBuf, wallBuf
 }
 
-func (p *widget) makeTileSelector() giu.Layout {
+func (p *DT1Widget) makeTileSelector() giu.Layout {
 	state := p.getState()
 
 	if state.LastTileGroup != state.controls.TileGroup {
@@ -298,7 +303,7 @@ func (p *widget) makeTileSelector() giu.Layout {
 }
 
 // nolint:funlen,gocognit,gocyclo // no need to change
-func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layout {
+func (p *DT1Widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layout {
 	layout := giu.Layout{}
 
 	// nolint:gocritic // could be useful
@@ -436,7 +441,7 @@ func (p *widget) makeTileDisplay(state *widgetState, tile *d2dt1.Tile) *giu.Layo
 	return &layout
 }
 
-func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
+func (p *DT1Widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	// we're creating list of tile names
 	tileTypeList := make([]string, d2enum.TileRightWallWithDoor+1)
 	for i := d2enum.TileFloor; i <= d2enum.TileRightWallWithDoor; i++ {
@@ -528,7 +533,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	}
 }
 
-func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
+func (p *DT1Widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
 		giu.Table("##"+p.id+"materialFlags").FastMode(true).
@@ -557,13 +562,13 @@ func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 }
 
 // TileGroup returns current tile group
-func (p *widget) TileGroup() int32 {
+func (p *DT1Widget) TileGroup() int32 {
 	state := p.getState()
 	return state.TileGroup
 }
 
 // SetTileGroup sets current tile group
-func (p *widget) SetTileGroup(tileGroup int32) {
+func (p *DT1Widget) SetTileGroup(tileGroup int32) {
 	state := p.getState()
 	if int(tileGroup) > len(state.tileGroups) {
 		tileGroup = int32(len(state.tileGroups))
@@ -574,7 +579,7 @@ func (p *widget) SetTileGroup(tileGroup int32) {
 	state.TileGroup = tileGroup
 }
 
-func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
+func (p *DT1Widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layout {
 	if tile.Height < 0 {
 		tile.Height *= -1
 	}
@@ -593,7 +598,7 @@ func (p *widget) makeSubtileFlags(state *widgetState, tile *d2dt1.Tile) giu.Layo
 	}
 }
 
-func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.Layout {
+func (p *DT1Widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Custom(func() {
 			canvas := giu.GetCanvas()
@@ -672,7 +677,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 	}
 }
 
-func (p *widget) handleSubtileHoverAndClick(subtileIdx int, flagPoint image.Point, canvas *giu.Canvas) {
+func (p *DT1Widget) handleSubtileHoverAndClick(subtileIdx int, flagPoint image.Point, canvas *giu.Canvas) {
 	mousePos := giu.GetMousePos()
 	delta := mousePos.Sub(flagPoint)
 	dx, dy := int(math.Abs(float64(delta.X))), int(math.Abs(float64(delta.Y)))

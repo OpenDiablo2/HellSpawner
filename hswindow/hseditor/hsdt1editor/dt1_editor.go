@@ -77,7 +77,7 @@ func (e *DT1Editor) Build() {
 		e.Layout(selectPaletteWidget)
 	}
 
-	dt1Viewer := dt1widget.Create(e.state, e.palette, e.textureLoader, id, e.dt1)
+	dt1Viewer := dt1widget.Create(e.state, e.textureLoader, id, e.dt1).Palette(e.palette)
 	e.Layout(g.Layout{
 		dt1Viewer,
 	})
