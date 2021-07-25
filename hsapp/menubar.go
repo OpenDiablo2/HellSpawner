@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"strings"
 
+	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/dialog"
 	"github.com/gravestench/osinfo"
-	g "github.com/ianling/giu"
 	"github.com/pkg/browser"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"

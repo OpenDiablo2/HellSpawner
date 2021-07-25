@@ -1,6 +1,6 @@
 package hscommon
 
-import "github.com/ianling/giu"
+import "github.com/AllenDang/giu"
 
 // MainMenuUpdater represents main menu updater
 type MainMenuUpdater interface {

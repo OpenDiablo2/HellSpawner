@@ -6,7 +6,7 @@ import (
 	"image/color"
 	"time"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 )

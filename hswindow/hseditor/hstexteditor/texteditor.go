@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/dialog"
 
@@ -97,15 +97,15 @@ func (e *TextEditor) Build() {
 	if !e.tableView {
 		e.IsOpen(&e.Visible).
 			Layout(
-				g.InputTextMultiline("", &e.text).
-					Flags(g.InputTextFlags_AllowTabInput),
+				g.InputTextMultiline(&e.text).
+					Flags(g.InputTextFlagsAllowTabInput),
 			)
 	} else {
 		e.IsOpen(&e.Visible).
 			Flags(g.WindowFlagsHorizontalScrollbar).
 			Layout(
-				g.Child("").Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(
-					g.Table("").FastMode(true).Freeze(0, 1).Rows(e.tableRows...),
+				g.Child().Border(false).Size(float32(e.columns*tableViewModW), 0).Layout(
+					g.Table().FastMode(true).Freeze(0, 1).Rows(e.tableRows...),
 				),
 			)
 	}

@@ -2,7 +2,7 @@
 package hsdialog
 
 import (
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 // Dialog represents HellSpawner's dialog

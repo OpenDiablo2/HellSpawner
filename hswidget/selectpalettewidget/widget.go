@@ -4,7 +4,7 @@ import (
 	"log"
 	"path/filepath"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dat"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
@@ -107,7 +107,7 @@ func (p *SelectPaletteWidget) Build() {
 	isOpen := true
 	giu.Layout{
 		giu.PopupModal("##" + p.id + "popUpSelectPalette").IsOpen(&isOpen).Layout(giu.Layout{
-			giu.Child("##"+p.id+"popUpSelectPaletteChildWidget").Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
+			giu.Child().Size(paletteSelectW, paletteSelectH).Layout(giu.Layout{
 				p.projectExplorer.GetProjectTreeNodes(),
 				giu.Layout(p.mpqExplorer.GetMpqTreeNodes()),
 				giu.Separator(),

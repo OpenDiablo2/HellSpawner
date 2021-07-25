@@ -3,7 +3,7 @@ package palettemapwidget
 import (
 	"fmt"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 type widgetMode int

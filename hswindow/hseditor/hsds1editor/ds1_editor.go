@@ -4,8 +4,8 @@ package hsds1editor
 import (
 	"fmt"
 
+	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/dialog"
-	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
 

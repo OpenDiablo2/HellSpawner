@@ -1,7 +1,7 @@
 package dt1widget
 
 import (
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswidget/dt1widget/tiletypeimage"
 

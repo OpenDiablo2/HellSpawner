@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2tbl"
 )
@@ -88,8 +88,8 @@ func (p *widget) buildTableLayout() {
 				return
 			}
 			giu.Layout{
-				giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
-					giu.Table("##" + p.id + "table").FastMode(true).Rows(rows...),
+				giu.Child().Border(false).Layout(giu.Layout{
+					giu.Table().FastMode(true).Rows(rows...),
 				}),
 			}.Build()
 		}),
@@ -126,7 +126,7 @@ func (p *widget) makeSearchSection() giu.Layout {
 			if !state.NumOnly {
 				giu.Row(
 					giu.Label("Search:"),
-					giu.InputText("##"+p.id+"search", &state.Search),
+					giu.InputText(&state.Search),
 				).Build()
 			}
 		}),
@@ -149,7 +149,7 @@ func (p *widget) buildAddEditLayout() {
 
 			if state.Editable {
 				giu.Row(
-					p.makeKeyField("##"+p.id+"addEditKey"),
+					p.makeKeyField(),
 					checkbox,
 				).Build()
 			} else {
@@ -157,7 +157,7 @@ func (p *widget) buildAddEditLayout() {
 			}
 		}),
 		giu.Label("Value:"),
-		giu.InputTextMultiline("##"+p.id+"addEditValue", &state.Value),
+		giu.InputTextMultiline(&state.Value),
 		giu.Separator(),
 		giu.Row(
 			giu.Custom(func() {
@@ -195,10 +195,10 @@ func (p *widget) buildAddEditLayout() {
 	}.Build()
 }
 
-func (p *widget) makeKeyField(id string) giu.Widget {
+func (p *widget) makeKeyField() giu.Widget {
 	state := p.getState()
 
-	return giu.InputText(id, &state.Key).OnChange(func() {
+	return giu.InputText(&state.Key).OnChange(func() {
 		p.formatKey(&state.Key)
 		p.updateValueText()
 	})

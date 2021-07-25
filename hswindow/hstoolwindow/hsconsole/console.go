@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsstate"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hstoolwindow"
@@ -45,11 +45,11 @@ func (c *Console) Build() {
 	c.IsOpen(&c.Visible).
 		Layout(g.Layout{
 			g.Custom(func() {
-				g.PushFont(c.fontFixed)
+				imgui.PushFont(c.fontFixed)
 			}),
-			g.InputTextMultiline("", &c.outputText).
+			g.InputTextMultiline(&c.outputText).
 				Size(lineW, lineH).
-				Flags(g.InputTextFlags_ReadOnly | g.InputTextFlags_NoUndoRedo),
+				Flags(g.InputTextFlagsReadOnly | g.InputTextFlagsNoUndoRedo),
 			g.Custom(func() {
 				g.PopFont()
 			}),

@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/AllenDang/giu"
+	"github.com/AllenDang/imgui-go"
 	"github.com/OpenDiablo2/dialog"
-	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
@@ -156,7 +156,7 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 			giu.Combo("##"+p.id+"PlayModeList", playModeList[state.PlayMode], playModeList, &pm).OnChange(func() {
 				state.PlayMode = animationPlayMode(pm)
 			}).Size(comboW),
-			giu.InputInt("Tick time##"+p.id+"PlayTickTime", &state.TickTime).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&state.TickTime).Label("Tick time").Size(inputIntW).OnChange(func() {
 				state.ticker.Reset(time.Second * time.Duration(state.TickTime) / miliseconds)
 			}),
 			hswidget.PlayPauseButton("##"+p.id+"PlayPauseAnimation", &state.IsPlaying, p.textureLoader).
@@ -175,10 +175,10 @@ func (p *widget) makeTiledViewLayout(state *widgetState) giu.Layout {
 	return giu.Layout{
 		giu.Row(
 			giu.Label("Tiled view:"),
-			giu.InputInt("Width##"+p.id+"tiledWidth", &state.Width).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&state.Width).Label("Width").Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewHeight(state)
 			}),
-			giu.InputInt("Height##"+p.id+"tiledHeight", &state.Height).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&state.Height).Label("Height").Size(inputIntW).OnChange(func() {
 				p.recalculateTiledViewWidth(state)
 			}),
 		),

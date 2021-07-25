@@ -6,7 +6,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math/d2vector"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2path"
@@ -81,7 +81,7 @@ func (p *widget) Build() {
 func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
-	tabs := giu.Layout{
+	tabs := []*giu.TabItemWidget{
 		giu.TabItem("Files").Layout(p.makeFilesLayout()),
 		giu.TabItem("Objects").Layout(p.makeObjectsLayout(state)),
 		giu.TabItem("Tiles").Layout(p.makeTilesTabLayout(state)),
@@ -94,7 +94,7 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	return giu.Layout{
 		p.makeDataLayout(),
 		giu.Separator(),
-		giu.TabBar("##TabBar_ds1_" + p.id).Layout(tabs),
+		giu.TabBar().TabItems(tabs...),
 	}
 }
 
@@ -109,7 +109,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 	l := giu.Layout{
 		giu.Row(
 			giu.Label("Version: "),
-			giu.InputInt("##"+p.id+"version", &version).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&version).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmVersionChange",
 					"Are you sure, you want to change DS1 Version?",
@@ -132,7 +132,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 		giu.Label("Size:"),
 		giu.Row(
 			giu.Label("\tWidth: "),
-			giu.InputInt("##"+p.id+"width", &w).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&w).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
 					"Are you really sure, you want to change size of DS1 tiles?",
@@ -151,7 +151,7 @@ func (p *widget) makeDataLayout() giu.Layout {
 		),
 		giu.Row(
 			giu.Label("\tHeight: "),
-			giu.InputInt("##"+p.id+"height", &h).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&h).Size(inputIntW).OnChange(func() {
 				state.confirmDialog = hswidget.NewPopUpConfirmDialog(
 					"##"+p.id+"confirmWidthChange",
 					"Are you really sure, you want to change size of DS1 tiles?",
@@ -221,7 +221,7 @@ func (p *widget) makeAddFileLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Label("File path:"),
-		giu.InputText("##"+p.id+"newFilePath", &state.NewFilePath).Size(filePathW),
+		giu.InputText(&state.NewFilePath).Size(filePathW),
 		giu.Separator(),
 		giu.Row(
 			giu.Button("Add##"+p.id+"addFileAdd").Size(saveCancelButtonW, saveCancelButtonH).OnClick(func() {
@@ -298,7 +298,6 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Row(
 			giu.Label("Type: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"objType",
 				inputIntW,
 				&obj.Type,
 				nil,
@@ -307,7 +306,6 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Row(
 			giu.Label("ID: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"objID",
 				inputIntW,
 				&obj.ID,
 				nil,
@@ -317,7 +315,6 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Row(
 			giu.Label("\tX: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"objX",
 				inputIntW,
 				&obj.X,
 				nil,
@@ -326,7 +323,6 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Row(
 			giu.Label("\tY: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"objY",
 				inputIntW,
 				&obj.Y,
 				nil,
@@ -335,7 +331,6 @@ func (p *widget) makeObjectLayout(state *widgetState) giu.Layout {
 		giu.Row(
 			giu.Label("Flags: 0x"),
 			hswidget.MakeInputInt(
-				"##"+p.id+"objFlags",
 				inputIntW,
 				&obj.Flags,
 				nil,
@@ -359,23 +354,23 @@ func (p *widget) makeAddObjectLayout() giu.Layout {
 	return giu.Layout{
 		giu.Row(
 			giu.Label("Type: "),
-			giu.InputInt("##"+p.id+"AddObjectType", &state.addObjectState.ObjType).Size(inputIntW),
+			giu.InputInt(&state.addObjectState.ObjType).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("ID: "),
-			giu.InputInt("##"+p.id+"AddObjectID", &state.addObjectState.ObjID).Size(inputIntW),
+			giu.InputInt(&state.addObjectState.ObjID).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("X: "),
-			giu.InputInt("##"+p.id+"AddObjectX", &state.addObjectState.ObjX).Size(inputIntW),
+			giu.InputInt(&state.addObjectState.ObjX).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Y: "),
-			giu.InputInt("##"+p.id+"AddObjectY", &state.addObjectState.ObjY).Size(inputIntW),
+			giu.InputInt(&state.addObjectState.ObjY).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Flags: "),
-			giu.InputInt("##"+p.id+"AddObjectFlags", &state.addObjectState.ObjFlags).Size(inputIntW),
+			giu.InputInt(&state.addObjectState.ObjFlags).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
@@ -432,7 +427,7 @@ func (p *widget) makePathLayout(state *widgetState, obj *d2ds1.Object) giu.Layou
 
 	return giu.Layout{
 		giu.Label("Path Points:"),
-		giu.Table("").FastMode(true).Rows(rowWidgets...),
+		giu.Table().FastMode(true).Rows(rowWidgets...),
 	}
 }
 
@@ -473,12 +468,12 @@ func (p *widget) makeTilesTabLayout(state *widgetState) giu.Layout {
 		l,
 		giu.SliderInt("Tile X", &state.ds1Controls.TileX, 0, int32(p.ds1.Width()-1)),
 		giu.SliderInt("Tile Y", &state.ds1Controls.TileY, 0, int32(p.ds1.Height()-1)),
-		giu.TabBar("##TabBar_ds1_tiles"+p.id).Layout(giu.Layout{
+		giu.TabBar().TabItems(
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.FloorLayerGroup),
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.WallLayerGroup),
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.ShadowLayerGroup),
 			p.makeTilesGroupLayout(state, tx, ty, d2ds1.SubstitutionLayerGroup),
-		}),
+		),
 	)
 
 	return l
@@ -486,7 +481,7 @@ func (p *widget) makeTilesTabLayout(state *widgetState) giu.Layout {
 
 // makeTilesGroupLayout creates a tileS group layout
 // used in makeTilesTabLayout
-func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.LayerGroupType) giu.Layout {
+func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.LayerGroupType) *giu.TabItemWidget {
 	l := giu.Layout{}
 	group := p.ds1.GetLayersGroup(t)
 	numRecords := len(*group)
@@ -552,7 +547,7 @@ func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.Laye
 		l = append(l, p.makeTileLayout((*group)[*recordIdx].Tile(x, y), t))
 	}
 
-	return giu.Layout{giu.TabItem(t.String()).Layout(giu.Layout{
+	return giu.TabItem(t.String()).Layout(giu.Layout{
 		l,
 		giu.Separator(),
 		giu.Custom(func() {
@@ -565,7 +560,7 @@ func (p *widget) makeTilesGroupLayout(state *widgetState, x, y int, t d2ds1.Laye
 			}
 			giu.Row(l...).Build()
 		}),
-	})}
+	})
 }
 
 // makeTileLayout creates a single tile's layout
@@ -577,7 +572,7 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		return giu.Layout{
 			giu.Row(
 				giu.Label("Substitute value: "),
-				giu.InputInt("##"+p.id+"subUnknown", &unknown32).Size(inputIntW).OnChange(func() {
+				giu.InputInt(&unknown32).Size(inputIntW).OnChange(func() {
 					record.Substitution = uint32(unknown32)
 				}),
 			),
@@ -589,7 +584,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		giu.Row(
 			giu.Label("Prop1: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"floorProp1",
 				inputIntW,
 				&record.Prop1,
 				nil,
@@ -598,7 +592,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		giu.Row(
 			giu.Label("Sequence: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"floorSequence",
 				inputIntW,
 				&record.Sequence,
 				nil,
@@ -607,7 +600,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		giu.Row(
 			giu.Label("Unknown1: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"floorUnknown1",
 				inputIntW,
 				&record.Unknown1,
 				nil,
@@ -616,7 +608,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		giu.Row(
 			giu.Label("Style: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"floorStyle",
 				inputIntW,
 				&record.Style,
 				nil,
@@ -625,7 +616,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 		giu.Row(
 			giu.Label("Unknown2: "),
 			hswidget.MakeInputInt(
-				"##"+p.id+"floorUnknown2",
 				inputIntW,
 				&record.Unknown2,
 				nil,
@@ -652,7 +642,6 @@ func (p *widget) makeTileLayout(record *d2ds1.Tile, t d2ds1.LayerGroupType) giu.
 			giu.Row(
 				giu.Label("Zero: "),
 				hswidget.MakeInputInt(
-					"##"+p.id+"wallZero",
 					inputIntW,
 					&record.Zero,
 					nil,
@@ -729,11 +718,11 @@ func (p *widget) makeAddPathLayout() giu.Layout {
 		giu.Label("Vector:"),
 		giu.Row(
 			giu.Label("\tX: "),
-			giu.InputInt("##"+p.id+"newPathX", &state.addPathState.PathX).Size(inputIntW),
+			giu.InputInt(&state.addPathState.PathX).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("\tY: "),
-			giu.InputInt("##"+p.id+"newPathY", &state.addPathState.PathY).Size(inputIntW),
+			giu.InputInt(&state.addPathState.PathY).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(

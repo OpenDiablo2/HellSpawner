@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
+	"github.com/AllenDang/imgui-go"
 	"github.com/jaytaylor/html2text"
 	"github.com/russross/blackfriday"
 
@@ -93,31 +93,37 @@ func (a *AboutDialog) Build() {
 	a.IsOpen(&a.Visible).Layout(
 		g.Row(
 			g.Image(a.logo).Size(mainWindowW, mainWindowH),
-			g.Child("AboutHellSpawnerLayout").Size(mainLayoutW, mainLayoutH).Layout(
-				g.Style().SetColor(imgui.StyleColorText, colorWhite).To(
-					g.Label("HellSpawner").Font(&a.titleFont),
-					g.Label("The OpenDiablo 2 Toolset").Font(&a.regularFont),
-					g.Label("Local Build").Font(&a.fixedFont),
+			g.Child().Size(mainLayoutW, mainLayoutH).Layout(
+				g.Style().SetColor(g.StyleColorText, colorWhite).To(
+					g.Custom(func() { imgui.PushFont(a.titleFont) }),
+					g.Label("HellSpawner"),
+					g.Custom(func() { imgui.PopFont() }),
+					g.Custom(func() { imgui.PushFont(a.regularFont) }),
+					g.Label("The OpenDiablo 2 Toolset"),
+					g.Custom(func() { imgui.PopFont() }),
+					g.Custom(func() { imgui.PushFont(a.fixedFont) }),
+					g.Label("Local Build"),
+					g.Custom(func() { imgui.PopFont() }),
 				),
 				g.Separator(),
-				g.TabBar("AboutHellSpawnerTabBar").Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).Layout(
+				g.TabBar().Flags(g.TabBarFlagsNoCloseWithMiddleMouseButton).TabItems(
 					g.TabItem("README##AboutHellSpawner").Layout(
-						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("##AboutHellSpawnerReadme", &a.readme).
-							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly|g.InputTextFlags_NoHorizontalScroll),
-						g.Custom(func() { g.PopFont() }),
+						g.Custom(func() { imgui.PushFont(a.fixedFont) }),
+						g.InputTextMultiline(&a.readme).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly|g.InputTextFlagsNoHorizontalScroll),
+						g.Custom(func() { imgui.PopFont() }),
 					),
 					g.TabItem("Credits##AboutHellSpawner").Layout(
-						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("##AboutHellSpawnerCredits", &a.credits).
-							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly|g.InputTextFlags_NoHorizontalScroll),
-						g.Custom(func() { g.PopFont() }),
+						g.Custom(func() { imgui.PushFont(a.fixedFont) }),
+						g.InputTextMultiline(&a.credits).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly|g.InputTextFlagsNoHorizontalScroll),
+						g.Custom(func() { imgui.PopFont() }),
 					),
 					g.TabItem("Licenses##AboutHellSpawner").Layout(
-						g.Custom(func() { g.PushFont(a.fixedFont) }),
-						g.InputTextMultiline("##AboutHellSpawnerLicense", &a.license).
-							Size(-1, -1).Flags(g.InputTextFlags_ReadOnly|g.InputTextFlags_NoHorizontalScroll),
-						g.Custom(func() { g.PopFont() }),
+						g.Custom(func() { imgui.PushFont(a.fixedFont) }),
+						g.InputTextMultiline(&a.license).
+							Size(-1, -1).Flags(g.InputTextFlagsReadOnly|g.InputTextFlagsNoHorizontalScroll),
+						g.Custom(func() { imgui.PopFont() }),
 					),
 				),
 			),

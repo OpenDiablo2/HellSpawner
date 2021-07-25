@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/image/colornames"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 const (
