@@ -354,10 +354,6 @@ func (a *App) renderEditors() {
 		if !editor.IsVisible() {
 			editor.Cleanup()
 
-			if editor.HasFocus() {
-				a.focusedEditor = nil
-			}
-
 			a.editors = append(a.editors[:idx], a.editors[idx+1:]...)
 
 			continue
@@ -365,15 +361,24 @@ func (a *App) renderEditors() {
 
 		hadFocus := editor.HasFocus()
 
+		// common shortcut
+		editor.RegisterKeyboardShortcuts(
+			g.WindowShortcut{
+				Key:      g.KeyS,
+				Modifier: g.ModControl,
+				Callback: func() {
+					editor.Save()
+				},
+			},
+		)
+
+		editor.RegisterKeyboardShortcuts(
+			editor.KeyboardShortcuts()...,
+		)
+
 		editor.Build()
 
-		// if this window didn't have focus before, but it does now,
-		// unregister any other window's shortcuts, and register this window's keyboard shortcuts instead
 		if !hadFocus && editor.HasFocus() {
-			a.InputManager.UnregisterWindowShortcuts()
-
-			editor.RegisterKeyboardShortcuts(a.InputManager)
-
 			a.focusedEditor = editor
 		}
 
