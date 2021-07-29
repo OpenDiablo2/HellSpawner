@@ -2,6 +2,8 @@ package animationwidget
 
 import (
 	"fmt"
+	"image"
+	"image/color"
 	"log"
 	"time"
 
@@ -9,12 +11,9 @@ import (
 	"github.com/ianling/imgui-go"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
-	"github.com/OpenDiablo2/dialog"
 
-	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
-	"github.com/OpenDiablo2/HellSpawner/hswidget"
+	gim "github.com/ozankasikci/go-image-merge"
 )
 
 const (
@@ -25,50 +24,12 @@ const (
 )
 
 type Dc6Widget struct {
-	widget *Widget
-	dc6    *d2dc6.DC6
+	*Widget
+	dc6 *d2dc6.DC6
 }
 
-func (w *Dc6Widget) exportGif(state *Dc6WidgetState) error {
-	fpd := int32(w.dc6.FramesPerDirection)
-	firstFrame := state.controls.direction * fpd
-	images := state.images[firstFrame : firstFrame+fpd]
-
-	err := hsutil.ExportToGif(images, state.tickTime)
-	if err != nil {
-		return fmt.Errorf("error creating gif file: %w", err)
-	}
-
-	return nil
-}
-
-func (w *Dc6Widget) makePlayerLayout(state *Dc6WidgetState) giu.Layout {
-	playModeList := make([]string, 0)
-	for i := playModeForward; i <= playModePingPong; i++ {
-		playModeList = append(playModeList, i.String())
-	}
-
-	pm := int32(state.playMode)
-
-	return giu.Layout{
-		giu.Row(
-			giu.Checkbox("Loop##"+w.widget.id+"PlayRepeat", &state.repeat),
-			giu.Combo("##"+w.widget.id+"PlayModeList", playModeList[state.playMode], playModeList, &pm).OnChange(func() {
-				state.playMode = animationPlayMode(pm)
-			}).Size(comboW),
-			giu.InputInt("Tick time##"+w.widget.id+"PlayTickTime", &state.tickTime).Size(inputIntW).OnChange(func() {
-				state.ticker.Reset(time.Second * time.Duration(state.tickTime) / miliseconds)
-			}),
-			hswidget.PlayPauseButton("##"+w.widget.id+"PlayPauseAnimation", &state.isPlaying, w.widget.textureLoader).
-				Size(playPauseButtonSize, playPauseButtonSize),
-			giu.Button("Export GIF##"+w.widget.id+"exportGif").OnClick(func() {
-				err := w.exportGif(state)
-				if err != nil {
-					dialog.Message(err.Error()).Error()
-				}
-			}),
-		),
-	}
+func (w *Dc6Widget) getDcImage() DcImage {
+	return w.dc6
 }
 
 func (w *Dc6Widget) makeViewerLayout() giu.Layout {
@@ -125,11 +86,11 @@ func (w *Dc6Widget) makeViewerLayout() giu.Layout {
 			imgui.EndGroup()
 		}),
 		giu.Separator(),
-		w.makePlayerLayout(viewerState),
+		makePlayerLayout(w, viewerState),
 		giu.Separator(),
 		widget,
 		giu.Separator(),
-		giu.Button("Tiled View##"+w.widget.id+"tiledViewButton").Size(buttonW, buttonH).OnClick(func() {
+		giu.Button("Tiled View##"+w.Widget.id+"tiledViewButton").Size(buttonW, buttonH).OnClick(func() {
 			viewerState.mode = dc6WidgetTiledView
 			w.createImage(viewerState)
 		}),
@@ -140,15 +101,15 @@ func (w *Dc6Widget) makeTiledViewLayout(state *Dc6WidgetState) giu.Layout {
 	return giu.Layout{
 		giu.Row(
 			giu.Label("Tiled view:"),
-			giu.InputInt("Width##"+w.widget.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Width##"+w.Widget.id+"tiledWidth", &state.width).Size(inputIntW).OnChange(func() {
 				w.recalculateTiledViewHeight(state)
 			}),
-			giu.InputInt("Height##"+w.widget.id+"tiledHeight", &state.height).Size(inputIntW).OnChange(func() {
+			giu.InputInt("Height##"+w.Widget.id+"tiledHeight", &state.height).Size(inputIntW).OnChange(func() {
 				w.recalculateTiledViewWidth(state)
 			}),
 		),
 		giu.Image(state.tiled).Size(float32(state.imgw), float32(state.imgh)),
-		giu.Button("Back##"+w.widget.id+"tiledBack").Size(buttonW, buttonH).OnClick(func() {
+		giu.Button("Back##"+w.Widget.id+"tiledBack").Size(buttonW, buttonH).OnClick(func() {
 			state.mode = dc6WidgetViewer
 		}),
 	}
@@ -166,15 +127,13 @@ func (w *Dc6Widget) Build() {
 	}
 }
 
-func CreateDc6Widget(state []byte, palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string, dc6 *d2dc6.DC6) giu.Widget {
-	widget := CreateWidget(palette, textureLoader, id)
-
+func createDc6Widget(state []byte, widget *Widget, dc6 *d2dc6.DC6) giu.Widget {
 	dc6Widget := &Dc6Widget{
-		widget: widget,
+		Widget: widget,
 		dc6:    dc6,
 	}
 
-	if giu.Context.GetState(dc6Widget.widget.getStateID()) == nil && state != nil {
+	if giu.Context.GetState(dc6Widget.Widget.getStateID()) == nil && state != nil {
 		s := dc6Widget.getState()
 		s.Decode(state)
 
@@ -186,4 +145,179 @@ func CreateDc6Widget(state []byte, palette *[256]d2interface.Color, textureLoade
 	}
 
 	return dc6Widget
+}
+
+func (w *Dc6Widget) initState() {
+	// Prevent multiple invocation to LoadImage.
+	newState := &Dc6WidgetState{
+		mode: dc6WidgetViewer,
+		viewerState: viewerState{
+			lastFrame:          -1,
+			lastDirection:      -1,
+			framesPerDirection: w.dc6.FramesPerDirection,
+		},
+		tiledState: tiledState{
+			width:  int32(w.dc6.FramesPerDirection),
+			height: 1,
+		},
+		WidgetState: WidgetState{
+			isPlaying: false,
+			repeat:    false,
+			tickTime:  defaultTickTime,
+			playMode:  playModeForward,
+		},
+	}
+
+	newState.ticker = time.NewTicker(time.Second * time.Duration(newState.tickTime) / miliseconds)
+
+	go w.runPlayer(newState)
+
+	totalFrames := int(w.dc6.Directions * w.dc6.FramesPerDirection)
+	newState.images = make([]*image.RGBA, totalFrames)
+
+	for frameIndex := 0; frameIndex < int(w.dc6.Directions*w.dc6.FramesPerDirection); frameIndex++ {
+		newState.images[frameIndex] = image.NewRGBA(image.Rect(0, 0, int(w.dc6.Frames[frameIndex].Width), int(w.dc6.Frames[frameIndex].Height)))
+		decodedFrame := w.dc6.DecodeFrame(frameIndex)
+
+		for y := 0; y < int(w.dc6.Frames[frameIndex].Height); y++ {
+			for x := 0; x < int(w.dc6.Frames[frameIndex].Width); x++ {
+				idx := x + (y * int(w.dc6.Frames[frameIndex].Width))
+				val := decodedFrame[idx]
+
+				alpha := maxAlpha
+
+				if val == 0 {
+					alpha = 0
+				}
+
+				var r, g, b uint8
+
+				if w.Widget.palette != nil {
+					col := w.Widget.palette[val]
+					r, g, b = col.R(), col.G(), col.B()
+				} else {
+					r, g, b = val, val, val
+				}
+
+				newState.images[frameIndex].Set(
+					x, y,
+					color.RGBA{
+						R: r,
+						G: g,
+						B: b,
+						A: alpha,
+					},
+				)
+			}
+		}
+	}
+
+	w.setState(newState)
+
+	go func() {
+		textures := make([]*giu.Texture, totalFrames)
+
+		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
+			frameIndex := frameIndex
+			w.Widget.textureLoader.CreateTextureFromARGB(newState.images[frameIndex], func(t *giu.Texture) {
+				textures[frameIndex] = t
+			})
+		}
+
+		s := w.getState()
+		s.textures = textures
+		w.setState(s)
+	}()
+}
+
+func (w *Dc6Widget) getState() *Dc6WidgetState {
+	var state *Dc6WidgetState
+
+	s := giu.Context.GetState(w.Widget.getStateID())
+
+	if s != nil {
+		state = s.(*Dc6WidgetState)
+	} else {
+		w.initState()
+		state = w.getState()
+	}
+
+	return state
+}
+
+func (w *Dc6Widget) setState(s giu.Disposable) {
+	giu.Context.SetState(w.Widget.getStateID(), s)
+}
+
+func (w *Dc6Widget) runPlayer(state *Dc6WidgetState) {
+	for range state.ticker.C {
+		if !state.isPlaying {
+			continue
+		}
+
+		numFrames := int32(w.dc6.FramesPerDirection - 1)
+		isLastFrame := state.controls.frame == numFrames
+
+		// update play direction
+		switch state.playMode {
+		case playModeForward:
+			state.isForward = true
+		case playModeBackward:
+			state.isForward = false
+		case playModePingPong:
+			if isLastFrame || state.controls.frame == 0 {
+				state.isForward = !state.isForward
+			}
+		}
+
+		// now update the frame number
+		if state.isForward {
+			state.controls.frame++
+		} else {
+			state.controls.frame--
+		}
+
+		state.controls.frame = int32(hsutil.Wrap(int(state.controls.frame), int(w.dc6.FramesPerDirection)))
+
+		// next, check for stopping/repeat
+		isStoppingFrame := (state.controls.frame == 0) || (state.controls.frame == numFrames)
+
+		if isStoppingFrame && !state.repeat {
+			state.isPlaying = false
+		}
+	}
+}
+
+func (w *Dc6Widget) recalculateTiledViewWidth(state *Dc6WidgetState) {
+	// the area of our rectangle must be less or equal than FramesPerDirection
+	state.width = int32(w.dc6.FramesPerDirection) / state.height
+	w.createImage(state)
+}
+
+func (w *Dc6Widget) recalculateTiledViewHeight(state *Dc6WidgetState) {
+	// the area of our rectangle must be less or equal than FramesPerDirection
+	state.height = int32(w.dc6.FramesPerDirection) / state.width
+	w.createImage(state)
+}
+
+func (w *Dc6Widget) createImage(state *Dc6WidgetState) {
+	firstFrame := state.controls.direction * int32(w.dc6.FramesPerDirection)
+
+	grids := make([]*gim.Grid, 0)
+
+	for j := int32(0); j < state.height*state.width; j++ {
+		grids = append(grids, &gim.Grid{Image: image.Image(state.images[firstFrame+j])})
+	}
+
+	newimg, err := gim.New(grids, int(state.width), int(state.height)).Merge()
+	if err != nil {
+		log.Printf("merging image error: %v", err)
+		return
+	}
+
+	w.Widget.textureLoader.CreateTextureFromARGB(newimg, func(t *giu.Texture) {
+		state.tiled = t
+	})
+
+	state.imgw, state.imgh = newimg.Bounds().Dx(), newimg.Bounds().Dy()
 }

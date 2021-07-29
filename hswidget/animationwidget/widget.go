@@ -2,7 +2,7 @@ package animationwidget
 
 import (
 	"fmt"
-	
+
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
@@ -11,6 +11,14 @@ type Widget struct {
 	id            string
 	palette       *[256]d2interface.Color
 	textureLoader hscommon.TextureLoader
+}
+
+func (w *Widget) getID() string {
+	return w.id
+}
+
+func (w *Widget) getTextureLoader() hscommon.TextureLoader {
+	return w.textureLoader
 }
 
 func (w *Widget) getStateID() string {

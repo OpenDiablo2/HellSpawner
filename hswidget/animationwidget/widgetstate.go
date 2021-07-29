@@ -2,8 +2,8 @@ package animationwidget
 
 import (
 	"image"
-	"time"
 	"log"
+	"time"
 
 	"github.com/ianling/giu"
 
@@ -52,6 +52,38 @@ type WidgetState struct {
 
 	isForward bool // Determines a direction of animation
 	ticker    *time.Ticker
+}
+
+func (s *WidgetState) getTickTime() int32 {
+	return s.tickTime
+}
+
+func (s *WidgetState) getTick() *int32 {
+	return &s.tickTime
+}
+
+func (s *WidgetState) getImages() []*image.RGBA {
+	return s.images
+}
+
+func (s *WidgetState) getPlayMode() animationPlayMode {
+	return s.playMode
+}
+
+func (s *WidgetState) setPlayMode(pm animationPlayMode) {
+	s.playMode = pm
+}
+
+func (s *WidgetState) getRepeat() *bool {
+	return &s.repeat
+}
+
+func (s *WidgetState) getPlaying() *bool {
+	return &s.isPlaying
+}
+
+func (s *WidgetState) getTicker() *time.Ticker {
+	return s.ticker
 }
 
 func (s *WidgetState) Encode(sw *d2datautils.StreamWriter) {
