@@ -65,7 +65,7 @@ func (e *DCCEditor) Build() {
 
 	if !e.selectPalette {
 		e.Layout(g.Layout{
-			animationwidget.CreateDccWidget(e.textureLoader, e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
+			animationwidget.CreateAnimationWidget(e.textureLoader, e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
 		})
 
 		return

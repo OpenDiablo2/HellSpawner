@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/ianling/giu"
-
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
+	"github.com/ianling/giu"
 )
 
 type animationPlayMode byte
@@ -40,7 +40,7 @@ func (animation animationPlayMode) String() string {
 	return playMode
 }
 
-type WidgetState struct {
+type widgetState struct {
 	isPlaying bool
 	repeat    bool
 	tickTime  int32
@@ -54,39 +54,39 @@ type WidgetState struct {
 	ticker    *time.Ticker
 }
 
-func (s *WidgetState) getTickTime() int32 {
+func (s *widgetState) getTickTime() int32 {
 	return s.tickTime
 }
 
-func (s *WidgetState) getTick() *int32 {
+func (s *widgetState) getTick() *int32 {
 	return &s.tickTime
 }
 
-func (s *WidgetState) getImages() []*image.RGBA {
+func (s *widgetState) getImages() []*image.RGBA {
 	return s.images
 }
 
-func (s *WidgetState) getPlayMode() animationPlayMode {
+func (s *widgetState) getPlayMode() animationPlayMode {
 	return s.playMode
 }
 
-func (s *WidgetState) setPlayMode(pm animationPlayMode) {
+func (s *widgetState) setPlayMode(pm animationPlayMode) {
 	s.playMode = pm
 }
 
-func (s *WidgetState) getRepeat() *bool {
+func (s *widgetState) getRepeat() *bool {
 	return &s.repeat
 }
 
-func (s *WidgetState) getPlaying() *bool {
+func (s *widgetState) getPlaying() *bool {
 	return &s.isPlaying
 }
 
-func (s *WidgetState) getTicker() *time.Ticker {
+func (s *widgetState) getTicker() *time.Ticker {
 	return s.ticker
 }
 
-func (s *WidgetState) Encode(sw *d2datautils.StreamWriter) {
+func (s *widgetState) encode(sw *d2datautils.StreamWriter) {
 	sw.PushBytes(byte(hsutil.BoolToInt(s.isPlaying)))
 	sw.PushBytes(byte(hsutil.BoolToInt(s.repeat)))
 
@@ -94,7 +94,7 @@ func (s *WidgetState) Encode(sw *d2datautils.StreamWriter) {
 	sw.PushBytes(byte(s.playMode))
 }
 
-func (s *WidgetState) Decode(sr *d2datautils.StreamReader) {
+func (s *widgetState) decode(sr *d2datautils.StreamReader) {
 	isPlaying, err := sr.ReadByte()
 	if err != nil {
 		log.Print(err)
@@ -126,7 +126,7 @@ func (s *WidgetState) Decode(sr *d2datautils.StreamReader) {
 	s.playMode = animationPlayMode(playMode)
 }
 
-func (s *WidgetState) widgetDispose() {
+func (s *widgetState) widgetDispose() {
 	s.textures = nil
 }
 
@@ -139,7 +139,7 @@ type controlStructure struct {
 type widgetMode int32
 
 type viewerState struct {
-	controls           *controlStructure
+	*controlStructure
 	lastFrame          int32
 	lastDirection      int32
 	framesPerDirection uint32

@@ -4,29 +4,30 @@ import (
 	"fmt"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
-type Widget struct {
+type widget struct {
 	id            string
 	palette       *[256]d2interface.Color
 	textureLoader hscommon.TextureLoader
 }
 
-func (w *Widget) getID() string {
+func (w *widget) getID() string {
 	return w.id
 }
 
-func (w *Widget) getTextureLoader() hscommon.TextureLoader {
+func (w *widget) getTextureLoader() hscommon.TextureLoader {
 	return w.textureLoader
 }
 
-func (w *Widget) getStateID() string {
+func (w *widget) getStateID() string {
 	return fmt.Sprintf("widget_%s", w.id)
 }
 
-func CreateWidget(palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string) *Widget {
-	widget := &Widget{
+func createWidget(palette *[256]d2interface.Color, textureLoader hscommon.TextureLoader, id string) *widget {
+	widget := &widget{
 		id:            id,
 		palette:       palette,
 		textureLoader: textureLoader,

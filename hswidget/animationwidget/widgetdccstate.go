@@ -7,23 +7,23 @@ import (
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2datautils"
 )
 
-type DccWidgetState struct {
+type dccWidgetState struct {
 	controls *controlStructure
-	WidgetState
+	widgetState
 }
 
-func (s *DccWidgetState) getDirection() int32{
+func (s *dccWidgetState) getDirection() int32 {
 	return s.controls.direction
 }
 
-func (s *DccWidgetState) Dispose() {
+func (s *dccWidgetState) Dispose() {
 	s.widgetDispose()
 }
 
-func (s *DccWidgetState) Encode() []byte {
+func (s *dccWidgetState) Encode() []byte {
 	sw := d2datautils.CreateStreamWriter()
 
-	s.WidgetState.Encode(sw)
+	s.widgetState.encode(sw)
 
 	sw.PushInt32(s.controls.direction)
 	sw.PushInt32(s.controls.frame)
@@ -32,12 +32,12 @@ func (s *DccWidgetState) Encode() []byte {
 	return sw.GetBytes()
 }
 
-func (s *DccWidgetState) Decode(data []byte) {
+func (s *dccWidgetState) Decode(data []byte) {
 	var err error
 
 	sr := d2datautils.CreateStreamReader(data)
 
-	s.WidgetState.Decode(sr)
+	s.widgetState.decode(sr)
 
 	s.controls.direction, err = sr.ReadInt32()
 	if err != nil {

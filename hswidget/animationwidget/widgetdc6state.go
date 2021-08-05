@@ -14,33 +14,33 @@ const (
 	dc6WidgetTiledView
 )
 
-type Dc6WidgetState struct {
+type dc6WidgetState struct {
 	mode widgetMode
 	viewerState
 	tiledState
-	WidgetState
+	widgetState
 }
 
-func (s *Dc6WidgetState) getDirection() int32{
-	return s.controls.direction
+func (s *dc6WidgetState) getDirection() int32 {
+	return s.direction
 }
 
-func (s *Dc6WidgetState) Dispose() {
+func (s *dc6WidgetState) Dispose() {
 	s.viewerState.Dispose()
 	s.mode = dc6WidgetViewer
 	s.widgetDispose()
 }
 
-func (s *Dc6WidgetState) Encode() []byte {
+func (s *dc6WidgetState) Encode() []byte {
 	sw := d2datautils.CreateStreamWriter()
 
-	s.WidgetState.Encode(sw)
+	s.widgetState.encode(sw)
 
 	sw.PushInt32(int32(s.mode))
 
-	sw.PushInt32(s.controls.direction)
-	sw.PushInt32(s.controls.frame)
-	sw.PushInt32(s.controls.scale)
+	sw.PushInt32(s.direction)
+	sw.PushInt32(s.frame)
+	sw.PushInt32(s.scale)
 
 	sw.PushInt32(s.width)
 	sw.PushInt32(s.height)
@@ -48,10 +48,10 @@ func (s *Dc6WidgetState) Encode() []byte {
 	return sw.GetBytes()
 }
 
-func (s *Dc6WidgetState) Decode(data []byte) {
+func (s *dc6WidgetState) Decode(data []byte) {
 	sr := d2datautils.CreateStreamReader(data)
 
-	s.WidgetState.Decode(sr)
+	s.widgetState.decode(sr)
 
 	mode, err := sr.ReadInt32()
 	if err != nil {
@@ -62,21 +62,21 @@ func (s *Dc6WidgetState) Decode(data []byte) {
 
 	s.mode = widgetMode(mode)
 
-	s.controls.direction, err = sr.ReadInt32()
+	s.direction, err = sr.ReadInt32()
 	if err != nil {
 		log.Print(err)
 
 		return
 	}
 
-	s.controls.frame, err = sr.ReadInt32()
+	s.frame, err = sr.ReadInt32()
 	if err != nil {
 		log.Print(err)
 
 		return
 	}
 
-	s.controls.scale, err = sr.ReadInt32()
+	s.scale, err = sr.ReadInt32()
 	if err != nil {
 		log.Print(err)
 

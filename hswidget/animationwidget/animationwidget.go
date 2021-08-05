@@ -8,6 +8,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
+
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dc6"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dcc"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
@@ -15,13 +16,13 @@ import (
 	"github.com/ianling/giu"
 )
 
-type Widgeter interface {
-	getDcImage() DcImage
+type widgeter interface {
+	getDcImage() dcImage
 	getID() string
 	getTextureLoader() hscommon.TextureLoader
 }
 
-type State interface {
+type state interface {
 	getDirection() int32
 	getImages() []*image.RGBA
 	getTickTime() int32
@@ -33,11 +34,13 @@ type State interface {
 	getTicker() *time.Ticker
 }
 
-type DcImage interface {}
+type dcImage interface{}
 
-func ExportGif(w Widgeter, s State) error {
-	dc := w.getDcImage()
+// ExportGif converts images area to GIF format and saves it under the path selected by user tutorial
+func ExportGif(w widgeter, s state) error {
 	var fpd int32
+
+	dc := w.getDcImage()
 
 	switch dcImage := dc.(type) {
 	case d2dc6.DC6:
@@ -60,7 +63,7 @@ func ExportGif(w Widgeter, s State) error {
 	return nil
 }
 
-func makePlayerLayout(w Widgeter, s State) giu.Layout {
+func makePlayerLayout(w widgeter, s state) giu.Layout {
 	playModeList := make([]string, 0)
 	for i := playModeForward; i <= playModePingPong; i++ {
 		playModeList = append(playModeList, i.String())
@@ -77,7 +80,7 @@ func makePlayerLayout(w Widgeter, s State) giu.Layout {
 			}).Size(comboW),
 			giu.InputInt("Tick time##"+id+"PlayTickTime", s.getTick()).Size(inputIntW).OnChange(func() {
 				ticker := s.getTicker()
-				ticker.Reset(time.Second * time.Duration(s.getTickTime() / miliseconds))
+				ticker.Reset(time.Second * time.Duration(s.getTickTime()/miliseconds))
 			}),
 			hswidget.PlayPauseButton("##"+id+"PlayPauseAnimation", s.getPlaying(), w.getTextureLoader()).
 				Size(playPauseButtonSize, playPauseButtonSize),
@@ -91,15 +94,16 @@ func makePlayerLayout(w Widgeter, s State) giu.Layout {
 	}
 }
 
-func CreateAnimationWidget(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.Color, id string, dc DcImage) (giu.Widget, error) {
-	widget := CreateWidget(palette, tl, id)
+// CreateAnimationWidget is the factory function to create DC6 and DCC structures
+func CreateAnimationWidget(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.Color, id string, dc dcImage) giu.Widget {
+	widget := createWidget(palette, tl, id)
 
 	switch dcImage := dc.(type) {
 	case d2dc6.DC6:
-		return createDc6Widget(state, widget, &dcImage), nil
+		return createDc6Widget(state, widget, &dcImage)
 	case d2dcc.DCC:
-		return createDccWidget(state, widget, &dcImage), nil
+		return createDccWidget(state, widget, &dcImage)
 	default:
-		return nil, fmt.Errorf("DC File not supported")
+		return nil
 	}
 }

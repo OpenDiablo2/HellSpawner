@@ -19,17 +19,17 @@ const (
 	imageW, imageH = 32, 32
 )
 
-type DccWidget struct {
-	*Widget
+type dccWidget struct {
+	*widget
 	dcc *d2dcc.DCC
 }
 
-func (w *DccWidget) getDcImage() DcImage {
+func (w *dccWidget) getDcImage() dcImage {
 	return w.dcc
 }
 
 // Build build a widget
-func (w *DccWidget) Build() {
+func (w *dccWidget) Build() {
 	viewerState := w.getState()
 
 	imageScale := uint32(viewerState.controls.scale)
@@ -90,13 +90,13 @@ func (w *DccWidget) Build() {
 	}.Build()
 }
 
-func createDccWidget(state []byte, widget *Widget, dcc *d2dcc.DCC) giu.Widget {
-	dccWidget := &DccWidget{
-		Widget: widget,
+func createDccWidget(state []byte, widget *widget, dcc *d2dcc.DCC) giu.Widget {
+	dccWidget := &dccWidget{
+		widget: widget,
 		dcc:    dcc,
 	}
 
-	if giu.Context.GetState(dccWidget.Widget.getStateID()) == nil && state != nil {
+	if giu.Context.GetState(dccWidget.widget.getStateID()) == nil && state != nil {
 		s := dccWidget.getState()
 		s.Decode(state)
 		dccWidget.setState(s)
@@ -105,13 +105,13 @@ func createDccWidget(state []byte, widget *Widget, dcc *d2dcc.DCC) giu.Widget {
 	return dccWidget
 }
 
-func (w *DccWidget) getState() *DccWidgetState {
-	var state *DccWidgetState
+func (w *dccWidget) getState() *dccWidgetState {
+	var state *dccWidgetState
 
-	s := giu.Context.GetState(w.Widget.getStateID())
+	s := giu.Context.GetState(w.widget.getStateID())
 
 	if s != nil {
-		state = s.(*DccWidgetState)
+		state = s.(*dccWidgetState)
 	} else {
 		w.initState()
 		state = w.getState()
@@ -120,11 +120,11 @@ func (w *DccWidget) getState() *DccWidgetState {
 	return state
 }
 
-func (w *DccWidget) setState(s giu.Disposable) {
-	giu.Context.SetState(w.Widget.getStateID(), s)
+func (w *dccWidget) setState(s giu.Disposable) {
+	giu.Context.SetState(w.widget.getStateID(), s)
 }
 
-func (w *DccWidget) runPlayer(state *DccWidgetState) {
+func (w *dccWidget) runPlayer(state *dccWidgetState) {
 	for range state.ticker.C {
 		if !state.isPlaying {
 			continue
@@ -163,7 +163,7 @@ func (w *DccWidget) runPlayer(state *DccWidgetState) {
 	}
 }
 
-func (w *DccWidget) makeImagePixel(val byte) color.RGBA {
+func (w *dccWidget) makeImagePixel(val byte) color.RGBA {
 	alpha := maxAlpha
 
 	if val == 0 {
@@ -172,8 +172,8 @@ func (w *DccWidget) makeImagePixel(val byte) color.RGBA {
 
 	var r, g, b uint8
 
-	if w.Widget.palette != nil {
-		col := w.Widget.palette[val]
+	if w.widget.palette != nil {
+		col := w.widget.palette[val]
 		r, g, b = col.R(), col.G(), col.B()
 	} else {
 		r, g, b = val, val, val
@@ -189,10 +189,10 @@ func (w *DccWidget) makeImagePixel(val byte) color.RGBA {
 	return RGBAColor
 }
 
-func (w *DccWidget) initState() {
+func (w *dccWidget) initState() {
 	// Prevent multiple invocation to LoadImage.
-	state := &DccWidgetState{
-		WidgetState: WidgetState{
+	state := &dccWidgetState{
+		widgetState: widgetState{
 			isPlaying: false,
 			repeat:    false,
 			tickTime:  defaultTickTime,
@@ -242,7 +242,7 @@ func (w *DccWidget) initState() {
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 			frameIndex := frameIndex
-			w.Widget.textureLoader.CreateTextureFromARGB(state.images[frameIndex], func(t *giu.Texture) {
+			w.widget.textureLoader.CreateTextureFromARGB(state.images[frameIndex], func(t *giu.Texture) {
 				textures[frameIndex] = t
 			})
 		}
