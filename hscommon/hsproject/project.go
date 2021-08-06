@@ -48,7 +48,7 @@ type Project struct {
 func CreateNew(fileName string) (*Project, error) {
 	defaultProjectName := filepath.Base(fileName)
 
-	if strings.EqualFold(filepath.Ext(fileName), projectExtension) {
+	if !strings.EqualFold(filepath.Ext(fileName), projectExtension) {
 		fileName += projectExtension
 	}
 
