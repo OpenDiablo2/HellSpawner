@@ -50,8 +50,7 @@ type widgetState struct {
 	images   []*image.RGBA
 	textures []*giu.Texture
 
-	isForward bool // Determines a direction of animation
-	ticker    *time.Ticker
+	ticker *time.Ticker
 }
 
 func (s *widgetState) getTickTime() int32 {
@@ -78,7 +77,7 @@ func (s *widgetState) getRepeat() *bool {
 	return &s.repeat
 }
 
-func (s *widgetState) getPlaying() *bool {
+func (s *widgetState) getPlayingPointer() *bool {
 	return &s.isPlaying
 }
 

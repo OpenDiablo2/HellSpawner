@@ -30,7 +30,7 @@ type state interface {
 	getPlayMode() animationPlayMode
 	setPlayMode(animationPlayMode)
 	getRepeat() *bool
-	getPlaying() *bool
+	getPlayingPointer() *bool
 	getTicker() *time.Ticker
 }
 
@@ -82,7 +82,7 @@ func makePlayerLayout(w widgeter, s state) giu.Layout {
 				ticker := s.getTicker()
 				ticker.Reset(time.Second * time.Duration(s.getTickTime()/miliseconds))
 			}),
-			hswidget.PlayPauseButton("##"+id+"PlayPauseAnimation", s.getPlaying(), w.getTextureLoader()).
+			hswidget.PlayPauseButton("##"+id+"PlayPauseAnimation", s.getPlayingPointer(), w.getTextureLoader()).
 				Size(playPauseButtonSize, playPauseButtonSize),
 			giu.Button("Export GIF##"+id+"exportGif").OnClick(func() {
 				err := ExportGif(w, s)

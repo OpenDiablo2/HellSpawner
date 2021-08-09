@@ -19,6 +19,7 @@ type dc6WidgetState struct {
 	viewerState
 	tiledState
 	widgetState
+	isForward bool // Determines a direction of animation
 }
 
 func (s *dc6WidgetState) getDirection() int32 {

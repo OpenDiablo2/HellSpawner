@@ -10,6 +10,7 @@ import (
 type dccWidgetState struct {
 	controls *controlStructure
 	widgetState
+	isForward bool // Determines a direction of animation
 }
 
 func (s *dccWidgetState) getDirection() int32 {
