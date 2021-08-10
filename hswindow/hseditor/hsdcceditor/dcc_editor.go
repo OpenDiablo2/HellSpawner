@@ -80,7 +80,7 @@ func (e *DCCEditor) Build() {
 	}
 
 	e.Layout(
-		dccwidget.Create(e.textureLoader, e.state, e.palette, id, e.dcc),
+		dccwidget.Create(e.textureLoader, e.state, id, e.dcc).Palette(e.palette),
 	)
 }
 

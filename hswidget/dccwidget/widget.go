@@ -32,15 +32,15 @@ const (
 	imageW, imageH = 32, 32
 )
 
-type widget struct {
+type DCCWidget struct {
 	id            string
 	dcc           *d2dcc.DCC
 	textureLoader hscommon.TextureLoader
 }
 
-// Create creates a new dcc widget
-func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.Color, id string, dcc *d2dcc.DCC) giu.Widget {
-	result := &widget{
+// Create creates a new dcc DCCWidget
+func Create(tl hscommon.TextureLoader, state []byte, id string, dcc *d2dcc.DCC) *DCCWidget {
+	result := &DCCWidget{
 		id:            id,
 		dcc:           dcc,
 		textureLoader: tl,
@@ -49,7 +49,7 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 	if giu.Context.GetState(result.getStateID()) == nil && state != nil {
 		s := result.getState()
 		if err := json.Unmarshal(state, s); err != nil {
-			log.Printf("error decoding dcc widget state: %v", err)
+			log.Printf("error decoding dcc DCCWidget state: %v", err)
 		}
 
 		// update ticker
@@ -57,16 +57,21 @@ func Create(tl hscommon.TextureLoader, state []byte, palette *[256]d2interface.C
 		result.setState(s)
 	}
 
-	if s := result.getState(); s.palette != palette {
-		s.palette = palette
-		result.buildImages(s)
-	}
-
 	return result
 }
 
-// Build build a widget
-func (p *widget) Build() {
+// Palette allows to set palette to show image
+func (p *DCCWidget) Palette(palette *[256]d2interface.Color) *DCCWidget {
+	if s := p.getState(); s.palette != palette {
+		s.palette = palette
+		p.buildImages(s)
+	}
+
+	return p
+}
+
+// Build builds a DCCWidget
+func (p *DCCWidget) Build() {
 	viewerState := p.getState()
 
 	imageScale := uint32(viewerState.Controls.Scale)
@@ -84,15 +89,15 @@ func (p *widget) Build() {
 		log.Print(err)
 	}
 
-	var widget *giu.ImageWidget
+	var DCCWidget *giu.ImageWidget
 	if viewerState.textures == nil || len(viewerState.textures) <= int(frameIdx) || viewerState.textures[frameIdx] == nil {
-		widget = giu.Image(nil).Size(imageW, imageH)
+		DCCWidget = giu.Image(nil).Size(imageW, imageH)
 	} else {
 		bw := p.dcc.Directions[dirIdx].Box.Width
 		bh := p.dcc.Directions[dirIdx].Box.Height
 		w := float32(uint32(bw) * imageScale)
 		h := float32(uint32(bh) * imageScale)
-		widget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
+		DCCWidget = giu.Image(viewerState.textures[textureIdx]).Size(w, h)
 	}
 
 	giu.Layout{
@@ -123,11 +128,11 @@ func (p *widget) Build() {
 		giu.Separator(),
 		p.makePlayerLayout(viewerState),
 		giu.Separator(),
-		widget,
+		DCCWidget,
 	}.Build()
 }
 
-func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
+func (p *DCCWidget) makePlayerLayout(state *DCCWidgetState) giu.Layout {
 	playModeList := make([]string, 0)
 	for i := playModeForward; i <= playModePingPong; i++ {
 		playModeList = append(playModeList, i.String())
@@ -156,7 +161,7 @@ func (p *widget) makePlayerLayout(state *widgetState) giu.Layout {
 	}
 }
 
-func (p *widget) exportGif(state *widgetState) error {
+func (p *DCCWidget) exportGif(state *DCCWidgetState) error {
 	fpd := int32(p.dcc.FramesPerDirection)
 	firstFrame := state.Controls.Direction * fpd
 	images := state.images[firstFrame : firstFrame+fpd]
