@@ -14,10 +14,12 @@ type Dialog struct {
 
 // New creates a new dialog
 func New(title string) *Dialog {
-	return &Dialog{
+	result := &Dialog{
 		PopupModalWidget: giu.PopupModal(title),
 		title:            title,
 	}
+
+	return result
 }
 
 // ToggleVisibility toggles dialog's visibility
@@ -48,4 +50,22 @@ func (d *Dialog) IsVisible() bool {
 // Cleanup hides dialog
 func (d *Dialog) Cleanup() {
 	d.Visible = false
+}
+
+// IsOpen wrapps popupmodalwidget.isOpen
+func (d *Dialog) IsOpen(isOpen *bool) *Dialog {
+	d.PopupModalWidget.IsOpen(isOpen)
+	return d
+}
+
+// Layout wrapps d.PopUpModalWidget.Layout
+func (d *Dialog) Layout(widgets ...giu.Widget) *Dialog {
+	d.PopupModalWidget.Layout(widgets...)
+	return d
+}
+
+// Build builds the widget
+func (d *Dialog) Build() {
+	giu.OpenPopup(d.title)
+	d.PopupModalWidget.Build()
 }
