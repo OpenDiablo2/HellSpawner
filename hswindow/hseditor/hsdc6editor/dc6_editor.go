@@ -24,13 +24,12 @@ var _ hscommon.EditorWindow = &DC6Editor{}
 // DC6Editor represents a dc6 editor
 type DC6Editor struct {
 	*hseditor.Editor
-	dc6                 *d2dc6.DC6
-	textureLoader       hscommon.TextureLoader
-	config              *hsconfig.Config
-	selectPalette       bool
-	palette             *[256]d2interface.Color
-	selectPaletteWidget g.Widget
-	state               []byte
+	dc6           *d2dc6.DC6
+	textureLoader hscommon.TextureLoader
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	state         []byte
 }
 
 // Create creates a new dc6 editor
@@ -58,32 +57,28 @@ func Create(config *hsconfig.Config,
 
 // Build builds a new dc6 editor
 func (e *DC6Editor) Build() {
+	id := e.Path.GetUniqueID()
+
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		e.Layout(g.Layout{
-			dc6widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dc6),
-		})
-
-		return
-	}
-
-	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
-			e.Path.GetUniqueID()+"selectPalette",
+	if e.selectPalette {
+		selectPaletteWidget := selectpalettewidget.NewSelectPaletteWidget(
+			id+"selectPalette",
 			e.Project,
 			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
 			func(palette *[256]d2interface.Color) {
 				e.palette = palette
 			},
-			func() {
-				e.selectPalette = false
-			},
 		)
+
+		e.Layout(selectPaletteWidget)
 	}
 
-	e.Layout(e.selectPaletteWidget)
+	e.Layout(
+		dc6widget.Create(e.state, e.palette, e.textureLoader, id, e.dc6),
+	)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain DC6's editor menu

@@ -25,13 +25,12 @@ var _ hscommon.EditorWindow = &DT1Editor{}
 // DT1Editor represents a dt1 editor
 type DT1Editor struct {
 	*hseditor.Editor
-	dt1                 *d2dt1.DT1
-	textureLoader       hscommon.TextureLoader
-	config              *hsconfig.Config
-	selectPalette       bool
-	palette             *[256]d2interface.Color
-	selectPaletteWidget g.Widget
-	state               []byte
+	dt1           *d2dt1.DT1
+	textureLoader hscommon.TextureLoader
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	state         []byte
 }
 
 // Create creates new dt1 editor
@@ -59,34 +58,28 @@ func Create(config *hsconfig.Config,
 
 // Build prepares the editor for rendering, but does not actually render it
 func (e *DT1Editor) Build() {
+	id := e.Path.GetUniqueID()
+
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		dt1Viewer := dt1widget.Create(e.state, e.palette, e.textureLoader, e.Path.GetUniqueID(), e.dt1)
-		e.Layout(g.Layout{
-			dt1Viewer,
-		})
-
-		return
-	}
-
-	// create mpq explorer if doesn't exist for now
-	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
-			e.Path.GetUniqueID(),
+	if e.selectPalette {
+		selectPaletteWidget := selectpalettewidget.NewSelectPaletteWidget(
+			id+"SelectPalette",
 			e.Project,
 			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
 			func(colors *[256]d2interface.Color) {
 				e.palette = colors
 			},
-			func() {
-				e.selectPalette = false
-			},
 		)
+		e.Layout(selectPaletteWidget)
 	}
 
-	e.Layout(g.Layout{e.selectPaletteWidget})
+	dt1Viewer := dt1widget.Create(e.state, e.textureLoader, id, e.dt1).Palette(e.palette)
+	e.Layout(g.Layout{
+		dt1Viewer,
+	})
 }
 
 // UpdateMainMenuLayout updates main menu layout to it contains editors options

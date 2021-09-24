@@ -9,6 +9,7 @@ import (
 	"github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 const miliseconds = 1000
@@ -38,7 +39,7 @@ func (a animationPlayMode) String() string {
 
 const defaultTickTime = 100
 
-type widgetState struct {
+type DCCWidgetState struct {
 	Controls struct {
 		Direction int32
 		Frame     int32
@@ -56,24 +57,25 @@ type widgetState struct {
 
 	isForward bool // determines a direction of animation
 	ticker    *time.Ticker
+	palette   *[256]d2interface.Color
 }
 
 // Dispose cleans viewers state
-func (s *widgetState) Dispose() {
+func (s *DCCWidgetState) Dispose() {
 	s.textures = nil
 }
 
-func (p *widget) getStateID() string {
-	return fmt.Sprintf("widget_%s", p.id)
+func (p *DCCWidget) getStateID() string {
+	return fmt.Sprintf("DCCWidget_%s", p.id)
 }
 
-func (p *widget) getState() *widgetState {
-	var state *widgetState
+func (p *DCCWidget) getState() *DCCWidgetState {
+	var state *DCCWidgetState
 
 	s := giu.Context.GetState(p.getStateID())
 
 	if s != nil {
-		state = s.(*widgetState)
+		state = s.(*DCCWidgetState)
 	} else {
 		p.initState()
 		state = p.getState()
@@ -82,9 +84,9 @@ func (p *widget) getState() *widgetState {
 	return state
 }
 
-func (p *widget) initState() {
+func (p *DCCWidget) initState() {
 	// Prevent multiple invocation to LoadImage.
-	state := &widgetState{
+	state := &DCCWidgetState{
 		IsPlaying: false,
 		Repeat:    false,
 		TickTime:  defaultTickTime,
@@ -97,6 +99,10 @@ func (p *widget) initState() {
 
 	go p.runPlayer(state)
 
+	p.buildImages(state)
+}
+
+func (p *DCCWidget) buildImages(state *DCCWidgetState) {
 	totalFrames := p.dcc.NumberOfDirections * p.dcc.FramesPerDirection
 	state.images = make([]*image.RGBA, totalFrames)
 
@@ -121,7 +127,7 @@ func (p *widget) initState() {
 
 					val := pixels[idx]
 
-					RGBAColor := p.makeImagePixel(val)
+					RGBAColor := p.makeImagePixel(val, state.palette)
 					state.images[absoluteFrameIdx].Set(x, y, RGBAColor)
 				}
 			}
@@ -144,11 +150,11 @@ func (p *widget) initState() {
 	}()
 }
 
-func (p *widget) setState(s giu.Disposable) {
+func (p *DCCWidget) setState(s giu.Disposable) {
 	giu.Context.SetState(p.getStateID(), s)
 }
 
-func (p *widget) makeImagePixel(val byte) color.RGBA {
+func (p *DCCWidget) makeImagePixel(val byte, palette *[256]d2interface.Color) color.RGBA {
 	alpha := maxAlpha
 
 	if val == 0 {
@@ -157,8 +163,8 @@ func (p *widget) makeImagePixel(val byte) color.RGBA {
 
 	var r, g, b uint8
 
-	if p.palette != nil {
-		col := p.palette[val]
+	if palette != nil {
+		col := palette[val]
 		r, g, b = col.R(), col.G(), col.B()
 	} else {
 		r, g, b = val, val, val
@@ -174,7 +180,7 @@ func (p *widget) makeImagePixel(val byte) color.RGBA {
 	return RGBAColor
 }
 
-func (p *widget) runPlayer(state *widgetState) {
+func (p *DCCWidget) runPlayer(state *DCCWidgetState) {
 	for range state.ticker.C {
 		if !state.IsPlaying {
 			continue

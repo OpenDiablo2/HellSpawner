@@ -25,13 +25,12 @@ var _ hscommon.EditorWindow = &DCCEditor{}
 // DCCEditor represents a new dcc editor
 type DCCEditor struct {
 	*hseditor.Editor
-	dcc                 *d2dcc.DCC
-	config              *hsconfig.Config
-	selectPalette       bool
-	palette             *[256]d2interface.Color
-	selectPaletteWidget g.Widget
-	state               []byte
-	textureLoader       hscommon.TextureLoader
+	dcc           *d2dcc.DCC
+	config        *hsconfig.Config
+	selectPalette bool
+	palette       *[256]d2interface.Color
+	state         []byte
+	textureLoader hscommon.TextureLoader
 }
 
 // Create creates a new dcc editor
@@ -62,29 +61,27 @@ func (e *DCCEditor) Build() {
 	e.IsOpen(&e.Visible)
 	e.Flags(g.WindowFlagsAlwaysAutoResize)
 
-	if !e.selectPalette {
-		e.Layout(g.Layout{
-			dccwidget.Create(e.textureLoader, e.state, e.palette, e.Path.GetUniqueID(), e.dcc),
-		})
+	id := e.Path.GetUniqueID()
+
+	if e.selectPalette {
+		selectPaletteWidget := selectpalettewidget.NewSelectPaletteWidget(
+			"##"+id+"SelectPaletteWidget",
+			e.Project,
+			e.config,
+		).IsOpen(&e.selectPalette).OnSelect(
+			func(colors *[256]d2interface.Color) {
+				e.palette = colors
+			},
+		)
+
+		e.Layout(selectPaletteWidget)
 
 		return
 	}
 
-	if e.selectPaletteWidget == nil {
-		e.selectPaletteWidget = selectpalettewidget.NewSelectPaletteWidget(
-			"##"+e.Path.GetUniqueID()+"SelectPaletteWidget",
-			e.Project,
-			e.config,
-			func(colors *[256]d2interface.Color) {
-				e.palette = colors
-			},
-			func() {
-				e.selectPalette = false
-			},
-		)
-	}
-
-	e.Layout(g.Layout{e.selectPaletteWidget})
+	e.Layout(
+		dccwidget.Create(e.textureLoader, e.state, id, e.dcc).Palette(e.palette),
+	)
 }
 
 // UpdateMainMenuLayout updates main menu to it contain editor's options

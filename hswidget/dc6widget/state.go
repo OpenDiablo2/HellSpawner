@@ -11,6 +11,7 @@ import (
 	gim "github.com/ozankasikci/go-image-merge"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
+	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
 
 const (
@@ -62,6 +63,7 @@ type widgetState struct {
 	// cache - will not be saved
 	rgb      []*image.RGBA
 	textures []*giu.Texture
+	palette  *[256]d2interface.Color
 
 	IsForward bool
 	ticker    *time.Ticker
@@ -71,6 +73,7 @@ func (w *widgetState) Dispose() {
 	w.viewerState.Dispose()
 	w.Mode = dc6WidgetViewer
 	w.textures = nil
+	w.palette = nil
 }
 
 type viewerState struct {
@@ -146,11 +149,17 @@ func (p *widget) initState() {
 
 	go p.runPlayer(newState)
 
+	p.buildImages(newState)
+
+	p.setState(newState)
+}
+
+func (p *widget) buildImages(state *widgetState) {
 	totalFrames := int(p.dc6.Directions * p.dc6.FramesPerDirection)
-	newState.rgb = make([]*image.RGBA, totalFrames)
+	state.rgb = make([]*image.RGBA, totalFrames)
 
 	for frameIndex := 0; frameIndex < int(p.dc6.Directions*p.dc6.FramesPerDirection); frameIndex++ {
-		newState.rgb[frameIndex] = image.NewRGBA(image.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
+		state.rgb[frameIndex] = image.NewRGBA(image.Rect(0, 0, int(p.dc6.Frames[frameIndex].Width), int(p.dc6.Frames[frameIndex].Height)))
 		decodedFrame := p.dc6.DecodeFrame(frameIndex)
 
 		for y := 0; y < int(p.dc6.Frames[frameIndex].Height); y++ {
@@ -166,14 +175,14 @@ func (p *widget) initState() {
 
 				var r, g, b uint8
 
-				if p.palette != nil {
-					col := p.palette[val]
+				if state.palette != nil {
+					col := state.palette[val]
 					r, g, b = col.R(), col.G(), col.B()
 				} else {
 					r, g, b = val, val, val
 				}
 
-				newState.rgb[frameIndex].Set(
+				state.rgb[frameIndex].Set(
 					x, y,
 					color.RGBA{
 						R: r,
@@ -186,14 +195,12 @@ func (p *widget) initState() {
 		}
 	}
 
-	p.setState(newState)
-
 	go func() {
 		textures := make([]*giu.Texture, totalFrames)
 
 		for frameIndex := 0; frameIndex < totalFrames; frameIndex++ {
 			frameIndex := frameIndex
-			p.textureLoader.CreateTextureFromARGB(newState.rgb[frameIndex], func(t *giu.Texture) {
+			p.textureLoader.CreateTextureFromARGB(state.rgb[frameIndex], func(t *giu.Texture) {
 				textures[frameIndex] = t
 			})
 		}
