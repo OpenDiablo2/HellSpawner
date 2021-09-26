@@ -8,8 +8,7 @@ import (
 	"sync"
 	"time"
 
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/dialog"
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -89,10 +88,10 @@ type App struct {
 	editorManagerMutex sync.RWMutex
 	focusedEditor      hscommon.EditorWindow
 
-	fontFixed         imgui.Font
-	fontFixedSmall    imgui.Font
-	diabloBoldFont    imgui.Font
-	diabloRegularFont imgui.Font
+	fontFixed         *g.FontInfo
+	fontFixedSmall    *g.FontInfo
+	diabloBoldFont    *g.FontInfo
+	diabloRegularFont *g.FontInfo
 
 	TextureLoader hscommon.TextureLoader
 

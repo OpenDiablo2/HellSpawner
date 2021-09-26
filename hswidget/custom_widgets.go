@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	"github.com/AllenDang/giu"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -167,7 +167,7 @@ func SetByteToInt(input int32, output *byte) {
 
 // MakeInputInt creates input intager using POINTER given
 // additionally, for byte checks, if value smaller than 255
-func MakeInputInt(id string, width int32, output interface{}, optionalCB func()) *giu.InputIntWidget {
+func MakeInputInt(width int32, output interface{}, optionalCB func()) *giu.InputIntWidget {
 	var input int32
 	switch o := output.(type) {
 	case *byte:
@@ -178,7 +178,7 @@ func MakeInputInt(id string, width int32, output interface{}, optionalCB func())
 		panic(fmt.Sprintf("MakeInputInt: invalid value type %T given", o))
 	}
 
-	return giu.InputInt(id, &input).Size(float32(width)).OnChange(func() {
+	return giu.InputInt(&input).Size(float32(width)).OnChange(func() {
 		switch o := output.(type) {
 		case *byte:
 			SetByteToInt(input, o)

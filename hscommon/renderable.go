@@ -1,6 +1,6 @@
 package hscommon
 
-import "github.com/ianling/giu"
+import "github.com/AllenDang/giu"
 
 // Renderable represents renderable objects
 type Renderable interface {

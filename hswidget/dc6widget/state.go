@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 	gim "github.com/ozankasikci/go-image-merge"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"

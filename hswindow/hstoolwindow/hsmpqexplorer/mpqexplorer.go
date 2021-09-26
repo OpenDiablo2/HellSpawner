@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2mpq"
 
@@ -98,7 +98,7 @@ func (m *MPQExplorer) Build() {
 	m.IsOpen(&m.Visible).
 		Size(mainWindowW, mainWindowH).
 		Layout(g.Layout{
-			g.Child("MpqExplorerContent").
+			g.Child().
 				Border(false).
 				Flags(g.WindowFlagsHorizontalScrollbar).
 				Layout(m.GetMpqTreeNodes()...),
@@ -147,7 +147,7 @@ func (m *MPQExplorer) renderNodes(pathEntry *hscommon.PathEntry) g.Widget {
 		return g.Layout{
 			g.Selectable(pathEntry.Name + id),
 			hswidget.OnDoubleClick(func() { m.fileSelectedCallback(pathEntry) }),
-			g.ContextMenu("Context" + id).Layout(g.Layout{
+			g.ContextMenu().Layout(g.Layout{
 				g.Selectable("Copy to Project").OnClick(func() {
 					m.copyToProject(pathEntry)
 				}),

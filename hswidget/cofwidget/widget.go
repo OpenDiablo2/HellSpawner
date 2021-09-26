@@ -6,7 +6,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2cof"
@@ -76,11 +76,11 @@ func (p *widget) makeViewerLayout() giu.Layout {
 	state := p.getState()
 
 	return giu.Layout{
-		giu.TabBar("COFViewerTabs").Layout(giu.Layout{
+		giu.TabBar().TabItems(
 			giu.TabItem("Animation").Layout(p.makeAnimationTab(state)),
 			giu.TabItem("Layer").Layout(p.makeLayerTab(state)),
 			giu.TabItem("Priority").Layout(p.makePriorityTab(state)),
-		}),
+		),
 	}
 }
 
@@ -109,7 +109,6 @@ func (p *widget) makeAnimationTab(state *widgetState) giu.Layout {
 
 	speedLabel := giu.Label(strSpeed)
 	speedInput := hswidget.MakeInputInt(
-		"##"+p.id+"CovViewerSpeedValue",
 		speedInputW,
 		&p.cof.Speed,
 		setSpeed,

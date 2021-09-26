@@ -4,8 +4,8 @@ package hspreferencesdialog
 import (
 	"image/color"
 
+	g "github.com/AllenDang/giu"
 	"github.com/OpenDiablo2/dialog"
-	g "github.com/ianling/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsenum"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsutil"
@@ -52,22 +52,22 @@ func (p *PreferencesDialog) Build() {
 	locale := int32(p.config.Locale)
 
 	p.IsOpen(&p.Visible).Layout(
-		g.Child("PreferencesLayout").Size(mainWindowW, mainWindowH).Layout(
+		g.Child().Size(mainWindowW, mainWindowH).Layout(
 			g.Label("Auxiliary MPQ Path"),
 			g.Row(
-				g.InputText("##AppPreferencesAuxMPQPath", &p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
+				g.InputText(&p.config.AuxiliaryMpqPath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
 				g.Button("...##AppPreferencesAuxMPQPathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAuxMpqPathClicked),
 			),
 			g.Separator(),
 			g.Label("External MPQ listfile Path"),
 			g.Row(
-				g.InputText("##AppPreferencesListfilePath", &p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
+				g.InputText(&p.config.ExternalListFile).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
 				g.Button("...##AppPreferencesListfilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseExternalListfileClicked),
 			),
 			g.Separator(),
 			g.Label("Abyss Engine Path"),
 			g.Row(
-				g.InputText("##AppPreferencesAbyssEnginePath", &p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
+				g.InputText(&p.config.AbyssEnginePath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
 				g.Button("...##AppPreferencesAbyssEnginePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseAbyssEngineClicked),
 			),
 			g.Separator(),
@@ -79,7 +79,7 @@ func (p *PreferencesDialog) Build() {
 					g.Layout{
 						g.Label("Log file path"),
 						g.Row(
-							g.InputText("##AppPreferencesLogFilePath", &p.config.LogFilePath).Size(textboxSize).Flags(g.InputTextFlags_ReadOnly),
+							g.InputText(&p.config.LogFilePath).Size(textboxSize).Flags(g.InputTextFlagsReadOnly),
 							g.Button("...##AppPreferencesLogFilePathBrowse").Size(btnW, btnH).OnClick(p.onBrowseLogFilePathClicked),
 						),
 					}.Build()

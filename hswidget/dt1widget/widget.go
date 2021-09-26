@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/image/colornames"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2enum"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2dt1"
@@ -101,11 +101,11 @@ func (p *widget) Build() {
 		giu.Separator(),
 		p.makeTileDisplay(state, tile),
 		giu.Separator(),
-		giu.TabBar("##TabBar_dt1_" + p.id).Layout(giu.Layout{
+		giu.TabBar().TabItems(
 			giu.TabItem("Info").Layout(p.makeTileInfoTab(tile)),
 			giu.TabItem("Material").Layout(p.makeMaterialTab(tile)),
 			giu.TabItem("Subtile Flags").Layout(p.makeSubtileFlags(state, tile)),
-		}),
+		),
 	}.Build()
 }
 
@@ -457,7 +457,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 	tileTypeInfo := giu.Layout{
 		giu.Row(
 			giu.Label("Type: "),
-			giu.InputInt("##"+p.id+"tileTypeInt", &tile.Type).Size(inputIntW),
+			giu.InputInt(&tile.Type).Size(inputIntW),
 			giu.Combo("##"+p.id+"tileTypeList", tileTypeList[tileTypeIdx], tileTypeList, &tile.Type),
 		),
 	}
@@ -477,11 +477,11 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 
 	return giu.Layout{
 		giu.Row(
-			giu.InputInt("##"+p.id+"inputWidth", &w).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&w).Size(inputIntW).OnChange(func() {
 				tile.Width = w
 			}),
 			giu.Label(" x "),
-			giu.InputInt("##"+p.id+"winputHeight", &h).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&h).Size(inputIntW).OnChange(func() {
 				tile.Height = h
 			}),
 			giu.Label("pixels"),
@@ -490,13 +490,13 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 
 		giu.Row(
 			giu.Label("Direction: "),
-			giu.InputInt("##"+p.id+"tileDirection", &tile.Direction).Size(inputIntW),
+			giu.InputInt(&tile.Direction).Size(inputIntW),
 		),
 		spacer,
 
 		giu.Row(
 			giu.Label("RoofHeight:"),
-			giu.InputInt("##"+p.id+"roofHeight", &roofHeight).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&roofHeight).Size(inputIntW).OnChange(func() {
 				tile.RoofHeight = int16(roofHeight)
 			}),
 		),
@@ -508,19 +508,19 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 
 		giu.Row(
 			giu.Label("Style:"),
-			giu.InputInt("##"+p.id+"style", &tile.Style).Size(inputIntW),
+			giu.InputInt(&tile.Style).Size(inputIntW),
 		),
 		spacer,
 
 		giu.Row(
 			giu.Label("Sequence:"),
-			giu.InputInt("##"+p.id+"sequence", &tile.Sequence).Size(inputIntW),
+			giu.InputInt(&tile.Sequence).Size(inputIntW),
 		),
 		spacer,
 
 		giu.Row(
 			giu.Label("RarityFrameIndex:"),
-			giu.InputInt("##"+p.id+"rarityFrameIndex", &tile.RarityFrameIndex).Size(inputIntW),
+			giu.InputInt(&tile.RarityFrameIndex).Size(inputIntW),
 		),
 	}
 }
@@ -528,7 +528,7 @@ func (p *widget) makeTileInfoTab(tile *d2dt1.Tile) giu.Layout {
 func (p *widget) makeMaterialTab(tile *d2dt1.Tile) giu.Layout {
 	return giu.Layout{
 		giu.Label("Material Flags"),
-		giu.Table("##"+p.id+"materialFlags").FastMode(true).
+		giu.Table().FastMode(true).
 			Rows(giu.TableRow(
 				giu.Checkbox("Other", &tile.MaterialFlags.Other),
 				giu.Checkbox("Water", &tile.MaterialFlags.Water),
@@ -638,7 +638,7 @@ func (p *widget) makeSubTilePreview(tile *d2dt1.Tile, state *widgetState) giu.La
 					if hasFlag {
 						const circleRadius = 3 // px
 
-						canvas.AddCircle(flagPoint, circleRadius, col, 1)
+						canvas.AddCircle(flagPoint, circleRadius, col, 1, 1)
 					}
 				}
 

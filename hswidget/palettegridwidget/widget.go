@@ -3,7 +3,7 @@ package palettegridwidget
 import (
 	"image"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
 )
@@ -78,7 +78,7 @@ func (p *PaletteGridWidget) Build() {
 
 			idx := cellY*gridHeight + cellX
 
-			if giu.IsWindowFocused() && giu.IsMouseClicked(giu.MouseButtonLeft) {
+			if giu.IsWindowFocused(giu.FocusedFlagsNone) && giu.IsMouseClicked(giu.MouseButtonLeft) {
 				p.onClick(idx)
 				p.rebuildImage()
 			}

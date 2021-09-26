@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2pl2"
 
@@ -95,8 +94,8 @@ func (p *widget) buildViewer(state *widgetState) {
 	}
 
 	layout := giu.Layout{
-		giu.Child("left").Size(w1, h1).Layout(left),
-		giu.Child("right").Size(w2, h2).Layout(right),
+		giu.Child().Size(w1, h1).Layout(left),
+		giu.Child().Size(w2, h2).Layout(right),
 	}
 
 	layout.Build()
@@ -176,7 +175,7 @@ func (p *widget) buildEditor(state *widgetState) {
 	})
 	labelColor := hsutil.Color(p.pl2.BasePalette.Colors[indices[state.Idx]].RGBA())
 	giu.Layout{
-		giu.Style().SetColor(imgui.StyleColorText, labelColor).To(
+		giu.Style().SetColor(giu.StyleColorText, labelColor).To(
 			giu.Label("Select color from base palette"),
 		),
 		grid,

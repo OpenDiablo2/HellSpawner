@@ -4,7 +4,7 @@ package hsdcceditor
 import (
 	"fmt"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/dialog"
 

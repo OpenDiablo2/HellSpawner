@@ -6,7 +6,7 @@ import (
 
 	"github.com/OpenDiablo2/dialog"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 

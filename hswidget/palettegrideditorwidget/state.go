@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image/color"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 )
 
 type widgetMode int32

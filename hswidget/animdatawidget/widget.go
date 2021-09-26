@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2animdata"
 
@@ -100,7 +100,7 @@ func (p *widget) buildAnimationsList() {
 	giu.Layout{
 		p.makeSearchLayout(),
 		giu.Separator(),
-		giu.Child("##"+p.id+"keyList").Border(false).
+		giu.Child().Border(false).
 			Size(listW, listH).
 			Layout(giu.Layout{
 				giu.Custom(func() {
@@ -157,13 +157,13 @@ func (p *widget) buildViewRecordLayout() {
 		}),
 		giu.Row(
 			giu.Label("Frames per direction: "),
-			giu.InputInt("##"+p.id+"recordFramesPerDirection", &fpd).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&fpd).Size(inputIntW).OnChange(func() {
 				record.SetFramesPerDirection(uint32(fpd))
 			}),
 		),
 		giu.Row(
 			giu.Label("Speed: "),
-			giu.InputInt("##"+p.id+"recordSpeed", &speed).Size(inputIntW).OnChange(func() {
+			giu.InputInt(&speed).Size(inputIntW).OnChange(func() {
 				record.SetSpeed(uint16(speed))
 			}),
 		),
@@ -208,7 +208,7 @@ func (p *widget) makeSearchLayout() giu.Layout {
 
 	return giu.Layout{
 		giu.Label("Search or type new entry name:"),
-		giu.InputText("##"+p.id+"newEntryName", &state.Name).Size(listW).OnChange(func() {
+		giu.InputText(&state.Name).Size(listW).OnChange(func() {
 			// formatting
 			state.Name = strings.ToUpper(state.Name)
 			state.Name = strings.ReplaceAll(state.Name, " ", "")

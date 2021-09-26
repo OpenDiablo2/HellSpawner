@@ -11,9 +11,9 @@ import (
 
 	"github.com/OpenDiablo2/dialog"
 
-	"github.com/ianling/imgui-go"
+	"github.com/AllenDang/imgui-go"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon"
@@ -90,7 +90,7 @@ func (m *ProjectExplorer) Build() {
 		m.makeRefreshButtonLayout(),
 	)
 
-	tree := g.Child("ProjectExplorerProjectTreeContainer").
+	tree := g.Child().
 		Flags(g.WindowFlagsHorizontalScrollbar).
 		Layout(m.GetProjectTreeNodes())
 
@@ -217,7 +217,7 @@ func (m *ProjectExplorer) createFileTreeItem(pathEntry *hscommon.PathEntry) g.Wi
 	}
 
 	layout = append(layout,
-		g.ContextMenu("Context"+id).Layout(g.Layout{
+		g.ContextMenu().Layout(g.Layout{
 			g.MenuItem("Rename").OnClick(func() { m.onRenameFileClicked(pathEntry) }),
 			g.MenuItem("Delete...").OnClick(func() { m.onDeleteFileClicked(pathEntry) }),
 		}),
@@ -300,7 +300,7 @@ func (m *ProjectExplorer) createDirectoryTreeItem(pathEntry *hscommon.PathEntry,
 
 	menuLayout := g.Layout{
 		g.Custom(func() { imgui.PushID(id) }),
-		g.ContextMenu("Context").Layout(contextMenuLayout),
+		g.ContextMenu().Layout(contextMenuLayout),
 		g.Custom(func() { imgui.PopID() }),
 	}
 

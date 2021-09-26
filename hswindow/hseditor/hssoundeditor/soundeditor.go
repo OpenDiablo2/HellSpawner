@@ -21,7 +21,7 @@ import (
 	"github.com/OpenDiablo2/HellSpawner/hswidget"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 )
 
 const (

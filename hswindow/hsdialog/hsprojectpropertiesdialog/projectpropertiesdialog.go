@@ -12,9 +12,9 @@ import (
 
 	"github.com/OpenDiablo2/HellSpawner/hsconfig"
 
-	g "github.com/ianling/giu"
+	g "github.com/AllenDang/giu"
 
-	"github.com/ianling/imgui-go"
+	"github.com/AllenDang/imgui-go"
 
 	"github.com/OpenDiablo2/HellSpawner/hsassets"
 	"github.com/OpenDiablo2/HellSpawner/hscommon/hsproject"
@@ -92,7 +92,7 @@ func (p *ProjectPropertiesDialog) Build() {
 	canSave := len(strings.TrimSpace(p.project.ProjectName)) > 0
 
 	p.IsOpen(&p.mpqSelectDialogVisible).Layout(
-		g.Child("ProjectPropertiesSelectAuxMPQDialogLayout").Size(mainWindowW, mainWindowH).Layout(
+		g.Child().Size(mainWindowW, mainWindowH).Layout(
 			g.Custom(func() {
 				addMPQ := func(i int) {
 					p.mpqsToAdd = append(p.mpqsToAdd, i)
@@ -167,17 +167,17 @@ func (p *ProjectPropertiesDialog) Build() {
 	if !p.mpqSelectDialogVisible {
 		p.IsOpen(&p.Visible).Layout(
 			g.Row(
-				g.Child("ProjectPropertiesLayout").Size(mpqSelectW, mpqSelectH).Layout(
+				g.Child().Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Project Name:"),
-					g.InputText("##ProjectPropertiesDialogProjectName", &p.project.ProjectName).Size(inputTextSize),
+					g.InputText(&p.project.ProjectName).Size(inputTextSize),
 					g.Label("Description:"),
-					g.InputTextMultiline("##ProjectPropertiesDialogDescription", &p.project.Description).Size(descriptionW, descriptionH),
+					g.InputTextMultiline(&p.project.Description).Size(descriptionW, descriptionH),
 					g.Label("Author:"),
-					g.InputText("##ProjectPropertiesDialogAuthor", &p.project.Author).Size(inputTextSize),
+					g.InputText(&p.project.Author).Size(inputTextSize),
 				),
-				g.Child("ProjectPropertiesLayout2").Size(mpqSelectW, mpqSelectH).Layout(
+				g.Child().Size(mpqSelectW, mpqSelectH).Layout(
 					g.Label("Auxiliary MPQs:"),
-					g.Child("ProjectPropertiesAuxMpqLayoutGroup").Border(false).Size(mpqGroupW, mpqGroupH).Layout(
+					g.Child().Border(false).Size(mpqGroupW, mpqGroupH).Layout(
 						g.Custom(func() {
 							imgui.PushStyleColor(imgui.StyleColorButton, imgui.Vec4{})
 							imgui.PushStyleColor(imgui.StyleColorBorder, imgui.Vec4{})

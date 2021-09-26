@@ -12,8 +12,7 @@ import (
 	"github.com/faiface/beep"
 	"github.com/faiface/beep/speaker"
 
-	g "github.com/ianling/giu"
-	"github.com/ianling/imgui-go"
+	g "github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsds1editor"
 	"github.com/OpenDiablo2/HellSpawner/hswindow/hseditor/hsdt1editor"
@@ -77,7 +76,8 @@ func (a *App) setup() (err error) {
 }
 
 func (a *App) setupMasterWindow() {
-	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0, a.setupFonts)
+	a.masterWindow = g.NewMasterWindow(baseWindowTitle, baseWindowW, baseWindowH, 0)
+	a.setupFonts()
 
 	bgColor := a.determineBackgroundColor()
 	a.masterWindow.SetBgColor(bgColor)
@@ -206,45 +206,29 @@ func (a *App) setupDialogs() error {
 // it will only load an appropriate glyph ranges for
 // displayed text (e.g. for string/font table editors)
 func (a *App) setupFonts() {
-	fonts := g.Context.IO().Fonts()
-	ranges := imgui.NewGlyphRanges()
-	builder := imgui.NewFontGlyphRangesBuilder()
-
-	builder.AddRanges(fonts.GlyphRangesDefault())
-
 	font := hsassets.FontNotoSansRegular
 
 	switch a.config.Locale {
 	// glyphs supported by default
 	case hsenum.LocaleEnglish, hsenum.LocaleGerman,
 		hsenum.LocaleFrench, hsenum.LocaleItalien,
-		hsenum.LocaleSpanish:
+		hsenum.LocaleSpanish, hsenum.LocalePolish:
 		// noop
 	case hsenum.LocaleChineseTraditional:
 		font = hsassets.FontSourceHanSerif
-
-		builder.AddRanges(fonts.GlyphRangesChineseFull())
 	case hsenum.LocaleKorean:
 		font = hsassets.FontSourceHanSerif
-
-		builder.AddRanges(fonts.GlyphRangesKorean())
-	case hsenum.LocalePolish:
-		builder.AddText(hsenum.PolishSpecialCharacters)
 	}
 
-	// build ranges
-	builder.BuildRanges(ranges)
-
-	// setup default font
-	fonts.AddFontFromMemoryTTFV(font, baseFontSize, 0, ranges.Data())
+	g.SetDefaultFontFromBytes(font, baseFontSize)
 
 	// please note, that the following fonts will not use
 	// previously generated glyph ranges.
 	// they'll have a default range
-	a.fontFixed = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedFontSize)
-	a.fontFixedSmall = fonts.AddFontFromMemoryTTF(hsassets.FontCascadiaCode, fixedSmallFontSize)
-	a.diabloRegularFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloRegular, diabloRegularFontSize)
-	a.diabloBoldFont = fonts.AddFontFromMemoryTTF(hsassets.FontDiabloBold, diabloBoldFontSize)
+	a.fontFixed = g.AddFontFromBytes("fixed font", hsassets.FontCascadiaCode, fixedFontSize)
+	a.fontFixedSmall = g.AddFontFromBytes("small fixed font", hsassets.FontCascadiaCode, fixedSmallFontSize)
+	a.diabloRegularFont = g.AddFontFromBytes("diablo regular", hsassets.FontDiabloRegular, diabloRegularFontSize)
+	a.diabloBoldFont = g.AddFontFromBytes("diablo bold", hsassets.FontDiabloBold, diabloBoldFontSize)
 }
 
 func (a *App) registerGlobalKeyboardShortcuts() {

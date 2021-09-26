@@ -6,7 +6,7 @@ import (
 	"log"
 	"sort"
 
-	"github.com/ianling/giu"
+	"github.com/AllenDang/giu"
 
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font"
 	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2fileformats/d2font/d2fontglyph"
@@ -104,8 +104,8 @@ func (p *widget) makeTableLayout() giu.Layout {
 			state.Mode = modeAddItem
 		}),
 		giu.Separator(),
-		giu.Child("##" + p.id + "tableArea").Border(false).Layout(giu.Layout{
-			giu.Table("##" + p.id + "table").FastMode(true).Rows(rows...),
+		giu.Child().Border(false).Layout(giu.Layout{
+			giu.Table().FastMode(true).Rows(rows...),
 		}),
 	}
 }
@@ -146,11 +146,11 @@ func (p *widget) makeGlyphLayout(r rune) *giu.TableRowWidget {
 			}),
 			giu.Label(string(r)),
 		),
-		giu.InputInt("##"+p.id+"width"+string(r), &width32).Size(inputIntW).OnChange(func() {
+		giu.InputInt(&width32).Size(inputIntW).OnChange(func() {
 			h := p.fontTable.Glyphs[r].Height()
 			p.fontTable.Glyphs[r].SetSize(int(width32), h)
 		}),
-		giu.InputInt("##"+p.id+"height"+string(r), &height32).Size(inputIntW).OnChange(func() {
+		giu.InputInt(&height32).Size(inputIntW).OnChange(func() {
 			w := p.fontTable.Glyphs[r].Width()
 			p.fontTable.Glyphs[r].SetSize(w, int(height32))
 		}),
@@ -214,7 +214,7 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 		giu.Label("Edit rune:"),
 		giu.Row(
 			giu.Label("Rune: "),
-			giu.InputText("##"+p.id+"editRuneRune", &r).Size(inputIntW).OnChange(func() {
+			giu.InputText(&r).Size(inputIntW).OnChange(func() {
 				if len(r) > 0 {
 					state.EditRuneState.EditedRune = int32(r[0])
 				}
@@ -222,7 +222,7 @@ func (p *widget) makeEditRuneLayout() giu.Layout {
 		),
 		giu.Row(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"editRuneInt", &state.EditRuneState.EditedRune).Size(inputIntW),
+			giu.InputInt(&state.EditRuneState.EditedRune).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
@@ -281,7 +281,7 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 			giu.Label("Rune: "),
 			// if user put here more then one letter,
 			// second and further letters will be skipped
-			giu.InputText("##"+p.id+"addItemRune", &r).Size(inputIntW).OnChange(func() {
+			giu.InputText(&r).Size(inputIntW).OnChange(func() {
 				if r == "" {
 					state.AddItemState.NewRune = 0
 
@@ -293,15 +293,15 @@ func (p *widget) makeAddItemLayout() giu.Layout {
 		),
 		giu.Row(
 			giu.Label("Int: "),
-			giu.InputInt("##"+p.id+"addItemRuneInt", &state.AddItemState.NewRune).Size(inputIntW),
+			giu.InputInt(&state.AddItemState.NewRune).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Width: "),
-			giu.InputInt("##"+p.id+"addItemWidth", &state.AddItemState.Width).Size(inputIntW),
+			giu.InputInt(&state.AddItemState.Width).Size(inputIntW),
 		),
 		giu.Row(
 			giu.Label("Height: "),
-			giu.InputInt("##"+p.id+"addItemHeight", &state.AddItemState.Height).Size(inputIntW),
+			giu.InputInt(&state.AddItemState.Height).Size(inputIntW),
 		),
 		giu.Separator(),
 		giu.Row(
