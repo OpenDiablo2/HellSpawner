@@ -14,8 +14,6 @@ require (
 	github.com/go-resty/resty/v2 v2.6.0 // indirect
 	github.com/gravestench/osinfo v0.0.0-20210525170338-34eb1ac010f7
 	github.com/hajimehoshi/oto v0.7.1 // indirect
-	github.com/ianling/giu v0.5.1-0.20210619154109-b35b66c84649
-	github.com/ianling/imgui-go v1.12.1-0.20210420174252-e90a22fb87e6
 	github.com/jaytaylor/html2text v0.0.0-20200412013138-3577fbdbcff7
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/mattn/go-runewidth v0.0.13 // indirect
